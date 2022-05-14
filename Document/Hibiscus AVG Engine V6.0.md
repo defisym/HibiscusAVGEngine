@@ -406,16 +406,16 @@ Histroy_Audio_Y=480
 
 在退出游戏前，所有使用到的图像素材均会被缓存，供下次使用时快速读取。默认行为为`Load On Call`&`Erase At End`，全部行为见下表：
 
-|名称|行为|
-|---|---|
-|`Load On Call`|在第一次使用时读取并缓存|
-|`Load At Start`|在读取脚本时即读取该场景中使用的所有图像素材并缓存|
-|`Load All`|加载图像文件夹中的所有图像素材并缓存|
+| 名称            | 行为                                               |
+| --------------- | -------------------------------------------------- |
+| `Load On Call`  | 在第一次使用时读取并缓存                           |
+| `Load At Start` | 在读取脚本时即读取该场景中使用的所有图像素材并缓存 |
+| `Load All`      | 加载图像文件夹中的所有图像素材并缓存               |
 
-|名称|行为|
-|---|---|
-|`Erase At End`|在退出后结束后清除缓存|
-|`Erase At EOF`|在脚本执行结束后清除缓存|
+| 名称           | 行为                     |
+| -------------- | ------------------------ |
+| `Erase At End` | 在退出后结束后清除缓存   |
+| `Erase At EOF` | 在脚本执行结束后清除缓存 |
 
 可在设置中指定默认行为：
 
@@ -2552,9 +2552,23 @@ CG/UI不会被销毁
 
 ![OpenWithVSCode](media/image21.png)
 
+7.使用`Ctrl + Shift + P`组合键呼出命令面板，选择`AvgScript Configuration: Base path for the assets files`:
+
+![Command](media/image22.png)
+
+输入开发工程中主程序所在文件夹的下一级路径`Data`的完整路径:
+
+![BasePath](media/image23.png)
+
+本例中主程序所在文件夹为`F:\DEV\AVG+SRPG\Program`，因此实际输入的路径应为`F:\DEV\AVG+SRPG\Program\data`
+
+引擎会通过该路径查找资源文件并进行语法提示:
+
+![Completion](media/image24.png)
+
 7.开始编辑
 
-![OpenWithVSCode](media/image22.png)
+![OpenWithVSCode](media/image25.png)
 
 ### AVG状态阶段
 
@@ -2608,64 +2622,11 @@ AVG系统其他功能处理阶段
 | 2    | CG                   |
 | 1    | 视频                 |
 
-### 范例导演代码
+### 代码段/Snippets
 
-范例导演代码与`Data\Dialogue\Basic.asc`中附带的范例导演代码一致
-
-```C++
-#Begin 参考初始化
-
-  /*这一整段都是注释区块*/
-  /*该章节导演代码仅供参考*/
-
-  ;注释区块外以`;`开头的行会被视为跳转标签
-
-  @bgmloop=branch.ogg:0:0
-
-  /*CG、姓名栏与对话框默认为空，初始化时需手动指定*/
-
-  @cg=CG.png
-  @dia=dialog1.png
-  @name=nameback2.png
-
-  (#diacolor:#000000
-  #diacolor:0:0:0
-  (#namecolor:#FFFFFF
-  #namecolor:255:255:255
-
-#End
-
-#Begin 参考文本
-
-  /*存在冒号的句子会被解析为对白，不存在冒号的会被解析为旁白*/
-  您哪位：这是历史记录中会显示头像的场合
-
-  /*括号开始的行会被忽略，没有任何作用*/
-  (这里进行普通的演出)
-
-#End
-
-#Begin 演出内容
-
-  /*请将需要调试的导演代码粘贴至此*/
-
-  /*↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓*/
+VSCode插件中提供了多个可供参考的Snippets，可以方便的快速插入代码
 
 
-  /*↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑*/
-
-#End
-
-#Begin 文件尾
-
-  /*文件的最后一条有效指令必须为跳转指令*/
-  #jmpfra=1
-
-  /*文件的末尾必须为#EOF*/
-  #EOF
-
-#End
-```
 
 ### 二次开发
 
