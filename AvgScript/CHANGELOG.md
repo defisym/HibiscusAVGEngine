@@ -6,6 +6,8 @@
 - hint non-exist files when hover
 - japanese romanize support when search in completions
 - hover/completion content optimize
+- fix folding issue
+- new snippet `VNMode`
 
 ## 20220512
 
