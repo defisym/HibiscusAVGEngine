@@ -1,0 +1,258 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Avg Script",
+	"scopeName": "source.avgscript",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#labels"
+		},
+		{
+			"include": "#RepExpr"
+		},
+		{
+			"include": "#params"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#language_external"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"begin": "\\s*+(\\/\\*)",
+					"captures": {
+						"0": {
+							"name": "punctuation.definition.comment.AvgScript"
+						}
+					},
+					"end": "\\*\\/",
+					"name": "comment.block.AvgScript"
+				},
+				{
+					"name": "comment.singleline.AvgScript",
+					"match": "(\\/\\/|\\().*"
+				}
+			]
+		},
+		"labels": {
+			"name": "labels.AvgScript",
+			"match": ";.*"
+		},
+		"RepExpr": {
+			"match": "(<)([^=|\\||:|\\/n|&|<|>|\\[|\\]]*)?(>)",
+			"captures": {
+				"2": {
+					"name": "RepExpr.AvgScript"
+				},
+				"1": {
+					"name": "operators.AvgScript"
+				},
+				"3": {
+					"name": "operators.AvgScript"
+				}
+			}
+		},
+		"params": {
+			"match": "(?i)(^\\s*)(Lang\\[.+?\\])?([@#][^=|\\||:]*)(.*)",
+			"captures": {
+				"2": {
+					"patterns": [
+						{
+							"include": "#language"
+						}
+					]
+				},
+				"3": {
+					"patterns": [
+						{
+							"include": "#keywords"
+						}
+					]
+				},
+				"4": {
+					"patterns": [
+						{
+							"include": "#params_core"
+						}
+					]
+				}
+			}
+		},
+		"params_core": {
+			"match": "(=|\\||:)(?!.*\\/n)([^=|\\||:|&|<|>|\\[|\\]]*)(.*)",
+			"name": "params.AvgScript",
+			"captures": {
+				"1": {
+					"name": "operators.AvgScript"
+				},
+				"2": {
+					"name": "params.AvgScript",
+					"patterns": [
+						{
+							"include": "#numbers_dec"
+						},
+						{
+							"include": "#numbers_hex"
+						}
+					]
+				},
+				"3": {
+					"patterns": [
+						{
+							"include": "#params_core"
+						}
+					]
+				}
+			}
+		},
+		"operators": {
+			"name": "operators.AvgScript",
+			"match": "=|\\||:|\\/n|&|<|>|\\[|\\]"
+		},
+		"numbers_dec": {
+			"name": "numbers.dec.AvgScript",
+			"match": "([\\+-]?)\\b([0-9]+)(\\.[0-9]+)?\\b"
+		},
+		"numbers_hex": {
+			"name": "numbers.hex.AvgScript",
+			"match": "(#|0[xX])([0-9a-fA-F]{6})\\b"
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"include": "#keywords_region"
+				},
+				{
+					"include": "#keywords_system"
+				},
+				{
+					"include": "#keywords_values"
+				},
+				{
+					"include": "#keywords_dialogue"
+				},
+				{
+					"include": "#keywords_media"
+				},
+				{
+					"include": "#keywords_effect"
+				},
+				{
+					"include": "#keywords_preobj"
+				},
+				{
+					"include": "#keywords_undefined"
+				}
+			]
+		},
+		"keywords_region": {
+			"match": "(?i)(#begin|#end)\\b",
+			"captures": {
+				"1": {
+					"name": "keyword.region.AvgScript"
+				}
+			}
+		},
+		"keywords_system": {
+			"match": "(?i)(#Error|#NULL|#CacheClean|#UnSkipAble|#SkipAble|#SGO|#SetGlobalOffset|#TransitionSpeed|#ForceTransition|#Save|#debug|#debugoff|#defineRGB|#MSG|#MSGClear|#StopFF|#StopFastForward|#DisableUI|#EnableUI|#FNT|#ForceNoTransition|#FNTO|#ForceNoTransitionOff|#EOF|#W|#wait|#FW|#forcewait|#jmp|#NJMP|#Call|#Ret|#FJMP|#jmpfra|#CJMP|#jmpcha|#SJMP|#SkipJmp|#SkipAnchor|#CreateSwitch|#switch|#UnlockAch|#AddtoStat|#UnlockAppreciation|#UnlockAppreciation_Chapter|#UnlockAppreciation_Graphic|#UnlockAppreciation_Audio|#VNMode_Newline|#VNMode_ChangePage|#SetCapture|#CaptureSys)\\b",
+			"captures": {
+				"1": {
+					"name": "keyword.system.AvgScript"
+				}
+			}
+		},
+		"keywords_values": {
+			"match": "(?i)(#SV|#SetValue|#SVV|#SetValueValue|#SVAB|#SetValueAB|#SSS|#SetStringString|#SSAB|#SetStringAB|#VA|#ValueAdd|#VAV|#ValueAddValue|#VS|#ValueSub|#VSV|#ValueSubValue|#VM|#ValueMul|#VMV|#ValueMulValue|#VD|#ValueDiv|#VDV|#ValueDivValue|#CMP|#CMPV|#CMPValue|#CMPVV|#CMPValueValue|#CMPAB|#CMPVAB|#CMPValueAB|#CMPSAB|#CMPStringAB|#CMPSS|#CMPStringString|#JE|#JA|#JB|#JNE)\\b",
+			"captures": {
+				"1": {
+					"name": "keyword.values.AvgScript"
+				}
+			}
+		},
+		"keywords_dialogue": {
+			"match": "(?i)(#diacolor|#diasize|#diafont|#diashaderon|#diashaderoff|#diaoutcolor|#diaoutpixel|#namecolor|#namesize|#namefont|#nameshaderon|#nameshaderoff|#nameoutcolor|#nameoutpixel|@dia|@diachange|@DiaTrans|@name|@namechange|@NameTrans|@TextFadeOut)\\b",
+			"captures": {
+				"1": {
+					"name": "keyword.dialogue.AvgScript"
+				}
+			}
+		},
+		"keywords_media": {
+			"match": "(?i)(@play|@P|@Stop|@se|@bgmloop|@bgmpreludeloop|@bgmpre|@bgmpause|@bgmresume|@bgmfadeout|@bgm|@bgsloop|@bgspause|@bgsresume|@bgsfadeout|@bgs|@dubplay|@dub|@DubSeque|@ntkchange|@ntk|@PV|@PlayVideo|@OV|@OpenVideo|@CV|@CloseVideo|@VR|@VideoResume|@VP|@VideoPause|@VW|@VideoWait|@VL|@VideoLoop|@SVP|@SetVideoPos)\\b",
+			"captures": {
+				"1": {
+					"name": "keyword.media.AvgScript"
+				}
+			}
+		},
+		"keywords_effect": {
+			"match": "(?i)(@CreateBlur|@AddBlur|@RemoveBlur|@DestroyBlur|@BackZoomParam|@BackZoomReset|@backzoom|@shake|@ShakeDir|@keepshake|@keepshakeoff|@fade|@destroyfade|@PFO|@patternfadeout|@PF|@patternfade|@rain|@snow|@normal|@torain|@tosnow|@tonormal|@CrossFade|@KeepResolutionOff|@KeepResOff|@KeepResolution|@KeepRes|@SepiaToning|@Sepia|@ChangeSepiaStrength|@SetSepiaNoiseMotion|@ChangeSepiaNoiseMotionPeriod)\\b",
+			"captures": {
+				"1": {
+					"name": "keyword.effect.AvgScript"
+				}
+			}
+		},
+		"keywords_preobj": {
+			"match": "(?i)(@StrCenter|@StrBottom|@str|@string|@createstr|@createstring|@StrS|@StrSize|@StrF|@StrFont|@StrA|@StrAlpha|@StrC|@StrColor|@MS|@MoveStr|@destroystr|@destroystring|@destroyallstr|@destroyallstring|@Spe|@MO|@MoveObj|@cg|@cgchange|@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CGPFI|@cgpatternfadein|@CGPFO|@cgpatternfadeout|@CharPF|@CharPatternFade|@char|@character|@CC|@charchange|@CA|@charalpha|@charrotate|@SetAutoArrange|@CD|@chardispose|@CAD|@charalldispose|@MC|@MoveChar|@HideUI|@ShowUI|@Order|@Front|@Back|@Forward|@Backward)\\b",
+			"captures": {
+				"1": {
+					"name": "keyword.preobj.AvgScript"
+				}
+			}
+		},
+		"keywords_undefined": {
+			"match": "(?i)((@|#).+?)\\b",
+			"captures": {
+				"1": {
+					"name": "keyword.undefined.AvgScript"
+				}
+			}
+		},
+		"language": {
+			"match": "(?i)(Lang)(.*)",
+			"captures": {
+				"1": {
+					"name": "language.prefix.AvgScript"
+				},
+				"2": {
+					"patterns": [
+						{
+							"match": "(\\[)(.*?)(\\])",
+							"captures": {
+								"2": {
+									"name": "language.region.AvgScript"
+								},
+								"1": {
+									"name": "operators.AvgScript"
+								},
+								"3": {
+									"name": "operators.AvgScript"
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		"language_external": {
+			"match": "(?i)(^\\s*)(Lang\\[.+?\\])",
+			"captures": {
+				"2": {
+					"patterns": [
+						{
+							"include": "#language"
+						}
+					]
+				}
+			}
+		}
+	}
+}

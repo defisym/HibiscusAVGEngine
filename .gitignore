@@ -1,0 +1,26 @@
+# Office Temp Files #
+~*.tmp
+
+~$*.doc
+~$*.docx
+
+~$*.ppt
+~$*.pptx
+
+~$*.xls
+~$*.xlsx
+
+# MMF Auto Backup #
+*.001
+
+# Debug Object Log File #
+*.log
+
+# Deque Output File #
+*.File
+
+# Tools #
+Utilities/RGBDefiner/Assets/
+
+# Program/_Docs/DataBaseEditor/.vs/*
+*.bak

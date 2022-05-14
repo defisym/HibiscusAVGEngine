@@ -1,0 +1,120 @@
+{
+    "name": "avgscript",
+    "displayName": "Avg Script",
+    "description": "Hibiscus AVG Engine AvgScript Support for VS Code",
+    "version": "0.0.0",
+    "publisher": "Defisym",
+    "repository": "https://github.com/defisym/AVGAndSRPG/tree/master/Program/_Docs/AvgScript",
+    "icon": "media/AvgScript.png",
+    "engines": {
+        "vscode": "^1.67.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Snippets",
+        "Other"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "AvgScript",
+                "aliases": [
+                    "Avg Script",
+                    "AvgScript"
+                ],
+                "extensions": [
+                    ".asc"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "AvgScript",
+                "scopeName": "source.avgscript",
+                "path": "./syntaxes/AvgScript.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "AvgScript",
+                "path": "./snippets/snippets.json"
+            }
+        ],
+        "themes": [
+            {
+                "label": "AvgScript",
+                "uiTheme": "vs-dark",
+                "path": "./themes/AvgScript-color-theme.json"
+            }
+        ],
+        "configuration": [
+            {
+                "id": "AvgScript",
+                "title": "AvgScript Configuration",
+                "order": 2,
+                "properties": {
+                    "conf.AvgScript.basePath": {
+                        "type": "string",
+                        "order": 2,
+                        "description": "Base path for the assets files",
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "description": "Path to the data folder",
+                                "default": ""
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                }
+            }
+        ],
+        "commands": [
+            {
+                "category": "AvgScript Configuration",
+                "command": "config.AvgScript.basePath",
+                "title": "Base path for the assets files"
+            }
+        ]
+    },
+    "activationEvents": [
+        "onLanguage:AvgScript",
+        "onCommand:config.AvgScript.basePath"
+    ],
+    "main": "./dist/extension.js",
+    "scripts": {
+        "vscode:prepublish": "npm run package",
+        "webpack": "webpack --mode development",
+        "webpack-dev": "webpack --mode development --watch",
+        "package": "webpack --mode production --devtool hidden-source-map",
+        "test-compile": "tsc -p ./",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.4",
+        "@types/mocha": "^9.0.0",
+        "@types/node": "14.x",
+        "@types/vscode": "^1.67.0",
+        "@typescript-eslint/eslint-plugin": "^5.1.0",
+        "@typescript-eslint/parser": "^5.1.0",
+        "@vscode/test-electron": "^1.6.2",
+        "esbuild": "^0.14.39",
+        "eslint": "^8.1.0",
+        "glob": "^7.1.7",
+        "mocha": "^9.1.3",
+        "pinyin-pro": "^3.10.0",
+        "ts-loader": "^9.3.0",
+        "typescript": "^4.4.4",
+        "webpack": "^5.72.1",
+        "webpack-cli": "^4.9.2"
+    },
+    "dependencies": {
+        "japanese": "^1.1.0",
+        "pinyin-pro": "^3.10.0"
+    }
+}
