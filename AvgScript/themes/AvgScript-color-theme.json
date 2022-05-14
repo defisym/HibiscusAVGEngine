@@ -1,9 +1,7 @@
 {
 	"name": "AvgScript",
 	"type": "dark",
-
 	"include": "./Dark_Plus-color-theme.json",
-
 	"tokenColors": [
 		{
 			"name": "comments",
@@ -22,12 +20,11 @@
 			"scope": [
 				"labels.AvgScript"
 			],
-			"settings": {			
-				"fontStyle":"bold",
+			"settings": {
+				"fontStyle": "bold",
 				"foreground": "#FFFFFF"
 			}
 		},
-		
 		{
 			"name": "operators",
 			"scope": [
@@ -55,7 +52,6 @@
 				"foreground": "#FF0000"
 			}
 		},
-
 		{
 			"name": "numbers_dec",
 			"scope": [
@@ -74,14 +70,13 @@
 				"foreground": "#B5CEA8"
 			}
 		},
-
 		{
 			"name": "keywords_region",
 			"scope": [
 				"keyword.region.AvgScript"
 			],
 			"settings": {
-				"fontStyle":"bold",
+				"fontStyle": "bold",
 				"foreground": "#0000FF"
 			}
 		},
@@ -139,7 +134,6 @@
 				"foreground": "#8080FF"
 			}
 		},
-
 		{
 			"name": "dialogue_name",
 			"scope": [
@@ -158,8 +152,6 @@
 				"foreground": "#8080FF"
 			}
 		},
-
-		
 		{
 			"name": "language_perfix",
 			"scope": [

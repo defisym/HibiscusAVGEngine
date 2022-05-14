@@ -51,7 +51,14 @@ let audioBgsCompletions: vscode.CompletionItem[] = [];
 let audioDubsCompletions: vscode.CompletionItem[] = [];
 let audioSECompletions: vscode.CompletionItem[] = [];
 
-enum CompletionType { image, audio, video };
+let scriptPath: string;
+
+let script: Thenable<[string, vscode.FileType][]>;
+let scriptCompletions: vscode.CompletionItem[] = [];
+
+let labelCompletions: vscode.CompletionItem[] = [];
+
+enum CompletionType { image, audio, video, script };
 
 const nonePreview = "暂无预览";
 
@@ -59,6 +66,7 @@ const nonePreview = "暂无预览";
 const imagePreview = "<div align=\"center\"><img src =\"{$FILENAME}\" height = \"160\"/></div>";
 const audioPreview = nonePreview;
 const videoPreview = nonePreview;
+const scriptPreview = nonePreview;
 
 async function getFileComment(previewStr: string
 	, fileName: string | undefined
@@ -76,7 +84,7 @@ async function getFileComment(previewStr: string
 
 		preview = new vscode.MarkdownString(fileName);
 		preview.appendMarkdown("\n\n" + "Size: `" + size.toFixed(2) + " KB`"
-			+ "	Modified: `" + new Date(stat.mtime).toUTCString() + "`\n\n");
+			+ "\tModified: `" + new Date(stat.mtime).toUTCString() + "`\n\n");
 		// preview.appendMarkdown("\n\n----------\n\n");
 		preview.appendMarkdown(previewStr);
 
@@ -128,6 +136,9 @@ async function updateFileList() {
 	audioDubs = getFileList(vscode.Uri.file(audioDubsPath));
 	audioSE = getFileList(vscode.Uri.file(audioSEPath));
 
+	scriptPath = basePath + "\\dialogue";
+	script = getFileList(vscode.Uri.file(scriptPath));
+
 	let generateCompletionList = async (fileList: Thenable<[string, vscode.FileType][]>
 		, completions: vscode.CompletionItem[]
 		, basePath: string = ""
@@ -164,33 +175,34 @@ async function updateFileList() {
 
 				item.insertText = fileName;
 				item.filterText = fileNameToEnglish;
+				let previewStr: string = nonePreview;
 
 				switch (type) {
 					case CompletionType.image:
 						item.detail = "Image file preview";
-
-						item.documentation = await getFileComment(imagePreview
-							, element[0]
-							, filePath);
+						previewStr = imagePreview;
 
 						break;
 					case CompletionType.audio:
 						item.detail = "Audio file";
-
-						item.documentation = await getFileComment(audioPreview
-							, element[0]
-							, filePath);
+						previewStr = audioPreview;
 
 						break;
 					case CompletionType.video:
+						previewStr = videoPreview;
 						item.detail = "Video file";
 
-						item.documentation = await getFileComment(videoPreview
-							, element[0]
-							, filePath);
+						break;
+					case CompletionType.script:
+						item.detail = "Script file";
+						previewStr = scriptPreview;
 
 						break;
 				}
+
+				item.documentation = await getFileComment(previewStr
+					, element[0]
+					, filePath);
 
 
 				completions.push(item);
@@ -220,6 +232,10 @@ async function updateFileList() {
 	generateCompletionList(audioBgs, audioBgsCompletions, audioBgsPath, CompletionType.audio);
 	generateCompletionList(audioDubs, audioDubsCompletions, audioDubsPath, CompletionType.audio);
 	generateCompletionList(audioSE, audioSECompletions, audioSEPath, CompletionType.audio);
+
+	scriptCompletions = [];
+
+	generateCompletionList(script, scriptCompletions, scriptPath, CompletionType.script);
 }
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -305,6 +321,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				switch (getType(linePrefix)) {
 					case FileType.inValid:
 						return undefined;
+
 					case FileType.characters:
 					case FileType.ui:
 					case FileType.cg:
@@ -315,6 +332,7 @@ export async function activate(context: vscode.ExtensionContext) {
 							new vscode.CompletionItem('jpeg', vscode.CompletionItemKind.Method),
 							new vscode.CompletionItem('bmp', vscode.CompletionItemKind.Method),
 						];
+
 					case FileType.bgm:
 					case FileType.bgs:
 					case FileType.dubs:
@@ -330,6 +348,10 @@ export async function activate(context: vscode.ExtensionContext) {
 							new vscode.CompletionItem('mp4', vscode.CompletionItemKind.Method),
 							new vscode.CompletionItem('avi', vscode.CompletionItemKind.Method),
 						];
+
+					case FileType.script:
+					case FileType.frame:
+					case FileType.label:
 					default:
 						return undefined;
 				}
@@ -347,6 +369,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				switch (getType(linePrefix)) {
 					case FileType.inValid:
 						return undefined;
+
 					case FileType.characters:
 						return graphicCharactersCompletions;
 					case FileType.ui:
@@ -355,6 +378,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						return graphicCGCompletions;
 					case FileType.patternFade:
 						return graphicPatternFadeCompletions;
+
 					case FileType.bgm:
 						return audioBgmCompletions;
 					case FileType.bgs:
@@ -363,6 +387,14 @@ export async function activate(context: vscode.ExtensionContext) {
 						return audioDubsCompletions;
 					case FileType.se:
 						return audioSECompletions;
+
+					case FileType.script:
+						return scriptCompletions;
+					case FileType.frame:
+					case FileType.label:
+						getLabelCompletion(document);
+						return labelCompletions;
+
 					default:
 						return undefined;
 				}
@@ -470,9 +502,17 @@ export async function activate(context: vscode.ExtensionContext) {
 						, audioSEPath + "\\{$FILENAME}");
 
 				// case FileType.video:
+				case FileType.script:
+					return returnHover(audioPreview
+						, getFileName(fileName, scriptCompletions)
+						, scriptPath + "\\{$FILENAME}");
+				case FileType.frame:
+				case FileType.label:
+					getLabelCompletion(document);
+					return new vscode.Hover(new vscode.MarkdownString(getLabelComment(fileName)));
+				default:
+					return undefined;
 			}
-
-			return undefined;
 		}
 	});
 
@@ -636,6 +676,49 @@ export async function activate(context: vscode.ExtensionContext) {
 			await updateFileList();
 		}
 	});
+}
+
+function getLabelComment(input: string) {
+	for (let i in labelCompletions) {
+		let label = labelCompletions[i].label;
+		if (typeof label === "string") {
+			if (label.toLowerCase() === input.toLowerCase()) {
+				return label;
+			}
+		}
+		else {
+			if (label.label.toLowerCase() === input.toLowerCase()) {
+				return label.label + "\t" + label.description;
+			}
+		}
+	}
+
+	return "标签不存在";
+}
+
+function getLabelCompletion(document: vscode.TextDocument) {
+	labelCompletions = [];
+
+	for (let i = 0; i < document.lineCount; ++i) {
+		const line = document.lineAt(i);
+		if (!line.isEmptyOrWhitespace) {
+			const text = line.text;
+			if (text.match(/(;.*)/gi)) {
+				let label = text.substring(text.indexOf(";") + 1);
+				let item: vscode.CompletionItem = new vscode.CompletionItem({
+					label: label
+					// , detail: fileNameSuffix
+					, description: "at line " + i
+				});
+
+				item.kind = vscode.CompletionItemKind.Reference;
+
+				item.insertText = label;
+
+				labelCompletions.push(item);
+			}
+		}
+	}
 }
 
 export function deactivate() {

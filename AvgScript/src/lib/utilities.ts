@@ -5,10 +5,7 @@ const delimiter = ['=', ':'];
 
 export async function getFileStat(filePath: string) {
     try {
-        let stat = vscode.workspace.fs.stat(vscode.Uri.file(filePath));
-        await stat;
-
-        return stat;
+        return await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
     } catch {
         return undefined;
     }
@@ -172,6 +169,10 @@ export enum FileType {
     se,
 
     video,
+
+    script,
+    frame,
+    label,
 };
 
 export function getType(linePrefix: string) {
@@ -235,6 +236,18 @@ export function getType(linePrefix: string) {
 
     if (linePrefix.match(/(@PV|@PlayVideo|@OV|@OpenVideo)/gi)) {
         return FileType.video;
+    }
+
+    if (linePrefix.match(/(#CJMP|#JMPCha)/gi)) {
+        return FileType.script;
+    }
+
+    if (linePrefix.match(/(#FJMP|#JMPFra)/gi)) {
+        return FileType.frame;
+    }
+
+    if (linePrefix.match(/(#Call|#JMP|#NJMP)/gi)) {
+        return FileType.label;
     }
 
     return FileType.inValid;

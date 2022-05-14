@@ -271,7 +271,7 @@ export type docList = Map<string, string[]>;
 
 export const settingsParamDocList = new Map<string, string[]>([
     ["Settings", ["在脚本的第一行可以使用`#Settings`指令对脚本进行设置，格式如下:"
-        , "	#Settings=Param1|Param2|..."
+        , "\t#Settings=Param1|Param2|..."
         , "其中不同参数使用`|`进行分割"]],
 
     ["LangSwitchAble", ["该脚本支持切换语言后读取"]],
@@ -307,21 +307,21 @@ export const commandDocList = new Map<string, string[]>([
 
 
     // keywords_system
-    ["Error", ["	#Error=ErrorPic.png"
+    ["Error", ["\t#Error=ErrorPic.png"
         , "内部指令，当引擎报错时会显示`Data\Graphic\_Sys`下对应的错误提示`ErrorPic.png`"]],
     ["NULL", ["空指令，用于指令转译"]],
-    ["CacheClean", ["	#CacheClean=MemLimit"
+    ["CacheClean", ["\t#CacheClean=MemLimit"
         , "尝试清理未引用的缓存，直到当前内存占用低于`MemLimit`或无可清理缓存。`MemLimit = -1`将按照默认设置清理，`MemLimit = 0`将清理全部未引用缓存"
         , "注意:内存的分配与释放非常耗时，清理100MB内存大约需要10ms，可在黑屏淡出时进行清理，以避免可感知的卡顿，同时请尽量避免频繁清理"]],
     ["UnSkipAble", ["读取到该指令后，当前章节无法使用跳过按钮/快捷键跳过"]],
     ["SkipAble", ["允许当前使用跳过按钮/快捷键跳过，用于取消`#UnSkipAble`"]],
-    ["SGO", ["	#SGO:XOffset:YOffset"
-        , "	#SetGlobalOffset:XOffset:YOffset"
+    ["SGO", ["\t#SGO:XOffset:YOffset"
+        , "\t#SetGlobalOffset:XOffset:YOffset"
         , "设定演出对象的全局偏移量，特效、UI与字符串对象不受影响"]],
-    ["SetGlobalOffset", ["	#SGO:XOffset:YOffset"
-        , "	#SetGlobalOffset:XOffset:YOffset"
+    ["SetGlobalOffset", ["\t#SGO:XOffset:YOffset"
+        , "\t#SetGlobalOffset:XOffset:YOffset"
         , "设定演出对象的全局偏移量，特效、UI与字符串对象不受影响"]],
-    ["TransitionSpeed", ["	#TransitionSpeed:Value"
+    ["TransitionSpeed", ["\t#TransitionSpeed:Value"
         , "更改不透明度叠化速度，默认为`10`"
         , "参数设定为`default`可重置默认值"]],
     ["ForceTransition", ["该指令会截取当前窗口，并按照`TransitionSpeed`指定的速度进行淡出，用于为无法创建叠化的指令(如`@Order`、`#DefineRGB`等)强制添加叠化"]],
@@ -329,11 +329,11 @@ export const commandDocList = new Map<string, string[]>([
 
     ["Debug", ["调试模式下无叠化显示调试参数"]],
     ["DebugOff", ["调试模式下无叠化关闭调试参数"]],
-    ["DefineRGB", ["	#DefineRGB:R:G:B"
-        , "	#DefineRGB:#FFFFFF"
+    ["DefineRGB", ["\t#DefineRGB:R:G:B"
+        , "\t#DefineRGB:#FFFFFF"
         , "定义立绘的色调RGB值为`R:G:B/#FFFFFF`，无叠化更新所有立绘对象(非特殊非特效对象)的RGB参数。该指令通常用于根据背景光照情况调整立绘色调，可使用附带的`RGBDefiner`工具来直观的调整该参数"]],
 
-    ["MSG", ["	#MSG=Message"
+    ["MSG", ["\t#MSG=Message"
         , "仅调试模式下可用，于调试输出中输出Message"]],
     ["MSGClear", ["仅调试模式下可用，清空调试输出，在翻页时会自动调用"]],
     ["StopFF", ["仅调试模式下可用，解析至该语句后，快进将会在下一句文本处停止"]],
@@ -347,254 +347,254 @@ export const commandDocList = new Map<string, string[]>([
     ["ForceNoTransitionOff", ["关闭强制无叠化"]],
 
     ["EOF", ["文件尾标志，普通模式下解析到该指令即返回报错信息`脚本文件结尾必须为有效跳转`，`Lite`模式下则为执行完成标记"]],
-    ["W", ["	#W=2000"
-        , "	#Wait=2000"
+    ["W", ["\t#W=2000"
+        , "\t#Wait=2000"
         , "等待指令:等待时间"
         , "等待指令只对**交叠淡化**有效"]],
-    ["Wait", ["	#W=2000"
-        , "	#Wait=2000"
+    ["Wait", ["\t#W=2000"
+        , "\t#Wait=2000"
         , "等待指令:等待时间"
         , "等待指令只对**交叠淡化**有效"]],
 
-    ["FW", ["	#FW=2000"
-        , "	#ForceWait=2000"
+    ["FW", ["\t#FW=2000"
+        , "\t#ForceWait=2000"
         , "强制等待指令:等待时间"
         , "强制等待指令对**移动旋转、BGM淡出淡出**等有效"]],
-    ["ForceWait", ["	#FW=2000"
-        , "	#ForceWait=2000"
+    ["ForceWait", ["\t#FW=2000"
+        , "\t#ForceWait=2000"
         , "强制等待指令:等待时间"
         , "强制等待指令对**移动旋转、BGM淡出淡出**等有效"]],
 
-    ["Jmp", ["	#JMP=Label"
+    ["Jmp", ["\t#JMP=Label"
         , "脚本内跳转，跳转到指定的标签位"
         , "置跳转标志位为1，跳转标志位在解析到文本后重置为0"]],
-    ["NJMP", ["	#NJMP=Label"
+    ["NJMP", ["\t#NJMP=Label"
         , "检测并重置跳转标志位"
         , "若非跳转至此(跳转标志位等于0)，则跳转到指定的标签位，用于跳转后的再初始化"]],
-    ["Call", ["	#Call=Label"
+    ["Call", ["\t#Call=Label"
         , "使用`#Call=Label`指令调用位于`Label`处的代码段。该代码段必须位于`#EOF`之前，且必须以`#Ret`结尾"]],
     ["Ret", ["返回当前`Label`代码段的调用位点"]],
-    ["FJMP", ["	#FJMP=TargetFrame"
-        , "	#JmpFra=TargetFrame"
+    ["FJMP", ["\t#FJMP=TargetFrame"
+        , "\t#JmpFra=TargetFrame"
         , "跨场景跳转，跳转到场景`TargetFrame`，仅接受数字参数"]],
-    ["JmpFra", ["	#FJMP=TargetFrame"
-        , "	#JmpFra=TargetFrame"
+    ["JmpFra", ["\t#FJMP=TargetFrame"
+        , "\t#JmpFra=TargetFrame"
         , "跨场景跳转，跳转到场景`TargetFrame`，仅接受数字参数"]],
 
-    ["CJMP", ["	#CJMP=Chapter"
-        , "	#JmpCha=Chapter"
+    ["CJMP", ["\t#CJMP=Chapter"
+        , "\t#JmpCha=Chapter"
         , "跨章节跳转，更新`CurrentChapter`，跳转到章节`Chapter`"]],
-    ["JmpCha", ["	#CJMP=Chapter"
-        , "	#JmpCha=Chapter"
+    ["JmpCha", ["\t#CJMP=Chapter"
+        , "\t#JmpCha=Chapter"
         , "跨章节跳转，更新`CurrentChapter`，跳转到章节`Chapter`"]],
     ["SJMP", ["跳转到下一个跳转指令并重启扫描，内部指令，用于跳过文本功能"
         , "置跳转标志位为1，跳转标志位在解析到文本后重置为0"]],
     ["SkipJmp", ["跳转到下一个跳转指令并重启扫描，内部指令，用于跳过文本功能"
         , "置跳转标志位为1，跳转标志位在解析到文本后重置为0"]],
     ["SkipAnchor", ["该指令会被当作跳过终止指令处理。范例再初始化代码如下："
-        , "	#SkipAnchor"
-        , "	#NJMP=Init"
-        , "	#FNT"
-        , "	@CAD"
-        , "	@CG=BG_Indoor_HYBR_Cloudy_Noon.png"
-        , "	#TransitionSpeed=10"
-        , "	#FNTO"
-        , "	;Init"]],
+        , "\t#SkipAnchor"
+        , "\t#NJMP=Init"
+        , "\t#FNT"
+        , "\t@CAD"
+        , "\t@CG=BG_Indoor_HYBR_Cloudy_Noon.png"
+        , "\t#TransitionSpeed=10"
+        , "\t#FNTO"
+        , "\t;Init"]],
 
-    ["CreateSwitch", ["	#CreateSwitch:SwitchNum"
+    ["CreateSwitch", ["\t#CreateSwitch:SwitchNum"
         , "选项分支创建的入口指令，用于创建`SwitchNum`个分支"
         , "该指令会记录当前扫描指针位置，用于保存/读取"]],
-    ["Switch", ["	#Switch:X:Y:Text:Label"
+    ["Switch", ["\t#Switch:X:Y:Text:Label"
         , "控制创建的分支选项，指定其X/Y坐标，选项文本与跳转标签"
         , "如果跳转标签定义为`Negative`，则该选项设定为灰色，无效"]],
-    ["UnlockAch", ["	#UnlockAch=Steam_AchName"
+    ["UnlockAch", ["\t#UnlockAch=Steam_AchName"
         , "解锁成就`Steam_AchName`"]],
-    ["AddtoStat", ["	#AddtoStat=Steam_StatName:Steam_StatAdd"
+    ["AddtoStat", ["\t#AddtoStat=Steam_StatName:Steam_StatAdd"
         , "更新统计`Steam_StatName`，增加`Steam_StatAdd`"
         , "若`Steam_StatAdd`留空，默认为统计量+1"]],
-    ["UnlockAppreciation", ["	#UnlockAppreciation=ContentName:Page:Pos"
+    ["UnlockAppreciation", ["\t#UnlockAppreciation=ContentName:Page:Pos"
         , "解锁位于`Page`页第`Pos`个指向`ContentName`的鉴赏，`Page`与`Pos`参数从零开始。留空`Page`与`Pos`参数时，若启用了映射且映射定义合法，则依照定义解锁；若未启用映射，则依照记录数值依此解锁"
         , "该指令需要内部参数`AppreciationType`，因此不能直接调用，而是由下列指令转译后执行："]],
-    ["UnlockAppreciation_Chapter", ["	#UnlockAppreciation_Chapter=ChapterName:Page:Pos"
+    ["UnlockAppreciation_Chapter", ["\t#UnlockAppreciation_Chapter=ChapterName:Page:Pos"
         , "于场景回想中解锁位于`Page`页第`Pos`个指向`ChapterName`的鉴赏"
         , "含转译指令在内，解析到`#JMPFra`或`#JMPCha`指令后，会自动执行留空`Page`与`Pos`参数的指令"]],
-    ["UnlockAppreciation_Graphic", ["	#UnlockAppreciation_Graphic=GraphicName:Page:Pos"
+    ["UnlockAppreciation_Graphic", ["\t#UnlockAppreciation_Graphic=GraphicName:Page:Pos"
         , "于场景回想中解锁位于`Page`页第`Pos`个指向`GraphicName`的鉴赏。`ChapterName`应为`Characters`的相对路径，CG文件夹下的文件的完整`ChapterName`为`..CG\Graphic.png`"
         , "该指令会自动忽略非CG文件夹下的文件"
         , "含转译指令在内，解析到`@Char`或`@CharChange`指令后，会自动执行留空`Page`与`Pos`参数的指令"]],
-    ["UnlockAppreciation_Audio", ["	#UnlockAppreciation_Audio=AudioName:Page:Pos"
+    ["UnlockAppreciation_Audio", ["\t#UnlockAppreciation_Audio=AudioName:Page:Pos"
         , "于场景回想中解锁位于`Page`页第`Pos`个指向`AudioName`的鉴赏"
         , "含转译指令在内，解析到`@BGM`或`@BGMPre`指令后，会自动执行留空`Page`与`Pos`参数的指令"]],
     ["VNMode_Newline", ["在文本间插入一个空行。建议在对白文本前后使用，以示区分"]],
     ["VNMode_ChangePage", ["切换页面"
         , "由于VN模式允许一个页面内显示多句文本，因此程序无法自动处理，需要手动指定翻页点。不进行翻页会导致文本显示出界"]],
 
-    ["SetCapture", ["	#SetCapture=ID"
+    ["SetCapture", ["\t#SetCapture=ID"
         , "强制更新捕获ID为`ID`"
         , "在执行到下一个指定了ID的指令时，ID会被覆盖"]],
-    ["CaptureSys", ["	#CaptureSys=On"
+    ["CaptureSys", ["\t#CaptureSys=On"
         , "是否捕获系统对象的ID，默认关闭"]],
 
 
     // keywords_values
-    ["SV", ["	#SV:ValueID:Value"
-        , "	#SetValue:ValueID:Value"
+    ["SV", ["\t#SV:ValueID:Value"
+        , "\t#SetValue:ValueID:Value"
         , "令`ValueID`=`Value`，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则为数值赋值，否则为字符串赋值"]],
-    ["SetValue", ["	#SV:ValueID:Value"
-        , "	#SetValue:ValueID:Value"
+    ["SetValue", ["\t#SV:ValueID:Value"
+        , "\t#SetValue:ValueID:Value"
         , "令`ValueID`=`Value`，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则为数值赋值，否则为字符串赋值"]],
-    ["SVV", ["	#SVV:ValueIDA:ValueIDB"
-        , "	#SetValueValue:ValueIDA:ValueIDB"
-        , "	#SVAB:ValueIDA:ValueIDB"
-        , "	#SetValueAB:ValueIDA:ValueIDB"
+    ["SVV", ["\t#SVV:ValueIDA:ValueIDB"
+        , "\t#SetValueValue:ValueIDA:ValueIDB"
+        , "\t#SVAB:ValueIDA:ValueIDB"
+        , "\t#SetValueAB:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SetValueValue", ["	#SVV:ValueIDA:ValueIDB"
-        , "	#SetValueValue:ValueIDA:ValueIDB"
-        , "	#SVAB:ValueIDA:ValueIDB"
-        , "	#SetValueAB:ValueIDA:ValueIDB"
+    ["SetValueValue", ["\t#SVV:ValueIDA:ValueIDB"
+        , "\t#SetValueValue:ValueIDA:ValueIDB"
+        , "\t#SVAB:ValueIDA:ValueIDB"
+        , "\t#SetValueAB:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SVAB", ["	#SVV:ValueIDA:ValueIDB"
-        , "	#SetValueValue:ValueIDA:ValueIDB"
-        , "	#SVAB:ValueIDA:ValueIDB"
-        , "	#SetValueAB:ValueIDA:ValueIDB"
+    ["SVAB", ["\t#SVV:ValueIDA:ValueIDB"
+        , "\t#SetValueValue:ValueIDA:ValueIDB"
+        , "\t#SVAB:ValueIDA:ValueIDB"
+        , "\t#SetValueAB:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SetValueAB", ["	#SVV:ValueIDA:ValueIDB"
-        , "	#SetValueValue:ValueIDA:ValueIDB"
-        , "	#SVAB:ValueIDA:ValueIDB"
-        , "	#SetValueAB:ValueIDA:ValueIDB"
+    ["SetValueAB", ["\t#SVV:ValueIDA:ValueIDB"
+        , "\t#SetValueValue:ValueIDA:ValueIDB"
+        , "\t#SVAB:ValueIDA:ValueIDB"
+        , "\t#SetValueAB:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SSS", ["	#SSS:ValueIDA:ValueIDB"
-        , "	#SetStringString:ValueIDA:ValueIDB"
-        , "	#SSAB:ValueIDA:ValueIDB"
-        , "	#SetStringAB:ValueIDA:ValueIDB"
+    ["SSS", ["\t#SSS:ValueIDA:ValueIDB"
+        , "\t#SetStringString:ValueIDA:ValueIDB"
+        , "\t#SSAB:ValueIDA:ValueIDB"
+        , "\t#SetStringAB:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SetStringString", ["	#SSS:ValueIDA:ValueIDB"
-        , "	#SetStringString:ValueIDA:ValueIDB"
-        , "	#SSAB:ValueIDA:ValueIDB"
-        , "	#SetStringAB:ValueIDA:ValueIDB"
+    ["SetStringString", ["\t#SSS:ValueIDA:ValueIDB"
+        , "\t#SetStringString:ValueIDA:ValueIDB"
+        , "\t#SSAB:ValueIDA:ValueIDB"
+        , "\t#SetStringAB:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SSAB", ["	#SSS:ValueIDA:ValueIDB"
-        , "	#SetStringString:ValueIDA:ValueIDB"
-        , "	#SSAB:ValueIDA:ValueIDB"
-        , "	#SetStringAB:ValueIDA:ValueIDB"
+    ["SSAB", ["\t#SSS:ValueIDA:ValueIDB"
+        , "\t#SetStringString:ValueIDA:ValueIDB"
+        , "\t#SSAB:ValueIDA:ValueIDB"
+        , "\t#SetStringAB:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SetStringAB", ["	#SSS:ValueIDA:ValueIDB"
-        , "	#SetStringString:ValueIDA:ValueIDB"
-        , "	#SSAB:ValueIDA:ValueIDB"
-        , "	#SetStringAB:ValueIDA:ValueIDB"
+    ["SetStringAB", ["\t#SSS:ValueIDA:ValueIDB"
+        , "\t#SetStringString:ValueIDA:ValueIDB"
+        , "\t#SSAB:ValueIDA:ValueIDB"
+        , "\t#SetStringAB:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["VA", ["	#VA:ValueID"
-        , "	#ValueAdd:ValueID:Value"
+    ["VA", ["\t#VA:ValueID"
+        , "\t#ValueAdd:ValueID:Value"
         , "`ValueID`=`ValueID`+`Value`"]],
-    ["ValueAdd", ["	#VA:ValueID"
-        , "	#ValueAdd:ValueID:Value"
+    ["ValueAdd", ["\t#VA:ValueID"
+        , "\t#ValueAdd:ValueID:Value"
         , "`ValueID`=`ValueID`+`Value`"]],
-    ["VAV", ["	#VAV:ValueIDA:ValueIDB"
-        , "	#ValueAddValue:ValueIDA:ValueIDB"
+    ["VAV", ["\t#VAV:ValueIDA:ValueIDB"
+        , "\t#ValueAddValue:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`+`ValueIDB`"]],
-    ["ValueAddValue", ["	#VAV:ValueIDA:ValueIDB"
-        , "	#ValueAddValue:ValueIDA:ValueIDB"
+    ["ValueAddValue", ["\t#VAV:ValueIDA:ValueIDB"
+        , "\t#ValueAddValue:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`+`ValueIDB`"]],
     ["VS",
-        ["	#VS:ValueID"
-            , "	#ValueSub:ValueID:Value"
+        ["\t#VS:ValueID"
+            , "\t#ValueSub:ValueID:Value"
             , "`ValueID`=`ValueID`-`Value`"]],
-    ["ValueSub", ["	#VS:ValueID"
-        , "	#ValueSub:ValueID:Value"
+    ["ValueSub", ["\t#VS:ValueID"
+        , "\t#ValueSub:ValueID:Value"
         , "`ValueID`=`ValueID`-`Value`"]],
-    ["VSV", ["	#VSV:ValueIDA:ValueIDB"
-        , "	#ValueSubValue:ValueIDA:ValueIDB"
+    ["VSV", ["\t#VSV:ValueIDA:ValueIDB"
+        , "\t#ValueSubValue:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`-`ValueIDB`"]],
-    ["ValueSubValue", ["	#VSV:ValueIDA:ValueIDB"
-        , "	#ValueSubValue:ValueIDA:ValueIDB"
+    ["ValueSubValue", ["\t#VSV:ValueIDA:ValueIDB"
+        , "\t#ValueSubValue:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`-`ValueIDB`"]],
-    ["VM", ["	#VM:ValueID"
-        , "	#ValueMul:ValueID:Value"
+    ["VM", ["\t#VM:ValueID"
+        , "\t#ValueMul:ValueID:Value"
         , "`ValueID`=`ValueID`*`Value`"]],
-    ["ValueMul", ["	#VM:ValueID"
-        , "	#ValueMul:ValueID:Value"
+    ["ValueMul", ["\t#VM:ValueID"
+        , "\t#ValueMul:ValueID:Value"
         , "`ValueID`=`ValueID`*`Value`"]],
     ["VMV",
-        ["	#VMV:ValueIDA:ValueIDB"
-            , "	#ValueMulValue:ValueIDA:ValueIDB"
+        ["\t#VMV:ValueIDA:ValueIDB"
+            , "\t#ValueMulValue:ValueIDA:ValueIDB"
             , "`ValueIDA`=`ValueIDA`*`ValueIDB`"]],
-    ["ValueMulValue", ["	#VMV:ValueIDA:ValueIDB"
-        , "	#ValueMulValue:ValueIDA:ValueIDB"
+    ["ValueMulValue", ["\t#VMV:ValueIDA:ValueIDB"
+        , "\t#ValueMulValue:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`*`ValueIDB`"]],
-    ["VD", ["	#VD:ValueID"
-        , "	#ValueDiv:ValueID:Value"
+    ["VD", ["\t#VD:ValueID"
+        , "\t#ValueDiv:ValueID:Value"
         , "`ValueID`=`ValueID`/`Value`"]],
-    ["ValueDiv", ["	#VD:ValueID"
-        , "	#ValueDiv:ValueID:Value"
+    ["ValueDiv", ["\t#VD:ValueID"
+        , "\t#ValueDiv:ValueID:Value"
         , "`ValueID`=`ValueID`/`Value`"]],
-    ["VAV", ["	#VAV:ValueIDA:ValueIDB"
-        , "	#ValueDivValue:ValueIDA:ValueIDB"
+    ["VAV", ["\t#VAV:ValueIDA:ValueIDB"
+        , "\t#ValueDivValue:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`/`ValueIDB`"]],
-    ["ValueDivValue", ["	#VAV:ValueIDA:ValueIDB"
-        , "	#ValueDivValue:ValueIDA:ValueIDB"
+    ["ValueDivValue", ["\t#VAV:ValueIDA:ValueIDB"
+        , "\t#ValueDivValue:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`/`ValueIDB`"]],
 
-    ["CMP", ["	#CMP:ValueID:Value"
-        , "	#CMPV:ValueID:Value"
-        , "	#CMPValue:ValueID:Value"
+    ["CMP", ["\t#CMP:ValueID:Value"
+        , "\t#CMPV:ValueID:Value"
+        , "\t#CMPValue:ValueID:Value"
         , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]],
-    ["CMPV", ["	#CMP:ValueID:Value"
-        , "	#CMPV:ValueID:Value"
-        , "	#CMPValue:ValueID:Value"
+    ["CMPV", ["\t#CMP:ValueID:Value"
+        , "\t#CMPV:ValueID:Value"
+        , "\t#CMPValue:ValueID:Value"
         , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]],
-    ["CMPValue", ["	#CMP:ValueID:Value"
-        , "	#CMPV:ValueID:Value"
-        , "	#CMPValue:ValueID:Value"
+    ["CMPValue", ["\t#CMP:ValueID:Value"
+        , "\t#CMPV:ValueID:Value"
+        , "\t#CMPValue:ValueID:Value"
         , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]],
-    ["CMPAB", ["	#CMPAB:ValueIDA:ValueIDB"
-        , "	#CMPVAB:ValueIDA:ValueIDB"
-        , "	#CMPValueAB:ValueIDA:ValueIDB"
-        , "	#CMPVV:ValueIDA:ValueIDB"
-        , "	#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPAB", ["\t#CMPAB:ValueIDA:ValueIDB"
+        , "\t#CMPVAB:ValueIDA:ValueIDB"
+        , "\t#CMPValueAB:ValueIDA:ValueIDB"
+        , "\t#CMPVV:ValueIDA:ValueIDB"
+        , "\t#CMPValueValue:ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPVAB", ["	#CMPAB:ValueIDA:ValueIDB"
-        , "	#CMPVAB:ValueIDA:ValueIDB"
-        , "	#CMPValueAB:ValueIDA:ValueIDB"
-        , "	#CMPVV:ValueIDA:ValueIDB"
-        , "	#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPVAB", ["\t#CMPAB:ValueIDA:ValueIDB"
+        , "\t#CMPVAB:ValueIDA:ValueIDB"
+        , "\t#CMPValueAB:ValueIDA:ValueIDB"
+        , "\t#CMPVV:ValueIDA:ValueIDB"
+        , "\t#CMPValueValue:ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPValueAB", ["	#CMPAB:ValueIDA:ValueIDB"
-        , "	#CMPVAB:ValueIDA:ValueIDB"
-        , "	#CMPValueAB:ValueIDA:ValueIDB"
-        , "	#CMPVV:ValueIDA:ValueIDB"
-        , "	#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPValueAB", ["\t#CMPAB:ValueIDA:ValueIDB"
+        , "\t#CMPVAB:ValueIDA:ValueIDB"
+        , "\t#CMPValueAB:ValueIDA:ValueIDB"
+        , "\t#CMPVV:ValueIDA:ValueIDB"
+        , "\t#CMPValueValue:ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPVV", ["	#CMPAB:ValueIDA:ValueIDB"
-        , "	#CMPVAB:ValueIDA:ValueIDB"
-        , "	#CMPValueAB:ValueIDA:ValueIDB"
-        , "	#CMPVV:ValueIDA:ValueIDB"
-        , "	#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPVV", ["\t#CMPAB:ValueIDA:ValueIDB"
+        , "\t#CMPVAB:ValueIDA:ValueIDB"
+        , "\t#CMPValueAB:ValueIDA:ValueIDB"
+        , "\t#CMPVV:ValueIDA:ValueIDB"
+        , "\t#CMPValueValue:ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPValueValue", ["	#CMPAB:ValueIDA:ValueIDB"
-        , "	#CMPVAB:ValueIDA:ValueIDB"
-        , "	#CMPValueAB:ValueIDA:ValueIDB"
-        , "	#CMPVV:ValueIDA:ValueIDB"
-        , "	#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPValueValue", ["\t#CMPAB:ValueIDA:ValueIDB"
+        , "\t#CMPVAB:ValueIDA:ValueIDB"
+        , "\t#CMPValueAB:ValueIDA:ValueIDB"
+        , "\t#CMPVV:ValueIDA:ValueIDB"
+        , "\t#CMPValueValue:ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPSAB", ["	#CMPSAB:ValueIDA:ValueIDB"
-        , "	#CMPStringAB:ValueIDA:ValueIDB"
-        , "	#CMPSS:ValueIDA:ValueIDB"
-        , "	#CMPStringString:ValueIDA:ValueIDB"
+    ["CMPSAB", ["\t#CMPSAB:ValueIDA:ValueIDB"
+        , "\t#CMPStringAB:ValueIDA:ValueIDB"
+        , "\t#CMPSS:ValueIDA:ValueIDB"
+        , "\t#CMPStringString:ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPStringAB", ["	#CMPSAB:ValueIDA:ValueIDB"
-        , "	#CMPStringAB:ValueIDA:ValueIDB"
-        , "	#CMPSS:ValueIDA:ValueIDB"
-        , "	#CMPStringString:ValueIDA:ValueIDB"
+    ["CMPStringAB", ["\t#CMPSAB:ValueIDA:ValueIDB"
+        , "\t#CMPStringAB:ValueIDA:ValueIDB"
+        , "\t#CMPSS:ValueIDA:ValueIDB"
+        , "\t#CMPStringString:ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPSS", ["	#CMPSAB:ValueIDA:ValueIDB"
-        , "	#CMPStringAB:ValueIDA:ValueIDB"
-        , "	#CMPSS:ValueIDA:ValueIDB"
-        , "	#CMPStringString:ValueIDA:ValueIDB"
+    ["CMPSS", ["\t#CMPSAB:ValueIDA:ValueIDB"
+        , "\t#CMPStringAB:ValueIDA:ValueIDB"
+        , "\t#CMPSS:ValueIDA:ValueIDB"
+        , "\t#CMPStringString:ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPStringString", ["	#CMPSAB:ValueIDA:ValueIDB"
-        , "	#CMPStringAB:ValueIDA:ValueIDB"
-        , "	#CMPSS:ValueIDA:ValueIDB"
-        , "	#CMPStringString:ValueIDA:ValueIDB"
+    ["CMPStringString", ["\t#CMPSAB:ValueIDA:ValueIDB"
+        , "\t#CMPStringAB:ValueIDA:ValueIDB"
+        , "\t#CMPSS:ValueIDA:ValueIDB"
+        , "\t#CMPStringString:ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
 
     ["JE", ["比较结果等于时，跳转至`Lable`"]],
@@ -603,163 +603,163 @@ export const commandDocList = new Map<string, string[]>([
     ["JNE", ["比较结果不等于时，跳转至`Lable`"]],
 
     // keywords_dialogue
-    ["DiaColor", ["	#DiaColor:R:G:B"
-        , "	#DiaColor:#FFFFFF"
+    ["DiaColor", ["\t#DiaColor:R:G:B"
+        , "\t#DiaColor:#FFFFFF"
         , "定义对白文字的RGB值，`R:G:B/#FFFFFF`"
         , "字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误"]],
-    ["DiaSize", ["	#DiaSize:size"
+    ["DiaSize", ["\t#DiaSize:size"
         , "定义对白文字的大小，AVG模式下默认大小为17，VN模式下默认大小为18"]],
-    ["DiaFont", ["	#DiaFont:font"
+    ["DiaFont", ["\t#DiaFont:font"
         , "定义对白文字的字体"]],
 
-    ["DiaShaderOn", ["	#DiaShaderOn:outlinepixel:R:G:B"
-        , "	#DiaShaderOn:outlinepixel:#FFFFFF"
-        , "启用对白勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`	"]],
+    ["DiaShaderOn", ["\t#DiaShaderOn:outlinepixel:R:G:B"
+        , "\t#DiaShaderOn:outlinepixel:#FFFFFF"
+        , "启用对白勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`"]],
     ["DiaShaderOff", ["关闭对白勾边效果"]],
 
-    ["DiaOutColor", ["	#DiaOutColor:R:G:B"
-        , "	#DiaOutColor:#FFFFFF"
+    ["DiaOutColor", ["\t#DiaOutColor:R:G:B"
+        , "\t#DiaOutColor:#FFFFFF"
         , "启用勾边时，更改对白勾边颜色为`RGB/#FFFFFF`"]],
-    ["DiaOutPixel", ["	#DiaOutPixel:outlinepixel"
+    ["DiaOutPixel", ["\t#DiaOutPixel:outlinepixel"
         , "启用勾边时，更改对白勾边像素数为`outlinepixel`"]],
 
-    ["NameColor", ["	#NameColor:R:G:B"
-        , "	#NameColor:#FFFFFF"
+    ["NameColor", ["\t#NameColor:R:G:B"
+        , "\t#NameColor:#FFFFFF"
         , "定义姓名文字的RGB值，`R:G:B/#FFFFFF`"
         , "字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误"]],
-    ["NameSize", ["	#NameSize:size"
+    ["NameSize", ["\t#NameSize:size"
         , "定义姓名文字的大小，默认大小为18"]],
-    ["NameFont", ["	#NameFont:font"
+    ["NameFont", ["\t#NameFont:font"
         , "定义姓名文字的字体"]],
 
-    ["NameShaderOn", ["	#NameShaderOn:outlinepixel:R:G:B"
-        , "	#NameShaderOn:outlinepixel:#FFFFFF"
+    ["NameShaderOn", ["\t#NameShaderOn:outlinepixel:R:G:B"
+        , "\t#NameShaderOn:outlinepixel:#FFFFFF"
         , "启用姓名勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`"]],
     ["NameShaderOff", ["关闭姓名勾边效果"]],
 
-    ["NameOutColor", ["	#NameOutColor:R:G:B"
-        , "	#NameOutColor:#FFFFFF"
+    ["NameOutColor", ["\t#NameOutColor:R:G:B"
+        , "\t#NameOutColor:#FFFFFF"
         , "启用勾边时，更改姓名勾边颜色为`RGB/#FFFFFF`"]],
-    ["NameOutPixel", ["	#NameOutPixel:outlinepixel"
+    ["NameOutPixel", ["\t#NameOutPixel:outlinepixel"
         , "启用勾边时，更改对白勾边像素数为`outlinepixel`"]],
 
-    ["Dia", ["	@Dia=filename.png"
-        , "	@DiaChange=filename.png"
+    ["Dia", ["\t@Dia=filename.png"
+        , "\t@DiaChange=filename.png"
         , "切换对话框，解析到文本后进行，调用指令`@DiaTrans`"]],
-    ["DiaChange", ["	@Dia=filename.png"
-        , "	@DiaChange=filename.png"
+    ["DiaChange", ["\t@Dia=filename.png"
+        , "\t@DiaChange=filename.png"
         , "切换对话框，解析到文本后进行，调用指令`@DiaTrans`"]],
     ["DiaTrans", ["内部转译指令，判定并更新对话框"]],
-    ["Name", ["	@Name=filename.png"
-        , "	@NameChange=filename.png"
+    ["Name", ["\t@Name=filename.png"
+        , "\t@NameChange=filename.png"
         , "切换姓名栏，解析到文本后进行，调用指令`@NameTrans`"]],
-    ["NameChange", ["	@Name=filename.png"
-        , "	@NameChange=filename.png"
+    ["NameChange", ["\t@Name=filename.png"
+        , "\t@NameChange=filename.png"
         , "切换姓名栏，解析到文本后进行，调用指令`@NameTrans`"]],
     ["NameTrans", ["内部转译指令，判定并更新姓名栏"]],
     ["TextFadeOut", ["该指令会自动转译为"
-        , "	@Name=NameNull.png"
-        , "	@NameTrans"
-        , "	@Dia=DiaNull.png"
-        , "	@DiaTrans"]],
+        , "\t@Name=NameNull.png"
+        , "\t@NameTrans"
+        , "\t@Dia=DiaNull.png"
+        , "\t@DiaTrans"]],
 
 
     // keywords_media
 
-    ["P", ["	@P=filename.mp3:volume:channel"
-        , "	@Play=filename.mp3:volume:channel"
+    ["P", ["\t@P=filename.mp3:volume:channel"
+        , "\t@Play=filename.mp3:volume:channel"
         , "在指定的频道内以指定的音量播放一次`Audio`文件夹下指定的音频文件"
         , "其中`volume`可以直接接受`BGM`、`BGS`、`SE`、`DUB`作为参数来返回对应通道的音量"
         , "系统默认占用`1~5`号通道，用户可以安全使用的为`6~48`号通道"]],
-    ["Play", ["	@P=filename.mp3:volume:channel"
-        , "	@Play=filename.mp3:volume:channel"
+    ["Play", ["\t@P=filename.mp3:volume:channel"
+        , "\t@Play=filename.mp3:volume:channel"
         , "在指定的频道内以指定的音量播放一次`Audio`文件夹下指定的音频文件"
         , "其中`volume`可以直接接受`BGM`、`BGS`、`SE`、`DUB`作为参数来返回对应通道的音量"
         , "系统默认占用`1~5`号通道，用户可以安全使用的为`6~48`号通道"]],
 
-    ["Stop", ["	@Stop=channel"
+    ["Stop", ["\t@Stop=channel"
         , "停止特定通道的音频播放"]],
 
-    ["Se", ["	@SE=filename.MP3"
+    ["Se", ["\t@SE=filename.MP3"
         , "播放SE"]],
 
-    ["Bgm", ["	@Bgm=filename.MP3:fadeSpeed:startpoint:endpoint"
-        , "	@BgmLoop=filename.MP3:fadeSpeed:startpoint:endpoint"
+    ["Bgm", ["\t@Bgm=filename.MP3:fadeSpeed:startpoint:endpoint"
+        , "\t@BgmLoop=filename.MP3:fadeSpeed:startpoint:endpoint"
         , "定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待"
         , "循环起始点/循环终止点参数设定为零，引擎会进行整曲循环"]],
-    ["BgmLoop", ["	@Bgm=filename.MP3:fadeSpeed:startpoint:endpoint"
-        , "	@BgmLoop=filename.MP3:fadeSpeed:startpoint:endpoint"
+    ["BgmLoop", ["\t@Bgm=filename.MP3:fadeSpeed:startpoint:endpoint"
+        , "\t@BgmLoop=filename.MP3:fadeSpeed:startpoint:endpoint"
         , "定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待"
         , "循环起始点/循环终止点参数设定为零，引擎会进行整曲循环"]],
 
-    ["BgmPre", ["	@BgmPre=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
-        , "	@BgmPreludeLoop=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
+    ["BgmPre", ["\t@BgmPre=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
+        , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
         , "定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放"
         , "循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致"]],
-    ["BgmPreludeLoop", ["	@BgmPre=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
-        , "	@BgmPreludeLoop=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
+    ["BgmPreludeLoop", ["\t@BgmPre=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
+        , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
         , "定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放"
         , "循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致"]],
 
     ["BgmPause", ["暂停BGM"]],
     ["BgmResume", ["恢复BGM"]],
 
-    ["BgmFadeOut", ["	@BgmFadeOut=fadeSpeed"
+    ["BgmFadeOut", ["\t@BgmFadeOut=fadeSpeed"
         , "淡出BGM"]],
 
-    ["Bgs", ["	@Bgs=filename.MP3:fadeSpeed"
-        , "	@BgsLoop=filename.MP3:fadeSpeed"
+    ["Bgs", ["\t@Bgs=filename.MP3:fadeSpeed"
+        , "\t@BgsLoop=filename.MP3:fadeSpeed"
         , "定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环"]],
-    ["BgsLoop", ["	@Bgs=filename.MP3:fadeSpeed"
-        , "	@BgsLoop=filename.MP3:fadeSpeed"
+    ["BgsLoop", ["\t@Bgs=filename.MP3:fadeSpeed"
+        , "\t@BgsLoop=filename.MP3:fadeSpeed"
         , "定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环"]],
 
     ["BgsPause", ["暂停BGS"]],
     ["BgsResume", ["恢复BGS"]],
 
-    ["BgsFadeOut", ["	@BgsFadeOut:fadeSpeed"
+    ["BgsFadeOut", ["\t@BgsFadeOut:fadeSpeed"
         , "淡出BGS"]],
 
-    ["Dub", ["	@Dub=filename.mp3"
-        , "	@DubPlay=filename.mp3"
+    ["Dub", ["\t@Dub=filename.mp3"
+        , "\t@DubPlay=filename.mp3"
         , "更新语音内容，该语音会在显示下一句文本时播放，使用该指令会自动禁用语音序列"
         , "该指令所播放的音频文件类型由用户指定"]],
-    ["DubPlay", ["	@Dub=filename.mp3"
-        , "	@DubPlay=filename.mp3"
+    ["DubPlay", ["\t@Dub=filename.mp3"
+        , "\t@DubPlay=filename.mp3"
         , "更新语音内容，该语音会在显示下一句文本时播放，使用该指令会自动禁用语音序列"
         , "该指令所播放的音频文件类型由用户指定"]],
 
     ["DubSeque", ["启用/禁用语音序列，默认启用"
         , "变更`NowTalking`后会自动启用语音序列"
         , "使用`DubPlay`指令后会自动禁用语音序列"]],
-    ["Ntk", ["	@NTK=NowTalking"
-        , "	@NTKChange=NowTalking"
+    ["Ntk", ["\t@NTK=NowTalking"
+        , "\t@NTKChange=NowTalking"
         , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件`NowTalking.OGG`"
         , "`NowTalking`默认从0开始"
         , "变更后会自动启用语音序列"]],
-    ["NtkChange", ["	@NTK=NowTalking"
-        , "	@NTKChange=NowTalking"
+    ["NtkChange", ["\t@NTK=NowTalking"
+        , "\t@NTKChange=NowTalking"
         , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件`NowTalking.OGG`"
         , "`NowTalking`默认从0开始"
         , "变更后会自动启用语音序列"]],
 
-    ["PV", ["	@PV=FileName.AVI:StartPos"
-        , "	@PlayVideo=FileName.AVI:StartPos"
+    ["PV", ["\t@PV=FileName.AVI:StartPos"
+        , "\t@PlayVideo=FileName.AVI:StartPos"
         , "最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒<等价于以下指令组合"
-        , "	@OpenVideo=FileName.AVI"
-        , "	@SetVideoPos=StartPos"
-        , "	@VideoResume"]],
-    ["PlayVideo", ["	@PV=FileName.AVI:StartPos"
-        , "	@PlayVideo=FileName.AVI:StartPos"
+        , "\t@OpenVideo=FileName.AVI"
+        , "\t@SetVideoPos=StartPos"
+        , "\t@VideoResume"]],
+    ["PlayVideo", ["\t@PV=FileName.AVI:StartPos"
+        , "\t@PlayVideo=FileName.AVI:StartPos"
         , "最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒<等价于以下指令组合"
-        , "	@OpenVideo=FileName.AVI"
-        , "	@SetVideoPos=StartPos"
-        , "	@VideoResume"]],
-    ["OV", ["	@OV=FileName.AVI"
-        , "	@OpenVideo=FileName.AVI"
+        , "\t@OpenVideo=FileName.AVI"
+        , "\t@SetVideoPos=StartPos"
+        , "\t@VideoResume"]],
+    ["OV", ["\t@OV=FileName.AVI"
+        , "\t@OpenVideo=FileName.AVI"
         , "打开视频但并不播放，需要播放时请使用`@VideoResume`"]],
-    ["OpenVideo", ["	@OV=FileName.AVI"
-        , "	@OpenVideo=FileName.AVI"
+    ["OpenVideo", ["\t@OV=FileName.AVI"
+        , "\t@OpenVideo=FileName.AVI"
         , "打开视频但并不播放，需要播放时请使用`@VideoResume`"]],
     ["CV", ["关闭视频"]],
     ["CloseVideo", ["关闭视频"]],
@@ -771,11 +771,11 @@ export const commandDocList = new Map<string, string[]>([
     ["VideoWait", ["当前视频播放结束后才会进入下一阶段"]],
     ["VL", ["设定当前视频循环播放"]],
     ["VideoLoop", ["设定当前视频循环播放"]],
-    ["SVP", ["	@SVP=StartPos"
-        , "	@SetVideoPos=StartPos"
+    ["SVP", ["\t@SVP=StartPos"
+        , "\t@SetVideoPos=StartPos"
         , "设置视频位置"]],
-    ["SetVideoPos", ["	@SVP=StartPos"
-        , "	@SetVideoPos=StartPos"
+    ["SetVideoPos", ["\t@SVP=StartPos"
+        , "\t@SetVideoPos=StartPos"
         , "设置视频位置"]],
 
 
@@ -783,21 +783,21 @@ export const commandDocList = new Map<string, string[]>([
 
     ["CreateBlur", ["创建带有背景模糊的景深对象，对象保存至景深堆栈，默认ID从`-100`开始递减"
         , "该指令创建的景深对象位于演出对象最下方"]],
-    ["AddBlur", ["	@AddBlur=Num"
+    ["AddBlur", ["\t@AddBlur=Num"
         , "`@AddBlur`会转译为`Num`个`@CreateBlur`指令，创建结束的景深对象默认位于演出对象最下方。`Num`数值越大，模糊效果越强，留空默认为1"
         , "可使用`@Order`指令控制景深对象次序，使用`@CharAllDisopse`指令不会销毁景深对象。请勿使用`@CharDispose`指令销毁，该方法会破坏景深堆栈指针"]],
-    ["RemoveBlur", ["	@RemoveBlur=Num"
+    ["RemoveBlur", ["\t@RemoveBlur=Num"
         , "`@RemoveBlur`会转译为`Num`个`@DestroyBlur`指令，欲销毁全部景深对象，请将`Num`设定为一个较大的数，如`255`，实际指令转译最大只会进行当前景深对象数(即景深堆栈深度)次"]],
     ["DestroyBlur", ["移除景深堆栈最上方的景深对象"]],
-    ["BackZoomParam", ["	@BackZoomParam:Easing_FuncA:Easing_FuncB"
+    ["BackZoomParam", ["\t@BackZoomParam:Easing_FuncA:Easing_FuncB"
         , "指定进行缩放时的Easing参数"]],
     ["BackZoomReset", ["按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:10:0:0`在真实坐标模式下执行"]],
-    ["BackZoom", ["	@BackZoom=X:Y:width:height:Speed:Instant:Forcewait"
+    ["BackZoom", ["\t@BackZoom=X:Y:width:height:Speed:Instant:Forcewait"
         , "缩放到大小为`(width,height)`，区域中心坐标`(x,y)`指定缩放速度以及是否立即缩放"
         , "`Forcewait`参数为`0/1`，`0`表示默认在阶段二进行变化，`1`表示跨阶段变化"]],
-    ["Shake", ["	@Shake=5000"
+    ["Shake", ["\t@Shake=5000"
         , "震动一定时长后停止震动，单位为帧，通常情况下设定为60代表震动一秒"]],
-    ["ShakeDir", ["	@ShakeDir=Dir"
+    ["ShakeDir", ["\t@ShakeDir=Dir"
         , "设置震动方向，`X=0`，`Y=1`"]],
     ["KeepShake", ["持续震动"]],
     ["KeepShakeOff", ["停止震动"]],
@@ -805,18 +805,18 @@ export const commandDocList = new Map<string, string[]>([
         , "默认情况下淡入速度较快，建议使用`#TransitionSpeed`指令修改叠化速度为5左右"]],
     ["DestroyFade", ["消除之前创建的所有叠化效果，会被转译为`@PatternFadeOut`"]],
 
-    ["PF", ["	@PF:picname"
-        , "	@PatternFade:picname"
+    ["PF", ["\t@PF:picname"
+        , "\t@PatternFade:picname"
         , "创建`Pattern`过渡元件，使用`pattern fade`读取`picname`图像叠化进入"]],
-    ["PatternFade", ["	@PF:picname"
-        , "	@PatternFade:picname"
+    ["PatternFade", ["\t@PF:picname"
+        , "\t@PatternFade:picname"
         , "创建`Pattern`过渡元件，使用`pattern fade`读取`picname`图像叠化进入"]],
-    ["PFO", ["	@PFO:picname"
-        , "	@PatternFadeOut:picname:Orderable"
+    ["PFO", ["\t@PFO:picname"
+        , "\t@PatternFadeOut:picname:Orderable"
         , "使用`PatternFade`读取`picname`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序"
         , "该指令运行结束后会自动销毁该Pattern过渡元件"]],
-    ["PatternFadeOut", ["	@PFO:picname"
-        , "	@PatternFadeOut:picname:Orderable"
+    ["PatternFadeOut", ["\t@PFO:picname"
+        , "\t@PatternFadeOut:picname:Orderable"
         , "使用`PatternFade`读取`picname`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序"
         , "该指令运行结束后会自动销毁该Pattern过渡元件"]],
 
@@ -826,35 +826,35 @@ export const commandDocList = new Map<string, string[]>([
     ["ToRain", ["逐渐创建下雨效果，不会在过渡状态2等待，不受到强制等待指令控制"]],
     ["ToSnow", ["逐渐创建下雪效果，不会在过渡状态2等待，不受到强制等待指令控制"]],
     ["ToNormal", ["逐渐取消天气效果，不会在过渡状态2等待，不受到强制等待指令控制"]],
-    ["CrossFade", ["	@CrossFade:ID"
+    ["CrossFade", ["\t@CrossFade:ID"
         , "为该对象下次叠化启用交错模式"
         , "ID留空，程序会尝试捕获最新调用叠化指令的对象，在叠化完成后，CrossFade会自动禁用"
         , "在叠化阶段开始指令前(等待/强制等待/文本)使用指令均有效，但从可读性角度建议写于相应叠化指令后"]],
     ["KeepRes",
-        ["	@KeepRes:ID"
-            , "	@KeepResolution:ID"
+        ["\t@KeepRes:ID"
+            , "\t@KeepResolution:ID"
             , "该ID对应的对象会在叠化时保持当前设定的分辨率"]],
-    ["KeepResolution", ["	@KeepRes:ID"
-        , "	@KeepResolution:ID"
+    ["KeepResolution", ["\t@KeepRes:ID"
+        , "\t@KeepResolution:ID"
         , "该ID对应的对象会在叠化时保持当前设定的分辨率"]],
 
-    ["KeepResOff", ["	@KeepResOff:ID"
-        , "	@KeepResolutionOff:ID"
+    ["KeepResOff", ["\t@KeepResOff:ID"
+        , "\t@KeepResolutionOff:ID"
         , "该ID对应的对象会在叠化时重设分辨率为新图像的分辨率"]],
-    ["KeepResolutionOff", ["	@KeepResOff:ID"
-        , "	@KeepResolutionOff:ID"
+    ["KeepResolutionOff", ["\t@KeepResOff:ID"
+        , "\t@KeepResolutionOff:ID"
         , "该ID对应的对象会在叠化时重设分辨率为新图像的分辨率"]],
-    ["Sepia", ["	@Sepia:Strength:NoiseMotion:Period"
-        , "	@SepiaToning:Strength:NoiseMotion:Period"
+    ["Sepia", ["\t@Sepia:Strength:NoiseMotion:Period"
+        , "\t@SepiaToning:Strength:NoiseMotion:Period"
         , "创建强度为`Strength`的`Sepia Toning`对象，对象默认ID为`-5`。其中`Strength`应为一个`[0,1]`的浮点数，默认值为`0.5`，`NoiseMotion`参数控制噪声运动的开启与关闭，当设定为`1`或`On`的时候会启用噪声运动，运动周期为`Period`，单位毫秒，默认值为`-1`，即每帧更新。已经创建了`Sepia Toning`对象后调用该指令，该指令无效"]],
-    ["SepiaToning", ["	@Sepia:Strength:NoiseMotion:Period"
-        , "	@SepiaToning:Strength:NoiseMotion:Period"
+    ["SepiaToning", ["\t@Sepia:Strength:NoiseMotion:Period"
+        , "\t@SepiaToning:Strength:NoiseMotion:Period"
         , "创建强度为`Strength`的`Sepia Toning`对象，对象默认ID为`-5`。其中`Strength`应为一个`[0,1]`的浮点数，默认值为`0.5`，`NoiseMotion`参数控制噪声运动的开启与关闭，当设定为`1`或`On`的时候会启用噪声运动，运动周期为`Period`，单位毫秒，默认值为`-1`，即每帧更新。已经创建了`Sepia Toning`对象后调用该指令，该指令无效"]],
-    ["ChangeSepiaStrength", ["	@ChangeSepiaStrength:Strength"
+    ["ChangeSepiaStrength", ["\t@ChangeSepiaStrength:Strength"
         , "在演出执行阶段改变`Sepia Toning`对象的`Strength`，参数留空会将`Strength`设定为默认值`0.5`"]],
-    ["SetSepiaNoiseMotion", ["	@SetSepiaNoiseMotion:On/Off"
+    ["SetSepiaNoiseMotion", ["\t@SetSepiaNoiseMotion:On/Off"
         , "控制噪声运动的开启与关闭，设定为`1`或`On`时启用噪声运动，设定为`0`或`Off`时禁用噪声运动，参数为空会Toggle当前启用状态"]],
-    ["ChangeSepiaNoiseMotionPeriod", ["	@ChangeSepiaNoiseMotionPeriod:Period"
+    ["ChangeSepiaNoiseMotionPeriod", ["\t@ChangeSepiaNoiseMotionPeriod:Period"
         , "将噪声运动的运动周期设定为`Period`，单位毫秒，参数为空会将`Period`设定为默认值`-1`，一个典型的参考值为`300`毫秒"]],
 
 
@@ -863,93 +863,93 @@ export const commandDocList = new Map<string, string[]>([
     ["StrCenter", ["定义坐标参数留空时字符串的默认位置，该指令后创建的字符串默认居中"]],
     ["StrBottom", ["定义坐标参数留空时字符串的默认位置，该指令后创建的字符串默认底部居中"]],
     ["Str",
-        ["	@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "	@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "	@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "	@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
             , "创建字符串，字符串ID与图像ID相互独立"
             , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
             , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
     ["String",
-        ["	@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "	@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "	@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "	@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
             , "创建字符串，字符串ID与图像ID相互独立"
             , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
             , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
     ["CreateStr",
-        ["	@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "	@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "	@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "	@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "	@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
             , "创建字符串，字符串ID与图像ID相互独立"
             , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
             , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
-    ["CreateString", ["	@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-        , "	@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-        , "	@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-        , "	@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-        , "	@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-        , "	@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-        , "	@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-        , "	@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+    ["CreateString", ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
         , "创建字符串，字符串ID与图像ID相互独立"
         , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
         , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
 
-    ["StrS", ["	@StrS=ID:Size"
-        , "	@StrSize=ID:Size"
+    ["StrS", ["\t@StrS=ID:Size"
+        , "\t@StrSize=ID:Size"
         , "无叠化，更改字符串字号"]],
-    ["StrSize", ["	@StrS=ID:Size"
-        , "	@StrSize=ID:Size"
+    ["StrSize", ["\t@StrS=ID:Size"
+        , "\t@StrSize=ID:Size"
         , "无叠化，更改字符串字号"]],
-    ["StrF", ["	@StrF=ID:Font"
-        , "	@StrFont=ID:Font"
+    ["StrF", ["\t@StrF=ID:Font"
+        , "\t@StrFont=ID:Font"
         , "无叠化，更改字符串字体"]],
-    ["StrFont", ["	@StrF=ID:Font"
-        , "	@StrFont=ID:Font"
+    ["StrFont", ["\t@StrF=ID:Font"
+        , "\t@StrFont=ID:Font"
         , "无叠化，更改字符串字体"]],
-    ["StrA", ["	@StrA=ID:120"
-        , "	@StrAlpha=ID:120"
+    ["StrA", ["\t@StrA=ID:120"
+        , "\t@StrAlpha=ID:120"
         , "切换对象到指定的不透明度"]],
-    ["StrAlpha", ["	@StrA=ID:120"
-        , "	@StrAlpha=ID:120"
+    ["StrAlpha", ["\t@StrA=ID:120"
+        , "\t@StrAlpha=ID:120"
         , "切换对象到指定的不透明度"]],
 
-    ["StrC", ["	@StrC=ID:R:G:B"
-        , "	@StrC=ID:#FFFFFF"
-        , "	@StrColor=ID:R:G:B"
-        , "	@StrColor=ID:#FFFFFF"
+    ["StrC", ["\t@StrC=ID:R:G:B"
+        , "\t@StrC=ID:#FFFFFF"
+        , "\t@StrColor=ID:R:G:B"
+        , "\t@StrColor=ID:#FFFFFF"
         , "无叠化，更改字符串颜色"]],
-    ["StrColor", ["	@StrC=ID:R:G:B"
-        , "	@StrC=ID:#FFFFFF"
-        , "	@StrColor=ID:R:G:B"
-        , "	@StrColor=ID:#FFFFFF"
+    ["StrColor", ["\t@StrC=ID:R:G:B"
+        , "\t@StrC=ID:#FFFFFF"
+        , "\t@StrColor=ID:R:G:B"
+        , "\t@StrColor=ID:#FFFFFF"
         , "无叠化，更改字符串颜色"]],
-    ["MS", ["	@MS=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
-        , "	@MoveStr=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
+    ["MS", ["\t@MS=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
+        , "\t@MoveStr=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
         , "移动字符串对象，具体参数说明请参见`@MoveObj`一节，坐标受`@StrCenter`参数影响"]],
-    ["MoveStr", ["	@MS=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
-        , "	@MoveStr=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
+    ["MoveStr", ["\t@MS=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
+        , "\t@MoveStr=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
         , "移动字符串对象，具体参数说明请参见`@MoveObj`一节，坐标受`@StrCenter`参数影响"]],
-    ["DestroyStr", ["	@DestroyStr=ID"
-        , "	@DestroyString=ID"
+    ["DestroyStr", ["\t@DestroyStr=ID"
+        , "\t@DestroyString=ID"
         , "销毁字符串"]],
-    ["DestroyString", ["	@DestroyStr=ID"
-        , "	@DestroyString=ID"
+    ["DestroyString", ["\t@DestroyStr=ID"
+        , "\t@DestroyString=ID"
         , "销毁字符串"]],
 
     ["DestroyAllStr", ["销毁全部字符串对象"]],
@@ -961,123 +961,123 @@ export const commandDocList = new Map<string, string[]>([
         , "以使用内部指令`@Spe=dialog2.png`创建对话框为例"
         , "指令会被转译为`@Char=FolderStr+dialog2.png+CoefStr`，执行后更新相应参数"]],
 
-    ["MO", ["	@MO=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
-        , "	@MoveObj=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
+    ["MO", ["\t@MO=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
+        , "\t@MoveObj=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
         , "内部指令，`@MoveChar`与@`MoveStr`会被引擎转译为该指令执行"]],
-    ["MoveObj", ["	@MO=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
-        , "	@MoveObj=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
+    ["MoveObj", ["\t@MO=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
+        , "\t@MoveObj=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
         , "内部指令，`@MoveChar`与@`MoveStr`会被引擎转译为该指令执行"]],
 
-    ["CG", ["	@CG=filename.png"
-        , "	@CGChange=filename.png"
+    ["CG", ["\t@CG=filename.png"
+        , "\t@CGChange=filename.png"
         , "切换CG，叠化阶段进行"]],
-    ["CGChange", ["	@CG=filename.png"
-        , "	@CGChange=filename.png"
+    ["CGChange", ["\t@CG=filename.png"
+        , "\t@CGChange=filename.png"
         , "切换CG，叠化阶段进行"]],
 
-    ["CPF", ["	@CPF:picname:patternname:ID"
-        , "	@CPatternFade:picname:patternname:ID"
+    ["CPF", ["\t@CPF:picname:patternname:ID"
+        , "\t@CPatternFade:picname:patternname:ID"
         , "读取贴图，前景背景同时叠化"]],
-    ["CPatternFade", ["	@CPF:picname:patternname:ID"
-        , "	@CPatternFade:picname:patternname:ID"
+    ["CPatternFade", ["\t@CPF:picname:patternname:ID"
+        , "\t@CPatternFade:picname:patternname:ID"
         , "读取贴图，前景背景同时叠化"]],
-    ["CPFI", ["	@CPFI:picname:patternname:ID"
-        , "	@CPatternFadeIn:picname:patternname:ID"
+    ["CPFI", ["\t@CPFI:picname:patternname:ID"
+        , "\t@CPatternFadeIn:picname:patternname:ID"
         , "读取贴图，叠化至前景图像"]],
-    ["CPatternFadeIn", ["	@CPFI:picname:patternname:ID"
-        , "	@CPatternFadeIn:picname:patternname:ID"
+    ["CPatternFadeIn", ["\t@CPFI:picname:patternname:ID"
+        , "\t@CPatternFadeIn:picname:patternname:ID"
         , "读取贴图，叠化至前景图像"]],
     ["CPFO",
-        ["	@CPFO:picname:patternname:ID"
-            , "	@CPatternFadeOut:picname:patternname:ID"
+        ["\t@CPFO:picname:patternname:ID"
+            , "\t@CPatternFadeOut:picname:patternname:ID"
             , "读取贴图，叠化至背景图像"]],
-    ["CPatternFadeOut", ["	@CPFO:picname:patternname:ID"
-        , "	@CPatternFadeOut:picname:patternname:ID"
+    ["CPatternFadeOut", ["\t@CPFO:picname:patternname:ID"
+        , "\t@CPatternFadeOut:picname:patternname:ID"
         , "读取贴图，叠化至背景图像"]],
-    ["CGPFI", ["	@CGPFI:picname:patternname"
-        , "	@CGPatternFadeIn:picname:patternname"
+    ["CGPFI", ["\t@CGPFI:picname:patternname"
+        , "\t@CGPatternFadeIn:picname:patternname"
         , "转译指令，读取贴图，CG叠化至前景图像"]],
-    ["CGPatternFadeIn", ["	@CGPFI:picname:patternname"
-        , "	@CGPatternFadeIn:picname:patternname"
+    ["CGPatternFadeIn", ["\t@CGPFI:picname:patternname"
+        , "\t@CGPatternFadeIn:picname:patternname"
         , "转译指令，读取贴图，CG叠化至前景图像"]],
 
-    ["CGPFO", ["	@CGPFO:picname:patternname"
-        , "	@CGPatternFadeOut:picname:patternname"
+    ["CGPFO", ["\t@CGPFO:picname:patternname"
+        , "\t@CGPatternFadeOut:picname:patternname"
         , "转译指令，读取贴图，CG叠化至背景图像"]],
-    ["CGPatternFadeOut", ["	@CGPFO:picname:patternname"
-        , "	@CGPatternFadeOut:picname:patternname"
+    ["CGPatternFadeOut", ["\t@CGPFO:picname:patternname"
+        , "\t@CGPatternFadeOut:picname:patternname"
         , "转译指令，读取贴图，CG叠化至背景图像"]],
 
     ["CharPF",
-        ["	@CharPF:picname:patternname:ID"
-            , "	@CharPatternFade:picname:patternname:ID"
+        ["\t@CharPF:picname:patternname:ID"
+            , "\t@CharPatternFade:picname:patternname:ID"
             , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]],
-    ["CharPatternFade", ["	@CharPF:picname:patternname:ID"
-        , "	@CharPatternFade:picname:patternname:ID"
+    ["CharPatternFade", ["\t@CharPF:picname:patternname:ID"
+        , "\t@CharPatternFade:picname:patternname:ID"
         , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]],
 
-    ["Char", ["	@Char=filename.png:ID:Alpha:X:Y:Width:Height"
-        , "	@Character=filename.png:ID:Alpha:X:Y:Width:Height"
+    ["Char", ["\t@Char=filename.png:ID:Alpha:X:Y:Width:Height"
+        , "\t@Character=filename.png:ID:Alpha:X:Y:Width:Height"
         , "该指令用于创建图像：留空文件后缀名时，会默认图片格式为PNG；不透明度范围为0~255；文件名支持使用../返回上级路径；坐标系以画面中央底部为原点；坐标以图像中央底部为热点；长宽默认为图片原始尺寸，使用+/-指定增量时，会以原始尺寸为基础进行计算"]],
-    ["Character", ["	@Char=filename.png:ID:Alpha:X:Y:Width:Height"
-        , "	@Character=filename.png:ID:Alpha:X:Y:Width:Height"
+    ["Character", ["\t@Char=filename.png:ID:Alpha:X:Y:Width:Height"
+        , "\t@Character=filename.png:ID:Alpha:X:Y:Width:Height"
         , "该指令用于创建图像：留空文件后缀名时，会默认图片格式为PNG；不透明度范围为0~255；文件名支持使用../返回上级路径；坐标系以画面中央底部为原点；坐标以图像中央底部为热点；长宽默认为图片原始尺寸，使用+/-指定增量时，会以原始尺寸为基础进行计算"]],
 
-    ["CC", ["	@CC=filename:ID:alpha:width:height"
-        , "	@CharChange=filename:ID:alpha:width:height"
+    ["CC", ["\t@CC=filename:ID:alpha:width:height"
+        , "\t@CharChange=filename:ID:alpha:width:height"
         , "该指令用于切换为其他角色或动作：留空文件后缀名时，会默认图片格式为PNG；不透明度范围为0~255，该指令会重置`@CharAlpha`设定的不透明度；文件名支持使用../返回上级路径"
         , "交错模式：通常来说，切换角色时应启用交错模式，更改长宽比时，会自动切换为交错模式"
         , "长宽：默认为新图片原始尺寸，使用+/-指定增量时，会以原始尺寸为基础进行计算"]],
-    ["CharChange", ["	@CC=filename:ID:alpha:width:height"
-        , "	@CharChange=filename:ID:alpha:width:height"
+    ["CharChange", ["\t@CC=filename:ID:alpha:width:height"
+        , "\t@CharChange=filename:ID:alpha:width:height"
         , "该指令用于切换为其他角色或动作：留空文件后缀名时，会默认图片格式为PNG；不透明度范围为0~255，该指令会重置`@CharAlpha`设定的不透明度；文件名支持使用../返回上级路径"
         , "交错模式：通常来说，切换角色时应启用交错模式，更改长宽比时，会自动切换为交错模式"
         , "长宽：默认为新图片原始尺寸，使用+/-指定增量时，会以原始尺寸为基础进行计算"]],
 
-    ["CA", ["	@CA:ID:Alpha"
-        , "	@CharAlpha:ID:Alpha"
+    ["CA", ["\t@CA:ID:Alpha"
+        , "\t@CharAlpha:ID:Alpha"
         , "切换对象到指定的不透明度"]],
-    ["CharAlpha", ["	@CA:ID:Alpha"
-        , "	@CharAlpha:ID:Alpha"
+    ["CharAlpha", ["\t@CA:ID:Alpha"
+        , "\t@CharAlpha:ID:Alpha"
         , "切换对象到指定的不透明度"]],
 
-    ["CharRotate", ["	@CharRotate:ID:angle:clockwise:circlecount"
+    ["CharRotate", ["\t@CharRotate:ID:angle:clockwise:circlecount"
         , "旋转对象至目标角度与预定圈数，`clockwise = 1`为顺时针，`clockwise = -1`为逆时针"
         , "若目标角度设定为360度，旋转0圈，将持续旋转"
         , "该指令不可与立绘叠化同时使用"]],
-    ["SetAutoArrange", ["	@SetAutoArrange=On/Off"
+    ["SetAutoArrange", ["\t@SetAutoArrange=On/Off"
         , "控制自动间距功能的开启与关闭，设定为1或On时启用自动间距，设定为0或Off时禁用自动间距，参数为空会Toggle当前启用状态"
         , "启用自动间距后，新建/销毁立绘时会自动调整间距，最大支持处理六张立绘的间距"]],
-    ["CD", ["	@CD:ID"
-        , "	@CharDispose:ID"
+    ["CD", ["\t@CD:ID"
+        , "\t@CharDispose:ID"
         , "销毁并释放该ID对应的图像对象的本体和遮罩，会转译为`@CharAlpha:ID:255`并启用`Destroy`Flag"]],
-    ["CharDispose", ["	@CD:ID"
-        , "	@CharDispose:ID"
+    ["CharDispose", ["\t@CD:ID"
+        , "\t@CharDispose:ID"
         , "销毁并释放该ID对应的图像对象的本体和遮罩，会转译为`@CharAlpha:ID:255`并启用`Destroy`Flag"]],
 
     ["CAD", ["销毁全部的图像对象，并释放其对应的本体和遮罩"
         , "CG/UI不会被销毁"]],
     ["CharAllDispose", ["销毁全部的图像对象，并释放其对应的本体和遮罩"
         , "CG/UI不会被销毁"]],
-    ["MC", ["	@MC=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
-        , "	@MoveChar=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
+    ["MC", ["\t@MC=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
+        , "\t@MoveChar=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
         , "移动图片对象，具体参数说明请参见`@MoveObj`一节"]],
-    ["MoveChar", ["	@MC=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
-        , "	@MoveChar=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
+    ["MoveChar", ["\t@MC=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
+        , "\t@MoveChar=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
         , "移动图片对象，具体参数说明请参见`@MoveObj`一节"]],
 
     ["HideUI", ["无叠化，隐藏菜单与快捷栏，会自动转译`#DisableUI`"]],
     ["ShowUI", ["无叠化，重新显示菜单与快捷栏，会自动转译`#EnableUI`"]],
 
-    ["Order", ["	@Order=ID:Order:Type"
+    ["Order", ["\t@Order=ID:Order:Type"
         , "无叠化，调整ID指定对象的层级，通过`Type`指定不同的对象类型"
         , "`Type`为`Pic`则移动`ID`对应的图像对象，`Type`为`Str`则移动`ID`对应的字符串对象"]],
-    ["Front", ["	@Front=ID:Type"
+    ["Front", ["\t@Front=ID:Type"
         , "无叠化，将`ID`指定的`Type`对象移至顶层"]],
-    ["Back", ["	@Back=ID:Type"
+    ["Back", ["\t@Back=ID:Type"
         , "无叠化，将`ID`指定的`Type`对象移至底层"]],
-    ["Forward", ["	@Forward=ID:Num:Type"
+    ["Forward", ["\t@Forward=ID:Num:Type"
         , "无叠化，将`ID`指定的`Type`对象上移`Num`层，参数留空默认上移一层"]],
-    ["Backward", ["	@Backward=ID:Num:Type"
+    ["Backward", ["\t@Backward=ID:Num:Type"
         , "无叠化，将`ID`指定的`Type`对象下移`Num`层，参数留空默认下移一层"]],
 ]);

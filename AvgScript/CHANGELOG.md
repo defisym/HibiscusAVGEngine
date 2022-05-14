@@ -8,6 +8,8 @@
 - hover/completion content optimize
 - fix folding issue
 - new snippet `VNMode`
+- completion for scripts
+- completion for labels
 
 ## 20220512
 

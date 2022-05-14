@@ -96,8 +96,8 @@
     ],
     "description": "Basic Template"
   },
-  "Small Dialogue": {
-    "prefix": "Small",
+  "One Line Dialogue Size Change": {
+    "prefix": "Size",
     "body": [
       "#DiaSize=$1",
       "$3",
