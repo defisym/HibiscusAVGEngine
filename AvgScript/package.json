@@ -4,7 +4,8 @@
     "description": "Hibiscus AVG Engine AvgScript Support for VS Code",
     "version": "0.0.0",
     "publisher": "Defisym",
-    "repository": "https://github.com/defisym/AVGAndSRPG/tree/master/Program/_Docs/AvgScript",
+    "repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
+    "homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
     "icon": "media/AvgScript.png",
     "engines": {
         "vscode": "^1.67.0"
@@ -12,7 +13,7 @@
     "categories": [
         "Programming Languages",
         "Snippets",
-        "Other"
+        "Themes"
     ],
     "contributes": {
         "languages": [
@@ -107,6 +108,7 @@
         "eslint": "^8.1.0",
         "glob": "^7.1.7",
         "mocha": "^9.1.3",
+        "japanese": "^1.1.0",
         "pinyin-pro": "^3.10.0",
         "ts-loader": "^9.3.0",
         "typescript": "^4.4.4",
