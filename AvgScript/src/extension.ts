@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 
 import { pinyin } from 'pinyin-pro';
 
-import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParam, getIndexOfDelimiter, getFileName, getFileStat } from './lib/utilities';
+import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams } from './lib/utilities';
 import {
 	sharpKeywordList, atKeywordList
 	, keywordList, settingsParamList
@@ -13,7 +14,14 @@ import {
 const confBasePath: string = "conf.AvgScript.basePath";
 const commandBasePath: string = "config.AvgScript.basePath";
 
+// settings
+let currentLocalCode: string;
+let currentLocalCodeDefinition: any;
+let currentLocalCodeDisplay: string;
+
 // file
+let basePath: string;
+
 let graphic: string;
 
 let graphicFXPath: string;
@@ -57,6 +65,7 @@ let script: Thenable<[string, vscode.FileType][]>;
 let scriptCompletions: vscode.CompletionItem[] = [];
 
 let labelCompletions: vscode.CompletionItem[] = [];
+let labelJumpMap: Map<string, number> = new Map();
 
 enum CompletionType { image, audio, video, script };
 
@@ -100,16 +109,30 @@ async function getFileList(uri: vscode.Uri) {
 }
 
 async function updateFileList() {
-	let basePath: string = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
+	basePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
 
 	if (basePath === "") {
 		return;
 	}
 
-	if (basePath.endsWith("\\")) {
-		basePath = basePath.substring(0, basePath.length - 1);
-	}
+	// Update config
+	let iniParser = require('ini');
 
+	let encoding:BufferEncoding='utf-8';
+	
+	let configPath = basePath + "\\..\\settings\\settings.ini";
+	let config = iniParser.parse(fs.readFileSync(configPath,encoding));
+
+	currentLocalCode = config.Display.Language;
+
+	let localizationPath = basePath + "\\..\\localization\\Localization.dat";
+	let localization = iniParser.parse(fs.readFileSync(localizationPath,encoding));
+
+	currentLocalCodeDefinition = localization.Definition;
+	currentLocalCodeDisplay = currentLocalCodeDefinition[
+		"LanguageDisplayName_" + currentLocalCode];
+
+	// Update completion list
 	graphic = basePath + "\\Graphics\\";
 
 	graphicFXPath = graphic + "FX";
@@ -392,7 +415,6 @@ export async function activate(context: vscode.ExtensionContext) {
 						return scriptCompletions;
 					case FileType.frame:
 					case FileType.label:
-						getLabelCompletion(document);
 						return labelCompletions;
 
 					default:
@@ -454,7 +476,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			const line = document.lineAt(position).text.toLowerCase().trim();
 			const linePrefix = document.lineAt(position).text.substring(0, position.character).trim().toLowerCase();
 
-			let fileName = getParam(line, position.character);
+			let fileName = getParamAtPosition(line, position.character);
 
 			if (fileName === undefined) {
 				return undefined;
@@ -508,7 +530,6 @@ export async function activate(context: vscode.ExtensionContext) {
 						, scriptPath + "\\{$FILENAME}");
 				case FileType.frame:
 				case FileType.label:
-					getLabelCompletion(document);
 					return new vscode.Hover(new vscode.MarkdownString(getLabelComment(fileName)));
 				default:
 					return undefined;
@@ -654,15 +675,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand(commandBasePath, async () => {
 		// 1) Getting the value
-		let basePath: string = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
+		let oldBasePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
 
 		const value = await vscode.window.showInputBox({
-			value: basePath,
+			value: oldBasePath,
 			prompt: "Base path for the assets files"
 		});
 
 		if (value !== undefined
-			&& value !== basePath) {
+			&& value !== oldBasePath) {
 			// 2) Get the configuration
 			const configuration = vscode.workspace.getConfiguration();
 
@@ -670,12 +691,269 @@ export async function activate(context: vscode.ExtensionContext) {
 			//const currentValue = configuration.get<{}>(confBasePath);
 
 			// 4) Update the value in the User Settings
-			await configuration.update(confBasePath, value, vscode.ConfigurationTarget.Global);
+			if (value.endsWith("\\")) {
+				basePath = value.substring(0, value.length - 1);
+			}
+
+			await configuration.update(confBasePath
+				, basePath
+				, vscode.ConfigurationTarget.Global);
 
 			// 5) Update fileList
 			await updateFileList();
 		}
 	});
+
+	//--------------------
+
+	const nonActiveLanguageDecorator = vscode.window.createTextEditorDecorationType({
+		opacity: '0.5',
+	});
+
+	//--------------------
+
+	const labelDefinition = vscode.languages.registerDefinitionProvider('AvgScript',
+		{
+			provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
+				let definitions: vscode.Location[] = [];
+
+				let line = document.lineAt(position.line).text.trim();
+
+				if (getType(line) !== FileType.label) {
+					return undefined;
+				}
+
+				let curLabel = getNthParam(line, 1);
+
+				labelJumpMap.forEach((line, label) => {
+					if (curLabel === label) {
+						let link = new vscode.Location(document.uri
+							, new vscode.Position(line, 0));
+
+						definitions.push(link);
+					}
+				});
+
+				return definitions;
+			}
+		});
+
+	const chapterDefinition = vscode.languages.registerDefinitionProvider('AvgScript',
+		{
+			async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
+				let definitions: vscode.Location[] = [];
+
+				let line = document.lineAt(position.line).text.trim();
+
+				if (getType(line) !== FileType.script) {
+					return undefined;
+				}
+
+				let nextChapter = getNthParam(line, 1);
+				let nextChapterPath = basePath + "\\dialogue\\" + nextChapter;
+
+				if (!nextChapterPath.endsWith(".asc")) {
+					nextChapterPath += ".asc";
+				}
+
+				let nextChapterUri = vscode.Uri.file(nextChapterPath);
+
+				try {
+					await vscode.workspace.fs.stat(nextChapterUri);
+
+					let link = new vscode.Location(nextChapterUri
+						, new vscode.Position(0, 0));
+
+					definitions.push(link);
+
+					return definitions;
+				} catch {
+					return undefined;
+				}
+			}
+		});
+
+	context.subscriptions.push(labelDefinition
+		, chapterDefinition);
+
+	//--------------------
+
+	const labelReference = vscode.languages.registerReferenceProvider(
+		'AvgScript', {
+		provideReferences(document: vscode.TextDocument, position: vscode.Position, context: vscode.ReferenceContext, token: vscode.CancellationToken) {
+			let references: vscode.Location[] = [];
+
+			let line = document.lineAt(position.line).text.trim();
+
+			if (line[0] !== ';') {
+				return undefined;
+			}
+
+			let label = line.substring(line.indexOf(";") + 1);
+
+			for (let i = 0; i < document.lineCount; ++i) {
+				const line = document.lineAt(i);
+
+				if (!line.isEmptyOrWhitespace) {
+					const text = line.text.trim();
+
+					if (getType(text) === FileType.label) {
+						let curLabel = getNthParam(text, 1);
+
+						if (curLabel === label) {
+							let link = new vscode.Location(document.uri
+								, new vscode.Position(i, 0));
+
+							references.push(link);
+						}
+					}
+				}
+			}
+
+			return references;
+		}
+	});
+
+	context.subscriptions.push(labelReference);
+
+	//--------------------
+
+	const rename = vscode.languages.registerRenameProvider(
+		'AvgScript', {
+		provideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string, token: vscode.CancellationToken) {
+			const edit = new vscode.WorkspaceEdit();
+			const line = document.lineAt(position.line).text.trim();
+			const linePrefix = line.substring(0, position.character);
+			let word: string;
+
+			let replaceToken = (origin: string) => {
+				const suffixPos = origin.lastIndexOf('.');
+				let originNoSuffix: string = origin;
+				let originHasSuffix = suffixPos !== -1;
+
+				if (originHasSuffix) {
+					originNoSuffix = origin.substring(0, suffixPos);
+					newName = newName + origin.substring(suffixPos);
+				}
+
+				for (let i = 0; i < document.lineCount; ++i) {
+					const line = document.lineAt(i);
+
+					if (!line.isEmptyOrWhitespace) {
+						const text = line.text.trim();
+
+						if (text.startsWith("#")
+							|| text.startsWith("@")
+							|| text.startsWith(";")) {
+							const regex = new RegExp(originNoSuffix, "gi");
+
+							let start: number = 0;
+
+							if (text.startsWith(";")) {
+								start = 1;
+							} else if (getNumberOfParam(text) !== 0) {
+								start = getIndexOfDelimiter(text, 0) + 1;
+
+								if (start === -1) {
+									continue;
+								}
+							} else {
+								continue;
+							}
+
+							let params = getAllParams(text.substring(start));
+							let startPos = start;
+
+							for (let i = 0; i < params.length; i++) {
+								let curParam = params[i];
+
+								const curSuffixPos = curParam.lastIndexOf('.');
+								let curHasSuffix = curSuffixPos !== -1;
+
+								let match = curParam.match(regex);
+								if (match) {
+									let endPos = startPos
+										+ (curHasSuffix
+											? curParam.length
+											: match[0].length);
+
+									edit.replace(document.uri
+										, new vscode.Range(line.lineNumber
+											, startPos
+											, line.lineNumber
+											, endPos)
+										, newName);
+
+									startPos += curParam.length;
+								}
+							}
+						}
+					}
+				}
+
+				return edit;
+			};
+
+			if (line.startsWith("#")
+				|| line.startsWith("@")) {
+				if (getNumberOfParam(linePrefix) === 0) {
+					return undefined;
+				}
+
+				word = getParamAtPosition(line, position.character)!;
+
+				return replaceToken(word);
+			} else if (line.startsWith(";")) {
+				word = line.substring(line.indexOf(";") + 1);
+
+				return replaceToken(word);
+			}
+
+			return undefined;
+		}
+	});
+
+	context.subscriptions.push(rename);
+
+	//--------------------
+
+	let activeEditor = vscode.window.activeTextEditor;
+	let activeDocument = activeEditor?.document!;
+	let timeout: NodeJS.Timer | undefined = undefined;
+
+	onUpdate();
+
+	function onUpdate() {
+		getLabelCompletion(activeDocument); updateLanguageDecorations(activeEditor!
+			, nonActiveLanguageDecorator
+			, currentLocalCode
+			, currentLocalCodeDisplay);
+	}
+
+	function triggerUpdate(throttle = false) {
+		if (timeout) {
+			clearTimeout(timeout);
+			timeout = undefined;
+		}
+		if (throttle) {
+			timeout = setTimeout(onUpdate, 500);
+		} else {
+			onUpdate();
+		}
+	}
+
+	vscode.window.onDidChangeActiveTextEditor(editor => {
+		activeEditor = editor;
+		if (editor) {
+			triggerUpdate();
+		}
+	}, null, context.subscriptions);
+
+	vscode.workspace.onDidChangeTextDocument(event => {
+		if (activeEditor && event.document === activeEditor.document) {
+			triggerUpdate(true);
+		}
+	}, null, context.subscriptions);
 }
 
 function getLabelComment(input: string) {
@@ -698,11 +976,12 @@ function getLabelComment(input: string) {
 
 function getLabelCompletion(document: vscode.TextDocument) {
 	labelCompletions = [];
+	labelJumpMap.clear();
 
 	for (let i = 0; i < document.lineCount; ++i) {
 		const line = document.lineAt(i);
 		if (!line.isEmptyOrWhitespace) {
-			const text = line.text;
+			const text = line.text.trim();
 			if (text.match(/(;.*)/gi)) {
 				let label = text.substring(text.indexOf(";") + 1);
 				let item: vscode.CompletionItem = new vscode.CompletionItem({
@@ -716,9 +995,32 @@ function getLabelCompletion(document: vscode.TextDocument) {
 				item.insertText = label;
 
 				labelCompletions.push(item);
+				labelJumpMap.set(label, i);
 			}
 		}
 	}
+}
+
+function updateLanguageDecorations(activeEditor: vscode.TextEditor, decorationType: vscode.TextEditorDecorationType, currentLocalCode: string, currentLocalCodeDisplay: string) {
+	const regex = new RegExp("Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
+	const decoOpt: vscode.DecorationOptions[] = [];
+	const document = activeEditor.document;
+
+	for (let i = 0; i < document.lineCount; ++i) {
+		const line = document.lineAt(i);
+		if (!line.isEmptyOrWhitespace) {
+			const text = line.text;
+			if (text.match(regex)) {
+				const startPos = 0;
+				const endPos = text.length;
+				const decoration = { range: new vscode.Range(line.lineNumber, startPos, line.lineNumber, endPos), hoverMessage: "非当前语言: " + currentLocalCodeDisplay + currentLocalCode };
+
+				decoOpt.push(decoration);
+			}
+		}
+	}
+
+	activeEditor.setDecorations(decorationType, decoOpt);
 }
 
 export function deactivate() {

@@ -1,5 +1,14 @@
 # Change Log
 
+## 20220515
+
+- decorate non-active language line
+- get label definition
+- get label reference
+- get chapter definition
+- update label when file change
+- rename
+
 ## 20220514
 
 - get real file name when suffix is ignored

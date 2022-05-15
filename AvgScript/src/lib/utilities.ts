@@ -27,6 +27,7 @@ export function getFileName(name: string, fileList: vscode.CompletionItem[]) {
 
 export function getLastIndexOfDelimiter(src: string, position: number) {
     let ret = -1;
+
     for (let i = 0; i < delimiter.length; i++) {
         let index = src.lastIndexOf(delimiter[i], position);
         if (index > -1) {
@@ -39,6 +40,7 @@ export function getLastIndexOfDelimiter(src: string, position: number) {
 
 export function getIndexOfDelimiter(src: string, position: number) {
     let ret = src.length;
+
     for (let i = 0; i < delimiter.length; i++) {
         let index = src.indexOf(delimiter[i], position);
         if (index > -1) {
@@ -49,7 +51,8 @@ export function getIndexOfDelimiter(src: string, position: number) {
     return ret;
 }
 
-export function getParam(src: string, position: number) {
+// position: position to start search
+export function getParamAtPosition(src: string, position: number) {
     let start = getLastIndexOfDelimiter(src, position);
     let end = getIndexOfDelimiter(src, position);
 
@@ -57,6 +60,65 @@ export function getParam(src: string, position: number) {
         return undefined;
     }
     return src.substring(start + 1, end);
+}
+
+export function getAllParams(src: string) {
+    let params: string[] = [];
+
+    let start = -1;
+    let end = -1;
+
+    let lastChar = src[src.length - 1];
+
+    if (!delimiter.includes(lastChar)) {
+        src = src + delimiter[0];
+    }
+
+    for (let i = 0; i < src.length; i++) {
+        for (let j = 0; j < delimiter.length; j++) {
+            if (src[i] === delimiter[j]
+                || i === src.length - 1) {
+                start = end;
+                end = i;
+
+                params.push(src.substring(start + 1, end));
+            }
+        }
+    }
+
+    params.pop();
+
+    return params;
+}
+
+// position: Nth param
+export function getNthParam(src: string, position: number) {
+    let count = 0;
+    let start = 0;
+    let end = 0;
+
+    let lastChar = src[src.length - 1];
+
+    if (!delimiter.includes(lastChar)) {
+        src = src + delimiter[0];
+    }
+
+    for (let i = 0; i < src.length; i++) {
+        for (let j = 0; j < delimiter.length; j++) {
+            if (src[i] === delimiter[j]) {
+                start = end;
+                end = i;
+
+                if (count === position) {
+                    return src.substring(start + 1, end);
+                }
+
+                count++;
+            }
+        }
+    }
+
+    return undefined;
 }
 
 export function getNumberOfParam(src: string, countLast: boolean = false): number {
