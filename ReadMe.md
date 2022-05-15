@@ -4,6 +4,10 @@
 
 Hibiscus AVG Engine V6.0
 
+## Games made with Hibiscus
+
+- [EndlessShinyBlues](https://store.steampowered.com/app/1315620/) 2020.12.1
+
 ## AvgScript
 
 VS Code extension that supports the AVGScript language.
