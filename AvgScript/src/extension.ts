@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 
 import { pinyin } from 'pinyin-pro';
 
@@ -117,16 +116,17 @@ async function updateFileList() {
 
 	// Update config
 	let iniParser = require('ini');
+	// let fs = require('fs');
 
 	let encoding:BufferEncoding='utf-8';
-	
+
 	let configPath = basePath + "\\..\\settings\\settings.ini";
-	let config = iniParser.parse(fs.readFileSync(configPath,encoding));
+	let config = iniParser.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(configPath))).toString(encoding));
 
 	currentLocalCode = config.Display.Language;
 
 	let localizationPath = basePath + "\\..\\localization\\Localization.dat";
-	let localization = iniParser.parse(fs.readFileSync(localizationPath,encoding));
+	let localization = iniParser.parse(	Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(localizationPath))).toString(encoding));
 
 	currentLocalCodeDefinition = localization.Definition;
 	currentLocalCodeDisplay = currentLocalCodeDefinition[
