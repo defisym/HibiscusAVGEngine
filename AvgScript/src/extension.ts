@@ -118,7 +118,7 @@ async function updateFileList() {
 	let iniParser = require('ini');
 	// let fs = require('fs');
 
-	let encoding:BufferEncoding='utf-8';
+	let encoding: BufferEncoding = 'utf-8';
 
 	let configPath = basePath + "\\..\\settings\\settings.ini";
 	let config = iniParser.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(configPath))).toString(encoding));
@@ -126,7 +126,7 @@ async function updateFileList() {
 	currentLocalCode = config.Display.Language;
 
 	let localizationPath = basePath + "\\..\\localization\\Localization.dat";
-	let localization = iniParser.parse(	Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(localizationPath))).toString(encoding));
+	let localization = iniParser.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(localizationPath))).toString(encoding));
 
 	currentLocalCodeDefinition = localization.Definition;
 	currentLocalCodeDisplay = currentLocalCodeDefinition[
@@ -551,10 +551,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
 				for (let i = 0; i < document.lineCount; ++i) {
 					const line = document.lineAt(i);
+
 					if (!line.isEmptyOrWhitespace) {
-						const text = line.text;
+						const text = line.text.trim();
 						const paramNum = getNumberOfParam(text);
 						// match command that set RGB
+
 						if (text.match(/(#DefineRGB|#DiaColor|#NameColor|#NameOutColor|#DiaOutColor|@StrC|@StrColor)/gi) && (paramNum >= 1)
 							|| text.match(/(#NameShaderOn|#DiaShaderOn)/gi) && (paramNum >= 2)
 							|| text.match(/(@Str|@String|@CreateStr|@CreateString)/gi) && (paramNum >= 9)) {
@@ -697,7 +699,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			await configuration.update(confBasePath
 				, basePath
-				, vscode.ConfigurationTarget.Global);
+				//, vscode.ConfigurationTarget.Workspace);
+				, false );
 
 			// 5) Update fileList
 			await updateFileList();
@@ -917,6 +920,106 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	//--------------------
 
+	const outline = vscode.languages.registerDocumentSymbolProvider('AvgScript'
+		, {
+			provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken) {
+				let symbols: vscode.SymbolInformation[] = [];
+
+				let prevSecName: string[] = [''];
+				let prevSecRangeStart: number[] = [];
+
+				let inComment: boolean = false;
+
+				let beginRegex = /^#Begin/gi;
+				let endRegex = /^#End/gi;
+				let labelRegex = /^;.*/gi;
+				let keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(.*JMP.*)|(#SkipAnchor|#Ret|#StopFF|#StopFastForward))/gi;
+
+				let commentRegex = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)|((?!\/\*)[^\/\*]*\*\/)/gi;
+
+				let commentRegexRep = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)/gi;
+				let commentRegexRepRest = /((?!\/\*)[^\/\*]*\*\/)/gi;
+
+				for (let i = 0; i < document.lineCount; ++i) {
+					const line = document.lineAt(i);
+
+					if (!line.isEmptyOrWhitespace) {
+						const text = line.text.trim();
+						let textNoComment = text.replace(commentRegexRep, "").trim();
+
+						if (inComment
+							&& text.match(/\*\//gi)) {
+							inComment = false;
+							textNoComment = textNoComment.replace(commentRegexRepRest, "").trim();
+						}
+
+						if (!inComment
+							&& textNoComment.length > 0) {
+							let item: vscode.SymbolInformation | undefined = undefined;
+							let match: RegExpMatchArray | null;
+
+							if ((match = textNoComment.match(beginRegex)) !== null) {
+								let beginName = textNoComment.substring("#Begin".length + 1).trim();
+
+								prevSecName.push(beginName);
+								prevSecRangeStart.push(i);
+							}
+
+							if ((match = textNoComment.match(endRegex)) !== null) {
+								if (prevSecName.length === 1) {
+									continue;
+								}
+
+								let beginName = prevSecName.pop()!;
+
+								item = new vscode.SymbolInformation("Block: " + beginName
+									, vscode.SymbolKind.Namespace
+									, beginName
+									, new vscode.Location(document.uri
+										, new vscode.Range(
+											new vscode.Position(prevSecRangeStart.pop()!, 0)
+											, new vscode.Position(i, 0))));
+							}
+
+							if ((match = textNoComment.match(labelRegex)) !== null) {
+								let labelName = textNoComment.substring(textNoComment.indexOf(";") + 1);
+
+								item = new vscode.SymbolInformation("Label: " + labelName
+									, vscode.SymbolKind.String
+									, prevSecName[prevSecName.length - 1]
+									, new vscode.Location(document.uri, new vscode.Position(i, 0)));
+							}
+
+							if ((match = textNoComment.match(keyWordRegex)) !== null) {
+								let keyWord = match[0];
+
+								item = new vscode.SymbolInformation("KeyWord: " + keyWord
+									, vscode.SymbolKind.Function
+									, prevSecName[prevSecName.length - 1]
+									, new vscode.Location(document.uri, new vscode.Position(i, 0)));
+							}
+
+							if (item !== undefined) {
+								symbols.push(item);
+							}
+						}
+
+						if (!inComment
+							&&!text.match(/\*\//gi)
+							&& text.match(/\/\*/gi)) {
+							inComment = true;;
+						}
+					}
+				}
+
+				return symbols;
+			}
+		});
+
+	context.subscriptions.push(outline);
+
+	//--------------------
+
 	let activeEditor = vscode.window.activeTextEditor;
 	let activeDocument = activeEditor?.document!;
 	let timeout: NodeJS.Timer | undefined = undefined;
@@ -980,8 +1083,10 @@ function getLabelCompletion(document: vscode.TextDocument) {
 
 	for (let i = 0; i < document.lineCount; ++i) {
 		const line = document.lineAt(i);
+
 		if (!line.isEmptyOrWhitespace) {
 			const text = line.text.trim();
+
 			if (text.match(/(;.*)/gi)) {
 				let label = text.substring(text.indexOf(";") + 1);
 				let item: vscode.CompletionItem = new vscode.CompletionItem({
@@ -1008,8 +1113,10 @@ function updateLanguageDecorations(activeEditor: vscode.TextEditor, decorationTy
 
 	for (let i = 0; i < document.lineCount; ++i) {
 		const line = document.lineAt(i);
+
 		if (!line.isEmptyOrWhitespace) {
-			const text = line.text;
+			const text = line.text.trim();
+
 			if (text.match(regex)) {
 				const startPos = 0;
 				const endPos = text.length;

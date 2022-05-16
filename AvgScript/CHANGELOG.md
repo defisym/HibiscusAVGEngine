@@ -1,5 +1,10 @@
 # Change Log
 
+## 20220516
+
+- outline
+- workspace separated base path
+
 ## 20220515
 
 - decorate non-active language line
