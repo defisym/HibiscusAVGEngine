@@ -1,9 +1,12 @@
 @echo off
 
 rem Init
+Set APPID=1315620
 Set ScriptPath=F:\DEV\_Steamworks_SDK\tools\ContentBuilder\scripts\app_build_1315620.vdf
 Set ContentPath=F:\DEV\_Steamworks_SDK\tools\ContentBuilder\content\EndlessShinyBlues\
 Set SteamCMDPath=F:\DEV\_Steamworks_SDK\tools\ContentBuilder\builder\steamcmd.exe
+
+Set curPath=%~dp0
 
 @echo delete old content...
 
@@ -15,19 +18,23 @@ for /r "%ContentPath%" %%F in (*.*) do (
 rmdir /s /q "%ContentPath%\data\"
 rmdir /s /q "%ContentPath%\savings\"
 rmdir /s /q "%ContentPath%\settings\"
+rmdir /s /q "%ContentPath%\localization\"
+rmdir /s /q "%ContentPath%\Modules\"
 
 @echo Generate New Content...
 
 rem Update Content
-xcopy "%CD%\data\*.*" "%ContentPath%\data\" /s /e
-xcopy "%CD%\settings\*.*" "%ContentPath%\settings\" /s /e
-xcopy "%CD%\savings\_Sys\*.*" "%ContentPath%\savings\_Sys\" /s /e
-echo f | xcopy "%CD%\savings\_Global\_GlobalProgress_Template" "%ContentPath%\savings\_Global\_GlobalProgress" /s /e
+xcopy "%curPath%\data\*.*" "%ContentPath%\data\" /s /e
+xcopy "%curPath%\settings\*.*" "%ContentPath%\settings\" /s /e
+xcopy "%curPath%\savings\_Sys\*.*" "%ContentPath%\savings\_Sys\" /s /e
+echo f | xcopy "%curPath%\savings\_Global\_GlobalProgress_Template" "%ContentPath%\savings\_Global\_GlobalProgress" /s /e
+xcopy "%curPath%\Modules\*.*" "%ContentPath%\Modules\" /s /e
+xcopy "%curPath%\localization\*.*" "%ContentPath%\localization\" /s /e
 
-
-xcopy "%CD%\EndlessShinyBlues.exe" "%ContentPath%" /s /e
-xcopy "%CD%\steam_api.dll" "%ContentPath%" /s /e
-xcopy "%CD%\steam_api64.dll" "%ContentPath%" /s /e
+echo f | xcopy "%curPath%\EndlessShinyBlues.dat" "%ContentPath%" /s /e
+echo f | xcopy "%curPath%\EndlessShinyBlues_Wrapper.exe" "%ContentPath%\EndlessShinyBlues.exe" /s /e
+@REM xcopy "%curPath%\steam_api.dll" "%ContentPath%" /s /e
+@REM xcopy "%curPath%\steam_api64.dll" "%ContentPath%" /s /e
 
 REM Delete Temp Files
 del "%ContentPath%\CrashLog.Log" /f /s /q
