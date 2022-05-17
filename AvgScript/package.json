@@ -26,7 +26,11 @@
                 "extensions": [
                     ".asc"
                 ],
-                "configuration": "./language-configuration.json"
+                "configuration": "./language-configuration.json",
+                "icon": {
+                    "light": "media/AvgScript.png",
+                    "dark": "media/AvgScript.png"
+                }
             }
         ],
         "grammars": [
@@ -63,7 +67,8 @@
                             "path": {
                                 "type": "string",
                                 "description": "Path to the data folder",
-                                "default": ""
+                                "default": "",
+                                "scope": "resource"
                             }
                         },
                         "additionalProperties": false
@@ -111,6 +116,10 @@
         "japanese": "^1.1.0",
         "pinyin-pro": "^3.10.0",
         "ini": "^3.0.0",
+        "@zerodeps/image-probe": "^0.2.0",
+        "music-metadata": "^7.12.3",
+        "ffprobe": "^1.1.2",
+        "ffprobe-static": "^3.0.0",
         "ts-loader": "^9.3.0",
         "typescript": "^4.4.4",
         "webpack": "^5.72.1",
@@ -119,6 +128,10 @@
     "dependencies": {
         "japanese": "^1.1.0",
         "pinyin-pro": "^3.10.0",
-        "ini": "^3.0.0"
+        "ini": "^3.0.0",
+        "@zerodeps/image-probe": "^0.2.0",
+        "music-metadata": "^7.12.3",
+        "ffprobe": "^1.1.2",
+        "ffprobe-static": "^3.0.0"
     }
 }

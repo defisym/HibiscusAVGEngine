@@ -3,6 +3,10 @@ import { docList } from './dict';
 
 const delimiter = ['=', ':'];
 
+export async function getBuffer(filePath: string) {
+    return Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(filePath)));
+}
+
 export async function getFileStat(filePath: string) {
     try {
         return await vscode.workspace.fs.stat(vscode.Uri.file(filePath));

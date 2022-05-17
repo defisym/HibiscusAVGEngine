@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 
 import { pinyin } from 'pinyin-pro';
+import * as mm from 'music-metadata';
+import { ImageProbe } from "@zerodeps/image-probe";
 
-import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams } from './lib/utilities';
+import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer } from './lib/utilities';
 import {
 	sharpKeywordList, atKeywordList
 	, keywordList, settingsParamList
@@ -76,9 +78,69 @@ const audioPreview = nonePreview;
 const videoPreview = nonePreview;
 const scriptPreview = nonePreview;
 
+async function getFileInfo(filePath: string, type: CompletionType) {
+	let getDuration = (duration: number) => {
+		let minutes = Math.floor(duration / 60);
+		let seconds = Math.floor(duration % 60);
+
+		return "Duration: `"
+			+ minutes.toString() + ":"
+			+ (seconds < 10 ? "0" + seconds.toString() : seconds.toString()) + "`";
+	};
+
+	try {
+		switch (type) {
+			case CompletionType.image:
+				const data = ImageProbe.fromBuffer(await getBuffer(filePath));
+
+				if (data === undefined) {
+					throw new Error("ImageProbe.fromBuffer() failed");
+				}
+
+				return "Width: `" + data.width.toString() + "` Height: `" + data.height.toString() + "`";
+			case CompletionType.audio:
+				const metadata = await mm.parseBuffer(await getBuffer(filePath));
+
+				return "`" + (metadata.format.sampleRate! / 1000).toFixed(1) + "KHz`\t"
+					+ "`" + (metadata.format.bitrate! / 1000).toFixed() + "kbps`\t"
+					+ getDuration(metadata.format.duration!);
+			case CompletionType.video:
+				const ffprobe = require('ffprobe');
+				const ffprobeStatic = require('ffprobe-static');
+
+				let info = (await ffprobe(filePath, { path: ffprobeStatic.path })).streams[0];
+
+				return "Width: `" + info.width.toString() + "` Height: `" + info.height.toString() + "`\t"
+					+ getDuration(info.duration!);
+			case CompletionType.script:
+				const commentRegex = new RegExp("(\\/\\*(.|[\r\n])*?\\*\\/)|(\\/\\/[^\r\n]*)|(\\([^\r\n]*)|Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
+				const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
+				const string = (await getBuffer(filePath)).toString('utf-8').replace(commentRegex, "");
+				const lines = string.split('\r\n');
+
+				for (let i in lines) {
+					let line = lines[i].trim().replace(blankRegex, "");
+
+					if (line.length > 0
+						&& !line.startsWith("#")
+						&& !line.startsWith("@")) {
+						return "\n\n" + line;
+					}
+				}
+		}
+	}
+	catch (err) {
+		console.log(filePath);
+		console.log(err);
+
+		return undefined;
+	}
+}
+
 async function getFileComment(previewStr: string
 	, fileName: string | undefined
-	, filePath: string) {
+	, filePath: string
+	, type: CompletionType) {
 	let preview: vscode.MarkdownString | undefined = undefined;
 
 	if (fileName === undefined) {
@@ -92,8 +154,14 @@ async function getFileComment(previewStr: string
 
 		preview = new vscode.MarkdownString(fileName);
 		preview.appendMarkdown("\n\n" + "Size: `" + size.toFixed(2) + " KB`"
-			+ "\tModified: `" + new Date(stat.mtime).toUTCString() + "`\n\n");
-		// preview.appendMarkdown("\n\n----------\n\n");
+			+ "\tModified: `" + new Date(stat.mtime).toUTCString() + "`\t");
+
+		let detail = await getFileInfo(filePath, type);
+		if (detail !== undefined) {
+			preview.appendMarkdown(detail);
+		}
+
+		preview.appendMarkdown("\n\n");
 		preview.appendMarkdown(previewStr);
 
 		preview.baseUri = vscode.Uri.file(filePath);
@@ -116,17 +184,16 @@ async function updateFileList() {
 
 	// Update config
 	let iniParser = require('ini');
-	// let fs = require('fs');
-
 	let encoding: BufferEncoding = 'utf-8';
 
 	let configPath = basePath + "\\..\\settings\\settings.ini";
-	let config = iniParser.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(configPath))).toString(encoding));
+	let config = iniParser.parse((await getBuffer(configPath)).toString(encoding));
+
 
 	currentLocalCode = config.Display.Language;
 
 	let localizationPath = basePath + "\\..\\localization\\Localization.dat";
-	let localization = iniParser.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(localizationPath))).toString(encoding));
+	let localization = iniParser.parse((await getBuffer(localizationPath)).toString(encoding));
 
 	currentLocalCodeDefinition = localization.Definition;
 	currentLocalCodeDisplay = currentLocalCodeDefinition[
@@ -199,6 +266,7 @@ async function updateFileList() {
 				item.insertText = fileName;
 				item.filterText = fileNameToEnglish;
 				let previewStr: string = nonePreview;
+				let detail: string | undefined = undefined;
 
 				switch (type) {
 					case CompletionType.image:
@@ -225,8 +293,8 @@ async function updateFileList() {
 
 				item.documentation = await getFileComment(previewStr
 					, element[0]
-					, filePath);
-
+					, filePath
+					, type);
 
 				completions.push(item);
 			}
@@ -484,50 +552,63 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			let returnHover = async function (previewStr: string
 				, fileName: string | undefined
-				, filePath: string) {
-				return new vscode.Hover(await getFileComment(previewStr, fileName, filePath));
+				, filePath: string
+				, type: CompletionType) {
+				return new vscode.Hover(await getFileComment(previewStr
+					, fileName
+					, filePath
+					, type));
 			};
 
 			switch (getType(linePrefix)) {
 				case FileType.characters:
 					return returnHover(imagePreview
 						, getFileName(fileName, graphicCharactersCompletions)
-						, graphicCharactersPath + "\\{$FILENAME}");
+						, graphicCharactersPath + "\\{$FILENAME}"
+						, CompletionType.image);
 				case FileType.ui:
 					return returnHover(imagePreview
 						, getFileName(fileName, graphicUICompletions)
-						, graphicUIPath + "\\{$FILENAME}");
+						, graphicUIPath + "\\{$FILENAME}"
+						, CompletionType.image);
 				case FileType.cg:
 					return returnHover(imagePreview
 						, getFileName(fileName, graphicCGCompletions)
-						, graphicCGPath + "\\{$FILENAME}");
-
+						, graphicCGPath + "\\{$FILENAME}"
+						, CompletionType.image);
 				case FileType.patternFade:
 					return returnHover(imagePreview
 						, getFileName(fileName, graphicPatternFadeCompletions)
-						, graphicPatternFadePath + "\\{$FILENAME}");
+						, graphicPatternFadePath + "\\{$FILENAME}"
+						, CompletionType.image);
+
 				case FileType.bgm:
 					return returnHover(audioPreview
 						, getFileName(fileName, audioBgmCompletions)
-						, audioBgmPath + "\\{$FILENAME}");
+						, audioBgmPath + "\\{$FILENAME}"
+						, CompletionType.audio);
 				case FileType.bgs:
 					return returnHover(audioPreview
 						, getFileName(fileName, audioBgsCompletions)
-						, audioBgsPath + "\\{$FILENAME}");
+						, audioBgsPath + "\\{$FILENAME}"
+						, CompletionType.audio);
 				case FileType.dubs:
 					return returnHover(audioPreview
 						, getFileName(fileName, audioDubsCompletions)
-						, audioDubsPath + "\\{$FILENAME}");
+						, audioDubsPath + "\\{$FILENAME}"
+						, CompletionType.audio);
 				case FileType.se:
 					return returnHover(audioPreview
 						, getFileName(fileName, audioSECompletions)
-						, audioSEPath + "\\{$FILENAME}");
+						, audioSEPath + "\\{$FILENAME}"
+						, CompletionType.audio);
 
 				// case FileType.video:
 				case FileType.script:
 					return returnHover(audioPreview
 						, getFileName(fileName, scriptCompletions)
-						, scriptPath + "\\{$FILENAME}");
+						, scriptPath + "\\{$FILENAME}"
+						, CompletionType.script);
 				case FileType.frame:
 				case FileType.label:
 					return new vscode.Hover(new vscode.MarkdownString(getLabelComment(fileName)));
@@ -695,12 +776,14 @@ export async function activate(context: vscode.ExtensionContext) {
 			// 4) Update the value in the User Settings
 			if (value.endsWith("\\")) {
 				basePath = value.substring(0, value.length - 1);
+			} else {
+				basePath = value;
 			}
 
 			await configuration.update(confBasePath
 				, basePath
 				//, vscode.ConfigurationTarget.Workspace);
-				, false );
+				, false);
 
 			// 5) Update fileList
 			await updateFileList();
@@ -850,22 +933,25 @@ export async function activate(context: vscode.ExtensionContext) {
 							|| text.startsWith(";")) {
 							const regex = new RegExp(originNoSuffix, "gi");
 
-							let start: number = 0;
+							let start: number = line.text.length - text.length;
+							let contentStart: number = 0;
 
 							if (text.startsWith(";")) {
-								start = 1;
+								contentStart = 1;
 							} else if (getNumberOfParam(text) !== 0) {
-								start = getIndexOfDelimiter(text, 0) + 1;
+								let delimiterPos = getIndexOfDelimiter(text, 0);
 
-								if (start === -1) {
+								if (delimiterPos === -1) {
 									continue;
 								}
+
+								contentStart = delimiterPos + 1;
 							} else {
 								continue;
 							}
 
-							let params = getAllParams(text.substring(start));
-							let startPos = start;
+							let params = getAllParams(text.substring(contentStart));
+							let startPos = start + contentStart;
 
 							for (let i = 0; i < params.length; i++) {
 								let curParam = params[i];
@@ -875,6 +961,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
 								let match = curParam.match(regex);
 								if (match) {
+									if (!originHasSuffix
+										&& !curHasSuffix
+										&& match[0] !== curParam) {
+										continue;
+									}
+
 									let endPos = startPos
 										+ (curHasSuffix
 											? curParam.length
@@ -886,9 +978,9 @@ export async function activate(context: vscode.ExtensionContext) {
 											, line.lineNumber
 											, endPos)
 										, newName);
-
-									startPos += curParam.length;
 								}
+
+								startPos += curParam.length;
 							}
 						}
 					}
@@ -1005,7 +1097,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (!inComment
-							&&!text.match(/\*\//gi)
+							&& !text.match(/\*\//gi)
 							&& text.match(/\/\*/gi)) {
 							inComment = true;;
 						}

@@ -1,5 +1,12 @@
 # Change Log
 
+## 20220517
+
+- fix base path cannot be initialized by command
+- display more details for audio/script, etc
+- fix rename issue when has blank characters in front of the line
+- new snippet `Block`
+
 ## 20220516
 
 - outline
