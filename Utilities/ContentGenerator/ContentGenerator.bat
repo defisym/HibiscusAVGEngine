@@ -32,7 +32,9 @@ xcopy "%curPath%\Modules\*.*" "%ContentPath%\Modules\" /s /e
 xcopy "%curPath%\localization\*.*" "%ContentPath%\localization\" /s /e
 
 echo f | xcopy "%curPath%\EndlessShinyBlues.dat" "%ContentPath%" /s /e
-echo f | xcopy "%curPath%\EndlessShinyBlues_Wrapper.exe" "%ContentPath%\EndlessShinyBlues.exe" /s /e
+echo f | xcopy "%curPath%\EndlessShinyBlues.exe" "%ContentPath%\EndlessShinyBlues.exe" /s /e
+
+@REM echo f | xcopy "%curPath%\EndlessShinyBlues_Wrapper.exe" "%ContentPath%\EndlessShinyBlues.exe" /s /e
 @REM xcopy "%curPath%\steam_api.dll" "%ContentPath%" /s /e
 @REM xcopy "%curPath%\steam_api64.dll" "%ContentPath%" /s /e
 
@@ -89,6 +91,7 @@ Set /p SteamGuard=Please input SteamGuard :
 @echo Building New Content...
 
 rem Build Content
-%SteamCMDPath% +login %SteamUser% %SteamPassword% %SteamGuard% +run_app_build %ScriptPath% +quit
+@REM %SteamCMDPath% +login %SteamUser% %SteamPassword% %SteamGuard% +run_app_build %ScriptPath% +quit
+%SteamCMDPath% +login %SteamUser% %SteamPassword% %SteamGuard% +drm_wrap %APPID% "%curPath%\EndlessShinyBlues.exe" "%ContentPath%\EndlessShinyBlues.exe" drmtoolp 0 +run_app_build %ScriptPath% +quit
 
 exit
