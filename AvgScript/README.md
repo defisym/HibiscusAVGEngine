@@ -5,8 +5,9 @@ Hibiscus AVG Engine AvgScript Support for VS Code
 ## Features
 
 - Syntax Highlight
-- Snippets
+- Diagnostics
 - Completion
+- Snippets
 - Hover
 - Color
 

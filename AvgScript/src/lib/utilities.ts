@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { docList } from './dict';
+import { audioBgmCompletions, audioBgmPath, audioBgsCompletions, audioBgsPath, audioDubsCompletions, audioDubsPath, audioSECompletions, audioSEPath, graphicCGCompletions, graphicCGPath, graphicCharactersCompletions, graphicCharactersPath, graphicPatternFadeCompletions, graphicPatternFadePath, graphicUICompletions, graphicUIPath, scriptCompletions, scriptPath } from './../extension';
 
 const delimiter = ['=', ':'];
 
@@ -159,16 +160,20 @@ export function lineValidForCommandCompletion(src: string): boolean {
     return (!include);
 }
 
-export function getCommentList(item: string, commentList: docList) {
-    let comment: string[] = [];
+export function getMapValue<V>(item: string, map: Map<string, V>): V | undefined {
+    let ret: V | undefined = undefined;
 
-    commentList.forEach((value: string[], key: string) => {
+    map.forEach((value, key) => {
         if (key.toLowerCase() === item.toLowerCase()) {
-            comment = value;
+            ret = value;
         }
     });
 
-    return (comment.length === 0) ? undefined : comment;
+    return ret;
+}
+
+export function getCommentList(item: string, commentList: docList): string[] | undefined {
+    return getMapValue<string[]>(item, commentList);
 }
 
 export function getCompletionItem(item: string, commentList: docList) {
@@ -241,62 +246,62 @@ export enum FileType {
     label,
 };
 
-export function getType(linePrefix: string) {
+export function getType(linePrefix: string, getCommand: boolean = false) {
     const paramNum = getNumberOfParam(linePrefix, true);
     // image
     if (linePrefix.match(/(@Char|@Character|@CC|@CharChange|@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CharPF|@CharPatternFade)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.characters;
     }
 
     if (linePrefix.match(/(@Dia|@DiaChange|@Name|@NameChange)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.ui;
     }
 
     if (linePrefix.match(/(@Dia|@DiaChange|@Name|@NameChange)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.ui;
     }
 
     if (linePrefix.match(/(@CG|@CGChange|@CGPFI|@CGPatternFadeIn|@CGPFO|@CGPatternFadeOut)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.cg;
     }
 
     if (linePrefix.match(/(@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CGPFI|@CGPatternFadeIn|@CGPFO|@CGPatternFadeOut|@CharPF|@CharPatternFade)/gi)
-        && (paramNum === 2)) {
+        && (getCommand || (paramNum === 2))) {
         return FileType.patternFade;
     }
 
     if (linePrefix.match(/(@PF|@PatternFade|@PFO|@PatternFadeOut)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.patternFade;
     }
 
     // audio
     if (linePrefix.match(/(@P|@Play)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.inValid;
     }
 
     if (linePrefix.match(/(@BGM|@BgmLoop|@BgmPre|@BgmPreludeLoop)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.bgm;
     }
 
     if (linePrefix.match(/(@Bgs|@BgsLoop)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.bgs;
     }
 
     if (linePrefix.match(/(@Dub|@DubPlay)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.dubs;
     }
 
     if (linePrefix.match(/(@SE)/gi)
-        && (paramNum === 1)) {
+        && (getCommand || (paramNum === 1))) {
         return FileType.se;
     }
 
@@ -317,4 +322,120 @@ export function getType(linePrefix: string) {
     }
 
     return FileType.inValid;
+}
+
+export function getCommandType(command: string) {
+    return getType(command, true);
+}
+
+export function getFilePath(linePrefix: string, fileName: string) {
+    let realFileName: string | undefined = undefined;
+    let filePath: string;
+
+    switch (getType(linePrefix)) {
+        case FileType.characters:
+            realFileName = getFileName(fileName, graphicCharactersCompletions);
+            filePath = graphicCharactersPath + "\\";
+
+            break;
+        case FileType.ui:
+            realFileName = getFileName(fileName, graphicUICompletions);
+            filePath = graphicUIPath + "\\";
+
+            break;
+        case FileType.cg:
+            realFileName = getFileName(fileName, graphicCGCompletions);
+            filePath = graphicCGPath + "\\";
+
+            break;
+        case FileType.patternFade:
+            realFileName = getFileName(fileName, graphicPatternFadeCompletions);
+            filePath = graphicPatternFadePath + "\\";
+
+            break;
+        case FileType.bgm:
+            realFileName = getFileName(fileName, audioBgmCompletions);
+            filePath = audioBgmPath + "\\";
+
+            break;
+        case FileType.bgs:
+            realFileName = getFileName(fileName, audioBgsCompletions);
+            filePath = audioBgsPath + "\\";
+
+            break;
+        case FileType.dubs:
+            realFileName = getFileName(fileName, audioDubsCompletions);
+            filePath = audioDubsPath + "\\";
+
+            break;
+        case FileType.se:
+            realFileName = getFileName(fileName, audioSECompletions);
+            filePath = audioSEPath + "\\";
+
+            break;
+        // case FileType.video:
+        case FileType.script:
+            realFileName = getFileName(fileName, scriptCompletions);
+            filePath = scriptPath + "\\";
+
+            break;
+        default:
+            return undefined;
+    }
+
+    if (realFileName === undefined) {
+        return undefined;
+    }
+
+    return filePath + realFileName;
+}
+
+export function getUri(linePrefix: string, fileName: string) {
+    let filePath = getFilePath(linePrefix, fileName);
+
+    if (filePath === undefined) {
+        return undefined;
+    }
+
+    return vscode.Uri.file(filePath);
+};
+
+export function getFileNameByType(type: FileType, fileName: string) {
+    switch (type) {
+        case FileType.characters:
+            return getFileName(fileName, graphicCharactersCompletions);
+        case FileType.ui:
+            return getFileName(fileName, graphicUICompletions);
+        case FileType.cg:
+            return getFileName(fileName, graphicCGCompletions);
+        case FileType.patternFade:
+            return getFileName(fileName, graphicPatternFadeCompletions);
+        case FileType.bgm:
+            return getFileName(fileName, audioBgmCompletions);
+        case FileType.bgs:
+            return getFileName(fileName, audioBgsCompletions);
+        case FileType.dubs:
+            return getFileName(fileName, audioDubsCompletions);
+        case FileType.se:
+            return getFileName(fileName, audioSECompletions);
+        // case FileType.video:
+        case FileType.script:
+            return getFileName(fileName, scriptCompletions);
+        default:
+            return undefined;
+    }
+}
+
+export function fileExists(type: FileType, fileName: string) {
+    return getFileNameByType(type, fileName) !== undefined;
+}
+
+export function matchEntire(src: string, regex: RegExp) {
+    let match = src.match(regex);
+
+    if (match === null) {
+        return false;
+    }
+
+    return match[0] === src;
 }

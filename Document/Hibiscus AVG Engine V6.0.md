@@ -1989,15 +1989,15 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 @destroyfade
 ```
 
-##### `@PF:picname`
+##### `@PF:picname:Orderable`
 
 同义指令
 
-- `@PatternFade:picname`
+- `@PatternFade:picname:Orderable`
 
-创建`Pattern`过渡元件，使用`PatternFade`读取`picname`图像叠化进入
+创建`Pattern`过渡元件，使用`PatternFade`读取`picname`图像叠化进入，具有`Orderable`属性的对象可参与排序
 
-##### `@PFO:picname`
+##### `@PFO:picname:Orderable`
 
 同义指令
 
@@ -2456,11 +2456,11 @@ CG/UI不会被销毁
 
 无叠化，将`ID`指定的`Type`对象移至底层
 
-#### `@Forward=ID:Num:Type`
+#### `@Forward=ID:Type:Num`
 
 无叠化，将`ID`指定的`Type`对象上移`Num`层，参数留空默认上移一层
 
-#### `@Backward=ID:Num:Type`
+#### `@Backward=ID:Type:Num`
 
 无叠化，将`ID`指定的`Type`对象下移`Num`层，参数留空默认下移一层
 

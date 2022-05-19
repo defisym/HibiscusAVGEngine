@@ -1,5 +1,10 @@
 # Change Log
 
+## 20220519
+
+- jump to file definition
+- diagnostic
+
 ## 20220517
 
 - fix base path cannot be initialized by command

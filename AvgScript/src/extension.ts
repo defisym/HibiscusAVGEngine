@@ -4,71 +4,72 @@ import { pinyin } from 'pinyin-pro';
 import * as mm from 'music-metadata';
 import { ImageProbe } from "@zerodeps/image-probe";
 
-import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer } from './lib/utilities';
+import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer, getCommentList, getMapValue, getUri, fileExists, getCommandType, matchEntire } from './lib/utilities';
 import {
 	sharpKeywordList, atKeywordList
 	, keywordList, settingsParamList
-	, commandDocList, settingsParamDocList, langDocList
+	, commandDocList, settingsParamDocList, langDocList, commandParamList, ParamType
 } from './lib/dict';
 
 // command
 const confBasePath: string = "conf.AvgScript.basePath";
 const commandBasePath: string = "config.AvgScript.basePath";
+const commandRefreshAssets: string = "config.AvgScript.refreshAssets";
 
 // settings
-let currentLocalCode: string;
-let currentLocalCodeDefinition: any;
-let currentLocalCodeDisplay: string;
+export let currentLocalCode: string;
+export let currentLocalCodeDefinition: any;
+export let currentLocalCodeDisplay: string;
 
 // file
-let basePath: string;
+export let basePath: string;
 
-let graphic: string;
+export let graphic: string;
 
-let graphicFXPath: string;
-let graphicCGPath: string;
-let graphicUIPath: string;
-let graphicPatternFadePath: string;
-let graphicCharactersPath: string;
+export let graphicFXPath: string;
+export let graphicCGPath: string;
+export let graphicUIPath: string;
+export let graphicPatternFadePath: string;
+export let graphicCharactersPath: string;
 
-let graphicFX: Thenable<[string, vscode.FileType][]>;
-let graphicCG: Thenable<[string, vscode.FileType][]>;
-let graphicUI: Thenable<[string, vscode.FileType][]>;
-let graphicPatternFade: Thenable<[string, vscode.FileType][]>;
-let graphicCharacters: Thenable<[string, vscode.FileType][]>;
+export let graphicFX: Thenable<[string, vscode.FileType][]>;
+export let graphicCG: Thenable<[string, vscode.FileType][]>;
+export let graphicUI: Thenable<[string, vscode.FileType][]>;
+export let graphicPatternFade: Thenable<[string, vscode.FileType][]>;
+export let graphicCharacters: Thenable<[string, vscode.FileType][]>;
 
-let graphicFXCompletions: vscode.CompletionItem[] = [];
-let graphicCGCompletions: vscode.CompletionItem[] = [];
-let graphicUICompletions: vscode.CompletionItem[] = [];
-let graphicPatternFadeCompletions: vscode.CompletionItem[] = [];
-let graphicCharactersCompletions: vscode.CompletionItem[] = [];
+export let graphicFXCompletions: vscode.CompletionItem[] = [];
+export let graphicCGCompletions: vscode.CompletionItem[] = [];
+export let graphicUICompletions: vscode.CompletionItem[] = [];
+export let graphicPatternFadeCompletions: vscode.CompletionItem[] = [];
+export let graphicCharactersCompletions: vscode.CompletionItem[] = [];
 
-let audio: string;
+export let audio: string;
 
-let audioBgmPath: string;
-let audioBgsPath: string;
-let audioDubsPath: string;
-let audioSEPath: string;
+export let audioBgmPath: string;
+export let audioBgsPath: string;
+export let audioDubsPath: string;
+export let audioSEPath: string;
 
-let audioBgm: Thenable<[string, vscode.FileType][]>;
-let audioBgs: Thenable<[string, vscode.FileType][]>;
-let audioDubs: Thenable<[string, vscode.FileType][]>;
-let audioSE: Thenable<[string, vscode.FileType][]>;
+export let audioBgm: Thenable<[string, vscode.FileType][]>;
+export let audioBgs: Thenable<[string, vscode.FileType][]>;
+export let audioDubs: Thenable<[string, vscode.FileType][]>;
+export let audioSE: Thenable<[string, vscode.FileType][]>;
 
-let audioBgmCompletions: vscode.CompletionItem[] = [];
-let audioBgsCompletions: vscode.CompletionItem[] = [];
-let audioDubsCompletions: vscode.CompletionItem[] = [];
-let audioSECompletions: vscode.CompletionItem[] = [];
+export let audioBgmCompletions: vscode.CompletionItem[] = [];
+export let audioBgsCompletions: vscode.CompletionItem[] = [];
+export let audioDubsCompletions: vscode.CompletionItem[] = [];
+export let audioSECompletions: vscode.CompletionItem[] = [];
 
-let scriptPath: string;
+export let scriptPath: string;
 
-let script: Thenable<[string, vscode.FileType][]>;
-let scriptCompletions: vscode.CompletionItem[] = [];
+export let script: Thenable<[string, vscode.FileType][]>;
+export let scriptCompletions: vscode.CompletionItem[] = [];
 
-let labelCompletions: vscode.CompletionItem[] = [];
-let labelJumpMap: Map<string, number> = new Map();
+export let labelCompletions: vscode.CompletionItem[] = [];
+export let labelJumpMap: Map<string, number> = new Map();
 
-enum CompletionType { image, audio, video, script };
+export enum CompletionType { image, audio, video, script };
 
 const nonePreview = "暂无预览";
 
@@ -78,263 +79,264 @@ const audioPreview = nonePreview;
 const videoPreview = nonePreview;
 const scriptPreview = nonePreview;
 
-async function getFileInfo(filePath: string, type: CompletionType) {
-	let getDuration = (duration: number) => {
-		let minutes = Math.floor(duration / 60);
-		let seconds = Math.floor(duration % 60);
-
-		return "Duration: `"
-			+ minutes.toString() + ":"
-			+ (seconds < 10 ? "0" + seconds.toString() : seconds.toString()) + "`";
-	};
-
-	try {
-		switch (type) {
-			case CompletionType.image:
-				const data = ImageProbe.fromBuffer(await getBuffer(filePath));
-
-				if (data === undefined) {
-					throw new Error("ImageProbe.fromBuffer() failed");
-				}
-
-				return "Width: `" + data.width.toString() + "` Height: `" + data.height.toString() + "`";
-			case CompletionType.audio:
-				const metadata = await mm.parseBuffer(await getBuffer(filePath));
-
-				return "`" + (metadata.format.sampleRate! / 1000).toFixed(1) + "KHz`\t"
-					+ "`" + (metadata.format.bitrate! / 1000).toFixed() + "kbps`\t"
-					+ getDuration(metadata.format.duration!);
-			case CompletionType.video:
-				const ffprobe = require('ffprobe');
-				const ffprobeStatic = require('ffprobe-static');
-
-				let info = (await ffprobe(filePath, { path: ffprobeStatic.path })).streams[0];
-
-				return "Width: `" + info.width.toString() + "` Height: `" + info.height.toString() + "`\t"
-					+ getDuration(info.duration!);
-			case CompletionType.script:
-				const commentRegex = new RegExp("(\\/\\*(.|[\r\n])*?\\*\\/)|(\\/\\/[^\r\n]*)|(\\([^\r\n]*)|Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
-				const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
-				const string = (await getBuffer(filePath)).toString('utf-8').replace(commentRegex, "");
-				const lines = string.split('\r\n');
-
-				for (let i in lines) {
-					let line = lines[i].trim().replace(blankRegex, "");
-
-					if (line.length > 0
-						&& !line.startsWith("#")
-						&& !line.startsWith("@")) {
-						return "\n\n" + line;
-					}
-				}
-		}
-	}
-	catch (err) {
-		console.log(filePath);
-		console.log(err);
-
-		return undefined;
-	}
-}
-
-async function getFileComment(previewStr: string
-	, fileName: string | undefined
-	, filePath: string
-	, type: CompletionType) {
-	let preview: vscode.MarkdownString | undefined = undefined;
-
-	if (fileName === undefined) {
-		preview = new vscode.MarkdownString("文件不存在");
-	} else {
-		previewStr = previewStr.replace('{$FILENAME}', fileName);
-		filePath = filePath.replace('{$FILENAME}', fileName);
-
-		let stat = await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
-		let size = stat.size / (1024);
-
-		preview = new vscode.MarkdownString(fileName);
-		preview.appendMarkdown("\n\n" + "Size: `" + size.toFixed(2) + " KB`"
-			+ "\tModified: `" + new Date(stat.mtime).toUTCString() + "`\t");
-
-		let detail = await getFileInfo(filePath, type);
-		if (detail !== undefined) {
-			preview.appendMarkdown(detail);
-		}
-
-		preview.appendMarkdown("\n\n");
-		preview.appendMarkdown(previewStr);
-
-		preview.baseUri = vscode.Uri.file(filePath);
-		preview.supportHtml = true;
-	}
-
-	return preview;
-}
-
-async function getFileList(uri: vscode.Uri) {
-	return vscode.workspace.fs.readDirectory(uri);
-}
-
-async function updateFileList() {
-	basePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
-
-	if (basePath === "") {
-		return;
-	}
-
-	// Update config
-	let iniParser = require('ini');
-	let encoding: BufferEncoding = 'utf-8';
-
-	let configPath = basePath + "\\..\\settings\\settings.ini";
-	let config = iniParser.parse((await getBuffer(configPath)).toString(encoding));
-
-
-	currentLocalCode = config.Display.Language;
-
-	let localizationPath = basePath + "\\..\\localization\\Localization.dat";
-	let localization = iniParser.parse((await getBuffer(localizationPath)).toString(encoding));
-
-	currentLocalCodeDefinition = localization.Definition;
-	currentLocalCodeDisplay = currentLocalCodeDefinition[
-		"LanguageDisplayName_" + currentLocalCode];
-
-	// Update completion list
-	graphic = basePath + "\\Graphics\\";
-
-	graphicFXPath = graphic + "FX";
-	graphicCGPath = graphic + "CG";
-	graphicUIPath = graphic + "UI";
-	graphicPatternFadePath = graphic + "PatternFade";
-	graphicCharactersPath = graphic + "Characters";
-
-	graphicFX = getFileList(vscode.Uri.file(graphicFXPath));
-	graphicCG = getFileList(vscode.Uri.file(graphicCGPath));
-	graphicUI = getFileList(vscode.Uri.file(graphicUIPath));
-	graphicPatternFade = getFileList(vscode.Uri.file(graphicPatternFadePath));
-	graphicCharacters = getFileList(vscode.Uri.file(graphicCharactersPath));
-
-	audio = basePath + "\\Audio\\";
-
-	audioBgmPath = audio + "Bgm";
-	audioBgsPath = audio + "Bgs";
-	audioDubsPath = audio + "Dubs";
-	audioSEPath = audio + "SE";
-
-	audioBgm = getFileList(vscode.Uri.file(audioBgmPath));
-	audioBgs = getFileList(vscode.Uri.file(audioBgsPath));
-	audioDubs = getFileList(vscode.Uri.file(audioDubsPath));
-	audioSE = getFileList(vscode.Uri.file(audioSEPath));
-
-	scriptPath = basePath + "\\dialogue";
-	script = getFileList(vscode.Uri.file(scriptPath));
-
-	let generateCompletionList = async (fileList: Thenable<[string, vscode.FileType][]>
-		, completions: vscode.CompletionItem[]
-		, basePath: string = ""
-		, type: CompletionType = CompletionType.image) => {
-		if (basePath === "") {
-			return;
-		}
-
-		(await fileList).forEach(async element => {
-			if (element[1] === vscode.FileType.File) {
-				let fileName: string = element[0];
-				let fileNameNoSuffix: string = element[0].lastIndexOf(".") === -1 ? element[0] : element[0].substring(0, element[0].lastIndexOf("."));
-				let fileNameSuffix: string = element[0].lastIndexOf(".") === -1 ? "" : element[0].substring(element[0].lastIndexOf("."));
-
-				let filePath: string = basePath + "\\{$FILENAME}";
-
-				let py = pinyin(fileNameNoSuffix
-					, {
-						toneType: 'none',
-						nonZh: 'consecutive'
-					});
-
-				let romanize: string = require('japanese').romanize(fileNameNoSuffix);
-
-				let delimiter = "\t\t";
-				let fileNameToEnglish = fileNameNoSuffix + delimiter + py + delimiter + romanize;
-
-				let item: vscode.CompletionItem = new vscode.CompletionItem({
-					label: fileNameNoSuffix
-					, detail: fileNameSuffix
-					// , description: ".ogg"
-				}
-					, vscode.CompletionItemKind.File);
-
-				item.insertText = fileName;
-				item.filterText = fileNameToEnglish;
-				let previewStr: string = nonePreview;
-				let detail: string | undefined = undefined;
-
-				switch (type) {
-					case CompletionType.image:
-						item.detail = "Image file preview";
-						previewStr = imagePreview;
-
-						break;
-					case CompletionType.audio:
-						item.detail = "Audio file";
-						previewStr = audioPreview;
-
-						break;
-					case CompletionType.video:
-						previewStr = videoPreview;
-						item.detail = "Video file";
-
-						break;
-					case CompletionType.script:
-						item.detail = "Script file";
-						previewStr = scriptPreview;
-
-						break;
-				}
-
-				item.documentation = await getFileComment(previewStr
-					, element[0]
-					, filePath
-					, type);
-
-				completions.push(item);
-			}
-		});
-
-	};
-
-	graphicFXCompletions = [];
-	graphicCGCompletions = [];
-	graphicUICompletions = [];
-	graphicPatternFadeCompletions = [];
-	graphicCharactersCompletions = [];
-
-	generateCompletionList(graphicFX, graphicFXCompletions, graphicFXPath);
-	generateCompletionList(graphicCG, graphicCGCompletions, graphicCGPath);
-	generateCompletionList(graphicUI, graphicUICompletions, graphicUIPath);
-	generateCompletionList(graphicPatternFade, graphicPatternFadeCompletions, graphicPatternFadePath);
-	generateCompletionList(graphicCharacters, graphicCharactersCompletions, graphicCharactersPath);
-
-	audioBgmCompletions = [];
-	audioBgsCompletions = [];
-	audioDubsCompletions = [];
-	audioSECompletions = [];
-
-	generateCompletionList(audioBgm, audioBgmCompletions, audioBgmPath, CompletionType.audio);
-	generateCompletionList(audioBgs, audioBgsCompletions, audioBgsPath, CompletionType.audio);
-	generateCompletionList(audioDubs, audioDubsCompletions, audioDubsPath, CompletionType.audio);
-	generateCompletionList(audioSE, audioSECompletions, audioSEPath, CompletionType.audio);
-
-	scriptCompletions = [];
-
-	generateCompletionList(script, scriptCompletions, scriptPath, CompletionType.script);
-}
-
 export async function activate(context: vscode.ExtensionContext) {
 	console.log("AvgScript extension activated");
 
 	//--------------------
 
-	await updateFileList();
+	async function getFileInfo(filePath: string, type: CompletionType) {
+		let getDuration = (duration: number) => {
+			let minutes = Math.floor(duration / 60);
+			let seconds = Math.floor(duration % 60);
+
+			return "Duration: `"
+				+ minutes.toString() + ":"
+				+ (seconds < 10 ? "0" + seconds.toString() : seconds.toString()) + "`";
+		};
+
+		try {
+			switch (type) {
+				case CompletionType.image:
+					const data = ImageProbe.fromBuffer(await getBuffer(filePath));
+
+					if (data === undefined) {
+						throw new Error("ImageProbe.fromBuffer() failed");
+					}
+
+					return "Width: `" + data.width.toString() + "` Height: `" + data.height.toString() + "`";
+				case CompletionType.audio:
+					const metadata = await mm.parseBuffer(await getBuffer(filePath));
+
+					return "`" + (metadata.format.sampleRate! / 1000).toFixed(1) + "KHz`\t"
+						+ "`" + (metadata.format.bitrate! / 1000).toFixed() + "kbps`\t"
+						+ getDuration(metadata.format.duration!);
+				case CompletionType.video:
+					const ffprobe = require('ffprobe');
+					const ffprobeStatic = require('ffprobe-static');
+
+					let info = (await ffprobe(filePath, { path: ffprobeStatic.path })).streams[0];
+
+					return "Width: `" + info.width.toString() + "` Height: `" + info.height.toString() + "`\t"
+						+ getDuration(info.duration!);
+				case CompletionType.script:
+					const commentRegex = new RegExp("(\\/\\*(.|[\r\n])*?\\*\\/)|(\\/\\/[^\r\n]*)|(\\([^\r\n]*)|Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
+					const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
+					const string = (await getBuffer(filePath)).toString('utf-8').replace(commentRegex, "");
+					const lines = string.split('\r\n');
+
+					for (let i in lines) {
+						let line = lines[i].trim().replace(blankRegex, "");
+
+						if (line.length > 0
+							&& !line.startsWith("#")
+							&& !line.startsWith("@")) {
+							return "\n\n" + line;
+						}
+					}
+			}
+		}
+		catch (err) {
+			console.log(filePath);
+			console.log(err);
+
+			return undefined;
+		}
+	}
+
+	async function getFileComment(previewStr: string
+		, fileName: string | undefined
+		, filePath: string
+		, type: CompletionType) {
+		let preview: vscode.MarkdownString | undefined = undefined;
+
+		if (fileName === undefined) {
+			preview = new vscode.MarkdownString("文件不存在");
+		} else {
+			previewStr = previewStr.replace('{$FILENAME}', fileName);
+			filePath = filePath.replace('{$FILENAME}', fileName);
+
+			let stat = await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
+			let size = stat.size / (1024);
+
+			preview = new vscode.MarkdownString(fileName);
+			preview.appendMarkdown("\n\n" + "Size: `" + size.toFixed(2) + " KB`"
+				+ "\tModified: `" + new Date(stat.mtime).toUTCString() + "`\t");
+
+			let detail = await getFileInfo(filePath, type);
+			if (detail !== undefined) {
+				preview.appendMarkdown(detail);
+			}
+
+			preview.appendMarkdown("\n\n");
+			preview.appendMarkdown(previewStr);
+
+			preview.baseUri = vscode.Uri.file(filePath);
+			preview.supportHtml = true;
+		}
+
+		return preview;
+	}
+
+	async function getFileList(uri: vscode.Uri) {
+		return vscode.workspace.fs.readDirectory(uri);
+	}
+
+	async function updateFileList() {
+		basePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
+
+		if (basePath === "") {
+			return;
+		}
+
+		// Update config
+		let iniParser = require('ini');
+		let encoding: BufferEncoding = 'utf-8';
+
+		let configPath = basePath + "\\..\\settings\\settings.ini";
+		let config = iniParser.parse((await getBuffer(configPath)).toString(encoding));
+
+		currentLocalCode = config.Display.Language;
+
+		let localizationPath = basePath + "\\..\\localization\\Localization.dat";
+		let localization = iniParser.parse((await getBuffer(localizationPath)).toString(encoding));
+
+		currentLocalCodeDefinition = localization.Definition;
+		currentLocalCodeDisplay = currentLocalCodeDefinition[
+			"LanguageDisplayName_" + currentLocalCode];
+
+		// Update completion list
+		graphic = basePath + "\\Graphics\\";
+
+		graphicFXPath = graphic + "FX";
+		graphicCGPath = graphic + "CG";
+		graphicUIPath = graphic + "UI";
+		graphicPatternFadePath = graphic + "PatternFade";
+		graphicCharactersPath = graphic + "Characters";
+
+		graphicFX = getFileList(vscode.Uri.file(graphicFXPath));
+		graphicCG = getFileList(vscode.Uri.file(graphicCGPath));
+		graphicUI = getFileList(vscode.Uri.file(graphicUIPath));
+		graphicPatternFade = getFileList(vscode.Uri.file(graphicPatternFadePath));
+		graphicCharacters = getFileList(vscode.Uri.file(graphicCharactersPath));
+
+		audio = basePath + "\\Audio\\";
+
+		audioBgmPath = audio + "Bgm";
+		audioBgsPath = audio + "Bgs";
+		audioDubsPath = audio + "Dubs";
+		audioSEPath = audio + "SE";
+
+		audioBgm = getFileList(vscode.Uri.file(audioBgmPath));
+		audioBgs = getFileList(vscode.Uri.file(audioBgsPath));
+		audioDubs = getFileList(vscode.Uri.file(audioDubsPath));
+		audioSE = getFileList(vscode.Uri.file(audioSEPath));
+
+		scriptPath = basePath + "\\dialogue";
+		script = getFileList(vscode.Uri.file(scriptPath));
+
+		let generateCompletionList = async (fileList: Thenable<[string, vscode.FileType][]>
+			, completions: vscode.CompletionItem[]
+			, basePath: string = ""
+			, type: CompletionType = CompletionType.image) => {
+			if (basePath === "") {
+				return;
+			}
+
+			(await fileList).forEach(async element => {
+				if (element[1] === vscode.FileType.File) {
+					let fileName: string = element[0];
+					let fileNameNoSuffix: string = element[0].lastIndexOf(".") === -1 ? element[0] : element[0].substring(0, element[0].lastIndexOf("."));
+					let fileNameSuffix: string = element[0].lastIndexOf(".") === -1 ? "" : element[0].substring(element[0].lastIndexOf("."));
+
+					let filePath: string = basePath + "\\{$FILENAME}";
+
+					let py = pinyin(fileNameNoSuffix
+						, {
+							toneType: 'none',
+							nonZh: 'consecutive'
+						});
+
+					let romanize: string = require('japanese').romanize(fileNameNoSuffix);
+
+					let delimiter = "\t\t";
+					let fileNameToEnglish = fileNameNoSuffix + delimiter + py + delimiter + romanize;
+
+					let item: vscode.CompletionItem = new vscode.CompletionItem({
+						label: fileNameNoSuffix
+						, detail: fileNameSuffix
+						// , description: ".ogg"
+					}
+						, vscode.CompletionItemKind.File);
+
+					item.insertText = fileName;
+					item.filterText = fileNameToEnglish;
+					let previewStr: string = nonePreview;
+					let detail: string | undefined = undefined;
+
+					switch (type) {
+						case CompletionType.image:
+							item.detail = "Image file preview";
+							previewStr = imagePreview;
+
+							break;
+						case CompletionType.audio:
+							item.detail = "Audio file";
+							previewStr = audioPreview;
+
+							break;
+						case CompletionType.video:
+							previewStr = videoPreview;
+							item.detail = "Video file";
+
+							break;
+						case CompletionType.script:
+							item.detail = "Script file";
+							previewStr = scriptPreview;
+
+							break;
+					}
+
+					item.documentation = await getFileComment(previewStr
+						, element[0]
+						, filePath
+						, type);
+
+					completions.push(item);
+				}
+			});
+
+		};
+
+		graphicFXCompletions = [];
+		graphicCGCompletions = [];
+		graphicUICompletions = [];
+		graphicPatternFadeCompletions = [];
+		graphicCharactersCompletions = [];
+
+		await generateCompletionList(graphicFX, graphicFXCompletions, graphicFXPath);
+		await generateCompletionList(graphicCG, graphicCGCompletions, graphicCGPath);
+		await generateCompletionList(graphicUI, graphicUICompletions, graphicUIPath);
+		await generateCompletionList(graphicPatternFade, graphicPatternFadeCompletions, graphicPatternFadePath);
+		await generateCompletionList(graphicCharacters, graphicCharactersCompletions, graphicCharactersPath);
+
+		audioBgmCompletions = [];
+		audioBgsCompletions = [];
+		audioDubsCompletions = [];
+		audioSECompletions = [];
+
+		await generateCompletionList(audioBgm, audioBgmCompletions, audioBgmPath, CompletionType.audio);
+		await generateCompletionList(audioBgs, audioBgsCompletions, audioBgsPath, CompletionType.audio);
+		await generateCompletionList(audioDubs, audioDubsCompletions, audioDubsPath, CompletionType.audio);
+		await generateCompletionList(audioSE, audioSECompletions, audioSEPath, CompletionType.audio);
+
+		scriptCompletions = [];
+
+		await generateCompletionList(script, scriptCompletions, scriptPath, CompletionType.script);
+	}
+
+	//--------------------
+
+	vscode.commands.executeCommand(commandRefreshAssets);
 
 	//--------------------
 
@@ -353,6 +355,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		},
 		'#' // triggered whenever a '#' is being typed
 	);
+
 	const atCommands = vscode.languages.registerCompletionItemProvider(
 		'AvgScript',
 		{
@@ -790,6 +793,17 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	vscode.commands.registerCommand(commandRefreshAssets, async () => {
+		// await updateFileList();
+		// refreshFileDiagnostics();
+
+		updateFileList();
+
+		// updateFileList().then(() => {
+		// 	refreshFileDiagnostics();
+		// });
+	});
+
 	//--------------------
 
 	const nonActiveLanguageDecorator = vscode.window.createTextEditorDecorationType({
@@ -824,43 +838,50 @@ export async function activate(context: vscode.ExtensionContext) {
 			}
 		});
 
-	const chapterDefinition = vscode.languages.registerDefinitionProvider('AvgScript',
+	const fileDefinition = vscode.languages.registerDefinitionProvider('AvgScript',
 		{
 			async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
 				let definitions: vscode.Location[] = [];
 
-				let line = document.lineAt(position.line).text.trim();
+				const line = document.lineAt(position.line).text.trim();
+				const linePrefix = document.lineAt(position).text.substring(0, position.character).trim().toLowerCase();
 
-				if (getType(line) !== FileType.script) {
+				let fileName = getParamAtPosition(line, position.character);
+
+				if (fileName === undefined) {
 					return undefined;
 				}
 
-				let nextChapter = getNthParam(line, 1);
-				let nextChapterPath = basePath + "\\dialogue\\" + nextChapter;
+				const fileUri = getUri(linePrefix, fileName);
 
-				if (!nextChapterPath.endsWith(".asc")) {
-					nextChapterPath += ".asc";
-				}
-
-				let nextChapterUri = vscode.Uri.file(nextChapterPath);
-
-				try {
-					await vscode.workspace.fs.stat(nextChapterUri);
-
-					let link = new vscode.Location(nextChapterUri
-						, new vscode.Position(0, 0));
-
-					definitions.push(link);
-
-					return definitions;
-				} catch {
+				if (fileUri === undefined) {
 					return undefined;
 				}
+
+				// try {
+				// 	await vscode.workspace.fs.stat(fileUri);
+
+				// 	let link = new vscode.Location(fileUri
+				// 		, new vscode.Position(0, 0));
+
+				// 	definitions.push(link);
+
+				// 	return definitions;
+				// } catch {
+				// 	return undefined;
+				// }
+
+				let link = new vscode.Location(fileUri
+					, new vscode.Position(0, 0));
+
+				definitions.push(link);
+
+				return definitions;
 			}
 		});
 
 	context.subscriptions.push(labelDefinition
-		, chapterDefinition);
+		, fileDefinition);
 
 	//--------------------
 
@@ -1112,14 +1133,343 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	//--------------------
 
+	const diagnosticsCollection = vscode.languages.createDiagnosticCollection('AvgScript');
+
+	function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = false) {
+		if (document.languageId !== 'AvgScript') {
+			return;
+		}
+
+		let diagnostics: vscode.Diagnostic[] = [];
+		let labels: string[] = [];
+		let blockCount: number = 0;
+		let blockPos: vscode.Range[] = [];
+
+		let settings = false;
+		let liteMode = false;
+		let EOF = false;
+		let nextJMP = false;
+
+		const regexNumber = /\+[0-9]+(.[0-9]+)?|-[0-9]+(.[0-9]+)?|[0-9]+(.[0-9]+)?/gi;
+		const regexHexColor = /(#|0[x|X])[0-9a-fA-F]{6}/gi;
+		const regexRep = /\<.*\>/gi;
+
+		for (let i = 0; i < document.lineCount; ++i) {
+			const line = document.lineAt(i);
+
+			if (!line.isEmptyOrWhitespace) {
+				const text = line.text.trim();
+
+				if (text.startsWith(";")) {
+					if (labels.includes(text)) {
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+							, "Duplicated Label: " + text.substring(1)
+							, vscode.DiagnosticSeverity.Warning));
+
+						continue;
+					}
+
+					labels.push(text);
+				}
+
+				if (text.startsWith("#")
+					|| text.startsWith("@")) {
+
+					if (text.match(/#Settings/gi)) {
+						let start = text.indexOf('=');
+						let params = text.substring(start + 1).split('|');
+
+						for (let settingsParam in params) {
+							let cutSettingsParam = params[settingsParam];
+							let cutSettingsParamLength = cutSettingsParam.length;
+
+							start++;
+
+							if (getMapValue(cutSettingsParam, settingsParamDocList) === undefined) {
+								diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, start, i, start + cutSettingsParamLength)
+									, "Invalid Setting Param: " + cutSettingsParam
+									, vscode.DiagnosticSeverity.Warning));
+							}
+
+							start += cutSettingsParamLength;
+						}
+
+						if (i !== 0) {
+							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+								, "Settings Not At First Line"
+								, vscode.DiagnosticSeverity.Error));
+						}
+
+						if (!settings && text.match(/Lite/gi)) {
+							liteMode = true;
+						}
+
+						if (settings) {
+							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+								, "Duplicated Setting"
+								, vscode.DiagnosticSeverity.Error));
+						}
+
+						settings = true;
+
+						continue;
+					}
+
+					if (text.match(/#EOF/gi)) {
+						EOF = true;
+						continue;
+					}
+					if (text.match(/(#CJMP|#JMPCha|#FJMP|#JMPFra)/gi)) {
+						nextJMP = true;
+						continue;
+					}
+
+					if (text.match(/#Begin/gi)) {
+						blockCount++;
+						blockPos.push(new vscode.Range(i, 0, i, line.text.length));
+
+						continue;
+					}
+
+					if (text.match(/#End/gi)) {
+						if (blockCount === 0) {
+							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+								, "End Without Begin"
+								, vscode.DiagnosticSeverity.Warning));
+
+							continue;
+						}
+
+						blockCount--;
+						blockPos.pop();
+						continue;
+					}
+
+					const params = getAllParams(text);
+					const command = params[0].substring(1);
+					const commandWithPrefix = text.charAt(0) + params[0].substring(1);
+					const commandType = getCommandType(commandWithPrefix);
+					const paramNum = params.length - 1;
+					const paramDefinition = getMapValue(command, commandParamList);
+
+					let contentStart: number = line.text.length - text.length + command.length + 1;
+
+					if (paramDefinition === undefined) {
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+							, "Undocumented Command: " + params[0]
+							, vscode.DiagnosticSeverity.Information));
+
+						continue;
+					}
+
+					// Check param valid
+					const paramFormat = paramDefinition.type;
+
+					for (let j = 1; j < params.length; j++) {
+						let curParam = params[j];
+						let currentType = paramFormat[j - 1];
+						contentStart++;
+
+						if (curParam.match(regexRep)) {
+							continue;
+						}
+
+						switch (currentType) {
+							case ParamType.String:
+
+								break;
+							case ParamType.Number:
+								if (!matchEntire(curParam, regexNumber)) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
+										, "Invalid Number: " + curParam
+										, vscode.DiagnosticSeverity.Error));
+								}
+
+								break;
+							case ParamType.Boolean:
+								if (!matchEntire(curParam, regexNumber)
+									|| curParam.toLowerCase() !== "on"
+									|| curParam.toLowerCase() !== "off") {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
+										, "Invalid Option: " + curParam
+										, vscode.DiagnosticSeverity.Error));
+								}
+
+								break;
+							case ParamType.Volume:
+								if (!matchEntire(curParam, regexNumber)
+									|| curParam.toLowerCase() !== "BGM".toLowerCase()
+									|| curParam.toLowerCase() !== "BGS".toLowerCase()
+									|| curParam.toLowerCase() !== "SE".toLowerCase()
+									|| curParam.toLowerCase() !== "DUB".toLowerCase()) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
+										, "Invalid Volume: " + curParam
+										, vscode.DiagnosticSeverity.Error));
+								}
+
+								break;
+							case ParamType.ObjType:
+								if (curParam.toLowerCase() !== "Pic".toLowerCase()
+									|| curParam.toLowerCase() !== "Str".toLowerCase()) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
+										, "Invalid Object Type: " + curParam
+										, vscode.DiagnosticSeverity.Error));
+								}
+
+								break;
+							case ParamType.Color:
+								if (curParam.match(regexHexColor)) {
+									if (j !== params.length - 1) {
+										diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, line.text.length)
+											, "Too Much Params"
+											, vscode.DiagnosticSeverity.Warning));
+									}
+								} else if (!matchEntire(curParam, regexNumber)) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
+										, "Invalid Number: " + curParam
+										, vscode.DiagnosticSeverity.Error));
+								}
+
+								break;
+							case ParamType.File:
+								if (checkFile
+									&& !fileExists(commandType, curParam)) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
+										, "File " + curParam + " Not Exist"
+										, vscode.DiagnosticSeverity.Warning));
+								}
+
+								break;
+							case ParamType.Any:
+								break;
+
+							default:
+								break;
+						}
+
+						contentStart += curParam.length;
+					}
+
+					// Check param num
+					const paramNumMin = paramDefinition.minParam;
+					const paramNumMax = paramDefinition.maxParam;
+
+					if (paramNum > paramNumMax) {
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, line.text.length, i, line.text.length)
+							, "Too Much Params"
+							, vscode.DiagnosticSeverity.Warning));
+
+						continue;
+					}
+
+					if (paramNum < paramNumMin) {
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, line.text.length, i, line.text.length)
+							, "Too Less Params"
+							, vscode.DiagnosticSeverity.Warning));
+
+						continue;
+					}
+				}
+			}
+		}
+
+		for (let j in blockPos) {
+			diagnostics.push(new vscode.Diagnostic(blockPos[j]
+				, "Begin Without End"
+				, vscode.DiagnosticSeverity.Warning));
+		}
+
+		if (!EOF) {
+			diagnostics.push(new vscode.Diagnostic(new vscode.Range(document.lineCount, 0, document.lineCount, document.lineAt(document.lineCount - 1).text.length)
+				, "Non EOF"
+				, vscode.DiagnosticSeverity.Error));
+		}
+
+		if (!liteMode && !nextJMP) {
+			diagnostics.push(new vscode.Diagnostic(new vscode.Range(document.lineCount, 0, document.lineCount, document.lineAt(document.lineCount - 1).text.length)
+				, "Non Valid JMP"
+				, vscode.DiagnosticSeverity.Error));
+		}
+
+		diagnosticsCollection.clear();
+		diagnosticsCollection.set(document.uri, diagnostics);
+	}
+
+	context.subscriptions.push(diagnosticsCollection);
+
+	//--------------------
+
 	let activeEditor = vscode.window.activeTextEditor;
-	let activeDocument = activeEditor?.document!;
 	let timeout: NodeJS.Timer | undefined = undefined;
+
+	function fileInitialized() {
+		let valid = (completions: vscode.CompletionItem[]) => {
+			if (!completions) {
+				return false;
+			}
+
+			return true;
+		};
+
+		if (valid(graphicFXCompletions)
+			&& valid(graphicFXCompletions)
+			&& valid(graphicCGCompletions)
+			&& valid(graphicUICompletions)
+			&& valid(graphicPatternFadeCompletions)
+			&& valid(graphicCharactersCompletions)
+
+			&& valid(audioBgmCompletions)
+			&& valid(audioBgsCompletions)
+			&& valid(audioDubsCompletions)
+			&& valid(audioSECompletions)
+
+			&& valid(labelCompletions)
+
+			&& valid(scriptCompletions)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	async function waitFileInit(): Promise<boolean> {
+		while (!fileInitialized()) {
+			// wait
+		}
+
+		return true;
+	}
+
+	function refreshFileDiagnostics() {
+		if (activeEditor === undefined) {
+			return;
+		}
+
+		let activeDocument = activeEditor.document;
+
+		updateDiagnostics(activeDocument, true);
+	}
+
+	// await isFileInitialized();
+
+	async function isFileInitialized() {
+		waitFileInit().then(() => {
+			console.log("File Initialized");
+		});
+	};
 
 	onUpdate();
 
 	function onUpdate() {
-		getLabelCompletion(activeDocument); updateLanguageDecorations(activeEditor!
+		if (activeEditor === undefined) {
+			return;
+		}
+
+		let activeDocument = activeEditor.document;
+
+		updateDiagnostics(activeDocument);
+		getLabelCompletion(activeDocument);
+		updateLanguageDecorations(activeEditor
 			, nonActiveLanguageDecorator
 			, currentLocalCode
 			, currentLocalCodeDisplay);
@@ -1149,6 +1499,24 @@ export async function activate(context: vscode.ExtensionContext) {
 			triggerUpdate(true);
 		}
 	}, null, context.subscriptions);
+}
+
+function getLabelPos(input: string) {
+	for (let i in labelCompletions) {
+		let label = labelCompletions[i].label;
+		if (typeof label === "string") {
+			if (label.toLowerCase() === input.toLowerCase()) {
+				return i;
+			}
+		}
+		else {
+			if (label.label.toLowerCase() === input.toLowerCase()) {
+				return i;
+			}
+		}
+	}
+
+	return -1;
 }
 
 function getLabelComment(input: string) {

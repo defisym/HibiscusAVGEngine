@@ -495,10 +495,9 @@ export const commandDocList = new Map<string, string[]>([
     ["ValueAddValue", ["\t#VAV:ValueIDA:ValueIDB"
         , "\t#ValueAddValue:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`+`ValueIDB`"]],
-    ["VS",
-        ["\t#VS:ValueID"
-            , "\t#ValueSub:ValueID:Value"
-            , "`ValueID`=`ValueID`-`Value`"]],
+    ["VS", ["\t#VS:ValueID"
+        , "\t#ValueSub:ValueID:Value"
+        , "`ValueID`=`ValueID`-`Value`"]],
     ["ValueSub", ["\t#VS:ValueID"
         , "\t#ValueSub:ValueID:Value"
         , "`ValueID`=`ValueID`-`Value`"]],
@@ -514,10 +513,9 @@ export const commandDocList = new Map<string, string[]>([
     ["ValueMul", ["\t#VM:ValueID"
         , "\t#ValueMul:ValueID:Value"
         , "`ValueID`=`ValueID`*`Value`"]],
-    ["VMV",
-        ["\t#VMV:ValueIDA:ValueIDB"
-            , "\t#ValueMulValue:ValueIDA:ValueIDB"
-            , "`ValueIDA`=`ValueIDA`*`ValueIDB`"]],
+    ["VMV", ["\t#VMV:ValueIDA:ValueIDB"
+        , "\t#ValueMulValue:ValueIDA:ValueIDB"
+        , "`ValueIDA`=`ValueIDA`*`ValueIDB`"]],
     ["ValueMulValue", ["\t#VMV:ValueIDA:ValueIDB"
         , "\t#ValueMulValue:ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`*`ValueIDB`"]],
@@ -805,11 +803,11 @@ export const commandDocList = new Map<string, string[]>([
         , "默认情况下淡入速度较快，建议使用`#TransitionSpeed`指令修改叠化速度为5左右"]],
     ["DestroyFade", ["消除之前创建的所有叠化效果，会被转译为`@PatternFadeOut`"]],
 
-    ["PF", ["\t@PF:picname"
-        , "\t@PatternFade:picname"
+    ["PF", ["\t@PF:picname:Orderable"
+        , "\t@PatternFade:picname:Orderable"
         , "创建`Pattern`过渡元件，使用`pattern fade`读取`picname`图像叠化进入"]],
-    ["PatternFade", ["\t@PF:picname"
-        , "\t@PatternFade:picname"
+    ["PatternFade", ["\t@PF:picname:Orderable"
+        , "\t@PatternFade:picname:Orderable"
         , "创建`Pattern`过渡元件，使用`pattern fade`读取`picname`图像叠化进入"]],
     ["PFO", ["\t@PFO:picname"
         , "\t@PatternFadeOut:picname:Orderable"
@@ -826,14 +824,14 @@ export const commandDocList = new Map<string, string[]>([
     ["ToRain", ["逐渐创建下雨效果，不会在过渡状态2等待，不受到强制等待指令控制"]],
     ["ToSnow", ["逐渐创建下雪效果，不会在过渡状态2等待，不受到强制等待指令控制"]],
     ["ToNormal", ["逐渐取消天气效果，不会在过渡状态2等待，不受到强制等待指令控制"]],
+
     ["CrossFade", ["\t@CrossFade:ID"
         , "为该对象下次叠化启用交错模式"
         , "ID留空，程序会尝试捕获最新调用叠化指令的对象，在叠化完成后，CrossFade会自动禁用"
         , "在叠化阶段开始指令前(等待/强制等待/文本)使用指令均有效，但从可读性角度建议写于相应叠化指令后"]],
-    ["KeepRes",
-        ["\t@KeepRes:ID"
-            , "\t@KeepResolution:ID"
-            , "该ID对应的对象会在叠化时保持当前设定的分辨率"]],
+    ["KeepRes", ["\t@KeepRes:ID"
+        , "\t@KeepResolution:ID"
+        , "该ID对应的对象会在叠化时保持当前设定的分辨率"]],
     ["KeepResolution", ["\t@KeepRes:ID"
         , "\t@KeepResolution:ID"
         , "该ID对应的对象会在叠化时保持当前设定的分辨率"]],
@@ -844,6 +842,7 @@ export const commandDocList = new Map<string, string[]>([
     ["KeepResolutionOff", ["\t@KeepResOff:ID"
         , "\t@KeepResolutionOff:ID"
         , "该ID对应的对象会在叠化时重设分辨率为新图像的分辨率"]],
+
     ["Sepia", ["\t@Sepia:Strength:NoiseMotion:Period"
         , "\t@SepiaToning:Strength:NoiseMotion:Period"
         , "创建强度为`Strength`的`Sepia Toning`对象，对象默认ID为`-5`。其中`Strength`应为一个`[0,1]`的浮点数，默认值为`0.5`，`NoiseMotion`参数控制噪声运动的开启与关闭，当设定为`1`或`On`的时候会启用噪声运动，运动周期为`Period`，单位毫秒，默认值为`-1`，即每帧更新。已经创建了`Sepia Toning`对象后调用该指令，该指令无效"]],
@@ -862,42 +861,39 @@ export const commandDocList = new Map<string, string[]>([
 
     ["StrCenter", ["定义坐标参数留空时字符串的默认位置，该指令后创建的字符串默认居中"]],
     ["StrBottom", ["定义坐标参数留空时字符串的默认位置，该指令后创建的字符串默认底部居中"]],
-    ["Str",
-        ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "创建字符串，字符串ID与图像ID相互独立"
-            , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
-            , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
-    ["String",
-        ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "创建字符串，字符串ID与图像ID相互独立"
-            , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
-            , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
-    ["CreateStr",
-        ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "创建字符串，字符串ID与图像ID相互独立"
-            , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
-            , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
+    ["Str", ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "创建字符串，字符串ID与图像ID相互独立"
+        , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
+        , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
+    ["String", ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "创建字符串，字符串ID与图像ID相互独立"
+        , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
+        , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
+    ["CreateStr", ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
+        , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
+        , "创建字符串，字符串ID与图像ID相互独立"
+        , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
+        , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]],
     ["CreateString", ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
         , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
         , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
@@ -987,10 +983,9 @@ export const commandDocList = new Map<string, string[]>([
     ["CPatternFadeIn", ["\t@CPFI:picname:patternname:ID"
         , "\t@CPatternFadeIn:picname:patternname:ID"
         , "读取贴图，叠化至前景图像"]],
-    ["CPFO",
-        ["\t@CPFO:picname:patternname:ID"
-            , "\t@CPatternFadeOut:picname:patternname:ID"
-            , "读取贴图，叠化至背景图像"]],
+    ["CPFO", ["\t@CPFO:picname:patternname:ID"
+        , "\t@CPatternFadeOut:picname:patternname:ID"
+        , "读取贴图，叠化至背景图像"]],
     ["CPatternFadeOut", ["\t@CPFO:picname:patternname:ID"
         , "\t@CPatternFadeOut:picname:patternname:ID"
         , "读取贴图，叠化至背景图像"]],
@@ -1008,10 +1003,9 @@ export const commandDocList = new Map<string, string[]>([
         , "\t@CGPatternFadeOut:picname:patternname"
         , "转译指令，读取贴图，CG叠化至背景图像"]],
 
-    ["CharPF",
-        ["\t@CharPF:picname:patternname:ID"
-            , "\t@CharPatternFade:picname:patternname:ID"
-            , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]],
+    ["CharPF", ["\t@CharPF:picname:patternname:ID"
+        , "\t@CharPatternFade:picname:patternname:ID"
+        , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]],
     ["CharPatternFade", ["\t@CharPF:picname:patternname:ID"
         , "\t@CharPatternFade:picname:patternname:ID"
         , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]],
@@ -1076,8 +1070,342 @@ export const commandDocList = new Map<string, string[]>([
         , "无叠化，将`ID`指定的`Type`对象移至顶层"]],
     ["Back", ["\t@Back=ID:Type"
         , "无叠化，将`ID`指定的`Type`对象移至底层"]],
-    ["Forward", ["\t@Forward=ID:Num:Type"
+    ["Forward", ["\t@Forward=ID:Type:Num"
         , "无叠化，将`ID`指定的`Type`对象上移`Num`层，参数留空默认上移一层"]],
-    ["Backward", ["\t@Backward=ID:Num:Type"
+    ["Backward", ["\t@Backward=ID:Type:Num"
         , "无叠化，将`ID`指定的`Type`对象下移`Num`层，参数留空默认下移一层"]],
+]);
+
+export enum ParamType {
+    String,
+    Number,
+    Boolean,
+    Volume,
+    ObjType,
+    Color,
+    File,
+    Any,
+};
+
+export interface ParamFormat {
+    minParam: number;
+    maxParam: number;
+    type: ParamType[];
+}
+export const commandParamList = new Map<string, ParamFormat>([
+    // keywords_region
+
+    ["Begin", { minParam: 0, maxParam: 0, type: [] }],
+    ["End", { minParam: 0, maxParam: 0, type: [] }],
+
+    // keywords_system
+    ["Error", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["NULL", { minParam: 0, maxParam: 0, type: [] }],
+    ["CacheClean", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["UnSkipAble", { minParam: 0, maxParam: 0, type: [] }],
+    ["SkipAble", { minParam: 0, maxParam: 0, type: [] }],
+    ["SGO", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SetGlobalOffset", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["TransitionSpeed", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["ForceTransition", { minParam: 0, maxParam: 0, type: [] }],
+    ["Save", { minParam: 0, maxParam: 0, type: [] }],
+    ["Debug", { minParam: 0, maxParam: 0, type: [] }],
+    ["DebugOff", { minParam: 0, maxParam: 0, type: [] }],
+    ["DefineRGB", { minParam: 1, maxParam: 3, type: [ParamType.Color, ParamType.Number, ParamType.Number] }],
+
+    ["MSG", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["MSGClear", { minParam: 0, maxParam: 0, type: [] }],
+    ["StopFF", { minParam: 0, maxParam: 0, type: [] }],
+    ["StopFastForward", { minParam: 0, maxParam: 0, type: [] }],
+    ["DisableUI", { minParam: 0, maxParam: 0, type: [] }],
+    ["EnableUI", { minParam: 0, maxParam: 0, type: [] }],
+    ["FNT", { minParam: 0, maxParam: 0, type: [] }],
+    ["ForceNoTransition", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["FNTO", { minParam: 0, maxParam: 0, type: [] }],
+    ["ForceNoTransitionOff", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["EOF", { minParam: 0, maxParam: 0, type: [] }],
+    ["W", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["Wait", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["FW", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["ForceWait", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["Jmp", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["NJMP", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["Call", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["Ret", { minParam: 0, maxParam: 0, type: [] }],
+    ["FJMP", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["JmpFra", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["CJMP", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["JmpCha", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+
+    ["SJMP", { minParam: 0, maxParam: 0, type: [] }],
+    ["SkipJmp", { minParam: 0, maxParam: 0, type: [] }],
+    ["SkipAnchor", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["CreateSwitch", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["Switch", { minParam: 4, maxParam: 4, type: [ParamType.Number, ParamType.Number, ParamType.String, ParamType.String] }],
+    ["UnlockAch", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["AddtoStat", { minParam: 1, maxParam: 2, type: [ParamType.String, ParamType.Number] }],
+    ["UnlockAppreciation", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
+    ["UnlockAppreciation_Chapter", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
+    ["UnlockAppreciation_Graphic", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
+    ["UnlockAppreciation_Audio", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
+    ["VNMode_Newline", { minParam: 0, maxParam: 0, type: [] }],
+    ["VNMode_ChangePage", { minParam: 0, maxParam: 0, type: [] }],
+
+
+    ["SetCapture", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["CaptureSys", { minParam: 1, maxParam: 1, type: [ParamType.Boolean] }],
+
+    // keywords_values
+    ["SV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SetValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SVV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SetValueValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SVAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SetValueAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SSS", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SetStringString", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SSAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SetStringAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["VA", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["ValueAdd", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["VAV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["ValueAddValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["VS", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["ValueSub", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["VSV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["ValueSubValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["VM", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["ValueMul", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["VMV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["ValueMulValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["VD", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["ValueDiv", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["VAV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["ValueDivValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+
+    ["CMP", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPVAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPValueAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPVV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPValueValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPSAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPStringAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPSS", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMPStringString", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+
+    ["JE", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["JA", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["JB", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["JNE", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+
+    // keywords_dialogue
+
+    ["DiaColor", { minParam: 1, maxParam: 3, type: [ParamType.Color] }],
+    ["DiaSize", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["DiaFont", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+
+    ["DiaShaderOn", { minParam: 2, maxParam: 4, type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["DiaShaderOff", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["DiaOutColor", { minParam: 1, maxParam: 3, type: [ParamType.Color] }],
+    ["DiaOutPixel", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["NameColor", { minParam: 1, maxParam: 3, type: [ParamType.Color] }],
+    ["NameSize", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["NameFont", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+
+    ["NameShaderOn", { minParam: 2, maxParam: 4, type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["NameShaderOff", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["NameOutColor", { minParam: 1, maxParam: 3, type: [ParamType.Color] }],
+    ["NameOutPixel", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["Dia", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["DiaChange", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["DiaTrans", { minParam: 0, maxParam: 0, type: [] }],
+    ["Name", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["NameChange", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["NameTrans", { minParam: 0, maxParam: 0, type: [] }],
+    ["TextFadeOut", { minParam: 0, maxParam: 0, type: [] }],
+
+    // keywords_media
+
+    ["P", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.String, ParamType.Number] }],
+    ["Play", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.String, ParamType.Number] }],
+
+    ["Stop", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["Se", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+
+    ["Bgm", { minParam: 1, maxParam: 4, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["BgmLoop", { minParam: 1, maxParam: 4, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number] }],
+
+    ["BgmPre", { minParam: 1, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["BgmPreludeLoop", { minParam: 1, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+
+    ["BgmPause", { minParam: 0, maxParam: 0, type: [] }],
+    ["BgmResume", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["BgmFadeOut", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["Bgs", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["BgsLoop", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+
+    ["BgsPause", { minParam: 0, maxParam: 0, type: [] }],
+    ["BgsResume", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["BgsFadeOut", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["Dub", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["DubPlay", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+
+    ["DubSeque", { minParam: 0, maxParam: 0, type: [] }],
+    ["Ntk", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["NtkChange", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["PV", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["PlayVideo", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["OV", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["OpenVideo", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["CV", { minParam: 0, maxParam: 0, type: [] }],
+    ["CloseVideo", { minParam: 0, maxParam: 0, type: [] }],
+    ["VR", { minParam: 0, maxParam: 0, type: [] }],
+    ["VideoResume", { minParam: 0, maxParam: 0, type: [] }],
+    ["VP", { minParam: 0, maxParam: 0, type: [] }],
+    ["VideoPause", { minParam: 0, maxParam: 0, type: [] }],
+    ["VW", { minParam: 0, maxParam: 0, type: [] }],
+    ["VideoWait", { minParam: 0, maxParam: 0, type: [] }],
+    ["VL", { minParam: 0, maxParam: 0, type: [] }],
+    ["VideoLoop", { minParam: 0, maxParam: 0, type: [] }],
+    ["SVP", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["SetVideoPos", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    // keywords_effect
+
+    ["CreateBlur", { minParam: 0, maxParam: 0, type: [] }],
+    ["AddBlur", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["RemoveBlur", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["DestroyBlur", { minParam: 0, maxParam: 0, type: [] }],
+    ["BackZoomParam", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["BackZoomReset", { minParam: 0, maxParam: 0, type: [] }],
+    ["BackZoom", { minParam: 5, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["Shake", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["ShakeDir", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["KeepShake", { minParam: 0, maxParam: 0, type: [] }],
+    ["KeepShakeOff", { minParam: 0, maxParam: 0, type: [] }],
+    ["Fade", { minParam: 0, maxParam: 0, type: [] }],
+    ["DestroyFade", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["PF", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["PatternFade", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["PFO", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["PatternFadeOut", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+
+    ["Rain", { minParam: 0, maxParam: 0, type: [] }],
+    ["Snow", { minParam: 0, maxParam: 0, type: [] }],
+    ["Normal", { minParam: 0, maxParam: 0, type: [] }],
+    ["ToRain", { minParam: 0, maxParam: 0, type: [] }],
+    ["ToSnow", { minParam: 0, maxParam: 0, type: [] }],
+    ["ToNormal", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["CrossFade", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["KeepRes", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["KeepResolution", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["KeepResOff", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["KeepResolutionOff", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["Sepia", { minParam: 0, maxParam: 3, type: [ParamType.Number, ParamType.Boolean, ParamType.Number] }],
+    ["SepiaToning", { minParam: 0, maxParam: 3, type: [ParamType.Number, ParamType.Boolean, ParamType.Number] }],
+    ["ChangeSepiaStrength", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["SetSepiaNoiseMotion", { minParam: 1, maxParam: 1, type: [ParamType.Boolean] }],
+    ["ChangeSepiaNoiseMotionPeriod", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    // keywords_preobj
+
+    ["StrCenter", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["StrBottom", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["Str", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["String", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["CreateStr", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["CreateString", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+
+    ["StrS", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["StrSize", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["StrF", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.String] }],
+    ["StrFont", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.String] }],
+    ["StrA", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["StrAlpha", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+
+    ["StrC", { minParam: 2, maxParam: 4, type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["StrColor", { minParam: 2, maxParam: 4, type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number] }],
+
+    ["MS", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["MoveStr", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["DestroyStr", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["DestroyString", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["DestroyAllStr", { minParam: 0, maxParam: 0, type: [] }],
+    ["DestroyAllString", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["Spe", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+
+    ["MO", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["MoveObj", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+
+    ["CG", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["CGChange", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+
+    ["CPF", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
+    ["CPatternFade", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
+    ["CPFI", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
+    ["CPatternFadeIn", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
+    ["CPFO", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
+    ["CPatternFadeOut", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
+    ["CGPFI", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.File] }],
+    ["CGPatternFadeIn", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.File] }],
+
+    ["CGPFO", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.File] }],
+    ["CGPatternFadeOut", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.File] }],
+
+    ["CharPF", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
+    ["CharPatternFade", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
+
+    ["Char", { minParam: 2, maxParam: 6, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["Character", { minParam: 2, maxParam: 6, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+
+    ["CC", { minParam: 2, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["CharChange", { minParam: 2, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+
+    ["CA", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number,] }],
+    ["CharAlpha", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number,] }],
+
+    ["CharRotate", { minParam: 4, maxParam: 4, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["SetAutoArrange", { minParam: 1, maxParam: 1, type: [ParamType.Boolean] }],
+    ["CD", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["CharDispose", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+
+    ["CAD", { minParam: 0, maxParam: 0, type: [] }],
+    ["CharAllDispose", { minParam: 0, maxParam: 0, type: [] }],
+    ["MC", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["MoveChar", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+
+    ["HideUI", { minParam: 0, maxParam: 0, type: [] }],
+    ["ShowUI", { minParam: 0, maxParam: 0, type: [] }],
+
+    ["Order", { minParam: 3, maxParam: 3, type: [ParamType.Number, ParamType.Number, ParamType.ObjType] }],
+    ["Front", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["Back", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["Forward", { minParam: 2, maxParam: 3, type: [ParamType.Number, ParamType.ObjType, ParamType.Number] }],
+    ["Backward", { minParam: 2, maxParam: 3, type: [ParamType.Number, ParamType.ObjType, ParamType.Number] }],
 ]);

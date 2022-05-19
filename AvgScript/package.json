@@ -7,6 +7,7 @@
     "repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
     "homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
     "icon": "media/AvgScript.png",
+    "main": "./dist/extension.js",
     "engines": {
         "vscode": "^1.67.0"
     },
@@ -15,7 +16,10 @@
         "Snippets",
         "Themes"
     ],
-    "contributes": {
+    "extensionDependencies": [
+        "sukumo28.wav-preview"
+    ],
+    "contributes": {        
         "languages": [
             {
                 "id": "AvgScript",
@@ -78,17 +82,38 @@
         ],
         "commands": [
             {
-                "category": "AvgScript Configuration",
+                "category": "AvgScript",
                 "command": "config.AvgScript.basePath",
-                "title": "Base path for the assets files"
+                "title": "Base path for the assets files",
+                "icon": "media/AvgScript.png",
+                "shortTitle": "Base Path"
+            },
+            {
+                "category": "AvgScript",
+                "command": "config.AvgScript.refreshAssets",
+                "title": "Refresh Assets information",
+                "icon": "media/AvgScript.png",
+                "shortTitle": "Refresh Assets"
             }
-        ]
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "config.AvgScript.basePath",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "command": "config.AvgScript.refreshAssets",
+                    "when": "editorLangId == AvgScript"
+                }
+            ]
+        }
     },
     "activationEvents": [
         "onLanguage:AvgScript",
-        "onCommand:config.AvgScript.basePath"
+        "onCommand:config.AvgScript.basePath",
+        "onCommand:config.AvgScript.refreshAssets"
     ],
-    "main": "./dist/extension.js",
     "scripts": {
         "vscode:prepublish": "npm run package",
         "webpack": "webpack --mode development",
