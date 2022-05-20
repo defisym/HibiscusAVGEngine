@@ -1,5 +1,13 @@
 # Change Log
 
+## 20220520
+
+- fix info grammar error
+- `Too Many Params` now will underline from the first param that exceed the limit
+- do not under line the blank part of the line
+- fix color decorator issue when param not match
+- hint `Too Few Params` for RGB style color
+
 ## 20220519
 
 - jump to file definition

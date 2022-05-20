@@ -13,16 +13,12 @@ Hibiscus AVG Engine AvgScript Support for VS Code
 
 ## Requirements
 
-N/A
+- [Audio-Preview by sukumo28](https://marketplace.visualstudio.com/items?itemName=sukumo28.wav-preview)
 
 ## Extension Settings
 
-N/A
-
-<!-- This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something -->
+- `conf.AvgScript.basePath`
+  - *Base path to find the settings & assets of the engine*
 
 ## Known Issues
 
@@ -30,4 +26,4 @@ N/A
 
 ## Release Notes
 
-Last Update at 20220507
+N/A

@@ -4,7 +4,7 @@ import { pinyin } from 'pinyin-pro';
 import * as mm from 'music-metadata';
 import { ImageProbe } from "@zerodeps/image-probe";
 
-import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer, getCommentList, getMapValue, getUri, fileExists, getCommandType, matchEntire } from './lib/utilities';
+import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer, getCommentList, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum } from './lib/utilities';
 import {
 	sharpKeywordList, atKeywordList
 	, keywordList, settingsParamList
@@ -638,74 +638,84 @@ export async function activate(context: vscode.ExtensionContext) {
 
 					if (!line.isEmptyOrWhitespace) {
 						const text = line.text.trim();
+						const lineStart = line.text.length - line.text.trimStart().length;
+						const params = getAllParams(text);
 						const paramNum = getNumberOfParam(text);
+
 						// match command that set RGB
 
-						if (text.match(/(#DefineRGB|#DiaColor|#NameColor|#NameOutColor|#DiaOutColor|@StrC|@StrColor)/gi) && (paramNum >= 1)
-							|| text.match(/(#NameShaderOn|#DiaShaderOn)/gi) && (paramNum >= 2)
-							|| text.match(/(@Str|@String|@CreateStr|@CreateString)/gi) && (paramNum >= 9)) {
-							// hex
-							if (text.substring(text.length - 8).match(/(#|0[x|X])[0-9a-fA-F]{6}/gi)) {
-								let pos = text.lastIndexOf(":") + 1;
-								if (pos === 0) {
-									pos = text.lastIndexOf("=") + 1;
-								}
-								const colorStr = text.substring(pos);
+						let handleHex = (hex: string, start: number) => {
+							let charPos = 0;
 
-								let charPos = 0;
+							if (hex.startsWith("#")) {
+								charPos += 1;
+							}
+							else if (hex.toLowerCase().startsWith("0x".toLowerCase())) {
+								charPos += 2;
+							}
 
-								if (colorStr.startsWith("#")) {
-									charPos += 1;
-								}
-								else if (colorStr.toLowerCase().startsWith("0x".toLowerCase())) {
-									charPos += 2;
-								}
+							let getColor = (colorStr: string) => {
+								let ret = parseInt(colorStr.substring(charPos, charPos + 2), 16);
+								charPos += 2;
 
-								let getColor = (colorStr: string) => {
-									let ret = parseInt(colorStr.substring(charPos, charPos + 2), 16);
-									charPos += 2;
+								return ret;
+							};
 
-									return ret;
-								};
+							let R = getColor(hex);
+							let G = getColor(hex);
+							let B = getColor(hex);
 
-								let R = getColor(colorStr);
-								let G = getColor(colorStr);
-								let B = getColor(colorStr);
+							let range = new vscode.Range(line.lineNumber, start, line.lineNumber, start + hex.length);
+							let color = new vscode.Color(R / 255.0, G / 255.0, B / 255.0, 1.0);
+							colors.push(new vscode.ColorInformation(range, color));
+						};
 
-								let range = new vscode.Range(line.lineNumber, pos, line.lineNumber, text.length);
-								let color = new vscode.Color(R / 255.0, G / 255.0, B / 255.0, 1.0);
-								colors.push(new vscode.ColorInformation(range, color));
-							} else {
-								if (text.lastIndexOf(":") === -1) {
-									continue;
-								}
+						let handleRGB = (r: string, g: string, b: string, start: number) => {
+							if (strIsNum(r) && strIsNum(g) && strIsNum(b)) {
+								let R = parseInt(r, 10);
+								let G = parseInt(g, 10);
+								let B = parseInt(b, 10);
 
-								let pos = [0, 0, 0];
-								let count = 0;
-
-								for (let charPos = text.length - 1; charPos >= 0; charPos--) {
-									if (text.charAt(charPos) === ":"
-										|| text.charAt(charPos) === "=") {
-										pos[count] = charPos;
-										count++;
-
-										if (count === 3) {
-											break;
-										}
-									}
-								}
-
-								let R = parseInt(text.substring(pos[2] + 1, pos[1]), 10);
-								let G = parseInt(text.substring(pos[1] + 1, pos[0]), 10);
-								let B = parseInt(text.substring(pos[0] + 1, text.length), 10);
-
-								let range = new vscode.Range(line.lineNumber, pos[2] + 1, line.lineNumber, text.length);
+								let range = new vscode.Range(line.lineNumber, start
+									, line.lineNumber, start + r.length + 1 + g.length + 1 + b.length);
 								let color = new vscode.Color(R / 255.0, G / 255.0, B / 255.0, 1.0);
 								colors.push(new vscode.ColorInformation(range, color));
 							}
+						};
+
+						let handle = (paramStart: number, start: number) => {
+							if (paramNum === paramStart + 1) {
+								handleHex(params[paramStart + 1], lineStart + start);
+							}
+							if (paramNum === paramStart + 3) {
+								handleRGB(params[paramStart + 1], params[paramStart + 2], params[paramStart + 3], lineStart + start);
+							}
+						};
+
+						if (text.match(/(#DefineRGB|#DiaColor|#NameColor|#NameOutColor|#DiaOutColor|@StrC|@StrColor)/gi)) {
+							handle(0, params[0].length + 1);
+						}
+
+						if (text.match(/(#NameShaderOn|#DiaShaderOn)/gi)) {
+							handle(1, params[0].length + 1 + params[1].length + 1);
+						}
+
+						if (text.match(/(@Str|@String|@CreateStr|@CreateString)/gi)) {
+							if (paramNum < 9) {
+								continue;
+							}
+
+							let paramStart = 0;
+
+							for (let param = 0; param <= 8; param++) {
+								paramStart + params[param].length + 1;
+							}
+
+							handle(8, paramStart);
 						}
 					}
 				}
+
 				return colors;
 			}
 			provideColorPresentations(
@@ -1159,10 +1169,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			if (!line.isEmptyOrWhitespace) {
 				const text = line.text.trim();
+				const lineStart: number = line.text.length - line.text.trimStart().length;
+				const lineEnd: number = lineStart + text.length;
 
 				if (text.startsWith(";")) {
 					if (labels.includes(text)) {
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
 							, "Duplicated Label: " + text.substring(1)
 							, vscode.DiagnosticSeverity.Warning));
 
@@ -1195,7 +1207,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (i !== 0) {
-							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
 								, "Settings Not At First Line"
 								, vscode.DiagnosticSeverity.Error));
 						}
@@ -1205,7 +1217,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						}
 
 						if (settings) {
-							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
 								, "Duplicated Setting"
 								, vscode.DiagnosticSeverity.Error));
 						}
@@ -1226,14 +1238,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
 					if (text.match(/#Begin/gi)) {
 						blockCount++;
-						blockPos.push(new vscode.Range(i, 0, i, line.text.length));
+						blockPos.push(new vscode.Range(i, lineStart, i, lineEnd));
 
 						continue;
 					}
 
 					if (text.match(/#End/gi)) {
 						if (blockCount === 0) {
-							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
 								, "End Without Begin"
 								, vscode.DiagnosticSeverity.Warning));
 
@@ -1252,10 +1264,10 @@ export async function activate(context: vscode.ExtensionContext) {
 					const paramNum = params.length - 1;
 					const paramDefinition = getMapValue(command, commandParamList);
 
-					let contentStart: number = line.text.length - text.length + command.length + 1;
+					let contentStart: number = lineStart + command.length + 1;
 
 					if (paramDefinition === undefined) {
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, line.text.length)
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
 							, "Undocumented Command: " + params[0]
 							, vscode.DiagnosticSeverity.Information));
 
@@ -1320,14 +1332,21 @@ export async function activate(context: vscode.ExtensionContext) {
 							case ParamType.Color:
 								if (curParam.match(regexHexColor)) {
 									if (j !== params.length - 1) {
-										diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, line.text.length)
-											, "Too Much Params"
+										diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, lineEnd)
+											, "Too Many Params"
 											, vscode.DiagnosticSeverity.Warning));
 									}
-								} else if (!matchEntire(curParam, regexNumber)) {
-									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
-										, "Invalid Number: " + curParam
-										, vscode.DiagnosticSeverity.Error));
+								} else {
+									if (j + 2 >= params.length) {
+										diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineEnd, i, lineEnd)
+											, "Too Few Params"
+											, vscode.DiagnosticSeverity.Warning));
+									}
+									if (!matchEntire(curParam, regexNumber)) {
+										diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
+											, "Invalid Number: " + curParam
+											, vscode.DiagnosticSeverity.Error));
+									}
 								}
 
 								break;
@@ -1355,16 +1374,24 @@ export async function activate(context: vscode.ExtensionContext) {
 					const paramNumMax = paramDefinition.maxParam;
 
 					if (paramNum > paramNumMax) {
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, line.text.length, i, line.text.length)
-							, "Too Much Params"
+						let tooManyStart: number = lineStart;
+
+						for (let param = 0; param <= paramNumMax; param++) {
+							tooManyStart += params[param].length + 1;
+						}
+
+						tooManyStart--;
+
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, tooManyStart, i, lineEnd)
+							, "Too Many Params"
 							, vscode.DiagnosticSeverity.Warning));
 
 						continue;
 					}
 
 					if (paramNum < paramNumMin) {
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, line.text.length, i, line.text.length)
-							, "Too Less Params"
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineEnd, i, lineEnd)
+							, "Too Few Params"
 							, vscode.DiagnosticSeverity.Warning));
 
 						continue;
@@ -1380,7 +1407,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 
 		if (!EOF) {
-			diagnostics.push(new vscode.Diagnostic(new vscode.Range(document.lineCount, 0, document.lineCount, document.lineAt(document.lineCount - 1).text.length)
+			const lastLine = document.lineAt(document.lineCount - 1).text;
+			const lastLineStart = lastLine.length - lastLine.trimStart().length;
+			const lastLineEnd = lastLineStart + lastLine.trim().length;
+
+			diagnostics.push(new vscode.Diagnostic(new vscode.Range(document.lineCount - 1, lastLineStart, document.lineCount - 1, lastLineEnd)
 				, "Non EOF"
 				, vscode.DiagnosticSeverity.Error));
 		}

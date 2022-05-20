@@ -128,6 +128,7 @@ export function getNthParam(src: string, position: number) {
 
 export function getNumberOfParam(src: string, countLast: boolean = false): number {
     let count = 0;
+
     for (let i = 0; i < src.length; i++) {
         if (delimiter.includes(src[i])) {
             count++;
@@ -438,4 +439,9 @@ export function matchEntire(src: string, regex: RegExp) {
     }
 
     return match[0] === src;
+}
+
+export function strIsNum(src: string) {
+    const regexNumber = /\+[0-9]+(.[0-9]+)?|-[0-9]+(.[0-9]+)?|[0-9]+(.[0-9]+)?/gi;
+    return matchEntire(src, regexNumber);
 }

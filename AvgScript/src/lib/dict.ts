@@ -46,7 +46,7 @@ export const sharpKeywordList: string[] = [
     'CreateSwitch',
     'Switch',
     'UnlockAch',
-    'AddtoStat',
+    'AddToStat',
     'UnlockAppreciation',
     'UnlockAppreciation_Chapter',
     'UnlockAppreciation_Graphic',
@@ -409,7 +409,7 @@ export const commandDocList = new Map<string, string[]>([
         , "如果跳转标签定义为`Negative`，则该选项设定为灰色，无效"]],
     ["UnlockAch", ["\t#UnlockAch=Steam_AchName"
         , "解锁成就`Steam_AchName`"]],
-    ["AddtoStat", ["\t#AddtoStat=Steam_StatName:Steam_StatAdd"
+    ["AddToStat", ["\t#AddToStat=Steam_StatName:Steam_StatAdd"
         , "更新统计`Steam_StatName`，增加`Steam_StatAdd`"
         , "若`Steam_StatAdd`留空，默认为统计量+1"]],
     ["UnlockAppreciation", ["\t#UnlockAppreciation=ContentName:Page:Pos"
@@ -1149,7 +1149,7 @@ export const commandParamList = new Map<string, ParamFormat>([
     ["CreateSwitch", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
     ["Switch", { minParam: 4, maxParam: 4, type: [ParamType.Number, ParamType.Number, ParamType.String, ParamType.String] }],
     ["UnlockAch", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["AddtoStat", { minParam: 1, maxParam: 2, type: [ParamType.String, ParamType.Number] }],
+    ["AddToStat", { minParam: 1, maxParam: 2, type: [ParamType.String, ParamType.Number] }],
     ["UnlockAppreciation", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
     ["UnlockAppreciation_Chapter", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
     ["UnlockAppreciation_Graphic", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
