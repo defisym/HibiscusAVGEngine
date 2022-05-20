@@ -2,8 +2,9 @@
 
 rem Init
 Set APPID=1315620
+Set AppName=EndlessShinyBlues
 Set ScriptPath=F:\DEV\_Steamworks_SDK\tools\ContentBuilder\scripts\app_build_1315620.vdf
-Set ContentPath=F:\DEV\_Steamworks_SDK\tools\ContentBuilder\content\EndlessShinyBlues\
+Set ContentPath=F:\DEV\_Steamworks_SDK\tools\ContentBuilder\content\%AppName%\
 Set SteamCMDPath=F:\DEV\_Steamworks_SDK\tools\ContentBuilder\builder\steamcmd.exe
 
 Set curPath=%~dp0
@@ -31,12 +32,10 @@ echo f | xcopy "%curPath%\savings\_Global\_GlobalProgress_Template" "%ContentPat
 xcopy "%curPath%\Modules\*.*" "%ContentPath%\Modules\" /s /e
 xcopy "%curPath%\localization\*.*" "%ContentPath%\localization\" /s /e
 
-echo f | xcopy "%curPath%\EndlessShinyBlues.dat" "%ContentPath%" /s /e
-echo f | xcopy "%curPath%\EndlessShinyBlues.exe" "%ContentPath%\EndlessShinyBlues.exe" /s /e
+echo f | xcopy "%curPath%\%AppName%.dat" "%ContentPath%" /s /e
 
-@REM echo f | xcopy "%curPath%\EndlessShinyBlues_Wrapper.exe" "%ContentPath%\EndlessShinyBlues.exe" /s /e
-@REM xcopy "%curPath%\steam_api.dll" "%ContentPath%" /s /e
-@REM xcopy "%curPath%\steam_api64.dll" "%ContentPath%" /s /e
+@REM echo f | xcopy "%curPath%\%AppName%.exe" "%ContentPath%\%AppName%.exe" /s /e
+@REM echo f | xcopy "%curPath%\%AppName%_Wrapper.exe" "%ContentPath%\%AppName%.exe" /s /e
 
 REM Delete Temp Files
 del "%ContentPath%\CrashLog.Log" /f /s /q
@@ -92,6 +91,6 @@ Set /p SteamGuard=Please input SteamGuard :
 
 rem Build Content
 @REM %SteamCMDPath% +login %SteamUser% %SteamPassword% %SteamGuard% +run_app_build %ScriptPath% +quit
-%SteamCMDPath% +login %SteamUser% %SteamPassword% %SteamGuard% +drm_wrap %APPID% "%curPath%\EndlessShinyBlues.exe" "%ContentPath%\EndlessShinyBlues.exe" drmtoolp 0 +run_app_build %ScriptPath% +quit
+%SteamCMDPath% +login %SteamUser% %SteamPassword% %SteamGuard% +drm_wrap %APPID% "%curPath%\%AppName%.exe" "%ContentPath%\%AppName%.exe" drmtoolp 0 +run_app_build %ScriptPath% +quit
 
 exit
