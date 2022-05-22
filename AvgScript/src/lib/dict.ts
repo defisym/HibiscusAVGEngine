@@ -350,20 +350,24 @@ export const commandDocList = new Map<string, string[]>([
     ["W", ["\t#W=2000"
         , "\t#Wait=2000"
         , "等待指令:等待时间"
-        , "等待指令只对**交叠淡化**有效"]],
+        , "等待指令只对**交叠淡化**有效"
+        , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]],
     ["Wait", ["\t#W=2000"
         , "\t#Wait=2000"
         , "等待指令:等待时间"
-        , "等待指令只对**交叠淡化**有效"]],
+        , "等待指令只对**交叠淡化**有效"
+        , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]],
 
     ["FW", ["\t#FW=2000"
         , "\t#ForceWait=2000"
         , "强制等待指令:等待时间"
-        , "强制等待指令对**移动旋转、BGM淡出淡出**等有效"]],
+        , "强制等待指令对**移动旋转、BGM淡出淡出**等有效"
+        , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]],
     ["ForceWait", ["\t#FW=2000"
         , "\t#ForceWait=2000"
         , "强制等待指令:等待时间"
-        , "强制等待指令对**移动旋转、BGM淡出淡出**等有效"]],
+        , "强制等待指令对**移动旋转、BGM淡出淡出**等有效"
+        , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]],
 
     ["Jmp", ["\t#JMP=Label"
         , "脚本内跳转，跳转到指定的标签位"
@@ -790,9 +794,9 @@ export const commandDocList = new Map<string, string[]>([
     ["BackZoomParam", ["\t@BackZoomParam=Easing_FuncA:Easing_FuncB"
         , "指定进行缩放时的Easing参数"]],
     ["BackZoomReset", ["按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:10:0:0`在真实坐标模式下执行"]],
-    ["BackZoom", ["\t@BackZoom=X:Y:width:height:Speed:Instant:Forcewait"
+    ["BackZoom", ["\t@BackZoom=X:Y:width:height:Speed:Instant:ForceWait"
         , "缩放到大小为`(width,height)`，区域中心坐标`(x,y)`指定缩放速度以及是否立即缩放"
-        , "`Forcewait`参数为`0/1`，`0`表示默认在阶段二进行变化，`1`表示跨阶段变化"]],
+        , "`ForceWait`参数为`0/1`，`0`表示默认在阶段二进行变化，`1`表示跨阶段变化"]],
     ["Shake", ["\t@Shake=5000"
         , "震动一定时长后停止震动，单位为帧，通常情况下设定为60代表震动一秒"]],
     ["ShakeDir", ["\t@ShakeDir=Dir"
@@ -1126,11 +1130,11 @@ export const commandParamList = new Map<string, ParamFormat>([
     ["ForceNoTransitionOff", { minParam: 0, maxParam: 0, type: [] }],
 
     ["EOF", { minParam: 0, maxParam: 0, type: [] }],
-    ["W", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["Wait", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["W", { minParam: 0, maxParam: 1, type: [ParamType.Number] }],
+    ["Wait", { minParam: 0, maxParam: 1, type: [ParamType.Number] }],
 
-    ["FW", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["ForceWait", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["FW", { minParam: 0, maxParam: 1, type: [ParamType.Number] }],
+    ["ForceWait", { minParam: 0, maxParam: 1, type: [ParamType.Number] }],
 
     ["Jmp", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
     ["NJMP", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
@@ -1333,8 +1337,8 @@ export const commandParamList = new Map<string, ParamFormat>([
 
     // keywords_preobj
 
-    ["StrCenter", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["StrBottom", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["StrCenter", { minParam: 0, maxParam: 0, type: [] }],
+    ["StrBottom", { minParam: 0, maxParam: 0, type: [] }],
     ["Str", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
     ["String", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
     ["CreateStr", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
