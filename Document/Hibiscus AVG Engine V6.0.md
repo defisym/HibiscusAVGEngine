@@ -819,37 +819,37 @@ Debug_AVG=Chapter_1
 
 ### 色调
 
-#### `#DefineRGB:R:G:B` / `#DefineRGB:#FFFFFF`
+#### `#DefineRGB=R:G:B` / `#DefineRGB=#FFFFFF`
 
 定义立绘的色调RGB值为`R:G:B/#FFFFFF`，无叠化更新所有立绘对象(非特殊非特效对象)的RGB参数。该指令通常用于根据背景光照情况调整立绘色调，可使用附带的`RGBDefiner`工具来直观的调整该参数。
 
 ### 对白 / 姓名
 
-#### `#DiaColor:R:G:B` / `#DiaColor:#FFFFFF`
+#### `#DiaColor=R:G:B` / `#DiaColor=#FFFFFF`
 
 定义对白文字的RGB值，`R:G:B/#FFFFFF`
 
 字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误
 
-#### `#NameColor:R:G:B` / `#NameColor:#FFFFFF`
+#### `#NameColor=R:G:B` / `#NameColor=#FFFFFF`
 
 定义姓名文字的RGB值，`R:G:B/#FFFFFF`
 
 字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误
 
-#### `#diasize:size`
+#### `#diasize=size`
 
 定义对白文字的大小，AVG模式下默认大小为17，VN模式下默认大小为18
 
-#### `#namesize:size`
+#### `#namesize=size`
 
 定义姓名文字的大小，默认大小为18
 
-#### `#diafont:font`
+#### `#diafont=font`
 
 定义对白文字的字体
 
-#### `#namefont:font`
+#### `#namefont=font`
 
 定义姓名文字的字体
 
@@ -869,15 +869,15 @@ Debug_AVG=Chapter_1
 
 #### 姓名
 
-##### `#NameShaderOn:outlinepixel:R:G:B` / `#NameShaderOn:outlinepixel:#FFFFFF`
+##### `#NameShaderOn=outlinepixel:R:G:B` / `#NameShaderOn=outlinepixel:#FFFFFF`
 
 启用姓名勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`
 
-##### `#NameOutColor:R:G:B` / `#NameOutColor:#FFFFFF`
+##### `#NameOutColor=R:G:B` / `#NameOutColor=#FFFFFF`
 
 启用勾边时，更改姓名勾边颜色为`RGB/#FFFFFF`
 
-##### `#nameoutpixel:outlinepixel`
+##### `#nameoutpixel=outlinepixel`
 
 启用勾边时，更改对白勾边像素数为`outlinepixel`
 
@@ -887,15 +887,15 @@ Debug_AVG=Chapter_1
 
 #### 对白
 
-##### `#DiaShaderOn:outlinepixel:R:G:B` / `#DiaShaderOn:outlinepixel:#FFFFFF`
+##### `#DiaShaderOn=outlinepixel:R:G:B` / `#DiaShaderOn=outlinepixel:#FFFFFF`
 
 启用对白勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`
 
-##### `#DiaOutColor:R:G:B` / `#DiaOutColor:#FFFFFF`
+##### `#DiaOutColor=R:G:B` / `#DiaOutColor=#FFFFFF`
 
 启用勾边时，更改对白勾边颜色为`RGB/#FFFFFF`
 
-##### `#diaoutpixel:outlinepixel`
+##### `#diaoutpixel=outlinepixel`
 
 启用勾边时，更改对白勾边像素数为`outlinepixel`
 
@@ -915,11 +915,11 @@ Debug_AVG=Chapter_1
 
 ### 全局Offset
 
-#### `#SGO:XOffset:YOffset`
+#### `#SGO=XOffset:YOffset`
 
 同义指令
 
-- `#SetGlobalOffset:XOffset:YOffset`
+- `#SetGlobalOffset=XOffset:YOffset`
 
 设定演出对象的全局偏移量，特效、UI与字符串对象不受影响
 
@@ -945,7 +945,7 @@ Debug_AVG=Chapter_1
 
 #### 速度
 
-##### `#TransitionSpeed:Value`
+##### `#TransitionSpeed=Value`
 
 更改不透明度叠化速度，默认为`10`
 
@@ -1137,35 +1137,35 @@ Debug_AVG=Chapter_1
 
 ##### 通用
 
-###### `#SV:ValueID:Value`
+###### `#SV=ValueID:Value`
 
 同义指令
 
-- `#SetValue:ValueID:Value`
+- `#SetValue=ValueID:Value`
 
 令`ValueID`=`Value`，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则为数值赋值，否则为字符串赋值
 
 ##### 数值
 
-###### `#SVV:ValueIDA:ValueIDB`
+###### `#SVV=ValueIDA:ValueIDB`
 
 同义指令
 
-- `#SetValueValue:ValueIDA:ValueIDB`
-- `#SVAB:ValueIDA:ValueIDB`
-- `#SetValueAB:ValueIDA:ValueIDB`
+- `#SetValueValue=ValueIDA:ValueIDB`
+- `#SVAB=ValueIDA:ValueIDB`
+- `#SetValueAB=ValueIDA:ValueIDB`
 
 `ValueIDA`=`ValueIDB`
 
 ##### 字符串
 
-###### `#SSS:ValueIDA:ValueIDB`
+###### `#SSS=ValueIDA:ValueIDB`
 
 同义指令
 
-- `#SetStringString:ValueIDA:ValueIDB`
-- `#SSAB:ValueIDA:ValueIDB`
-- `#SetStringAB:ValueIDA:ValueIDB`
+- `#SetStringString=ValueIDA:ValueIDB`
+- `#SSAB=ValueIDA:ValueIDB`
+- `#SetStringAB=ValueIDA:ValueIDB`
 
 `ValueIDA`=`ValueIDB`
 
@@ -1173,73 +1173,73 @@ Debug_AVG=Chapter_1
 
 ##### 加
 
-###### `#VA:ValueID`
+###### `#VA=ValueID`
 
 同义指令
 
-- `#ValueAdd:ValueID:Value`
+- `#ValueAdd=ValueID:Value`
 
 `ValueID`=`ValueID`+`Value`
 
-###### `#VAV:ValueIDA:ValueIDB`
+###### `#VAV=ValueIDA:ValueIDB`
 
 同义指令
 
-- `#ValueAddValue:ValueIDA:ValueIDB`
+- `#ValueAddValue=ValueIDA:ValueIDB`
 
 `ValueIDA`=`ValueIDA`+`ValueIDB`
 
 ##### 减
 
-###### `#VS:ValueID:Value`
+###### `#VS=ValueID:Value`
 
 同义指令
 
-- `#ValueSub:ValueID:Value`
+- `#ValueSub=ValueID:Value`
 
 `ValueID`=`ValueID`-`Value`
 
-###### `#VSV:ValueIDA:ValueIDB`
+###### `#VSV=ValueIDA:ValueIDB`
 
 同义指令
 
-- `#ValueSubValue:ValueIDA:ValueIDB`
+- `#ValueSubValue=ValueIDA:ValueIDB`
 
 `ValueIDA`=`ValueIDA`-`ValueIDB`
 
 ##### 乘
 
-###### `#VM:ValueID:Value`
+###### `#VM=ValueID:Value`
 
 同义指令
 
-- `#ValueMul:ValueID:Value`
+- `#ValueMul=ValueID:Value`
 
 `ValueID`=`ValueID`*`Value`
 
-###### `#VMV:ValueIDA:ValueIDB`
+###### `#VMV=ValueIDA:ValueIDB`
 
 同义指令
 
-- `#ValueMulValue:ValueIDA:ValueIDB`
+- `#ValueMulValue=ValueIDA:ValueIDB`
 
 `ValueIDA`=`ValueIDA`*`ValueIDB`
 
 ##### 除
 
-###### `#VD:ValueID:Value`
+###### `#VD=ValueID:Value`
 
 同义指令
 
-- `#ValueDiv:ValueID:Value`
+- `#ValueDiv=ValueID:Value`
 
 `ValueID`=`ValueID`/`Value`
 
-###### `#VDV:ValueIDA:ValueIDB`
+###### `#VDV=ValueIDA:ValueIDB`
 
 同义指令
 
-- `#ValueDivValue:ValueIDA:ValueIDB`
+- `#ValueDivValue=ValueIDA:ValueIDB`
 
 `ValueIDA`=`ValueIDA`/`ValueIDB`
 
@@ -1247,43 +1247,43 @@ Debug_AVG=Chapter_1
 
 ##### 通用
 
-###### `#CMP:ValueID:Value`
+###### `#CMP=ValueID:Value`
 
 同义指令
 
-- `#CMPV:ValueID:Value`
-- `#CMPValue:ValueID:Value`
+- `#CMPV=ValueID:Value`
+- `#CMPValue=ValueID:Value`
 
 比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较
 
 ##### 数值
 
-###### `#CMPAB:ValueIDA:ValueIDB`
+###### `#CMPAB=ValueIDA:ValueIDB`
 
 同义指令
 
-- `#CMPVAB:ValueIDA:ValueIDB`
-- `#CMPValueAB:ValueIDA:ValueIDB`
-- `#CMPVV:ValueIDA:ValueIDB`
-- `#CMPValueValue:ValueIDA:ValueIDB`
+- `#CMPVAB=ValueIDA:ValueIDB`
+- `#CMPValueAB=ValueIDA:ValueIDB`
+- `#CMPVV=ValueIDA:ValueIDB`
+- `#CMPValueValue=ValueIDA:ValueIDB`
 
 比较`ValueIDA`与`ValueIDB`的大小
 
 ##### 字符串
 
-###### `#CMPSAB:ValueIDA:ValueIDB`
+###### `#CMPSAB=ValueIDA:ValueIDB`
 
 同义指令
 
-- `#CMPStringAB:ValueIDA:ValueIDB`
-- `#CMPSS:ValueIDA:ValueIDB`
-- `#CMPStringString:ValueIDA:ValueIDB`
+- `#CMPStringAB=ValueIDA:ValueIDB`
+- `#CMPSS=ValueIDA:ValueIDB`
+- `#CMPStringString=ValueIDA:ValueIDB`
 
 比较`ValueIDA`与`ValueIDB`的大小
 
-##### `#je/ja/jb/jne:label`
+##### `#je/ja/jb/jne=label`
 
-比较结果等于/大于/小于/不等于时，跳转至`Lable`
+比较结果等于/大于/小于/不等于时，跳转至`Label`
 
 #### 特殊变量
 
@@ -1303,13 +1303,13 @@ Debug_AVG=Chapter_1
 
 ### 选项分支
 
-#### `#CreateSwitch:SwitchNum`
+#### `#CreateSwitch=SwitchNum`
 
 选项分支创建的入口指令，用于创建`SwitchNum`个分支
 
 该指令会记录当前扫描指针位置，用于保存/读取
 
-#### `#Switch:X:Y:Text:Label`
+#### `#Switch=X:Y:Text:Label`
 
 控制创建的分支选项，指定其X/Y坐标，选项文本与跳转标签
 
@@ -1324,10 +1324,10 @@ Debug_AVG=Chapter_1
 #### 示例
 
 ```C++
-#CreateSwitch:3
-#Switch:0:465:直接结束:结束标签
-#Switch:0:335:彻底搞晕:测试标签
-#Switch:0:205:不可选择:Negative
+#CreateSwitch=3
+#Switch=0:465:直接结束:结束标签
+#Switch=0:335:彻底搞晕:测试标签
+#Switch=0:205:不可选择:Negative
 
 ;结束标签
 #jmpfra=1
@@ -1603,7 +1603,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环
 
-##### `@bgsfadeout:fadeSpeed`
+##### `@bgsfadeout=fadeSpeed`
 
 淡出BGS
 
@@ -1904,23 +1904,23 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 #### 控制指令
 
-##### `@KeepRes:ID`
+##### `@KeepRes=ID`
 
 同义指令
 
-- `@KeepResolution:ID`
+- `@KeepResolution=ID`
 
 该ID对应的对象会在叠化时保持当前设定的分辨率
 
-##### `@KeepResOff:ID`
+##### `@KeepResOff=ID`
 
 同义指令
 
-- `@KeepResolutionOff:ID`
+- `@KeepResolutionOff=ID`
 
 该ID对应的对象会在叠化时重设分辨率为新图像的分辨率
 
-##### `@CrossFade:ID`
+##### `@CrossFade=ID`
 
 为该对象下次叠化启用交错模式
 
@@ -1946,7 +1946,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 停止震动
 
-##### `@BackZoomParam:Easing_FuncA:Easing_FuncB`
+##### `@BackZoomParam=Easing_FuncA:Easing_FuncB`
 
 指定进行缩放时的Easing参数
 
@@ -1964,9 +1964,9 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ```C++
 @backzoom=640:360:640:360:1:0:1
-#wait:1000
+#wait=1000
 @cgchange=夏.png
-#forcewait:1000
+#forcewait=1000
 ```
 
 #### 过渡指令
@@ -1985,23 +1985,23 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ```C++
 @fade
-#wait:4000
+#wait=4000
 @destroyfade
 ```
 
-##### `@PF:picname:Orderable`
+##### `@PF=picname:Orderable`
 
 同义指令
 
-- `@PatternFade:picname:Orderable`
+- `@PatternFade=picname:Orderable`
 
 创建`Pattern`过渡元件，使用`PatternFade`读取`picname`图像叠化进入，具有`Orderable`属性的对象可参与排序
 
-##### `@PFO:picname:Orderable`
+##### `@PFO=picname:Orderable`
 
 同义指令
 
-- `@PatternFadeOut:picname:Orderable`
+- `@PatternFadeOut=picname:Orderable`
 
 使用`PatternFade`读取`picname`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序
 
@@ -2023,55 +2023,55 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ##### 核心指令
 
-###### `@CPF:picname:patternname:ID`
+###### `@CPF=picname:patternname:ID`
 
 同义指令
 
-- `@CPatternFade:picname:patternname:ID`
+- `@CPatternFade=picname:patternname:ID`
 
 读取贴图，前景背景同时叠化
 
-###### `@CPFI:picname:patternname:ID`
+###### `@CPFI=picname:patternname:ID`
 
 同义指令
 
-- `@CPatternFadeIn:picname:patternname:ID`
+- `@CPatternFadeIn=picname:patternname:ID`
 
 读取贴图，叠化至前景图像
 
-###### `@CPFO:picname:patternname:ID`
+###### `@CPFO=picname:patternname:ID`
 
 同义指令
 
-- `@CPatternFadeOut:picname:patternname:ID`
+- `@CPatternFadeOut=picname:patternname:ID`
 
 读取贴图，叠化至背景图像
 
 ##### 转译指令
 
-###### `@CharPF:picname:patternname:ID`
+###### `@CharPF=picname:patternname:ID`
 
 同义指令
 
-- `@CharPatternFade:picname:patternname:ID`
+- `@CharPatternFade=picname:patternname:ID`
 
 转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**
 
 ![CharPatternFade](media/image12.jpeg)
 
-###### `@CGPFI:picname:patternname`
+###### `@CGPFI=picname:patternname`
 
 同义指令
 
-- `@CGPatternFadeIn:picname:patternname`
+- `@CGPatternFadeIn=picname:patternname`
 
 转译指令，读取贴图，CG叠化至前景图像
 
-###### `@CGPFO:picname:patternname`
+###### `@CGPFO=picname:patternname`
 
 同义指令
 
-- `@CGPatternFadeOut:picname:patternname`
+- `@CGPatternFadeOut=picname:patternname`
 
 转译指令，读取贴图，CG叠化至背景图像
 
@@ -2105,23 +2105,23 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ##### Sepia Toning
 
-###### `@Sepia:Strength:NoiseMotion:Period`
+###### `@Sepia=Strength:NoiseMotion:Period`
 
 同义指令
 
-- `@SepiaToning:Strength:NoiseMotion:Period`
+- `@SepiaToning=Strength:NoiseMotion:Period`
 
 创建强度为`Strength`的`Sepia Toning`对象，对象默认ID为`-5`。其中`Strength`应为一个`[0,1]`的浮点数，默认值为`0.5`，`NoiseMotion`参数控制噪声运动的开启与关闭，当设定为`1`或`On`的时候会启用噪声运动，运动周期为`Period`，单位毫秒，默认值为`-1`，即每帧更新。已经创建了`Sepia Toning`对象后调用该指令，该指令无效。
 
-###### `@ChangeSepiaStrength:Strength`
+###### `@ChangeSepiaStrength=Strength`
 
 在演出执行阶段改变`Sepia Toning`对象的`Strength`，参数留空会将`Strength`设定为默认值`0.5`
 
-###### `@SetSepiaNoiseMotion:On/Off`
+###### `@SetSepiaNoiseMotion=On/Off`
 
 控制噪声运动的开启与关闭，设定为`1`或`On`时启用噪声运动，设定为`0`或`Off`时禁用噪声运动，参数为空会Toggle当前启用状态
 
-###### `@ChangeSepiaNoiseMotionPeriod:Period`
+###### `@ChangeSepiaNoiseMotionPeriod=Period`
 
 将噪声运动的运动周期设定为`Period`，单位毫秒，参数为空会将`Period`设定为默认值`-1`，一个典型的参考值为`300`毫秒
 
@@ -2141,7 +2141,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ```C++
 Sepia Toning
-@SepiaToning:0.5:On:500
+@SepiaToning=0.5:On:500
 @Char=..FXMemory.png:20:0:0:0
 
 ChangeSepiaNoiseMotionPeriod
@@ -2151,13 +2151,13 @@ Change Sepia Strength
 @ChangeSepiaStrength=1
 
 Set Sepia Noise Motion
-@SetSepiaNoiseMotion:On
+@SetSepiaNoiseMotion=On
 
 Toggle Sepia Noise Motion
 @SetSepiaNoiseMotion
 
-@chardispose:-5
-@chardispose:20
+@chardispose=-5
+@chardispose=20
 ```
 
 ###### 示意图
@@ -2213,21 +2213,21 @@ Toggle Sepia Noise Motion
 - 长宽默认为新图片原始尺寸
   - 使用+/-指定增量时，会以原始尺寸为基础进行计算
 
-##### `@CA:ID:Alpha`
+##### `@CA=ID:Alpha`
 
 同义指令
 
-- `@CharAlpha:ID:Alpha`
+- `@CharAlpha=ID:Alpha`
 
 切换对象到指定的不透明度
 
-##### `@CD:ID`
+##### `@CD=ID`
 
 同义指令
 
-- `@CharDispose:ID`
+- `@CharDispose=ID`
 
-销毁并释放该ID对应的图像对象的本体和遮罩，会转译为`@CharAlpha:ID:255`并启用`Destroy`Flag
+销毁并释放该ID对应的图像对象的本体和遮罩，会转译为`@CharAlpha=ID:255`并启用`Destroy`Flag
 
 ##### `@CAD`
 
@@ -2247,7 +2247,7 @@ CG/UI不会被销毁
 
 移动图片对象，具体参数说明请参见`@MoveObj`一节
 
-##### `@CharRotate:ID:angle:clockwise:circlecount`
+##### `@CharRotate=ID:angle:clockwise:circlecount`
 
 旋转对象至目标角度与预定圈数，`clockwise = 1`为顺时针，`clockwise = -1`为逆时针
 
