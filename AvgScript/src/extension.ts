@@ -4,7 +4,7 @@ import { pinyin } from 'pinyin-pro';
 import * as mm from 'music-metadata';
 import { ImageProbe } from "@zerodeps/image-probe";
 
-import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer, getCommentList, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum } from './lib/utilities';
+import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer, getCommentList, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment } from './lib/utilities';
 import {
 	sharpKeywordList, atKeywordList
 	, keywordList, settingsParamList
@@ -344,9 +344,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		'AvgScript',
 		{
 			provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-				const linePrefix = document.lineAt(position).text.substring(0, position.character).trim().toLowerCase();
+				let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-				if (!lineValidForCommandCompletion(linePrefix)) {
+				if (line === undefined) {
+					return undefined;
+				}
+
+				if (!lineValidForCommandCompletion(linePrefix!)) {
 					return undefined;
 				}
 
@@ -360,9 +364,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		'AvgScript',
 		{
 			provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-				const linePrefix = document.lineAt(position).text.substring(0, position.character).trim().toLowerCase();
+				let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-				if (!lineValidForCommandCompletion(linePrefix)) {
+				if (line === undefined) {
+					return undefined;
+				}
+
+				if (!lineValidForCommandCompletion(linePrefix!)) {
 					return undefined;
 				}
 
@@ -376,9 +384,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		'AvgScript',
 		{
 			provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-				const linePrefix = document.lineAt(position).text.substring(0, position.character).toLowerCase().trim();
+				let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-				if (!linePrefix.startsWith('#Settings='.toLowerCase())) {
+				if (line === undefined) {
+					return undefined;
+				}
+
+				if (!linePrefix!.startsWith('#Settings='.toLowerCase())) {
 					return undefined;
 				}
 
@@ -410,9 +422,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		'AvgScript',
 		{
 			provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-				const linePrefix = document.lineAt(position).text.substring(0, position.character).trim().toLowerCase();
+				let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-				switch (getType(linePrefix)) {
+				if (line === undefined) {
+					return undefined;
+				}
+
+				switch (getType(linePrefix!)) {
 					case FileType.inValid:
 						return undefined;
 
@@ -458,9 +474,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		'AvgScript',
 		{
 			provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-				const linePrefix = document.lineAt(position).text.substring(0, position.character).trim().toLowerCase();
+				let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-				switch (getType(linePrefix)) {
+				if (line === undefined) {
+					return undefined;
+				}
+
+				switch (getType(linePrefix!)) {
 					case FileType.inValid:
 						return undefined;
 
@@ -512,22 +532,25 @@ export async function activate(context: vscode.ExtensionContext) {
 				return undefined;
 			}
 
-			const line = document.lineAt(position).text.toLowerCase().trim();;
-			const linePrefix = document.lineAt(position).text.substring(0, position.character).trim().toLowerCase();
+			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-			let word = document.getText(range).toLowerCase();
+			if (line === undefined) {
+				return undefined;
+			}
+
+			let word: string = document.getText(range).toLowerCase();
 
 			if (line.startsWith('#Settings='.toLowerCase())) {
 				return new vscode.Hover(getHoverContents(word, settingsParamDocList));
 			}
 
-			if (getNumberOfParam(linePrefix) === 0) {
-				if ((linePrefix.lastIndexOf('@', position.character) !== -1
-					|| linePrefix.lastIndexOf('#', position.character) !== -1)) {
+			if (getNumberOfParam(linePrefix!) === 0) {
+				if ((linePrefix!.lastIndexOf('@', curPos!) !== -1
+					|| linePrefix!.lastIndexOf('#', curPos!) !== -1)) {
 					return new vscode.Hover(getHoverContents(word, commandDocList));
 				}
 				else if (line.startsWith('Lang'.toLowerCase())
-					&& position.character <= 'Lang[ZH]'.length) {
+					&& curPos! <= 'Lang[ZH]'.length) {
 					return new vscode.Hover(getHoverContents(word, langDocList));
 				}
 			}
@@ -544,10 +567,13 @@ export async function activate(context: vscode.ExtensionContext) {
 				return undefined;
 			}
 
-			const line = document.lineAt(position).text.toLowerCase().trim();
-			const linePrefix = document.lineAt(position).text.substring(0, position.character).trim().toLowerCase();
+			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-			let fileName = getParamAtPosition(line, position.character);
+			if (line === undefined) {
+				return undefined;
+			}
+
+			let fileName = getParamAtPosition(line, curPos!);
 
 			if (fileName === undefined) {
 				return undefined;
@@ -563,7 +589,7 @@ export async function activate(context: vscode.ExtensionContext) {
 					, type));
 			};
 
-			switch (getType(linePrefix)) {
+			switch (getType(linePrefix!)) {
 				case FileType.characters:
 					return returnHover(imagePreview
 						, getFileName(fileName, graphicCharactersCompletions)
@@ -633,88 +659,85 @@ export async function activate(context: vscode.ExtensionContext) {
 				// find all colors in the document
 				let colors: vscode.ColorInformation[] = [];
 
-				for (let i = 0; i < document.lineCount; ++i) {
-					const line = document.lineAt(i);
+				iterateLines(document, (text, lineNumber
+					, lineStart, lineEnd
+					, firstLineNotComment) => {
+					const params = getAllParams(text);
+					const paramNum = getNumberOfParam(text);
 
-					if (!line.isEmptyOrWhitespace) {
-						const text = line.text.trim();
-						const lineStart = line.text.length - line.text.trimStart().length;
-						const params = getAllParams(text);
-						const paramNum = getNumberOfParam(text);
+					// match command that set RGB
 
-						// match command that set RGB
+					let handleHex = (hex: string, start: number) => {
+						let charPos = 0;
 
-						let handleHex = (hex: string, start: number) => {
-							let charPos = 0;
+						if (hex.startsWith("#")) {
+							charPos += 1;
+						}
+						else if (hex.toLowerCase().startsWith("0x".toLowerCase())) {
+							charPos += 2;
+						}
 
-							if (hex.startsWith("#")) {
-								charPos += 1;
-							}
-							else if (hex.toLowerCase().startsWith("0x".toLowerCase())) {
-								charPos += 2;
-							}
+						let getColor = (colorStr: string) => {
+							let ret = parseInt(colorStr.substring(charPos, charPos + 2), 16);
+							charPos += 2;
 
-							let getColor = (colorStr: string) => {
-								let ret = parseInt(colorStr.substring(charPos, charPos + 2), 16);
-								charPos += 2;
+							return ret;
+						};
 
-								return ret;
-							};
+						let R = getColor(hex);
+						let G = getColor(hex);
+						let B = getColor(hex);
 
-							let R = getColor(hex);
-							let G = getColor(hex);
-							let B = getColor(hex);
+						let range = new vscode.Range(lineNumber, start, lineNumber, start + hex.length);
+						let color = new vscode.Color(R / 255.0, G / 255.0, B / 255.0, 1.0);
+						colors.push(new vscode.ColorInformation(range, color));
+					};
 
-							let range = new vscode.Range(line.lineNumber, start, line.lineNumber, start + hex.length);
+					let handleRGB = (r: string, g: string, b: string, start: number) => {
+						if (strIsNum(r) && strIsNum(g) && strIsNum(b)) {
+							let R = parseInt(r, 10);
+							let G = parseInt(g, 10);
+							let B = parseInt(b, 10);
+
+							let range = new vscode.Range(lineNumber, start
+								, lineNumber, start + r.length + 1 + g.length + 1 + b.length);
 							let color = new vscode.Color(R / 255.0, G / 255.0, B / 255.0, 1.0);
 							colors.push(new vscode.ColorInformation(range, color));
-						};
-
-						let handleRGB = (r: string, g: string, b: string, start: number) => {
-							if (strIsNum(r) && strIsNum(g) && strIsNum(b)) {
-								let R = parseInt(r, 10);
-								let G = parseInt(g, 10);
-								let B = parseInt(b, 10);
-
-								let range = new vscode.Range(line.lineNumber, start
-									, line.lineNumber, start + r.length + 1 + g.length + 1 + b.length);
-								let color = new vscode.Color(R / 255.0, G / 255.0, B / 255.0, 1.0);
-								colors.push(new vscode.ColorInformation(range, color));
-							}
-						};
-
-						let handle = (paramStart: number, start: number) => {
-							if (paramNum === paramStart + 1) {
-								handleHex(params[paramStart + 1], lineStart + start);
-							}
-							if (paramNum === paramStart + 3) {
-								handleRGB(params[paramStart + 1], params[paramStart + 2], params[paramStart + 3], lineStart + start);
-							}
-						};
-
-						if (text.match(/(#DefineRGB|#DiaColor|#NameColor|#NameOutColor|#DiaOutColor|@StrC|@StrColor)/gi)) {
-							handle(0, params[0].length + 1);
 						}
+					};
 
-						if (text.match(/(#NameShaderOn|#DiaShaderOn)/gi)) {
-							handle(1, params[0].length + 1 + params[1].length + 1);
+					let handle = (paramStart: number, start: number) => {
+						if (paramNum === paramStart + 1) {
+							handleHex(params[paramStart + 1], lineStart + start);
 						}
-
-						if (text.match(/(@Str|@String|@CreateStr|@CreateString)/gi)) {
-							if (paramNum < 9) {
-								continue;
-							}
-
-							let paramStart = 0;
-
-							for (let param = 0; param <= 8; param++) {
-								paramStart + params[param].length + 1;
-							}
-
-							handle(8, paramStart);
+						if (paramNum === paramStart + 3) {
+							handleRGB(params[paramStart + 1], params[paramStart + 2], params[paramStart + 3], lineStart + start);
 						}
+					};
+
+					if (text.match(/(#DefineRGB|#DiaColor|#NameColor|#NameOutColor|#DiaOutColor|@StrC|@StrColor)/gi)) {
+						handle(0, params[0].length + 1);
 					}
-				}
+
+					if (text.match(/(#NameShaderOn|#DiaShaderOn)/gi)) {
+						handle(1, params[0].length + 1 + params[1].length + 1);
+					}
+
+					if (text.match(/(@Str|@String|@CreateStr|@CreateString)/gi)) {
+						if (paramNum < 9) {
+							return;
+						}
+
+						let paramStart = 0;
+
+						for (let param = 0; param <= 8; param++) {
+							paramStart + params[param].length + 1;
+						}
+
+						handle(8, paramStart);
+
+					}
+				});
 
 				return colors;
 			}
@@ -827,7 +850,11 @@ export async function activate(context: vscode.ExtensionContext) {
 			provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
 				let definitions: vscode.Location[] = [];
 
-				let line = document.lineAt(position.line).text.trim();
+				let [line, lineStart, curLinePrefix, curPos] = currentLineNotComment(document, position);
+
+				if (line === undefined) {
+					return undefined;
+				}
 
 				if (getType(line) !== FileType.label) {
 					return undefined;
@@ -853,33 +880,23 @@ export async function activate(context: vscode.ExtensionContext) {
 			async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
 				let definitions: vscode.Location[] = [];
 
-				const line = document.lineAt(position.line).text.trim();
-				const linePrefix = document.lineAt(position).text.substring(0, position.character).trim().toLowerCase();
+				let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-				let fileName = getParamAtPosition(line, position.character);
+				if (line === undefined) {
+					return undefined;
+				}
+
+				let fileName = getParamAtPosition(line, curPos!);
 
 				if (fileName === undefined) {
 					return undefined;
 				}
 
-				const fileUri = getUri(linePrefix, fileName);
+				const fileUri = getUri(linePrefix!, fileName);
 
 				if (fileUri === undefined) {
 					return undefined;
 				}
-
-				// try {
-				// 	await vscode.workspace.fs.stat(fileUri);
-
-				// 	let link = new vscode.Location(fileUri
-				// 		, new vscode.Position(0, 0));
-
-				// 	definitions.push(link);
-
-				// 	return definitions;
-				// } catch {
-				// 	return undefined;
-				// }
 
 				let link = new vscode.Location(fileUri
 					, new vscode.Position(0, 0));
@@ -900,7 +917,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		provideReferences(document: vscode.TextDocument, position: vscode.Position, context: vscode.ReferenceContext, token: vscode.CancellationToken) {
 			let references: vscode.Location[] = [];
 
-			let line = document.lineAt(position.line).text.trim();
+			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+
+			if (line === undefined) {
+				return undefined;
+			}
 
 			if (line[0] !== ';') {
 				return undefined;
@@ -908,24 +929,20 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			let label = line.substring(line.indexOf(";") + 1);
 
-			for (let i = 0; i < document.lineCount; ++i) {
-				const line = document.lineAt(i);
+			iterateLines(document, (text, lineNumber
+				, lineStart, lineEnd
+				, firstLineNotComment) => {
+				if (getType(text) === FileType.label) {
+					let curLabel = getNthParam(text, 1);
 
-				if (!line.isEmptyOrWhitespace) {
-					const text = line.text.trim();
+					if (curLabel === label) {
+						let link = new vscode.Location(document.uri
+							, new vscode.Position(lineNumber, 0));
 
-					if (getType(text) === FileType.label) {
-						let curLabel = getNthParam(text, 1);
-
-						if (curLabel === label) {
-							let link = new vscode.Location(document.uri
-								, new vscode.Position(i, 0));
-
-							references.push(link);
-						}
+						references.push(link);
 					}
 				}
-			}
+			});
 
 			return references;
 		}
@@ -939,8 +956,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		'AvgScript', {
 		provideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string, token: vscode.CancellationToken) {
 			const edit = new vscode.WorkspaceEdit();
-			const line = document.lineAt(position.line).text.trim();
-			const linePrefix = line.substring(0, position.character);
+
+			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+
+			if (line === undefined) {
+				return undefined;
+			}
+
 			let word: string;
 
 			let replaceToken = (origin: string) => {
@@ -953,80 +975,74 @@ export async function activate(context: vscode.ExtensionContext) {
 					newName = newName + origin.substring(suffixPos);
 				}
 
-				for (let i = 0; i < document.lineCount; ++i) {
-					const line = document.lineAt(i);
+				iterateLines(document, (text, lineNumber
+					, lineStart, lineEnd
+					, firstLineNotComment) => {
+					if (text.startsWith("#")
+						|| text.startsWith("@")
+						|| text.startsWith(";")) {
+						const regex = new RegExp(originNoSuffix, "gi");
+						let contentStart: number = 0;
 
-					if (!line.isEmptyOrWhitespace) {
-						const text = line.text.trim();
+						if (text.startsWith(";")) {
+							contentStart = 1;
+						} else if (getNumberOfParam(text) !== 0) {
+							let delimiterPos = getIndexOfDelimiter(text, 0);
 
-						if (text.startsWith("#")
-							|| text.startsWith("@")
-							|| text.startsWith(";")) {
-							const regex = new RegExp(originNoSuffix, "gi");
+							if (delimiterPos === -1) {
+								return;
+							}
 
-							let start: number = line.text.length - text.length;
-							let contentStart: number = 0;
+							contentStart = delimiterPos + 1;
+						} else {
+							return;
+						}
 
-							if (text.startsWith(";")) {
-								contentStart = 1;
-							} else if (getNumberOfParam(text) !== 0) {
-								let delimiterPos = getIndexOfDelimiter(text, 0);
+						let params = getAllParams(text.substring(contentStart));
+						let startPos = lineStart + contentStart;
 
-								if (delimiterPos === -1) {
+						for (let i = 0; i < params.length; i++) {
+							let curParam = params[i];
+
+							const curSuffixPos = curParam.lastIndexOf('.');
+							let curHasSuffix = curSuffixPos !== -1;
+
+							let match = curParam.match(regex);
+							if (match) {
+								if (!originHasSuffix
+									&& !curHasSuffix
+									&& match[0] !== curParam) {
 									continue;
 								}
 
-								contentStart = delimiterPos + 1;
-							} else {
-								continue;
+								let endPos = startPos
+									+ (curHasSuffix
+										? curParam.length
+										: match[0].length);
+
+								edit.replace(document.uri
+									, new vscode.Range(lineNumber
+										, startPos
+										, lineNumber
+										, endPos)
+									, newName);
 							}
 
-							let params = getAllParams(text.substring(contentStart));
-							let startPos = start + contentStart;
-
-							for (let i = 0; i < params.length; i++) {
-								let curParam = params[i];
-
-								const curSuffixPos = curParam.lastIndexOf('.');
-								let curHasSuffix = curSuffixPos !== -1;
-
-								let match = curParam.match(regex);
-								if (match) {
-									if (!originHasSuffix
-										&& !curHasSuffix
-										&& match[0] !== curParam) {
-										continue;
-									}
-
-									let endPos = startPos
-										+ (curHasSuffix
-											? curParam.length
-											: match[0].length);
-
-									edit.replace(document.uri
-										, new vscode.Range(line.lineNumber
-											, startPos
-											, line.lineNumber
-											, endPos)
-										, newName);
-								}
-
-								startPos += curParam.length;
-							}
+							startPos += curParam.length;
 						}
 					}
-				}
+				});
 
 				return edit;
 			};
 
 			if (line.startsWith("#")
 				|| line.startsWith("@")) {
-				if (getNumberOfParam(linePrefix) === 0) {
+				if (getNumberOfParam(linePrefix!) === 0) {
 					return undefined;
 				}
 
-				word = getParamAtPosition(line, position.character)!;
+				word = getParamAtPosition(line, curPos!)!;
 
 				return replaceToken(word);
 			} else if (line.startsWith(";")) {
@@ -1058,82 +1074,58 @@ export async function activate(context: vscode.ExtensionContext) {
 				let labelRegex = /^;.*/gi;
 				let keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(.*JMP.*)|(#SkipAnchor|#Ret|#StopFF|#StopFastForward))/gi;
 
-				let commentRegex = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)|((?!\/\*)[^\/\*]*\*\/)/gi;
+				iterateLines(document, (text, lineNumber
+					, lineStart, lineEnd
+					, firstLineNotComment) => {
+					let item: vscode.SymbolInformation | undefined = undefined;
+					let match: RegExpMatchArray | null;
 
-				let commentRegexRep = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)/gi;
-				let commentRegexRepRest = /((?!\/\*)[^\/\*]*\*\/)/gi;
+					if ((match = text.match(beginRegex)) !== null) {
+						let beginName = text.substring("#Begin".length + 1).trim();
 
-				for (let i = 0; i < document.lineCount; ++i) {
-					const line = document.lineAt(i);
-
-					if (!line.isEmptyOrWhitespace) {
-						const text = line.text.trim();
-						let textNoComment = text.replace(commentRegexRep, "").trim();
-
-						if (inComment
-							&& text.match(/\*\//gi)) {
-							inComment = false;
-							textNoComment = textNoComment.replace(commentRegexRepRest, "").trim();
-						}
-
-						if (!inComment
-							&& textNoComment.length > 0) {
-							let item: vscode.SymbolInformation | undefined = undefined;
-							let match: RegExpMatchArray | null;
-
-							if ((match = textNoComment.match(beginRegex)) !== null) {
-								let beginName = textNoComment.substring("#Begin".length + 1).trim();
-
-								prevSecName.push(beginName);
-								prevSecRangeStart.push(i);
-							}
-
-							if ((match = textNoComment.match(endRegex)) !== null) {
-								if (prevSecName.length === 1) {
-									continue;
-								}
-
-								let beginName = prevSecName.pop()!;
-
-								item = new vscode.SymbolInformation("Block: " + beginName
-									, vscode.SymbolKind.Namespace
-									, beginName
-									, new vscode.Location(document.uri
-										, new vscode.Range(
-											new vscode.Position(prevSecRangeStart.pop()!, 0)
-											, new vscode.Position(i, 0))));
-							}
-
-							if ((match = textNoComment.match(labelRegex)) !== null) {
-								let labelName = textNoComment.substring(textNoComment.indexOf(";") + 1);
-
-								item = new vscode.SymbolInformation("Label: " + labelName
-									, vscode.SymbolKind.String
-									, prevSecName[prevSecName.length - 1]
-									, new vscode.Location(document.uri, new vscode.Position(i, 0)));
-							}
-
-							if ((match = textNoComment.match(keyWordRegex)) !== null) {
-								let keyWord = match[0];
-
-								item = new vscode.SymbolInformation("KeyWord: " + keyWord
-									, vscode.SymbolKind.Function
-									, prevSecName[prevSecName.length - 1]
-									, new vscode.Location(document.uri, new vscode.Position(i, 0)));
-							}
-
-							if (item !== undefined) {
-								symbols.push(item);
-							}
-						}
-
-						if (!inComment
-							&& !text.match(/\*\//gi)
-							&& text.match(/\/\*/gi)) {
-							inComment = true;;
-						}
+						prevSecName.push(beginName);
+						prevSecRangeStart.push(lineNumber);
 					}
-				}
+
+					if ((match = text.match(endRegex)) !== null) {
+						if (prevSecName.length === 1) {
+							return;
+						}
+
+						let beginName = prevSecName.pop()!;
+
+						item = new vscode.SymbolInformation("Block: " + beginName
+							, vscode.SymbolKind.Namespace
+							, beginName
+							, new vscode.Location(document.uri
+								, new vscode.Range(
+									new vscode.Position(prevSecRangeStart.pop()!, 0)
+									, new vscode.Position(lineNumber, 0))));
+
+					}
+
+					if ((match = text.match(labelRegex)) !== null) {
+						let labelName = text.substring(text.indexOf(";") + 1);
+
+						item = new vscode.SymbolInformation("Label: " + labelName
+							, vscode.SymbolKind.String
+							, prevSecName[prevSecName.length - 1]
+							, new vscode.Location(document.uri, new vscode.Position(lineNumber, 0)));
+					}
+
+					if ((match = text.match(keyWordRegex)) !== null) {
+						let keyWord = match[0];
+
+						item = new vscode.SymbolInformation("KeyWord: " + keyWord
+							, vscode.SymbolKind.Function
+							, prevSecName[prevSecName.length - 1]
+							, new vscode.Location(document.uri, new vscode.Position(lineNumber, 0)));
+					}
+
+					if (item !== undefined) {
+						symbols.push(item);
+					}
+				});
 
 				return symbols;
 			}
@@ -1150,6 +1142,10 @@ export async function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
+		const regexNumber = /\+[0-9]+(.[0-9]+)?|-[0-9]+(.[0-9]+)?|[0-9]+(.[0-9]+)?/gi;
+		const regexHexColor = /(#|0[x|X])[0-9a-fA-F]{6}/gi;
+		const regexRep = /\<.*\>/gi;
+
 		let diagnostics: vscode.Diagnostic[] = [];
 		let labels: string[] = [];
 		let blockCount: number = 0;
@@ -1160,245 +1156,228 @@ export async function activate(context: vscode.ExtensionContext) {
 		let EOF = false;
 		let nextJMP = false;
 
-		const regexNumber = /\+[0-9]+(.[0-9]+)?|-[0-9]+(.[0-9]+)?|[0-9]+(.[0-9]+)?/gi;
-		const regexHexColor = /(#|0[x|X])[0-9a-fA-F]{6}/gi;
-		const regexRep = /\<.*\>/gi;
+		iterateLines(document, (text, lineNumber
+			, lineStart, lineEnd
+			, firstLineNotComment) => {
+			if (text.startsWith(";")) {
+				if (labels.includes(text)) {
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
+						, "Duplicated Label: " + text.substring(1)
+						, vscode.DiagnosticSeverity.Warning));
 
-		for (let i = 0; i < document.lineCount; ++i) {
-			const line = document.lineAt(i);
-
-			if (!line.isEmptyOrWhitespace) {
-				const text = line.text.trim();
-				const lineStart: number = line.text.length - line.text.trimStart().length;
-				const lineEnd: number = lineStart + text.length;
-
-				if (text.startsWith(";")) {
-					if (labels.includes(text)) {
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
-							, "Duplicated Label: " + text.substring(1)
-							, vscode.DiagnosticSeverity.Warning));
-
-						continue;
-					}
-
-					labels.push(text);
+					return;
 				}
 
-				if (text.startsWith("#")
-					|| text.startsWith("@")) {
+				labels.push(text);
+			}
 
-					if (text.match(/#Settings/gi)) {
-						let start = text.indexOf('=');
-						let params = text.substring(start + 1).split('|');
+			if (text.startsWith("#")
+				|| text.startsWith("@")) {
 
-						for (let settingsParam in params) {
-							let cutSettingsParam = params[settingsParam];
-							let cutSettingsParamLength = cutSettingsParam.length;
+				if (text.match(/#Settings/gi)) {
+					let start = text.indexOf('=');
+					let params = text.substring(start + 1).split('|');
 
-							start++;
+					start += lineStart;
 
-							if (getMapValue(cutSettingsParam, settingsParamDocList) === undefined) {
-								diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, start, i, start + cutSettingsParamLength)
-									, "Invalid Setting Param: " + cutSettingsParam
-									, vscode.DiagnosticSeverity.Warning));
-							}
+					for (let settingsParam in params) {
+						let cutSettingsParam = params[settingsParam];
+						let cutSettingsParamLength = cutSettingsParam.length;
 
-							start += cutSettingsParamLength;
-						}
+						start++;
 
-						if (i !== 0) {
-							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
-								, "Settings Not At First Line"
-								, vscode.DiagnosticSeverity.Error));
-						}
-
-						if (!settings && text.match(/Lite/gi)) {
-							liteMode = true;
-						}
-
-						if (settings) {
-							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
-								, "Duplicated Setting"
-								, vscode.DiagnosticSeverity.Error));
-						}
-
-						settings = true;
-
-						continue;
-					}
-
-					if (text.match(/#EOF/gi)) {
-						EOF = true;
-						continue;
-					}
-					if (text.match(/(#CJMP|#JMPCha|#FJMP|#JMPFra)/gi)) {
-						nextJMP = true;
-						continue;
-					}
-
-					if (text.match(/#Begin/gi)) {
-						blockCount++;
-						blockPos.push(new vscode.Range(i, lineStart, i, lineEnd));
-
-						continue;
-					}
-
-					if (text.match(/#End/gi)) {
-						if (blockCount === 0) {
-							diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
-								, "End Without Begin"
+						if (getMapValue(cutSettingsParam, settingsParamDocList) === undefined) {
+							diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, start, lineNumber, start + cutSettingsParamLength)
+								, "Invalid Setting Param: " + cutSettingsParam
 								, vscode.DiagnosticSeverity.Warning));
-
-							continue;
 						}
 
-						blockCount--;
-						blockPos.pop();
-						continue;
+						start += cutSettingsParamLength;
 					}
 
-					const params = getAllParams(text);
-					const command = params[0].substring(1);
-					const commandWithPrefix = text.charAt(0) + params[0].substring(1);
-					const commandType = getCommandType(commandWithPrefix);
-					const paramNum = params.length - 1;
-					const paramDefinition = getMapValue(command, commandParamList);
-
-					let contentStart: number = lineStart + command.length + 1;
-
-					if (paramDefinition === undefined) {
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineStart, i, lineEnd)
-							, "Undocumented Command: " + params[0]
-							, vscode.DiagnosticSeverity.Information));
-
-						continue;
+					if (lineNumber !== firstLineNotComment) {
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
+							, "Settings Not At First Line"
+							, vscode.DiagnosticSeverity.Error));
 					}
 
-					// Check param valid
-					const paramFormat = paramDefinition.type;
-
-					for (let j = 1; j < params.length; j++) {
-						let curParam = params[j];
-						let currentType = paramFormat[j - 1];
-						contentStart++;
-
-						if (curParam.match(regexRep)) {
-							continue;
-						}
-
-						switch (currentType) {
-							case ParamType.String:
-
-								break;
-							case ParamType.Number:
-								if (!matchEntire(curParam, regexNumber)) {
-									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
-										, "Invalid Number: " + curParam
-										, vscode.DiagnosticSeverity.Error));
-								}
-
-								break;
-							case ParamType.Boolean:
-								if (!matchEntire(curParam, regexNumber)
-									|| curParam.toLowerCase() !== "on"
-									|| curParam.toLowerCase() !== "off") {
-									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
-										, "Invalid Option: " + curParam
-										, vscode.DiagnosticSeverity.Error));
-								}
-
-								break;
-							case ParamType.Volume:
-								if (!matchEntire(curParam, regexNumber)
-									|| curParam.toLowerCase() !== "BGM".toLowerCase()
-									|| curParam.toLowerCase() !== "BGS".toLowerCase()
-									|| curParam.toLowerCase() !== "SE".toLowerCase()
-									|| curParam.toLowerCase() !== "DUB".toLowerCase()) {
-									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
-										, "Invalid Volume: " + curParam
-										, vscode.DiagnosticSeverity.Error));
-								}
-
-								break;
-							case ParamType.ObjType:
-								if (curParam.toLowerCase() !== "Pic".toLowerCase()
-									|| curParam.toLowerCase() !== "Str".toLowerCase()) {
-									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
-										, "Invalid Object Type: " + curParam
-										, vscode.DiagnosticSeverity.Error));
-								}
-
-								break;
-							case ParamType.Color:
-								if (curParam.match(regexHexColor)) {
-									if (j !== params.length - 1) {
-										diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, lineEnd)
-											, "Too Many Params"
-											, vscode.DiagnosticSeverity.Warning));
-									}
-								} else {
-									if (j + 2 >= params.length) {
-										diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineEnd, i, lineEnd)
-											, "Too Few Params"
-											, vscode.DiagnosticSeverity.Warning));
-									}
-									if (!matchEntire(curParam, regexNumber)) {
-										diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
-											, "Invalid Number: " + curParam
-											, vscode.DiagnosticSeverity.Error));
-									}
-								}
-
-								break;
-							case ParamType.File:
-								if (checkFile
-									&& !fileExists(commandType, curParam)) {
-									diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, contentStart, i, contentStart + curParam.length)
-										, "File " + curParam + " Not Exist"
-										, vscode.DiagnosticSeverity.Warning));
-								}
-
-								break;
-							case ParamType.Any:
-								break;
-
-							default:
-								break;
-						}
-
-						contentStart += curParam.length;
+					if (!settings && text.match(/Lite/gi)) {
+						liteMode = true;
 					}
 
-					// Check param num
-					const paramNumMin = paramDefinition.minParam;
-					const paramNumMax = paramDefinition.maxParam;
+					if (settings) {
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
+							, "Duplicated Setting"
+							, vscode.DiagnosticSeverity.Error));
+					}
 
-					if (paramNum > paramNumMax) {
-						let tooManyStart: number = lineStart;
+					settings = true;
 
-						for (let param = 0; param <= paramNumMax; param++) {
-							tooManyStart += params[param].length + 1;
-						}
+					return;
+				}
 
-						tooManyStart--;
+				if (text.match(/#EOF/gi)) {
+					EOF = true;
+					return;
+				}
+				if (text.match(/(#CJMP|#JMPCha|#FJMP|#JMPFra)/gi)) {
+					nextJMP = true;
+					return;
+				}
 
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, tooManyStart, i, lineEnd)
+				if (text.match(/#Begin/gi)) {
+					blockCount++;
+					blockPos.push(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd));
+
+					return;
+				}
+
+				if (text.match(/#End/gi)) {
+					if (blockCount === 0) {
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
+							, "End Without Begin"
+							, vscode.DiagnosticSeverity.Warning));
+
+						return;
+					}
+
+					blockCount--;
+					blockPos.pop();
+
+					return;
+				}
+
+				const params = getAllParams(text);
+				const command = params[0].substring(1);
+				const commandWithPrefix = text.charAt(0) + params[0].substring(1);
+				const commandType = getCommandType(commandWithPrefix);
+				const paramNum = params.length - 1;
+				const paramDefinition = getMapValue(command, commandParamList);
+
+				let contentStart: number = lineStart + command.length + 1;
+
+				if (paramDefinition === undefined) {
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
+						, "Undocumented Command: " + params[0]
+						, vscode.DiagnosticSeverity.Information));
+
+					return;
+				}
+
+				// Check param valid
+				const paramFormat = paramDefinition.type;
+				const paramNumMin = paramDefinition.minParam;
+				const paramNumMax = paramDefinition.maxParam;
+
+				for (let j = 1; j < params.length; j++) {
+					if (j > paramNumMax) {
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, lineEnd)
 							, "Too Many Params"
 							, vscode.DiagnosticSeverity.Warning));
 
+						return;
+					}
+
+					let curParam = params[j];
+					let currentType = paramFormat[j - 1];
+					contentStart++;
+
+					if (curParam.match(regexRep)) {
 						continue;
 					}
 
-					if (paramNum < paramNumMin) {
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, lineEnd, i, lineEnd)
-							, "Too Few Params"
-							, vscode.DiagnosticSeverity.Warning));
+					switch (currentType) {
+						case ParamType.String:
 
-						continue;
+							break;
+						case ParamType.Number:
+							if (!matchEntire(curParam, regexNumber)) {
+								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+									, "Invalid Number: " + curParam
+									, vscode.DiagnosticSeverity.Error));
+							}
+
+							break;
+						case ParamType.Boolean:
+							if (!matchEntire(curParam, regexNumber)
+								|| curParam.toLowerCase() !== "on"
+								|| curParam.toLowerCase() !== "off") {
+								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+									, "Invalid Option: " + curParam
+									, vscode.DiagnosticSeverity.Error));
+							}
+
+							break;
+						case ParamType.Volume:
+							if (!matchEntire(curParam, regexNumber)
+								|| curParam.toLowerCase() !== "BGM".toLowerCase()
+								|| curParam.toLowerCase() !== "BGS".toLowerCase()
+								|| curParam.toLowerCase() !== "SE".toLowerCase()
+								|| curParam.toLowerCase() !== "DUB".toLowerCase()) {
+								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+									, "Invalid Volume: " + curParam
+									, vscode.DiagnosticSeverity.Error));
+							}
+
+							break;
+						case ParamType.ObjType:
+							if (curParam.toLowerCase() !== "Pic".toLowerCase()
+								|| curParam.toLowerCase() !== "Str".toLowerCase()) {
+								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+									, "Invalid Object Type: " + curParam
+									, vscode.DiagnosticSeverity.Error));
+							}
+
+							break;
+						case ParamType.Color:
+							if (curParam.match(regexHexColor)) {
+								if (j !== params.length - 1) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, lineEnd)
+										, "Too Many Params"
+										, vscode.DiagnosticSeverity.Warning));
+								}
+							} else {
+								if (j + 2 >= params.length) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineEnd, lineNumber, lineEnd)
+										, "Too Few Params"
+										, vscode.DiagnosticSeverity.Warning));
+								}
+								if (!matchEntire(curParam, regexNumber)) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+										, "Invalid Number: " + curParam
+										, vscode.DiagnosticSeverity.Error));
+								}
+							}
+
+							break;
+						case ParamType.File:
+							if (checkFile
+								&& !fileExists(commandType, curParam)) {
+								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+									, "File " + curParam + " Not Exist"
+									, vscode.DiagnosticSeverity.Warning));
+							}
+
+							break;
+						case ParamType.Any:
+							break;
+
+						default:
+							break;
 					}
+
+					contentStart += curParam.length;
+				}
+
+				if (paramNum < paramNumMin) {
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineEnd, lineNumber, lineEnd)
+						, "Too Few Params"
+						, vscode.DiagnosticSeverity.Warning));
+
+					return;
 				}
 			}
-		}
+		});
 
 		for (let j in blockPos) {
 			diagnostics.push(new vscode.Diagnostic(blockPos[j]
@@ -1572,51 +1551,41 @@ function getLabelCompletion(document: vscode.TextDocument) {
 	labelCompletions = [];
 	labelJumpMap.clear();
 
-	for (let i = 0; i < document.lineCount; ++i) {
-		const line = document.lineAt(i);
+	iterateLines(document, (text, lineNumber
+		, lineStart, lineEnd
+		, firstLineNotComment) => {
+		if (text.match(/(;.*)/gi)) {
+			let label = text.substring(text.indexOf(";") + 1);
+			let item: vscode.CompletionItem = new vscode.CompletionItem({
+				label: label
+				// , detail: fileNameSuffix
+				, description: "at line " + lineNumber
+			});
 
-		if (!line.isEmptyOrWhitespace) {
-			const text = line.text.trim();
+			item.kind = vscode.CompletionItemKind.Reference;
 
-			if (text.match(/(;.*)/gi)) {
-				let label = text.substring(text.indexOf(";") + 1);
-				let item: vscode.CompletionItem = new vscode.CompletionItem({
-					label: label
-					// , detail: fileNameSuffix
-					, description: "at line " + i
-				});
+			item.insertText = label;
 
-				item.kind = vscode.CompletionItemKind.Reference;
-
-				item.insertText = label;
-
-				labelCompletions.push(item);
-				labelJumpMap.set(label, i);
-			}
+			labelCompletions.push(item);
+			labelJumpMap.set(label, lineNumber);
 		}
-	}
+	});
 }
 
 function updateLanguageDecorations(activeEditor: vscode.TextEditor, decorationType: vscode.TextEditorDecorationType, currentLocalCode: string, currentLocalCodeDisplay: string) {
-	const regex = new RegExp("Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
+	const langReg = new RegExp("Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
 	const decoOpt: vscode.DecorationOptions[] = [];
 	const document = activeEditor.document;
 
-	for (let i = 0; i < document.lineCount; ++i) {
-		const line = document.lineAt(i);
+	iterateLines(document, (text, lineNumber
+		, lineStart, lineEnd
+		, firstLineNotComment) => {
+		if (text.match(langReg)) {
+			const decoration = { range: new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd), hoverMessage: "非当前语言: " + currentLocalCodeDisplay + currentLocalCode };
 
-		if (!line.isEmptyOrWhitespace) {
-			const text = line.text.trim();
-
-			if (text.match(regex)) {
-				const startPos = 0;
-				const endPos = text.length;
-				const decoration = { range: new vscode.Range(line.lineNumber, startPos, line.lineNumber, endPos), hoverMessage: "非当前语言: " + currentLocalCodeDisplay + currentLocalCode };
-
-				decoOpt.push(decoration);
-			}
+			decoOpt.push(decoration);
 		}
-	}
+	});
 
 	activeEditor.setDecorations(decorationType, decoOpt);
 }

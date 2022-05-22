@@ -315,13 +315,13 @@ export const commandDocList = new Map<string, string[]>([
         , "注意:内存的分配与释放非常耗时，清理100MB内存大约需要10ms，可在黑屏淡出时进行清理，以避免可感知的卡顿，同时请尽量避免频繁清理"]],
     ["UnSkipAble", ["读取到该指令后，当前章节无法使用跳过按钮/快捷键跳过"]],
     ["SkipAble", ["允许当前使用跳过按钮/快捷键跳过，用于取消`#UnSkipAble`"]],
-    ["SGO", ["\t#SGO:XOffset:YOffset"
-        , "\t#SetGlobalOffset:XOffset:YOffset"
+    ["SGO", ["\t#SGO=XOffset:YOffset"
+        , "\t#SetGlobalOffset=XOffset:YOffset"
         , "设定演出对象的全局偏移量，特效、UI与字符串对象不受影响"]],
-    ["SetGlobalOffset", ["\t#SGO:XOffset:YOffset"
-        , "\t#SetGlobalOffset:XOffset:YOffset"
+    ["SetGlobalOffset", ["\t#SGO=XOffset:YOffset"
+        , "\t#SetGlobalOffset=XOffset:YOffset"
         , "设定演出对象的全局偏移量，特效、UI与字符串对象不受影响"]],
-    ["TransitionSpeed", ["\t#TransitionSpeed:Value"
+    ["TransitionSpeed", ["\t#TransitionSpeed=Value"
         , "更改不透明度叠化速度，默认为`10`"
         , "参数设定为`default`可重置默认值"]],
     ["ForceTransition", ["该指令会截取当前窗口，并按照`TransitionSpeed`指定的速度进行淡出，用于为无法创建叠化的指令(如`@Order`、`#DefineRGB`等)强制添加叠化"]],
@@ -329,8 +329,8 @@ export const commandDocList = new Map<string, string[]>([
 
     ["Debug", ["调试模式下无叠化显示调试参数"]],
     ["DebugOff", ["调试模式下无叠化关闭调试参数"]],
-    ["DefineRGB", ["\t#DefineRGB:R:G:B"
-        , "\t#DefineRGB:#FFFFFF"
+    ["DefineRGB", ["\t#DefineRGB=R:G:B"
+        , "\t#DefineRGB=#FFFFFF"
         , "定义立绘的色调RGB值为`R:G:B/#FFFFFF`，无叠化更新所有立绘对象(非特殊非特效对象)的RGB参数。该指令通常用于根据背景光照情况调整立绘色调，可使用附带的`RGBDefiner`工具来直观的调整该参数"]],
 
     ["MSG", ["\t#MSG=Message"
@@ -401,10 +401,10 @@ export const commandDocList = new Map<string, string[]>([
         , "\t#FNTO"
         , "\t;Init"]],
 
-    ["CreateSwitch", ["\t#CreateSwitch:SwitchNum"
+    ["CreateSwitch", ["\t#CreateSwitch=SwitchNum"
         , "选项分支创建的入口指令，用于创建`SwitchNum`个分支"
         , "该指令会记录当前扫描指针位置，用于保存/读取"]],
-    ["Switch", ["\t#Switch:X:Y:Text:Label"
+    ["Switch", ["\t#Switch=X:Y:Text:Label"
         , "控制创建的分支选项，指定其X/Y坐标，选项文本与跳转标签"
         , "如果跳转标签定义为`Negative`，则该选项设定为灰色，无效"]],
     ["UnlockAch", ["\t#UnlockAch=Steam_AchName"
@@ -437,208 +437,208 @@ export const commandDocList = new Map<string, string[]>([
 
 
     // keywords_values
-    ["SV", ["\t#SV:ValueID:Value"
-        , "\t#SetValue:ValueID:Value"
+    ["SV", ["\t#SV=ValueID:Value"
+        , "\t#SetValue=ValueID:Value"
         , "令`ValueID`=`Value`，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则为数值赋值，否则为字符串赋值"]],
-    ["SetValue", ["\t#SV:ValueID:Value"
-        , "\t#SetValue:ValueID:Value"
+    ["SetValue", ["\t#SV=ValueID:Value"
+        , "\t#SetValue=ValueID:Value"
         , "令`ValueID`=`Value`，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则为数值赋值，否则为字符串赋值"]],
-    ["SVV", ["\t#SVV:ValueIDA:ValueIDB"
-        , "\t#SetValueValue:ValueIDA:ValueIDB"
-        , "\t#SVAB:ValueIDA:ValueIDB"
-        , "\t#SetValueAB:ValueIDA:ValueIDB"
+    ["SVV", ["\t#SVV=ValueIDA:ValueIDB"
+        , "\t#SetValueValue=ValueIDA:ValueIDB"
+        , "\t#SVAB=ValueIDA:ValueIDB"
+        , "\t#SetValueAB=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SetValueValue", ["\t#SVV:ValueIDA:ValueIDB"
-        , "\t#SetValueValue:ValueIDA:ValueIDB"
-        , "\t#SVAB:ValueIDA:ValueIDB"
-        , "\t#SetValueAB:ValueIDA:ValueIDB"
+    ["SetValueValue", ["\t#SVV=ValueIDA:ValueIDB"
+        , "\t#SetValueValue=ValueIDA:ValueIDB"
+        , "\t#SVAB=ValueIDA:ValueIDB"
+        , "\t#SetValueAB=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SVAB", ["\t#SVV:ValueIDA:ValueIDB"
-        , "\t#SetValueValue:ValueIDA:ValueIDB"
-        , "\t#SVAB:ValueIDA:ValueIDB"
-        , "\t#SetValueAB:ValueIDA:ValueIDB"
+    ["SVAB", ["\t#SVV=ValueIDA:ValueIDB"
+        , "\t#SetValueValue=ValueIDA:ValueIDB"
+        , "\t#SVAB=ValueIDA:ValueIDB"
+        , "\t#SetValueAB=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SetValueAB", ["\t#SVV:ValueIDA:ValueIDB"
-        , "\t#SetValueValue:ValueIDA:ValueIDB"
-        , "\t#SVAB:ValueIDA:ValueIDB"
-        , "\t#SetValueAB:ValueIDA:ValueIDB"
+    ["SetValueAB", ["\t#SVV=ValueIDA:ValueIDB"
+        , "\t#SetValueValue=ValueIDA:ValueIDB"
+        , "\t#SVAB=ValueIDA:ValueIDB"
+        , "\t#SetValueAB=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SSS", ["\t#SSS:ValueIDA:ValueIDB"
-        , "\t#SetStringString:ValueIDA:ValueIDB"
-        , "\t#SSAB:ValueIDA:ValueIDB"
-        , "\t#SetStringAB:ValueIDA:ValueIDB"
+    ["SSS", ["\t#SSS=ValueIDA:ValueIDB"
+        , "\t#SetStringString=ValueIDA:ValueIDB"
+        , "\t#SSAB=ValueIDA:ValueIDB"
+        , "\t#SetStringAB=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SetStringString", ["\t#SSS:ValueIDA:ValueIDB"
-        , "\t#SetStringString:ValueIDA:ValueIDB"
-        , "\t#SSAB:ValueIDA:ValueIDB"
-        , "\t#SetStringAB:ValueIDA:ValueIDB"
+    ["SetStringString", ["\t#SSS=ValueIDA:ValueIDB"
+        , "\t#SetStringString=ValueIDA:ValueIDB"
+        , "\t#SSAB=ValueIDA:ValueIDB"
+        , "\t#SetStringAB=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SSAB", ["\t#SSS:ValueIDA:ValueIDB"
-        , "\t#SetStringString:ValueIDA:ValueIDB"
-        , "\t#SSAB:ValueIDA:ValueIDB"
-        , "\t#SetStringAB:ValueIDA:ValueIDB"
+    ["SSAB", ["\t#SSS=ValueIDA:ValueIDB"
+        , "\t#SetStringString=ValueIDA:ValueIDB"
+        , "\t#SSAB=ValueIDA:ValueIDB"
+        , "\t#SetStringAB=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["SetStringAB", ["\t#SSS:ValueIDA:ValueIDB"
-        , "\t#SetStringString:ValueIDA:ValueIDB"
-        , "\t#SSAB:ValueIDA:ValueIDB"
-        , "\t#SetStringAB:ValueIDA:ValueIDB"
+    ["SetStringAB", ["\t#SSS=ValueIDA:ValueIDB"
+        , "\t#SetStringString=ValueIDA:ValueIDB"
+        , "\t#SSAB=ValueIDA:ValueIDB"
+        , "\t#SetStringAB=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["VA", ["\t#VA:ValueID"
-        , "\t#ValueAdd:ValueID:Value"
+    ["VA", ["\t#VA=ValueID"
+        , "\t#ValueAdd=ValueID:Value"
         , "`ValueID`=`ValueID`+`Value`"]],
-    ["ValueAdd", ["\t#VA:ValueID"
-        , "\t#ValueAdd:ValueID:Value"
+    ["ValueAdd", ["\t#VA=ValueID"
+        , "\t#ValueAdd=ValueID:Value"
         , "`ValueID`=`ValueID`+`Value`"]],
-    ["VAV", ["\t#VAV:ValueIDA:ValueIDB"
-        , "\t#ValueAddValue:ValueIDA:ValueIDB"
+    ["VAV", ["\t#VAV=ValueIDA:ValueIDB"
+        , "\t#ValueAddValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`+`ValueIDB`"]],
-    ["ValueAddValue", ["\t#VAV:ValueIDA:ValueIDB"
-        , "\t#ValueAddValue:ValueIDA:ValueIDB"
+    ["ValueAddValue", ["\t#VAV=ValueIDA:ValueIDB"
+        , "\t#ValueAddValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`+`ValueIDB`"]],
-    ["VS", ["\t#VS:ValueID"
-        , "\t#ValueSub:ValueID:Value"
+    ["VS", ["\t#VS=ValueID"
+        , "\t#ValueSub=ValueID:Value"
         , "`ValueID`=`ValueID`-`Value`"]],
-    ["ValueSub", ["\t#VS:ValueID"
-        , "\t#ValueSub:ValueID:Value"
+    ["ValueSub", ["\t#VS=ValueID"
+        , "\t#ValueSub=ValueID:Value"
         , "`ValueID`=`ValueID`-`Value`"]],
-    ["VSV", ["\t#VSV:ValueIDA:ValueIDB"
-        , "\t#ValueSubValue:ValueIDA:ValueIDB"
+    ["VSV", ["\t#VSV=ValueIDA:ValueIDB"
+        , "\t#ValueSubValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`-`ValueIDB`"]],
-    ["ValueSubValue", ["\t#VSV:ValueIDA:ValueIDB"
-        , "\t#ValueSubValue:ValueIDA:ValueIDB"
+    ["ValueSubValue", ["\t#VSV=ValueIDA:ValueIDB"
+        , "\t#ValueSubValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`-`ValueIDB`"]],
-    ["VM", ["\t#VM:ValueID"
-        , "\t#ValueMul:ValueID:Value"
+    ["VM", ["\t#VM=ValueID"
+        , "\t#ValueMul=ValueID:Value"
         , "`ValueID`=`ValueID`*`Value`"]],
-    ["ValueMul", ["\t#VM:ValueID"
-        , "\t#ValueMul:ValueID:Value"
+    ["ValueMul", ["\t#VM=ValueID"
+        , "\t#ValueMul=ValueID:Value"
         , "`ValueID`=`ValueID`*`Value`"]],
-    ["VMV", ["\t#VMV:ValueIDA:ValueIDB"
-        , "\t#ValueMulValue:ValueIDA:ValueIDB"
+    ["VMV", ["\t#VMV=ValueIDA:ValueIDB"
+        , "\t#ValueMulValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`*`ValueIDB`"]],
-    ["ValueMulValue", ["\t#VMV:ValueIDA:ValueIDB"
-        , "\t#ValueMulValue:ValueIDA:ValueIDB"
+    ["ValueMulValue", ["\t#VMV=ValueIDA:ValueIDB"
+        , "\t#ValueMulValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`*`ValueIDB`"]],
-    ["VD", ["\t#VD:ValueID"
-        , "\t#ValueDiv:ValueID:Value"
+    ["VD", ["\t#VD=ValueID"
+        , "\t#ValueDiv=ValueID:Value"
         , "`ValueID`=`ValueID`/`Value`"]],
-    ["ValueDiv", ["\t#VD:ValueID"
-        , "\t#ValueDiv:ValueID:Value"
+    ["ValueDiv", ["\t#VD=ValueID"
+        , "\t#ValueDiv=ValueID:Value"
         , "`ValueID`=`ValueID`/`Value`"]],
-    ["VAV", ["\t#VAV:ValueIDA:ValueIDB"
-        , "\t#ValueDivValue:ValueIDA:ValueIDB"
+    ["VAV", ["\t#VAV=ValueIDA:ValueIDB"
+        , "\t#ValueDivValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`/`ValueIDB`"]],
-    ["ValueDivValue", ["\t#VAV:ValueIDA:ValueIDB"
-        , "\t#ValueDivValue:ValueIDA:ValueIDB"
+    ["ValueDivValue", ["\t#VAV=ValueIDA:ValueIDB"
+        , "\t#ValueDivValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`/`ValueIDB`"]],
 
-    ["CMP", ["\t#CMP:ValueID:Value"
-        , "\t#CMPV:ValueID:Value"
-        , "\t#CMPValue:ValueID:Value"
+    ["CMP", ["\t#CMP=ValueID:Value"
+        , "\t#CMPV=ValueID:Value"
+        , "\t#CMPValue=ValueID:Value"
         , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]],
-    ["CMPV", ["\t#CMP:ValueID:Value"
-        , "\t#CMPV:ValueID:Value"
-        , "\t#CMPValue:ValueID:Value"
+    ["CMPV", ["\t#CMP=ValueID:Value"
+        , "\t#CMPV=ValueID:Value"
+        , "\t#CMPValue=ValueID:Value"
         , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]],
-    ["CMPValue", ["\t#CMP:ValueID:Value"
-        , "\t#CMPV:ValueID:Value"
-        , "\t#CMPValue:ValueID:Value"
+    ["CMPValue", ["\t#CMP=ValueID:Value"
+        , "\t#CMPV=ValueID:Value"
+        , "\t#CMPValue=ValueID:Value"
         , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]],
-    ["CMPAB", ["\t#CMPAB:ValueIDA:ValueIDB"
-        , "\t#CMPVAB:ValueIDA:ValueIDB"
-        , "\t#CMPValueAB:ValueIDA:ValueIDB"
-        , "\t#CMPVV:ValueIDA:ValueIDB"
-        , "\t#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPAB", ["\t#CMPAB=ValueIDA:ValueIDB"
+        , "\t#CMPVAB=ValueIDA:ValueIDB"
+        , "\t#CMPValueAB=ValueIDA:ValueIDB"
+        , "\t#CMPVV=ValueIDA:ValueIDB"
+        , "\t#CMPValueValue=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPVAB", ["\t#CMPAB:ValueIDA:ValueIDB"
-        , "\t#CMPVAB:ValueIDA:ValueIDB"
-        , "\t#CMPValueAB:ValueIDA:ValueIDB"
-        , "\t#CMPVV:ValueIDA:ValueIDB"
-        , "\t#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPVAB", ["\t#CMPAB=ValueIDA:ValueIDB"
+        , "\t#CMPVAB=ValueIDA:ValueIDB"
+        , "\t#CMPValueAB=ValueIDA:ValueIDB"
+        , "\t#CMPVV=ValueIDA:ValueIDB"
+        , "\t#CMPValueValue=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPValueAB", ["\t#CMPAB:ValueIDA:ValueIDB"
-        , "\t#CMPVAB:ValueIDA:ValueIDB"
-        , "\t#CMPValueAB:ValueIDA:ValueIDB"
-        , "\t#CMPVV:ValueIDA:ValueIDB"
-        , "\t#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPValueAB", ["\t#CMPAB=ValueIDA:ValueIDB"
+        , "\t#CMPVAB=ValueIDA:ValueIDB"
+        , "\t#CMPValueAB=ValueIDA:ValueIDB"
+        , "\t#CMPVV=ValueIDA:ValueIDB"
+        , "\t#CMPValueValue=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPVV", ["\t#CMPAB:ValueIDA:ValueIDB"
-        , "\t#CMPVAB:ValueIDA:ValueIDB"
-        , "\t#CMPValueAB:ValueIDA:ValueIDB"
-        , "\t#CMPVV:ValueIDA:ValueIDB"
-        , "\t#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPVV", ["\t#CMPAB=ValueIDA:ValueIDB"
+        , "\t#CMPVAB=ValueIDA:ValueIDB"
+        , "\t#CMPValueAB=ValueIDA:ValueIDB"
+        , "\t#CMPVV=ValueIDA:ValueIDB"
+        , "\t#CMPValueValue=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPValueValue", ["\t#CMPAB:ValueIDA:ValueIDB"
-        , "\t#CMPVAB:ValueIDA:ValueIDB"
-        , "\t#CMPValueAB:ValueIDA:ValueIDB"
-        , "\t#CMPVV:ValueIDA:ValueIDB"
-        , "\t#CMPValueValue:ValueIDA:ValueIDB"
+    ["CMPValueValue", ["\t#CMPAB=ValueIDA:ValueIDB"
+        , "\t#CMPVAB=ValueIDA:ValueIDB"
+        , "\t#CMPValueAB=ValueIDA:ValueIDB"
+        , "\t#CMPVV=ValueIDA:ValueIDB"
+        , "\t#CMPValueValue=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPSAB", ["\t#CMPSAB:ValueIDA:ValueIDB"
-        , "\t#CMPStringAB:ValueIDA:ValueIDB"
-        , "\t#CMPSS:ValueIDA:ValueIDB"
-        , "\t#CMPStringString:ValueIDA:ValueIDB"
+    ["CMPSAB", ["\t#CMPSAB=ValueIDA:ValueIDB"
+        , "\t#CMPStringAB=ValueIDA:ValueIDB"
+        , "\t#CMPSS=ValueIDA:ValueIDB"
+        , "\t#CMPStringString=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPStringAB", ["\t#CMPSAB:ValueIDA:ValueIDB"
-        , "\t#CMPStringAB:ValueIDA:ValueIDB"
-        , "\t#CMPSS:ValueIDA:ValueIDB"
-        , "\t#CMPStringString:ValueIDA:ValueIDB"
+    ["CMPStringAB", ["\t#CMPSAB=ValueIDA:ValueIDB"
+        , "\t#CMPStringAB=ValueIDA:ValueIDB"
+        , "\t#CMPSS=ValueIDA:ValueIDB"
+        , "\t#CMPStringString=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPSS", ["\t#CMPSAB:ValueIDA:ValueIDB"
-        , "\t#CMPStringAB:ValueIDA:ValueIDB"
-        , "\t#CMPSS:ValueIDA:ValueIDB"
-        , "\t#CMPStringString:ValueIDA:ValueIDB"
+    ["CMPSS", ["\t#CMPSAB=ValueIDA:ValueIDB"
+        , "\t#CMPStringAB=ValueIDA:ValueIDB"
+        , "\t#CMPSS=ValueIDA:ValueIDB"
+        , "\t#CMPStringString=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
-    ["CMPStringString", ["\t#CMPSAB:ValueIDA:ValueIDB"
-        , "\t#CMPStringAB:ValueIDA:ValueIDB"
-        , "\t#CMPSS:ValueIDA:ValueIDB"
-        , "\t#CMPStringString:ValueIDA:ValueIDB"
+    ["CMPStringString", ["\t#CMPSAB=ValueIDA:ValueIDB"
+        , "\t#CMPStringAB=ValueIDA:ValueIDB"
+        , "\t#CMPSS=ValueIDA:ValueIDB"
+        , "\t#CMPStringString=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
 
-    ["JE", ["比较结果等于时，跳转至`Lable`"]],
-    ["JA", ["比较结果大于时，跳转至`Lable`"]],
-    ["JB", ["比较结果小于时，跳转至`Lable`"]],
-    ["JNE", ["比较结果不等于时，跳转至`Lable`"]],
+    ["JE", ["比较结果等于时，跳转至`Label`"]],
+    ["JA", ["比较结果大于时，跳转至`Label`"]],
+    ["JB", ["比较结果小于时，跳转至`Label`"]],
+    ["JNE", ["比较结果不等于时，跳转至`Label`"]],
 
     // keywords_dialogue
-    ["DiaColor", ["\t#DiaColor:R:G:B"
-        , "\t#DiaColor:#FFFFFF"
+    ["DiaColor", ["\t#DiaColor=R:G:B"
+        , "\t#DiaColor=#FFFFFF"
         , "定义对白文字的RGB值，`R:G:B/#FFFFFF`"
         , "字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误"]],
-    ["DiaSize", ["\t#DiaSize:size"
+    ["DiaSize", ["\t#DiaSize=size"
         , "定义对白文字的大小，AVG模式下默认大小为17，VN模式下默认大小为18"]],
-    ["DiaFont", ["\t#DiaFont:font"
+    ["DiaFont", ["\t#DiaFont=font"
         , "定义对白文字的字体"]],
 
-    ["DiaShaderOn", ["\t#DiaShaderOn:outlinepixel:R:G:B"
-        , "\t#DiaShaderOn:outlinepixel:#FFFFFF"
+    ["DiaShaderOn", ["\t#DiaShaderOn=outlinepixel:R:G:B"
+        , "\t#DiaShaderOn=outlinepixel:#FFFFFF"
         , "启用对白勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`"]],
     ["DiaShaderOff", ["关闭对白勾边效果"]],
 
-    ["DiaOutColor", ["\t#DiaOutColor:R:G:B"
-        , "\t#DiaOutColor:#FFFFFF"
+    ["DiaOutColor", ["\t#DiaOutColor=R:G:B"
+        , "\t#DiaOutColor=#FFFFFF"
         , "启用勾边时，更改对白勾边颜色为`RGB/#FFFFFF`"]],
-    ["DiaOutPixel", ["\t#DiaOutPixel:outlinepixel"
+    ["DiaOutPixel", ["\t#DiaOutPixel=outlinepixel"
         , "启用勾边时，更改对白勾边像素数为`outlinepixel`"]],
 
-    ["NameColor", ["\t#NameColor:R:G:B"
-        , "\t#NameColor:#FFFFFF"
+    ["NameColor", ["\t#NameColor=R:G:B"
+        , "\t#NameColor=#FFFFFF"
         , "定义姓名文字的RGB值，`R:G:B/#FFFFFF`"
         , "字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误"]],
-    ["NameSize", ["\t#NameSize:size"
+    ["NameSize", ["\t#NameSize=size"
         , "定义姓名文字的大小，默认大小为18"]],
-    ["NameFont", ["\t#NameFont:font"
+    ["NameFont", ["\t#NameFont=font"
         , "定义姓名文字的字体"]],
 
-    ["NameShaderOn", ["\t#NameShaderOn:outlinepixel:R:G:B"
-        , "\t#NameShaderOn:outlinepixel:#FFFFFF"
+    ["NameShaderOn", ["\t#NameShaderOn=outlinepixel:R:G:B"
+        , "\t#NameShaderOn=outlinepixel:#FFFFFF"
         , "启用姓名勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`"]],
     ["NameShaderOff", ["关闭姓名勾边效果"]],
 
-    ["NameOutColor", ["\t#NameOutColor:R:G:B"
-        , "\t#NameOutColor:#FFFFFF"
+    ["NameOutColor", ["\t#NameOutColor=R:G:B"
+        , "\t#NameOutColor=#FFFFFF"
         , "启用勾边时，更改姓名勾边颜色为`RGB/#FFFFFF`"]],
-    ["NameOutPixel", ["\t#NameOutPixel:outlinepixel"
+    ["NameOutPixel", ["\t#NameOutPixel=outlinepixel"
         , "启用勾边时，更改对白勾边像素数为`outlinepixel`"]],
 
     ["Dia", ["\t@Dia=filename.png"
@@ -715,7 +715,7 @@ export const commandDocList = new Map<string, string[]>([
     ["BgsPause", ["暂停BGS"]],
     ["BgsResume", ["恢复BGS"]],
 
-    ["BgsFadeOut", ["\t@BgsFadeOut:fadeSpeed"
+    ["BgsFadeOut", ["\t@BgsFadeOut=fadeSpeed"
         , "淡出BGS"]],
 
     ["Dub", ["\t@Dub=filename.mp3"
@@ -787,7 +787,7 @@ export const commandDocList = new Map<string, string[]>([
     ["RemoveBlur", ["\t@RemoveBlur=Num"
         , "`@RemoveBlur`会转译为`Num`个`@DestroyBlur`指令，欲销毁全部景深对象，请将`Num`设定为一个较大的数，如`255`，实际指令转译最大只会进行当前景深对象数(即景深堆栈深度)次"]],
     ["DestroyBlur", ["移除景深堆栈最上方的景深对象"]],
-    ["BackZoomParam", ["\t@BackZoomParam:Easing_FuncA:Easing_FuncB"
+    ["BackZoomParam", ["\t@BackZoomParam=Easing_FuncA:Easing_FuncB"
         , "指定进行缩放时的Easing参数"]],
     ["BackZoomReset", ["按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:10:0:0`在真实坐标模式下执行"]],
     ["BackZoom", ["\t@BackZoom=X:Y:width:height:Speed:Instant:Forcewait"
@@ -803,18 +803,18 @@ export const commandDocList = new Map<string, string[]>([
         , "默认情况下淡入速度较快，建议使用`#TransitionSpeed`指令修改叠化速度为5左右"]],
     ["DestroyFade", ["消除之前创建的所有叠化效果，会被转译为`@PatternFadeOut`"]],
 
-    ["PF", ["\t@PF:picname:Orderable"
-        , "\t@PatternFade:picname:Orderable"
+    ["PF", ["\t@PF=picname:Orderable"
+        , "\t@PatternFade=picname:Orderable"
         , "创建`Pattern`过渡元件，使用`pattern fade`读取`picname`图像叠化进入"]],
-    ["PatternFade", ["\t@PF:picname:Orderable"
-        , "\t@PatternFade:picname:Orderable"
+    ["PatternFade", ["\t@PF=picname:Orderable"
+        , "\t@PatternFade=picname:Orderable"
         , "创建`Pattern`过渡元件，使用`pattern fade`读取`picname`图像叠化进入"]],
-    ["PFO", ["\t@PFO:picname"
-        , "\t@PatternFadeOut:picname:Orderable"
+    ["PFO", ["\t@PFO=picname"
+        , "\t@PatternFadeOut=picname:Orderable"
         , "使用`PatternFade`读取`picname`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序"
         , "该指令运行结束后会自动销毁该Pattern过渡元件"]],
-    ["PatternFadeOut", ["\t@PFO:picname"
-        , "\t@PatternFadeOut:picname:Orderable"
+    ["PatternFadeOut", ["\t@PFO=picname"
+        , "\t@PatternFadeOut=picname:Orderable"
         , "使用`PatternFade`读取`picname`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序"
         , "该指令运行结束后会自动销毁该Pattern过渡元件"]],
 
@@ -825,35 +825,35 @@ export const commandDocList = new Map<string, string[]>([
     ["ToSnow", ["逐渐创建下雪效果，不会在过渡状态2等待，不受到强制等待指令控制"]],
     ["ToNormal", ["逐渐取消天气效果，不会在过渡状态2等待，不受到强制等待指令控制"]],
 
-    ["CrossFade", ["\t@CrossFade:ID"
+    ["CrossFade", ["\t@CrossFade=ID"
         , "为该对象下次叠化启用交错模式"
         , "ID留空，程序会尝试捕获最新调用叠化指令的对象，在叠化完成后，CrossFade会自动禁用"
         , "在叠化阶段开始指令前(等待/强制等待/文本)使用指令均有效，但从可读性角度建议写于相应叠化指令后"]],
-    ["KeepRes", ["\t@KeepRes:ID"
-        , "\t@KeepResolution:ID"
+    ["KeepRes", ["\t@KeepRes=ID"
+        , "\t@KeepResolution=ID"
         , "该ID对应的对象会在叠化时保持当前设定的分辨率"]],
-    ["KeepResolution", ["\t@KeepRes:ID"
-        , "\t@KeepResolution:ID"
+    ["KeepResolution", ["\t@KeepRes=ID"
+        , "\t@KeepResolution=ID"
         , "该ID对应的对象会在叠化时保持当前设定的分辨率"]],
 
-    ["KeepResOff", ["\t@KeepResOff:ID"
-        , "\t@KeepResolutionOff:ID"
+    ["KeepResOff", ["\t@KeepResOff=ID"
+        , "\t@KeepResolutionOff=ID"
         , "该ID对应的对象会在叠化时重设分辨率为新图像的分辨率"]],
-    ["KeepResolutionOff", ["\t@KeepResOff:ID"
-        , "\t@KeepResolutionOff:ID"
+    ["KeepResolutionOff", ["\t@KeepResOff=ID"
+        , "\t@KeepResolutionOff=ID"
         , "该ID对应的对象会在叠化时重设分辨率为新图像的分辨率"]],
 
-    ["Sepia", ["\t@Sepia:Strength:NoiseMotion:Period"
-        , "\t@SepiaToning:Strength:NoiseMotion:Period"
+    ["Sepia", ["\t@Sepia=Strength:NoiseMotion:Period"
+        , "\t@SepiaToning=Strength:NoiseMotion:Period"
         , "创建强度为`Strength`的`Sepia Toning`对象，对象默认ID为`-5`。其中`Strength`应为一个`[0,1]`的浮点数，默认值为`0.5`，`NoiseMotion`参数控制噪声运动的开启与关闭，当设定为`1`或`On`的时候会启用噪声运动，运动周期为`Period`，单位毫秒，默认值为`-1`，即每帧更新。已经创建了`Sepia Toning`对象后调用该指令，该指令无效"]],
-    ["SepiaToning", ["\t@Sepia:Strength:NoiseMotion:Period"
-        , "\t@SepiaToning:Strength:NoiseMotion:Period"
+    ["SepiaToning", ["\t@Sepia=Strength:NoiseMotion:Period"
+        , "\t@SepiaToning=Strength:NoiseMotion:Period"
         , "创建强度为`Strength`的`Sepia Toning`对象，对象默认ID为`-5`。其中`Strength`应为一个`[0,1]`的浮点数，默认值为`0.5`，`NoiseMotion`参数控制噪声运动的开启与关闭，当设定为`1`或`On`的时候会启用噪声运动，运动周期为`Period`，单位毫秒，默认值为`-1`，即每帧更新。已经创建了`Sepia Toning`对象后调用该指令，该指令无效"]],
-    ["ChangeSepiaStrength", ["\t@ChangeSepiaStrength:Strength"
+    ["ChangeSepiaStrength", ["\t@ChangeSepiaStrength=Strength"
         , "在演出执行阶段改变`Sepia Toning`对象的`Strength`，参数留空会将`Strength`设定为默认值`0.5`"]],
-    ["SetSepiaNoiseMotion", ["\t@SetSepiaNoiseMotion:On/Off"
+    ["SetSepiaNoiseMotion", ["\t@SetSepiaNoiseMotion=On/Off"
         , "控制噪声运动的开启与关闭，设定为`1`或`On`时启用噪声运动，设定为`0`或`Off`时禁用噪声运动，参数为空会Toggle当前启用状态"]],
-    ["ChangeSepiaNoiseMotionPeriod", ["\t@ChangeSepiaNoiseMotionPeriod:Period"
+    ["ChangeSepiaNoiseMotionPeriod", ["\t@ChangeSepiaNoiseMotionPeriod=Period"
         , "将噪声运动的运动周期设定为`Period`，单位毫秒，参数为空会将`Period`设定为默认值`-1`，一个典型的参考值为`300`毫秒"]],
 
 
@@ -971,43 +971,43 @@ export const commandDocList = new Map<string, string[]>([
         , "\t@CGChange=filename.png"
         , "切换CG，叠化阶段进行"]],
 
-    ["CPF", ["\t@CPF:picname:patternname:ID"
-        , "\t@CPatternFade:picname:patternname:ID"
+    ["CPF", ["\t@CPF=picname:patternname:ID"
+        , "\t@CPatternFade=picname:patternname:ID"
         , "读取贴图，前景背景同时叠化"]],
-    ["CPatternFade", ["\t@CPF:picname:patternname:ID"
-        , "\t@CPatternFade:picname:patternname:ID"
+    ["CPatternFade", ["\t@CPF=picname:patternname:ID"
+        , "\t@CPatternFade=picname:patternname:ID"
         , "读取贴图，前景背景同时叠化"]],
-    ["CPFI", ["\t@CPFI:picname:patternname:ID"
-        , "\t@CPatternFadeIn:picname:patternname:ID"
+    ["CPFI", ["\t@CPFI=picname:patternname:ID"
+        , "\t@CPatternFadeIn=picname:patternname:ID"
         , "读取贴图，叠化至前景图像"]],
-    ["CPatternFadeIn", ["\t@CPFI:picname:patternname:ID"
-        , "\t@CPatternFadeIn:picname:patternname:ID"
+    ["CPatternFadeIn", ["\t@CPFI=picname:patternname:ID"
+        , "\t@CPatternFadeIn=picname:patternname:ID"
         , "读取贴图，叠化至前景图像"]],
-    ["CPFO", ["\t@CPFO:picname:patternname:ID"
-        , "\t@CPatternFadeOut:picname:patternname:ID"
+    ["CPFO", ["\t@CPFO=picname:patternname:ID"
+        , "\t@CPatternFadeOut=picname:patternname:ID"
         , "读取贴图，叠化至背景图像"]],
-    ["CPatternFadeOut", ["\t@CPFO:picname:patternname:ID"
-        , "\t@CPatternFadeOut:picname:patternname:ID"
+    ["CPatternFadeOut", ["\t@CPFO=picname:patternname:ID"
+        , "\t@CPatternFadeOut=picname:patternname:ID"
         , "读取贴图，叠化至背景图像"]],
-    ["CGPFI", ["\t@CGPFI:picname:patternname"
-        , "\t@CGPatternFadeIn:picname:patternname"
+    ["CGPFI", ["\t@CGPFI=picname:patternname"
+        , "\t@CGPatternFadeIn=picname:patternname"
         , "转译指令，读取贴图，CG叠化至前景图像"]],
-    ["CGPatternFadeIn", ["\t@CGPFI:picname:patternname"
-        , "\t@CGPatternFadeIn:picname:patternname"
+    ["CGPatternFadeIn", ["\t@CGPFI=picname:patternname"
+        , "\t@CGPatternFadeIn=picname:patternname"
         , "转译指令，读取贴图，CG叠化至前景图像"]],
 
-    ["CGPFO", ["\t@CGPFO:picname:patternname"
-        , "\t@CGPatternFadeOut:picname:patternname"
+    ["CGPFO", ["\t@CGPFO=picname:patternname"
+        , "\t@CGPatternFadeOut=picname:patternname"
         , "转译指令，读取贴图，CG叠化至背景图像"]],
-    ["CGPatternFadeOut", ["\t@CGPFO:picname:patternname"
-        , "\t@CGPatternFadeOut:picname:patternname"
+    ["CGPatternFadeOut", ["\t@CGPFO=picname:patternname"
+        , "\t@CGPatternFadeOut=picname:patternname"
         , "转译指令，读取贴图，CG叠化至背景图像"]],
 
-    ["CharPF", ["\t@CharPF:picname:patternname:ID"
-        , "\t@CharPatternFade:picname:patternname:ID"
+    ["CharPF", ["\t@CharPF=picname:patternname:ID"
+        , "\t@CharPatternFade=picname:patternname:ID"
         , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]],
-    ["CharPatternFade", ["\t@CharPF:picname:patternname:ID"
-        , "\t@CharPatternFade:picname:patternname:ID"
+    ["CharPatternFade", ["\t@CharPF=picname:patternname:ID"
+        , "\t@CharPatternFade=picname:patternname:ID"
         , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]],
 
     ["Char", ["\t@Char=filename.png:ID:Alpha:X:Y:Width:Height"
@@ -1028,25 +1028,25 @@ export const commandDocList = new Map<string, string[]>([
         , "交错模式：通常来说，切换角色时应启用交错模式，更改长宽比时，会自动切换为交错模式"
         , "长宽：默认为新图片原始尺寸，使用+/-指定增量时，会以原始尺寸为基础进行计算"]],
 
-    ["CA", ["\t@CA:ID:Alpha"
-        , "\t@CharAlpha:ID:Alpha"
+    ["CA", ["\t@CA=ID:Alpha"
+        , "\t@CharAlpha=ID:Alpha"
         , "切换对象到指定的不透明度"]],
-    ["CharAlpha", ["\t@CA:ID:Alpha"
-        , "\t@CharAlpha:ID:Alpha"
+    ["CharAlpha", ["\t@CA=ID:Alpha"
+        , "\t@CharAlpha=ID:Alpha"
         , "切换对象到指定的不透明度"]],
 
-    ["CharRotate", ["\t@CharRotate:ID:angle:clockwise:circlecount"
+    ["CharRotate", ["\t@CharRotate=ID:angle:clockwise:circlecount"
         , "旋转对象至目标角度与预定圈数，`clockwise = 1`为顺时针，`clockwise = -1`为逆时针"
         , "若目标角度设定为360度，旋转0圈，将持续旋转"
         , "该指令不可与立绘叠化同时使用"]],
     ["SetAutoArrange", ["\t@SetAutoArrange=On/Off"
         , "控制自动间距功能的开启与关闭，设定为1或On时启用自动间距，设定为0或Off时禁用自动间距，参数为空会Toggle当前启用状态"
         , "启用自动间距后，新建/销毁立绘时会自动调整间距，最大支持处理六张立绘的间距"]],
-    ["CD", ["\t@CD:ID"
-        , "\t@CharDispose:ID"
+    ["CD", ["\t@CD=ID"
+        , "\t@CharDispose=ID"
         , "销毁并释放该ID对应的图像对象的本体和遮罩，会转译为`@CharAlpha:ID:255`并启用`Destroy`Flag"]],
-    ["CharDispose", ["\t@CD:ID"
-        , "\t@CharDispose:ID"
+    ["CharDispose", ["\t@CD=ID"
+        , "\t@CharDispose=ID"
         , "销毁并释放该ID对应的图像对象的本体和遮罩，会转译为`@CharAlpha:ID:255`并启用`Destroy`Flag"]],
 
     ["CAD", ["销毁全部的图像对象，并释放其对应的本体和遮罩"

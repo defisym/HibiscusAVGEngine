@@ -1,5 +1,11 @@
 # Change Log
 
+## 20220522
+
+- iterate lines
+- take comments into account
+- fix command delimiter is not `=`
+
 ## 20220520
 
 - fix info grammar error
