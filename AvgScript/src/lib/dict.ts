@@ -1309,10 +1309,10 @@ export const commandParamList = new Map<string, ParamFormat>([
     ["Fade", { minParam: 0, maxParam: 0, type: [] }],
     ["DestroyFade", { minParam: 0, maxParam: 0, type: [] }],
 
-    ["PF", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
-    ["PatternFade", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
-    ["PFO", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
-    ["PatternFadeOut", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["PF", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["PatternFade", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["PFO", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["PatternFadeOut", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
 
     ["Rain", { minParam: 0, maxParam: 0, type: [] }],
     ["Snow", { minParam: 0, maxParam: 0, type: [] }],
@@ -1339,10 +1339,10 @@ export const commandParamList = new Map<string, ParamFormat>([
 
     ["StrCenter", { minParam: 0, maxParam: 0, type: [] }],
     ["StrBottom", { minParam: 0, maxParam: 0, type: [] }],
-    ["Str", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["String", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["CreateStr", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["CreateString", { minParam: 6, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["Str", { minParam: 2, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["String", { minParam: 2, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["CreateStr", { minParam: 2, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["CreateString", { minParam: 2, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
 
     ["StrS", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
     ["StrSize", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
