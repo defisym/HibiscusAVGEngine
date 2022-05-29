@@ -493,6 +493,8 @@ namenull.png = 2_1
 
 - `NoHistory`
   - 禁用历史记录功能
+- `NoHistoryJump`
+  - 禁用历史记录跳转功能
 - `ResetHistory`
   - 开始对话时重置历史记录
 
