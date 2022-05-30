@@ -251,6 +251,31 @@ export const atKeywordList: string[] = [
 
 export const keywordList: string[] = sharpKeywordList.concat(atKeywordList);
 
+export const internalKeywordList: string[] = [
+    'Error',
+    'Spe',
+    'SkipJmp',
+    'UnlockAppreciation',
+    'MO',
+    'MoveObj',
+    'DiaTrans',
+    'NameTrans',
+];
+
+export const deprecatedKeywordList: string[] = [
+    
+];
+
+// cannot be created by user
+export const internalImageID: number[] = [
+    -1,         // 姓名栏
+    -2,         // 对话框
+    -3,         // CG
+    -5,         // Sepia Toning
+    -100,       // 景深
+    -65535      // 错误提示
+];
+
 export const settingsParamList: string[] = [
     "LangSwitchAble",
     "VNMode",

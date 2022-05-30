@@ -1,5 +1,10 @@
 # Change Log
 
+## 20220530
+
+- diagnostic for deprecated & internal commands
+- deprecated & internal commands now have delete line in completion
+
 ## 20220522
 
 - iterate lines

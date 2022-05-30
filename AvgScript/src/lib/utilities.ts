@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { docList } from './dict';
+import { deprecatedKeywordList, docList, internalKeywordList } from './dict';
 import { audioBgmCompletions, audioBgmPath, audioBgsCompletions, audioBgsPath, audioDubsCompletions, audioDubsPath, audioSECompletions, audioSEPath, graphicCGCompletions, graphicCGPath, graphicCharactersCompletions, graphicCharactersPath, graphicPatternFadeCompletions, graphicPatternFadePath, graphicUICompletions, graphicUIPath, scriptCompletions, scriptPath } from './../extension';
 
 const delimiter = ['=', ':'];
@@ -161,6 +161,28 @@ export function lineValidForCommandCompletion(src: string): boolean {
     return (!include);
 }
 
+export function arrayHasValue(item: number, array: number[]): boolean;
+export function arrayHasValue(item: string, array: string[]): boolean;
+export function arrayHasValue(item: string | number, array: (string | number)[]): boolean {
+    for (let i in array) {
+        if (typeof item !== (typeof array[i])) {
+            return false;
+        }
+
+        if (typeof item === "string") {
+            if ((<typeof item>array[i]).toLowerCase() === item.toLowerCase()) {
+                return true;
+            }
+        }
+
+        else if (array[i] === item) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 export function getMapValue<V>(item: string, map: Map<string, V>): V | undefined {
     let ret: V | undefined = undefined;
 
@@ -205,6 +227,11 @@ export function getCompletionItemList(src: string[], commentList: docList) {
         if (completionItem === undefined) {
             continue;
         }
+
+        if (arrayHasValue(src[i], deprecatedKeywordList)
+        || arrayHasValue(src[i], internalKeywordList)) {
+            completionItem.tags = [vscode.CompletionItemTag.Deprecated];
+    }
 
         ret.push(completionItem);
     }
@@ -445,7 +472,6 @@ export function strIsNum(src: string) {
     const regexNumber = /\+[0-9]+(.[0-9]+)?|-[0-9]+(.[0-9]+)?|[0-9]+(.[0-9]+)?/gi;
     return matchEntire(src, regexNumber);
 }
-
 
 // iterateLines(document, (text, lineNumber
 //     , lineStart, lineEnd

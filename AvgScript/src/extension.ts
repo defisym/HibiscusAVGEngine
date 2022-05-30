@@ -4,15 +4,18 @@ import { pinyin } from 'pinyin-pro';
 import * as mm from 'music-metadata';
 import { ImageProbe } from "@zerodeps/image-probe";
 
-import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer, getCommentList, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment } from './lib/utilities';
+import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer, getCommentList, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment, arrayHasValue } from './lib/utilities';
 import {
 	sharpKeywordList, atKeywordList
 	, keywordList, settingsParamList
-	, commandDocList, settingsParamDocList, langDocList, commandParamList, ParamType
+	, commandDocList, settingsParamDocList, langDocList, commandParamList, ParamType, deprecatedKeywordList, internalKeywordList
 } from './lib/dict';
+import { deprecate } from 'util';
+
+// cofig
+const confBasePath: string = "conf.AvgScript.basePath";
 
 // command
-const confBasePath: string = "conf.AvgScript.basePath";
 const commandBasePath: string = "config.AvgScript.basePath";
 const commandRefreshAssets: string = "config.AvgScript.refreshAssets";
 
@@ -32,12 +35,6 @@ export let graphicUIPath: string;
 export let graphicPatternFadePath: string;
 export let graphicCharactersPath: string;
 
-export let graphicFX: Thenable<[string, vscode.FileType][]>;
-export let graphicCG: Thenable<[string, vscode.FileType][]>;
-export let graphicUI: Thenable<[string, vscode.FileType][]>;
-export let graphicPatternFade: Thenable<[string, vscode.FileType][]>;
-export let graphicCharacters: Thenable<[string, vscode.FileType][]>;
-
 export let graphicFXCompletions: vscode.CompletionItem[] = [];
 export let graphicCGCompletions: vscode.CompletionItem[] = [];
 export let graphicUICompletions: vscode.CompletionItem[] = [];
@@ -51,11 +48,6 @@ export let audioBgsPath: string;
 export let audioDubsPath: string;
 export let audioSEPath: string;
 
-export let audioBgm: Thenable<[string, vscode.FileType][]>;
-export let audioBgs: Thenable<[string, vscode.FileType][]>;
-export let audioDubs: Thenable<[string, vscode.FileType][]>;
-export let audioSE: Thenable<[string, vscode.FileType][]>;
-
 export let audioBgmCompletions: vscode.CompletionItem[] = [];
 export let audioBgsCompletions: vscode.CompletionItem[] = [];
 export let audioDubsCompletions: vscode.CompletionItem[] = [];
@@ -63,7 +55,6 @@ export let audioSECompletions: vscode.CompletionItem[] = [];
 
 export let scriptPath: string;
 
-export let script: Thenable<[string, vscode.FileType][]>;
 export let scriptCompletions: vscode.CompletionItem[] = [];
 
 export let labelCompletions: vscode.CompletionItem[] = [];
@@ -213,11 +204,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		graphicPatternFadePath = graphic + "PatternFade";
 		graphicCharactersPath = graphic + "Characters";
 
-		graphicFX = getFileList(vscode.Uri.file(graphicFXPath));
-		graphicCG = getFileList(vscode.Uri.file(graphicCGPath));
-		graphicUI = getFileList(vscode.Uri.file(graphicUIPath));
-		graphicPatternFade = getFileList(vscode.Uri.file(graphicPatternFadePath));
-		graphicCharacters = getFileList(vscode.Uri.file(graphicCharactersPath));
+		let graphicFX = await getFileList(vscode.Uri.file(graphicFXPath));
+		let graphicCG = await getFileList(vscode.Uri.file(graphicCGPath));
+		let graphicUI = await getFileList(vscode.Uri.file(graphicUIPath));
+		let graphicPatternFade = await getFileList(vscode.Uri.file(graphicPatternFadePath));
+		let graphicCharacters = await getFileList(vscode.Uri.file(graphicCharactersPath));
 
 		audio = basePath + "\\Audio\\";
 
@@ -226,15 +217,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		audioDubsPath = audio + "Dubs";
 		audioSEPath = audio + "SE";
 
-		audioBgm = getFileList(vscode.Uri.file(audioBgmPath));
-		audioBgs = getFileList(vscode.Uri.file(audioBgsPath));
-		audioDubs = getFileList(vscode.Uri.file(audioDubsPath));
-		audioSE = getFileList(vscode.Uri.file(audioSEPath));
+		let audioBgm = await getFileList(vscode.Uri.file(audioBgmPath));
+		let audioBgs = await getFileList(vscode.Uri.file(audioBgsPath));
+		let audioDubs = await getFileList(vscode.Uri.file(audioDubsPath));
+		let audioSE = await getFileList(vscode.Uri.file(audioSEPath));
 
 		scriptPath = basePath + "\\dialogue";
-		script = getFileList(vscode.Uri.file(scriptPath));
+		let script = await getFileList(vscode.Uri.file(scriptPath));
 
-		let generateCompletionList = async (fileList: Thenable<[string, vscode.FileType][]>
+		let generateCompletionList = (fileList: [string, vscode.FileType][]
 			, completions: vscode.CompletionItem[]
 			, basePath: string = ""
 			, type: CompletionType = CompletionType.image) => {
@@ -242,7 +233,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				return;
 			}
 
-			(await fileList).forEach(async element => {
+			fileList.forEach(async element => {
 				if (element[1] === vscode.FileType.File) {
 					let fileName: string = element[0];
 					let fileNameNoSuffix: string = element[0].lastIndexOf(".") === -1 ? element[0] : element[0].substring(0, element[0].lastIndexOf("."));
@@ -313,25 +304,25 @@ export async function activate(context: vscode.ExtensionContext) {
 		graphicPatternFadeCompletions = [];
 		graphicCharactersCompletions = [];
 
-		await generateCompletionList(graphicFX, graphicFXCompletions, graphicFXPath);
-		await generateCompletionList(graphicCG, graphicCGCompletions, graphicCGPath);
-		await generateCompletionList(graphicUI, graphicUICompletions, graphicUIPath);
-		await generateCompletionList(graphicPatternFade, graphicPatternFadeCompletions, graphicPatternFadePath);
-		await generateCompletionList(graphicCharacters, graphicCharactersCompletions, graphicCharactersPath);
+		generateCompletionList(graphicFX, graphicFXCompletions, graphicFXPath);
+		generateCompletionList(graphicCG, graphicCGCompletions, graphicCGPath);
+		generateCompletionList(graphicUI, graphicUICompletions, graphicUIPath);
+		generateCompletionList(graphicPatternFade, graphicPatternFadeCompletions, graphicPatternFadePath);
+		generateCompletionList(graphicCharacters, graphicCharactersCompletions, graphicCharactersPath);
 
 		audioBgmCompletions = [];
 		audioBgsCompletions = [];
 		audioDubsCompletions = [];
 		audioSECompletions = [];
 
-		await generateCompletionList(audioBgm, audioBgmCompletions, audioBgmPath, CompletionType.audio);
-		await generateCompletionList(audioBgs, audioBgsCompletions, audioBgsPath, CompletionType.audio);
-		await generateCompletionList(audioDubs, audioDubsCompletions, audioDubsPath, CompletionType.audio);
-		await generateCompletionList(audioSE, audioSECompletions, audioSEPath, CompletionType.audio);
+		generateCompletionList(audioBgm, audioBgmCompletions, audioBgmPath, CompletionType.audio);
+		generateCompletionList(audioBgs, audioBgsCompletions, audioBgsPath, CompletionType.audio);
+		generateCompletionList(audioDubs, audioDubsCompletions, audioDubsPath, CompletionType.audio);
+		generateCompletionList(audioSE, audioSECompletions, audioSEPath, CompletionType.audio);
 
 		scriptCompletions = [];
 
-		await generateCompletionList(script, scriptCompletions, scriptPath, CompletionType.script);
+		generateCompletionList(script, scriptCompletions, scriptPath, CompletionType.script);
 	}
 
 	//--------------------
@@ -827,14 +818,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	});
 
 	vscode.commands.registerCommand(commandRefreshAssets, async () => {
-		// await updateFileList();
+		basePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
+
+		if (basePath === "") {
+			vscode.commands.executeCommand(commandBasePath);
+		}
+
+		await updateFileList();
 		// refreshFileDiagnostics();
 
-		updateFileList();
-
-		// updateFileList().then(() => {
-		// 	refreshFileDiagnostics();
-		// });
+		// await updateFileList();
 	});
 
 	//--------------------
@@ -1255,6 +1248,18 @@ export async function activate(context: vscode.ExtensionContext) {
 				const paramDefinition = getMapValue(command, commandParamList);
 
 				let contentStart: number = lineStart + command.length + 1;
+
+				if (arrayHasValue(command, internalKeywordList)) {
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, contentStart)
+						, "User Shouldn't Use Internal Command: " + params[0]
+						, vscode.DiagnosticSeverity.Error));
+				}
+
+				if (arrayHasValue(command, deprecatedKeywordList)) {
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, contentStart)
+						, "Deprecated Command: " + params[0]
+						, vscode.DiagnosticSeverity.Warning));
+				}
 
 				if (paramDefinition === undefined) {
 					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
