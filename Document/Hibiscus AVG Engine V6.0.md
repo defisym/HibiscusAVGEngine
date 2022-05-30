@@ -738,11 +738,11 @@ Debug_AVG=Chapter_1
 
 #### 启用 / 关闭
 
-##### `#debug`
+##### `#Debug`
 
 调试模式下无叠化显示调试参数
 
-##### `#debugoff`
+##### `#DebugOff`
 
 调试模式下无叠化关闭调试参数
 
@@ -1045,7 +1045,7 @@ Debug_AVG=Chapter_1
 
 同义指令
 
-- `#jmpcha=Chapter`
+- `#JmpCha=Chapter`
 
 跨章节跳转，更新`CurrentChapter`，跳转到章节`Chapter`
 
@@ -1053,7 +1053,7 @@ Debug_AVG=Chapter_1
 
 同义指令
 
-- `#jmpfra=TargetFrame`
+- `#JmpFra=TargetFrame`
 
 跨场景跳转，跳转到场景`TargetFrame`，仅接受数字参数
 
@@ -2668,7 +2668,7 @@ VSCode插件中提供了多个可供参考的Snippets，可以方便的快速插
 | 姓名栏      | -1     | namenull.png |
 | 对话框      | -2     | dianull.png  |
 | CG          | -3     | null.png     |
-| Sepia Toing | -5     | N/A          |
+| Sepia Toning | -5     | N/A          |
 | 景深        | -100   | N/A          |
 | 错误提示    | -65535 | N/A          |
 
