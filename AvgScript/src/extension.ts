@@ -8,11 +8,13 @@ import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, get
 import {
 	sharpKeywordList, atKeywordList
 	, keywordList, settingsParamList
-	, commandDocList, settingsParamDocList, langDocList, commandParamList, ParamType, deprecatedKeywordList, internalKeywordList
+	, commandDocList, settingsParamDocList, langDocList, commandParamList, ParamType, deprecatedKeywordList, internalKeywordList, internalImageID, inlayHintMap, inlayHintType
 } from './lib/dict';
 import { deprecate } from 'util';
+import { resolve } from 'path';
+import { rejects } from 'assert';
 
-// cofig
+// config
 const confBasePath: string = "conf.AvgScript.basePath";
 
 // command
@@ -172,7 +174,12 @@ export async function activate(context: vscode.ExtensionContext) {
 		return vscode.workspace.fs.readDirectory(uri);
 	}
 
-	async function updateFileList() {
+	async function updateFileList(progress: vscode.Progress<{
+		message?: string | undefined;
+		increment?: number | undefined;
+	}>) {
+		progress.report({ increment: 0, message: "Updating file list..." });
+
 		basePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
 
 		if (basePath === "") {
@@ -180,11 +187,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 
 		// Update config
+		progress.report({ increment: 0, message: "Updating settings..." });
+
 		let iniParser = require('ini');
 		let encoding: BufferEncoding = 'utf-8';
 
 		let configPath = basePath + "\\..\\settings\\settings.ini";
 		let config = iniParser.parse((await getBuffer(configPath)).toString(encoding));
+
+		progress.report({ increment: 4, message: "Updating LocalSettings..." });
 
 		currentLocalCode = config.Display.Language;
 
@@ -195,7 +206,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		currentLocalCodeDisplay = currentLocalCodeDefinition[
 			"LanguageDisplayName_" + currentLocalCode];
 
-		// Update completion list
+		// Update completion list		
+		progress.report({ increment: 4, message: "Updating graphic fileList..." });
+
 		graphic = basePath + "\\Graphics\\";
 
 		graphicFXPath = graphic + "FX";
@@ -204,11 +217,18 @@ export async function activate(context: vscode.ExtensionContext) {
 		graphicPatternFadePath = graphic + "PatternFade";
 		graphicCharactersPath = graphic + "Characters";
 
+		progress.report({ increment: 4, message: "Updating FX fileList..." });
 		let graphicFX = await getFileList(vscode.Uri.file(graphicFXPath));
+		progress.report({ increment: 4, message: "Updating CG fileList..." });
 		let graphicCG = await getFileList(vscode.Uri.file(graphicCGPath));
+		progress.report({ increment: 4, message: "Updating UI fileList..." });
 		let graphicUI = await getFileList(vscode.Uri.file(graphicUIPath));
+		progress.report({ increment: 4, message: "Updating PatternFade fileList..." });
 		let graphicPatternFade = await getFileList(vscode.Uri.file(graphicPatternFadePath));
+		progress.report({ increment: 4, message: "Updating Characters fileList..." });
 		let graphicCharacters = await getFileList(vscode.Uri.file(graphicCharactersPath));
+
+		progress.report({ increment: 4, message: "Updating audio fileList..." });
 
 		audio = basePath + "\\Audio\\";
 
@@ -217,15 +237,21 @@ export async function activate(context: vscode.ExtensionContext) {
 		audioDubsPath = audio + "Dubs";
 		audioSEPath = audio + "SE";
 
+		progress.report({ increment: 4, message: "Updating BGM fileList..." });
 		let audioBgm = await getFileList(vscode.Uri.file(audioBgmPath));
+		progress.report({ increment: 4, message: "Updating BGS fileList..." });
 		let audioBgs = await getFileList(vscode.Uri.file(audioBgsPath));
+		progress.report({ increment: 4, message: "Updating Dubs fileList..." });
 		let audioDubs = await getFileList(vscode.Uri.file(audioDubsPath));
+		progress.report({ increment: 4, message: "Updating SE fileList..." });
 		let audioSE = await getFileList(vscode.Uri.file(audioSEPath));
+
+		progress.report({ increment: 4, message: "Updating script fileList..." });
 
 		scriptPath = basePath + "\\dialogue";
 		let script = await getFileList(vscode.Uri.file(scriptPath));
 
-		let generateCompletionList = (fileList: [string, vscode.FileType][]
+		let generateCompletionList = async (fileList: [string, vscode.FileType][]
 			, completions: vscode.CompletionItem[]
 			, basePath: string = ""
 			, type: CompletionType = CompletionType.image) => {
@@ -233,70 +259,79 @@ export async function activate(context: vscode.ExtensionContext) {
 				return;
 			}
 
+			let promiseList: Promise<void>[] = [];
+
 			fileList.forEach(async element => {
 				if (element[1] === vscode.FileType.File) {
-					let fileName: string = element[0];
-					let fileNameNoSuffix: string = element[0].lastIndexOf(".") === -1 ? element[0] : element[0].substring(0, element[0].lastIndexOf("."));
-					let fileNameSuffix: string = element[0].lastIndexOf(".") === -1 ? "" : element[0].substring(element[0].lastIndexOf("."));
+					promiseList.push(new Promise(async (resolve, reject) => {
+						let fileName: string = element[0];
+						let fileNameNoSuffix: string = element[0].lastIndexOf(".") === -1 ? element[0] : element[0].substring(0, element[0].lastIndexOf("."));
+						let fileNameSuffix: string = element[0].lastIndexOf(".") === -1 ? "" : element[0].substring(element[0].lastIndexOf("."));
 
-					let filePath: string = basePath + "\\{$FILENAME}";
+						let filePath: string = basePath + "\\{$FILENAME}";
 
-					let py = pinyin(fileNameNoSuffix
-						, {
-							toneType: 'none',
-							nonZh: 'consecutive'
-						});
+						let py = pinyin(fileNameNoSuffix
+							, {
+								toneType: 'none',
+								nonZh: 'consecutive'
+							});
 
-					let romanize: string = require('japanese').romanize(fileNameNoSuffix);
+						let romanize: string = require('japanese').romanize(fileNameNoSuffix);
 
-					let delimiter = "\t\t";
-					let fileNameToEnglish = fileNameNoSuffix + delimiter + py + delimiter + romanize;
+						let delimiter = "\t\t";
+						let fileNameToEnglish = fileNameNoSuffix + delimiter + py + delimiter + romanize;
 
-					let item: vscode.CompletionItem = new vscode.CompletionItem({
-						label: fileNameNoSuffix
-						, detail: fileNameSuffix
-						// , description: ".ogg"
-					}
-						, vscode.CompletionItemKind.File);
+						let item: vscode.CompletionItem = new vscode.CompletionItem({
+							label: fileNameNoSuffix
+							, detail: fileNameSuffix
+							// , description: ".ogg"
+						}
+							, vscode.CompletionItemKind.File);
 
-					item.insertText = fileName;
-					item.filterText = fileNameToEnglish;
-					let previewStr: string = nonePreview;
-					let detail: string | undefined = undefined;
+						item.insertText = fileName;
+						item.filterText = fileNameToEnglish;
+						let previewStr: string = nonePreview;
+						let detail: string | undefined = undefined;
 
-					switch (type) {
-						case CompletionType.image:
-							item.detail = "Image file preview";
-							previewStr = imagePreview;
+						switch (type) {
+							case CompletionType.image:
+								item.detail = "Image file preview";
+								previewStr = imagePreview;
 
-							break;
-						case CompletionType.audio:
-							item.detail = "Audio file";
-							previewStr = audioPreview;
+								break;
+							case CompletionType.audio:
+								item.detail = "Audio file";
+								previewStr = audioPreview;
 
-							break;
-						case CompletionType.video:
-							previewStr = videoPreview;
-							item.detail = "Video file";
+								break;
+							case CompletionType.video:
+								previewStr = videoPreview;
+								item.detail = "Video file";
 
-							break;
-						case CompletionType.script:
-							item.detail = "Script file";
-							previewStr = scriptPreview;
+								break;
+							case CompletionType.script:
+								item.detail = "Script file";
+								previewStr = scriptPreview;
 
-							break;
-					}
+								break;
+						}
 
-					item.documentation = await getFileComment(previewStr
-						, element[0]
-						, filePath
-						, type);
+						item.documentation = await getFileComment(previewStr
+							, element[0]
+							, filePath
+							, type);
 
-					completions.push(item);
+						completions.push(item);
+
+						resolve();
+					}));
 				}
 			});
 
+			await Promise.all(promiseList);
 		};
+
+		progress.report({ increment: 4, message: "Generating graphic completionList..." });
 
 		graphicFXCompletions = [];
 		graphicCGCompletions = [];
@@ -304,25 +339,40 @@ export async function activate(context: vscode.ExtensionContext) {
 		graphicPatternFadeCompletions = [];
 		graphicCharactersCompletions = [];
 
-		generateCompletionList(graphicFX, graphicFXCompletions, graphicFXPath);
-		generateCompletionList(graphicCG, graphicCGCompletions, graphicCGPath);
-		generateCompletionList(graphicUI, graphicUICompletions, graphicUIPath);
-		generateCompletionList(graphicPatternFade, graphicPatternFadeCompletions, graphicPatternFadePath);
-		generateCompletionList(graphicCharacters, graphicCharactersCompletions, graphicCharactersPath);
+		progress.report({ increment: 4, message: "Generating FX completionList..." });
+		await generateCompletionList(graphicFX, graphicFXCompletions, graphicFXPath);
+		progress.report({ increment: 4, message: "Generating CG completionList..." });
+		await generateCompletionList(graphicCG, graphicCGCompletions, graphicCGPath);
+		progress.report({ increment: 4, message: "Generating UI completionList..." });
+		await generateCompletionList(graphicUI, graphicUICompletions, graphicUIPath);
+		progress.report({ increment: 4, message: "Generating PatternFade completionList..." });
+		await generateCompletionList(graphicPatternFade, graphicPatternFadeCompletions, graphicPatternFadePath);
+		progress.report({ increment: 4, message: "Generating Characters completionList..." });
+		await generateCompletionList(graphicCharacters, graphicCharactersCompletions, graphicCharactersPath);
+
+		progress.report({ increment: 4, message: "Generating audio completionList..." });
 
 		audioBgmCompletions = [];
 		audioBgsCompletions = [];
 		audioDubsCompletions = [];
 		audioSECompletions = [];
 
-		generateCompletionList(audioBgm, audioBgmCompletions, audioBgmPath, CompletionType.audio);
-		generateCompletionList(audioBgs, audioBgsCompletions, audioBgsPath, CompletionType.audio);
-		generateCompletionList(audioDubs, audioDubsCompletions, audioDubsPath, CompletionType.audio);
-		generateCompletionList(audioSE, audioSECompletions, audioSEPath, CompletionType.audio);
+		progress.report({ increment: 4, message: "Generating BGM completionList..." });
+		await generateCompletionList(audioBgm, audioBgmCompletions, audioBgmPath, CompletionType.audio);
+		progress.report({ increment: 4, message: "Generating BGS completionList..." });
+		await generateCompletionList(audioBgs, audioBgsCompletions, audioBgsPath, CompletionType.audio);
+		progress.report({ increment: 4, message: "Generating Dubs completionList..." });
+		await generateCompletionList(audioDubs, audioDubsCompletions, audioDubsPath, CompletionType.audio);
+		progress.report({ increment: 4, message: "Generating SE completionList..." });
+		await generateCompletionList(audioSE, audioSECompletions, audioSEPath, CompletionType.audio);
+
+		progress.report({ increment: 4, message: "Generating script completionList..." });
 
 		scriptCompletions = [];
 
-		generateCompletionList(script, scriptCompletions, scriptPath, CompletionType.script);
+		await generateCompletionList(script, scriptCompletions, scriptPath, CompletionType.script);
+
+		progress.report({ increment: 0, message: "Done" });
 	}
 
 	//--------------------
@@ -512,6 +562,75 @@ export async function activate(context: vscode.ExtensionContext) {
 		, langPrefix
 		, fileSuffix
 		, fileName);
+
+	//--------------------
+
+
+	const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript', {
+		provideInlayHints(document: vscode.TextDocument, range: vscode.Range, token: vscode.CancellationToken) {
+			let hints: vscode.InlayHint[] = [];
+
+			const regexHexColor = /(#|0[x|X])[0-9a-fA-F]{6}/gi;
+
+			iterateLines(document, (text, lineNumber
+				, lineStart, lineEnd
+				, firstLineNotComment) => {
+				if (lineNumber >= range.start.line
+					&& lineNumber <= range.end.line) {
+					if (text.startsWith("#")
+						|| text.startsWith("@")) {
+						const params = getAllParams(text);
+						const command = params[0].substring(1);
+						const commandWithPrefix = text.charAt(0) + params[0].substring(1);
+						const commandType = getCommandType(commandWithPrefix);
+						const paramNum = params.length - 1;
+						const paramDefinition = getMapValue(command, commandParamList);
+
+						let contentStart: number = lineStart + command.length + 1;
+
+						if (paramDefinition === undefined) {
+							return;
+						}
+
+						const paramInlayHintType = paramDefinition.inlayHintType;
+
+						if (paramInlayHintType === undefined) {
+							return;
+						}
+
+						for (let j = 1; j < params.length; j++) {
+							let curParam = params[j];
+							let currentInlayHintType = paramInlayHintType[j - 1];
+
+							if (currentInlayHintType === inlayHintType.ColorHex) {
+								if (j !== params.length - 1) {
+									currentInlayHintType = inlayHintType.ColorRGB_R;
+								}
+							}
+
+							const currentInlayHint = inlayHintMap.get(currentInlayHintType);
+
+							contentStart++;
+
+							if (currentInlayHint !== undefined) {
+								let hint = new vscode.InlayHint(new vscode.Position(lineNumber, contentStart)
+									, currentInlayHint + ":"
+									, vscode.InlayHintKind.Parameter);
+
+								hints.push(hint);
+							}
+
+							contentStart += curParam.length;
+						}
+					}
+				}
+			});
+
+			return hints;
+		}
+	});
+
+	context.subscriptions.push(inlayHint);
 
 	//--------------------
 
@@ -813,7 +932,15 @@ export async function activate(context: vscode.ExtensionContext) {
 				, false);
 
 			// 5) Update fileList
-			await updateFileList();
+			vscode.window.withProgress({
+				// location: vscode.ProgressLocation.Notification,
+				location: vscode.ProgressLocation.Window,
+				title: "Refreshing assets...\t",
+				cancellable: false
+			}, async (progress, token) => {
+				await updateFileList(progress);
+				refreshFileDiagnostics();
+			});
 		}
 	});
 
@@ -824,10 +951,15 @@ export async function activate(context: vscode.ExtensionContext) {
 			vscode.commands.executeCommand(commandBasePath);
 		}
 
-		await updateFileList();
-		// refreshFileDiagnostics();
-
-		// await updateFileList();
+		vscode.window.withProgress({
+			// location: vscode.ProgressLocation.Notification,
+			location: vscode.ProgressLocation.Window,
+			title: "Refreshing assets...\t",
+			cancellable: false
+		}, async (progress, token) => {
+			await updateFileList(progress);
+			refreshFileDiagnostics();
+		});
 	});
 
 	//--------------------
@@ -1261,6 +1393,14 @@ export async function activate(context: vscode.ExtensionContext) {
 						, vscode.DiagnosticSeverity.Warning));
 				}
 
+				let checkImageID = false;
+
+				// check internal ID for @Char
+				if (params[0].toLowerCase() === "@Char".toLowerCase()
+					|| params[0].toLowerCase() === "@Character".toLowerCase()) {
+					checkImageID = true;
+				}
+
 				if (paramDefinition === undefined) {
 					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
 						, "Undocumented Command: " + params[0]
@@ -1289,6 +1429,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
 					if (curParam.match(regexRep)) {
 						continue;
+					}
+
+					if (arrayHasValue(parseInt(curParam), internalImageID)) {
+						diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+							, "Cannot Use Internal ID"
+							, vscode.DiagnosticSeverity.Error));
 					}
 
 					switch (currentType) {
@@ -1417,44 +1563,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	let activeEditor = vscode.window.activeTextEditor;
 	let timeout: NodeJS.Timer | undefined = undefined;
 
-	function fileInitialized() {
-		let valid = (completions: vscode.CompletionItem[]) => {
-			if (!completions) {
-				return false;
-			}
-
-			return true;
-		};
-
-		if (valid(graphicFXCompletions)
-			&& valid(graphicFXCompletions)
-			&& valid(graphicCGCompletions)
-			&& valid(graphicUICompletions)
-			&& valid(graphicPatternFadeCompletions)
-			&& valid(graphicCharactersCompletions)
-
-			&& valid(audioBgmCompletions)
-			&& valid(audioBgsCompletions)
-			&& valid(audioDubsCompletions)
-			&& valid(audioSECompletions)
-
-			&& valid(labelCompletions)
-
-			&& valid(scriptCompletions)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	async function waitFileInit(): Promise<boolean> {
-		while (!fileInitialized()) {
-			// wait
-		}
-
-		return true;
-	}
-
 	function refreshFileDiagnostics() {
 		if (activeEditor === undefined) {
 			return;
@@ -1464,14 +1572,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		updateDiagnostics(activeDocument, true);
 	}
-
-	// await isFileInitialized();
-
-	async function isFileInitialized() {
-		waitFileInit().then(() => {
-			console.log("File Initialized");
-		});
-	};
 
 	onUpdate();
 

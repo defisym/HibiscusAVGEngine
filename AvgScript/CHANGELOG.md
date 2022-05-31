@@ -1,5 +1,11 @@
 # Change Log
 
+## 20220531
+
+- fixed an issue that stops the file diagnostic from working
+- progress for `updateFileList`
+- inlay hints
+
 ## 20220530
 
 - diagnostic for deprecated & internal commands

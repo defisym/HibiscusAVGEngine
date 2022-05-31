@@ -263,7 +263,7 @@ export const internalKeywordList: string[] = [
 ];
 
 export const deprecatedKeywordList: string[] = [
-    
+
 ];
 
 // cannot be created by user
@@ -273,6 +273,25 @@ export const internalImageID: number[] = [
     -3,         // CG
     -5,         // Sepia Toning
     -100,       // 景深
+    -101,       // 景深
+    -102,       // 景深
+    -103,       // 景深
+    -104,       // 景深
+    -105,       // 景深
+    -106,       // 景深
+    -107,       // 景深
+    -108,       // 景深
+    -109,       // 景深
+    -110,       // 景深
+    -111,       // 景深
+    -112,       // 景深
+    -113,       // 景深
+    -114,       // 景深
+    -115,       // 景深
+    -116,       // 景深
+    -117,       // 景深
+    -118,       // 景深
+    -119,       // 景深
     -65535      // 错误提示
 ];
 
@@ -1118,11 +1137,41 @@ export enum ParamType {
     Any,
 };
 
+export enum inlayHintType {
+    FileName,
+    ID,
+    Alpha,
+    X,
+    Y,
+    Width,
+    Height,
+    ColorHex,
+    ColorRGB_R,
+    ColorRGB_G,
+    ColorRGB_B,
+}
+
+export const inlayHintMap = new Map<inlayHintType, string>([
+    [inlayHintType.FileName, "文件名"],
+    [inlayHintType.ID, "ID"],
+    [inlayHintType.Alpha, "透明度"],
+    [inlayHintType.X, "X坐标"],
+    [inlayHintType.Y, "Y坐标"],
+    [inlayHintType.Width, "宽度"],
+    [inlayHintType.Height, "高度"],
+    [inlayHintType.ColorHex, "颜色值(16进制)"],
+    [inlayHintType.ColorRGB_R, "颜色值(RGB),R分量"],
+    [inlayHintType.ColorRGB_G, "颜色值(RGB),G分量"],
+    [inlayHintType.ColorRGB_B, "颜色值(RGB),B分量"],
+]);
+
 export interface ParamFormat {
     minParam: number;
     maxParam: number;
     type: ParamType[];
+    inlayHintType?: inlayHintType[];
 }
+
 export const commandParamList = new Map<string, ParamFormat>([
     // keywords_region
 
@@ -1142,7 +1191,7 @@ export const commandParamList = new Map<string, ParamFormat>([
     ["Save", { minParam: 0, maxParam: 0, type: [] }],
     ["Debug", { minParam: 0, maxParam: 0, type: [] }],
     ["DebugOff", { minParam: 0, maxParam: 0, type: [] }],
-    ["DefineRGB", { minParam: 1, maxParam: 3, type: [ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["DefineRGB", { minParam: 1, maxParam: 3, type: [ParamType.Color, ParamType.Number, ParamType.Number], inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B] }],
 
     ["MSG", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
     ["MSGClear", { minParam: 0, maxParam: 0, type: [] }],
@@ -1412,8 +1461,8 @@ export const commandParamList = new Map<string, ParamFormat>([
     ["CharPF", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
     ["CharPatternFade", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
 
-    ["Char", { minParam: 2, maxParam: 6, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["Character", { minParam: 2, maxParam: 6, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["Char", { minParam: 2, maxParam: 6, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number], inlayHintType: [inlayHintType.FileName, inlayHintType.ID, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height] }],
+    ["Character", { minParam: 2, maxParam: 6, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number], inlayHintType: [inlayHintType.FileName, inlayHintType.ID, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height] }],
 
     ["CC", { minParam: 2, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
     ["CharChange", { minParam: 2, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
