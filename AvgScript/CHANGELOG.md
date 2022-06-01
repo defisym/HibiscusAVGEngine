@@ -7,6 +7,7 @@
 - fix typo
 - fix boolean type diagnostic issue when using `on`/`off`
 - fix parsing issue and position issue of internal ID diagnostic
+- fix file diagnostic do not update when switching active editors
 
 ## 20220531
 

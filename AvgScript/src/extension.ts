@@ -61,6 +61,8 @@ export let scriptCompletions: vscode.CompletionItem[] = [];
 export let labelCompletions: vscode.CompletionItem[] = [];
 export let labelJumpMap: Map<string, number> = new Map();
 
+let fileListInitialized = false;
+
 export enum CompletionType { image, audio, video, script };
 
 const nonePreview = "暂无预览";
@@ -372,6 +374,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		await generateCompletionList(script, scriptCompletions, scriptPath, CompletionType.script);
 
 		progress.report({ increment: 0, message: "Done" });
+
+		fileListInitialized = true;
 	}
 
 	//--------------------
@@ -1604,7 +1608,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		let activeDocument = activeEditor.document;
 
-		updateDiagnostics(activeDocument);
+		updateDiagnostics(activeDocument, fileListInitialized);
 		getLabelCompletion(activeDocument);
 		updateLanguageDecorations(activeEditor
 			, nonActiveLanguageDecorator
