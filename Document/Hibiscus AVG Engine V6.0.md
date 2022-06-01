@@ -85,7 +85,7 @@ Lang[ZH]旁白
 Lang[EN]Narrator
 
 Lang[ZH]#SV=1:我爱你
-Lang[EN]#SV=1:ILOVEYOU
+Lang[EN]#SV=1:I LOVE YOU
 ```
 
 若当前语言设定为`ZH`，引擎获取的脚本为
@@ -183,22 +183,22 @@ FastFF_Y=30
 
 ;------------历史记录------------
 ; 偏移量
-Histroy_Offset=147
+History_Offset=147
 
 ; 起始坐标
 ; 头像
-Histroy_Avatar_X=70
-Histroy_Avatar_Y=440
+History_Avatar_X=70
+History_Avatar_Y=440
 ; 姓名
-Histroy_Name_X=85
-Histroy_Name_Y_Normal=520
-Histroy_Name_Y_NoHead=490
+History_Name_X=85
+History_Name_Y_Normal=520
+History_Name_Y_NoHead=490
 ; 文本
-Histroy_Dialogue_X=330
-Histroy_Dialogue_Y=460
+History_Dialogue_X=330
+History_Dialogue_Y=460
 ; 重听语音
-Histroy_Audio_X=35
-Histroy_Audio_Y=480
+History_Audio_X=35
+History_Audio_Y=480
 ```
 
 ### 换行
@@ -629,7 +629,7 @@ debug=1
 └─ @Char=Char.png:1
 └─ @NameTrans
 └─ @DiaTrans
-  └─ @charchange=..UIdialog3.png:-2
+  └─ @CharChange=..UIdialog3.png:-2
 ```
 
 ##### 截图
@@ -700,7 +700,7 @@ Debug_AVG=Chapter_1
 | --------- | -------------------------------------------- |
 | Speed     | 设定对话文字显示速度，单位：毫秒             |
 | Wait      | 设定自动模式下对话显示完成之后切换的间隔     |
-| Showall   | 设定文本是否直接显示                         |
+| ShowAll   | 设定文本是否直接显示                         |
 | FFJumpAll | 设定是否跳过已读文本，跳过已读=1，跳过全部=0 |
 
 ## #系统指令
@@ -765,14 +765,14 @@ Debug_AVG=Chapter_1
 
 #begin 基本参数
 
-  @namechange=nameback2.png
-  @diachange=dialog3.png
+  @NameChange=nameback2.png
+  @DiaChange=dialog3.png
   @cg=西洋小镇_夜晚.png
-  @charchange=..CG西洋小镇_夜晚.png:-3
+  @CharChange=..CG西洋小镇_夜晚.png:-3
   
 #end
 
-@charchange=..UIdialog3.png:-2
+@CharChange=..UIdialog3.png:-2
 ```
 
 调试输出
@@ -785,13 +785,13 @@ Debug_AVG=Chapter_1
 └─ @MoveChar=1:-640:0
   └─ @MoveObj=4915274:0:398
   └─ @MoveObj=4849737:0:398
-└─ @charalldispose
-  └─ @chardispose=3
-    └─ @charchange=null.png:3
-  └─ @chardispose=2
-    └─ @charchange=null.png:2
-  └─ @chardispose=1
-    └─ @charchange=null.png:1
+└─ @CharAllDispose
+  └─ @CharDispose=3
+    └─ @CharChange=null.png:3
+  └─ @CharDispose=2
+    └─ @CharChange=null.png:2
+  └─ @CharDispose=1
+    └─ @CharChange=null.png:1
 ```
 
 ##### `#MSG=Message`
@@ -839,19 +839,19 @@ Debug_AVG=Chapter_1
 
 字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误
 
-#### `#diasize=size`
+#### `#DiaSize=size`
 
 定义对白文字的大小，AVG模式下默认大小为17，VN模式下默认大小为18
 
-#### `#namesize=size`
+#### `#NameSize=size`
 
 定义姓名文字的大小，默认大小为18
 
-#### `#diafont=font`
+#### `#DiaFont=font`
 
 定义对白文字的字体
 
-#### `#namefont=font`
+#### `#NameFont=font`
 
 定义姓名文字的字体
 
@@ -862,7 +862,7 @@ Debug_AVG=Chapter_1
 字体勾边通过Shader实现，Shader具有两个可供指令控制的参数：
 
 - `Pixel color`：决定勾边像素的颜色(`color`)
-- `Pixel outline`：决定勾边像素的个数(`outlinepixel`)
+- `Pixel outline`：决定勾边像素的个数(`OutlinePixel`)
 
 此外，Shader还具有两个内部参数：
 
@@ -871,37 +871,37 @@ Debug_AVG=Chapter_1
 
 #### 姓名
 
-##### `#NameShaderOn=outlinepixel:R:G:B` / `#NameShaderOn=outlinepixel:#FFFFFF`
+##### `#NameShaderOn=OutlinePixel:R:G:B` / `#NameShaderOn=OutlinePixel:#FFFFFF`
 
-启用姓名勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`
+启用姓名勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`OutlinePixel`
 
 ##### `#NameOutColor=R:G:B` / `#NameOutColor=#FFFFFF`
 
 启用勾边时，更改姓名勾边颜色为`RGB/#FFFFFF`
 
-##### `#nameoutpixel=outlinepixel`
+##### `#NameOutPixel=OutlinePixel`
 
-启用勾边时，更改对白勾边像素数为`outlinepixel`
+启用勾边时，更改对白勾边像素数为`OutlinePixel`
 
-##### `#nameshaderoff`
+##### `#NameShaderOff`
 
 关闭姓名勾边效果
 
 #### 对白
 
-##### `#DiaShaderOn=outlinepixel:R:G:B` / `#DiaShaderOn=outlinepixel:#FFFFFF`
+##### `#DiaShaderOn=OutlinePixel:R:G:B` / `#DiaShaderOn=OutlinePixel:#FFFFFF`
 
-启用对白勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`
+启用对白勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`OutlinePixel`
 
 ##### `#DiaOutColor=R:G:B` / `#DiaOutColor=#FFFFFF`
 
 启用勾边时，更改对白勾边颜色为`RGB/#FFFFFF`
 
-##### `#diaoutpixel=outlinepixel`
+##### `#DiaOutPixel=OutlinePixel`
 
-启用勾边时，更改对白勾边像素数为`outlinepixel`
+启用勾边时，更改对白勾边像素数为`OutlinePixel`
 
-##### `#diashaderoff`
+##### `#DiaShaderOff`
 
 关闭对白勾边效果
 
@@ -1336,10 +1336,10 @@ Debug_AVG=Chapter_1
 #Switch=0:205:不可选择:Negative
 
 ;结束标签
-#jmpfra=1
+#JmpFra=1
 
 ;测试标签
-#jmpfra=15
+#JmpFra=15
 ```
 
 ### 场景分支
@@ -1408,15 +1408,15 @@ Script_0=
 
 ##### 基本定义
 
-鉴赏定义于`savings\Global\Appreciation_Defination`文件中，一个典型的定义如下：
+鉴赏定义于`savings\Global\Appreciation_Definition`文件中，一个典型的定义如下：
 
 ```INI
 [Appreciation_Define]
 ; 定义场景回想中每个页面的标题是否显示"第X章":
-Charpter_TitleCount=1
+Chapter_TitleCount=1
 
 ; 定义场景回想中每个页面的标题:
-Charpter_Title_0=返去故乡
+Chapter_Title_0=返去故乡
 
 ; 定义每个鉴赏页面的栏位数量:
 Chapter_CurrentPosPerPage=24
@@ -1517,7 +1517,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 解锁成就`Steam_AchName`
 
-#### `#AddtoStat=Steam_StatName:Steam_StatAdd`
+#### `#AddToStat=Steam_StatName:Steam_StatAdd`
 
 更新统计`Steam_StatName`，增加`Steam_StatAdd`
 
@@ -1559,7 +1559,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 | BGS  | 背景声音 | 占用4号通道    |
 | SE   | 音效     | 占用3、5号通道 |
 
-使用例：`@play=dubsdubtest.ogg:100:DUB`
+使用例：`@play=dubs\dubTest.ogg:100:DUB`
 
 ##### `@Stop=channel`
 
@@ -1567,35 +1567,35 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 #### BGM指令
 
-##### `@bgm=filename.MP3:fadeSpeed:startpoint:endpoint`
+##### `@bgm=filename.MP3:fadeSpeed:StartPoint:endpoint`
 
 同义指令
 
-- `@bgmloop=filename.MP3:fadeSpeed:startpoint:endpoint`
+- `@BgmLoop=filename.MP3:fadeSpeed:StartPoint:endpoint`
 
 定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待
 
 循环起始点/循环终止点参数设定为零，引擎会进行整曲循环
 
-##### `@bgmpre=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint`
+##### `@BgmPre=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint`
 
 同义指令
 
-- `@bgmpreludeloop=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint`
+- `@BgmPreludeLoop=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint`
 
 定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放
 
 循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致
 
-##### `@bgmfadeout=fadeSpeed`
+##### `@BgmFadeOut=fadeSpeed`
 
 淡出BGM
 
-##### `@bgmpause`
+##### `@BgmPause`
 
 暂停BGM
 
-##### `@bgmresume`
+##### `@BgmResume`
 
 恢复BGM
 
@@ -1605,19 +1605,19 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 同义指令
 
-- `@bgsloop=filename.MP3:fadeSpeed`
+- `@BgsLoop=filename.MP3:fadeSpeed`
 
 定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环
 
-##### `@bgsfadeout=fadeSpeed`
+##### `@BgsFadeOut=fadeSpeed`
 
 淡出BGS
 
-##### `@bgspause`
+##### `@BgsPause`
 
 暂停BGS
 
-##### `@bgsresume`
+##### `@BgsResume`
 
 恢复BGS
 
@@ -1793,7 +1793,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
   #Wait
 
-  #jmpfra=1
+  #JmpFra=1
 
   #EOF
 
@@ -1960,19 +1960,19 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:10:0:0`在真实坐标模式下执行
 
-##### `@BackZoom=X:Y:width:height:Speed:Instant:Forcewait`
+##### `@BackZoom=X:Y:width:height:Speed:Instant:ForceWait`
 
 缩放到大小为`(width,height)`，区域中心坐标`(x,y)`指定缩放速度以及是否立即缩放
 
-`Forcewait`参数为`0/1`，`0`表示默认在阶段二进行变化，`1`表示跨阶段变化
+`ForceWait`参数为`0/1`，`0`表示默认在阶段二进行变化，`1`表示跨阶段变化
 
 使用强制等待，可在缩放途中叠化图像
 
 ```C++
-@backzoom=640:360:640:360:1:0:1
+@BackZoom=640:360:640:360:1:0:1
 #wait=1000
-@cgchange=夏.png
-#forcewait=1000
+@CGChange=夏.png
+#ForceWait=1000
 ```
 
 #### 过渡指令
@@ -1992,24 +1992,24 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 ```C++
 @fade
 #wait=4000
-@destroyfade
+@DestroyFade
 ```
 
-##### `@PF=picname:Orderable`
+##### `@PF=PicName:Orderable`
 
 同义指令
 
-- `@PatternFade=picname:Orderable`
+- `@PatternFade=PicName:Orderable`
 
-创建`Pattern`过渡元件，使用`PatternFade`读取`picname`图像叠化进入，具有`Orderable`属性的对象可参与排序
+创建`Pattern`过渡元件，使用`PatternFade`读取`PicName`图像叠化进入，具有`Orderable`属性的对象可参与排序
 
-##### `@PFO=picname:Orderable`
+##### `@PFO=PicName:Orderable`
 
 同义指令
 
-- `@PatternFadeOut=picname:Orderable`
+- `@PatternFadeOut=PicName:Orderable`
 
-使用`PatternFade`读取`picname`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序
+使用`PatternFade`读取`PicName`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序
 
 该指令运行结束后会自动销毁该Pattern过渡元件
 
@@ -2029,55 +2029,55 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ##### 核心指令
 
-###### `@CPF=picname:patternname:ID`
+###### `@CPF=PicName:PatternName:ID`
 
 同义指令
 
-- `@CPatternFade=picname:patternname:ID`
+- `@CPatternFade=PicName:PatternName:ID`
 
 读取贴图，前景背景同时叠化
 
-###### `@CPFI=picname:patternname:ID`
+###### `@CPFI=PicName:PatternName:ID`
 
 同义指令
 
-- `@CPatternFadeIn=picname:patternname:ID`
+- `@CPatternFadeIn=PicName:PatternName:ID`
 
 读取贴图，叠化至前景图像
 
-###### `@CPFO=picname:patternname:ID`
+###### `@CPFO=PicName:PatternName:ID`
 
 同义指令
 
-- `@CPatternFadeOut=picname:patternname:ID`
+- `@CPatternFadeOut=PicName:PatternName:ID`
 
 读取贴图，叠化至背景图像
 
 ##### 转译指令
 
-###### `@CharPF=picname:patternname:ID`
+###### `@CharPF=PicName:PatternName:ID`
 
 同义指令
 
-- `@CharPatternFade=picname:patternname:ID`
+- `@CharPatternFade=PicName:PatternName:ID`
 
 转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**
 
 ![CharPatternFade](media/image12.jpeg)
 
-###### `@CGPFI=picname:patternname`
+###### `@CGPFI=PicName:PatternName`
 
 同义指令
 
-- `@CGPatternFadeIn=picname:patternname`
+- `@CGPatternFadeIn=PicName:PatternName`
 
 转译指令，读取贴图，CG叠化至前景图像
 
-###### `@CGPFO=picname:patternname`
+###### `@CGPFO=PicName:PatternName`
 
 同义指令
 
-- `@CGPatternFadeOut=picname:patternname`
+- `@CGPatternFadeOut=PicName:PatternName`
 
 转译指令，读取贴图，CG叠化至背景图像
 
@@ -2089,7 +2089,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 `@AddBlur`会转译为`Num`个`@CreateBlur`指令，创建结束的景深对象默认位于演出对象最下方。`Num`数值越大，模糊效果越强，留空默认为1
 
-可使用`@Order`指令控制景深对象次序，使用`@CharAllDisopse`指令不会销毁景深对象。请勿使用`@CharDispose`指令销毁，该方法会破坏景深堆栈指针
+可使用`@Order`指令控制景深对象次序，使用`@CharAllDispose`指令不会销毁景深对象。请勿使用`@CharDispose`指令销毁，该方法会破坏景深堆栈指针
 
 ###### `@CreateBlur`
 
@@ -2133,7 +2133,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ###### 噪声图
 
-一个典型的噪声图为使用Photoshop创建一个与画面分辨率一致的，填充纯黑色，并添加30%高斯分布杂色的图像，参考图如下：
+一个典型的噪声图为使用PhotoShop创建一个与画面分辨率一致的，填充纯黑色，并添加30%高斯分布杂色的图像，参考图如下：
 
 ![Noise](media/image13.png)
 
@@ -2162,8 +2162,8 @@ Set Sepia Noise Motion
 Toggle Sepia Noise Motion
 @SetSepiaNoiseMotion
 
-@chardispose=-5
-@chardispose=20
+@CharDispose=-5
+@CharDispose=20
 ```
 
 ###### 示意图
@@ -2206,7 +2206,7 @@ Toggle Sepia Noise Motion
 
 | 切换立绘    | 文件名        | ID  | 不透明度 | 长  | 宽  |
 | ----------- | ------------- | --- | -------- | --- | --- |
-| @charchange | char1正常.png | 1   | 120      | 800 | 720 |
+| @CharChange | char1正常.png | 1   | 120      | 800 | 720 |
 | 1           | 2             | 3   | 4        | 5   | 6   |
 
 - 该指令用于切换为其他角色或动作
@@ -2239,7 +2239,7 @@ Toggle Sepia Noise Motion
 
 同义指令
 
-- `@charalldispose`
+- `@CharAllDispose`
 
 销毁全部的图像对象，并释放其对应的本体和遮罩
 
@@ -2253,7 +2253,7 @@ CG/UI不会被销毁
 
 移动图片对象，具体参数说明请参见`@MoveObj`一节
 
-##### `@CharRotate=ID:angle:clockwise:circlecount`
+##### `@CharRotate=ID:angle:clockwise:CircleCount`
 
 旋转对象至目标角度与预定圈数，`clockwise = 1`为顺时针，`clockwise = -1`为逆时针
 
@@ -2287,7 +2287,7 @@ CG/UI不会被销毁
 
 同义指令
 
-- `@diachange=filename.png`
+- `@DiaChange=filename.png`
 
 切换对话框，解析到文本后进行，调用指令`@DiaTrans`
 
@@ -2299,7 +2299,7 @@ CG/UI不会被销毁
 
 同义指令
 
-- `@namechange=filename.png`
+- `@NameChange=filename.png`
 
 切换姓名栏，解析到文本后进行，调用指令`@NameTrans`
 
@@ -2428,11 +2428,11 @@ CG/UI不会被销毁
 
 销毁字符串
 
-#### `@destroyallstr`
+#### `@DestroyAllStr`
 
 同义指令
 
-- `@destroyallstring`
+- `@DestroyAllString`
 
 销毁全部字符串对象
 
