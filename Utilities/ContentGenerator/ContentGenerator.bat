@@ -26,9 +26,14 @@ rmdir /s /q "%ContentPath%\Modules\"
 
 rem Update Content
 xcopy "%curPath%\data\*.*" "%ContentPath%\data\" /s /e
-xcopy "%curPath%\settings\*.*" "%ContentPath%\settings\" /s /e
+echo f | xcopy "%curPath%\settings\settings_Template.ini" "%ContentPath%\settings\setting.ini" /s /e
+
 xcopy "%curPath%\savings\_Sys\*.*" "%ContentPath%\savings\_Sys\" /s /e
 echo f | xcopy "%curPath%\savings\_Global\_GlobalProgress_Template" "%ContentPath%\savings\_Global\_GlobalProgress" /s /e
+echo f | xcopy "%curPath%\savings\_Global\Appreciation_Definition_Template" "%ContentPath%\savings\_Global\Appreciation_Definition" /s /e
+echo f | xcopy "%curPath%\savings\_Global\Appreciation_Progress_Template" "%ContentPath%\savings\_Global\Appreciation_Progress" /s /e
+echo f | xcopy "%curPath%\savings\_Global\Data_Template" "%ContentPath%\savings\qdata.sav" /s /e
+
 xcopy "%curPath%\Modules\*.*" "%ContentPath%\Modules\" /s /e
 xcopy "%curPath%\localization\*.*" "%ContentPath%\localization\" /s /e
 
