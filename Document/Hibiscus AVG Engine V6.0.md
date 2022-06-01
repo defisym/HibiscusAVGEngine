@@ -1179,7 +1179,7 @@ Debug_AVG=Chapter_1
 
 ##### 加
 
-###### `#VA=ValueID`
+###### `#VA=ValueID:Value`
 
 同义指令
 
@@ -1657,11 +1657,14 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ##### `@DubSeque`
 
-同义指令
+启用语音序列，默认启用
 
-- `@DubSequeOff`
+- 变更`NowTalking`后会自动启用语音序列
+- 使用`DubPlay`指令后会自动禁用语音序列
 
-启用/禁用语音序列，默认启用
+##### `@DubSequeOff`
+
+禁用语音序列，默认启用
 
 - 变更`NowTalking`后会自动启用语音序列
 - 使用`DubPlay`指令后会自动禁用语音序列
