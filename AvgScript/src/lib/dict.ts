@@ -79,7 +79,7 @@ export const sharpKeywordList: string[] = [
     'ValueMulValue',
     'VD',
     'ValueDiv',
-    'VAV',
+    'VDV',
     'ValueDivValue',
     'CMP',
     'CMPV',
@@ -267,33 +267,38 @@ export const deprecatedKeywordList: string[] = [
 ];
 
 // cannot be created by user
-export const internalImageID: number[] = [
-    -1,         // 姓名栏
-    -2,         // 对话框
-    -3,         // CG
-    -5,         // Sepia Toning
-    -100,       // 景深
-    -101,       // 景深
-    -102,       // 景深
-    -103,       // 景深
-    -104,       // 景深
-    -105,       // 景深
-    -106,       // 景深
-    -107,       // 景深
-    -108,       // 景深
-    -109,       // 景深
-    -110,       // 景深
-    -111,       // 景深
-    -112,       // 景深
-    -113,       // 景深
-    -114,       // 景深
-    -115,       // 景深
-    -116,       // 景深
-    -117,       // 景深
-    -118,       // 景深
-    -119,       // 景深
-    -65535      // 错误提示
-];
+export interface internalImageIDAvailableBehavior {
+    Create: boolean;
+    Destroy: boolean;
+}
+
+export const internalImageID = new Map<number, internalImageIDAvailableBehavior>([
+    [-1, { Create: false, Destroy: false }],      // 姓名栏
+    [-2, { Create: false, Destroy: false }],      // 对话框
+    [-3, { Create: false, Destroy: false }],       // CG
+    [-5, { Create: false, Destroy: true }],        // Sepia Toning
+    [-100, { Create: false, Destroy: false }],       // 景深
+    [-101, { Create: false, Destroy: false }],       // 景深
+    [-102, { Create: false, Destroy: false }],       // 景深
+    [-103, { Create: false, Destroy: false }],       // 景深
+    [-104, { Create: false, Destroy: false }],       // 景深
+    [-105, { Create: false, Destroy: false }],       // 景深
+    [-106, { Create: false, Destroy: false }],       // 景深
+    [-107, { Create: false, Destroy: false }],       // 景深
+    [-108, { Create: false, Destroy: false }],       // 景深
+    [-109, { Create: false, Destroy: false }],       // 景深
+    [-110, { Create: false, Destroy: false }],       // 景深
+    [-111, { Create: false, Destroy: false }],       // 景深
+    [-112, { Create: false, Destroy: false }],       // 景深
+    [-113, { Create: false, Destroy: false }],       // 景深
+    [-114, { Create: false, Destroy: false }],       // 景深
+    [-115, { Create: false, Destroy: false }],       // 景深
+    [-116, { Create: false, Destroy: false }],       // 景深
+    [-117, { Create: false, Destroy: false }],       // 景深
+    [-118, { Create: false, Destroy: false }],       // 景深
+    [-119, { Create: false, Destroy: false }],       // 景深
+    [-65535, { Create: false, Destroy: false }]     // 错误提示
+]);
 
 export const settingsParamList: string[] = [
     "LangSwitchAble",
@@ -533,7 +538,7 @@ export const commandDocList = new Map<string, string[]>([
         , "\t#SSAB=ValueIDA:ValueIDB"
         , "\t#SetStringAB=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDB`"]],
-    ["VA", ["\t#VA=ValueID"
+    ["VA", ["\t#VA=ValueID:Value"
         , "\t#ValueAdd=ValueID:Value"
         , "`ValueID`=`ValueID`+`Value`"]],
     ["ValueAdd", ["\t#VA=ValueID"
@@ -575,10 +580,10 @@ export const commandDocList = new Map<string, string[]>([
     ["ValueDiv", ["\t#VD=ValueID"
         , "\t#ValueDiv=ValueID:Value"
         , "`ValueID`=`ValueID`/`Value`"]],
-    ["VAV", ["\t#VAV=ValueIDA:ValueIDB"
+    ["VDV", ["\t#VDV=ValueIDA:ValueIDB"
         , "\t#ValueDivValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`/`ValueIDB`"]],
-    ["ValueDivValue", ["\t#VAV=ValueIDA:ValueIDB"
+    ["ValueDivValue", ["\t#VDV=ValueIDA:ValueIDB"
         , "\t#ValueDivValue=ValueIDA:ValueIDB"
         , "`ValueIDA`=`ValueIDA`/`ValueIDB`"]],
 
@@ -645,10 +650,14 @@ export const commandDocList = new Map<string, string[]>([
         , "\t#CMPStringString=ValueIDA:ValueIDB"
         , "比较`ValueIDA`与`ValueIDB`的大小"]],
 
-    ["JE", ["比较结果等于时，跳转至`Label`"]],
-    ["JA", ["比较结果大于时，跳转至`Label`"]],
-    ["JB", ["比较结果小于时，跳转至`Label`"]],
-    ["JNE", ["比较结果不等于时，跳转至`Label`"]],
+    ["JE", ["\t#JE=Label"
+        , "比较结果等于时，跳转至`Label`"]],
+    ["JA", ["\t#JA=Label"
+        , "比较结果大于时，跳转至`Label`"]],
+    ["JB", ["\t#JB=Label"
+        , "比较结果小于时，跳转至`Label`"]],
+    ["JNE", ["\t#JNE=Label"
+        , "比较结果不等于时，跳转至`Label`"]],
 
     // keywords_dialogue
     ["DiaColor", ["\t#DiaColor=R:G:B"
@@ -660,16 +669,16 @@ export const commandDocList = new Map<string, string[]>([
     ["DiaFont", ["\t#DiaFont=font"
         , "定义对白文字的字体"]],
 
-    ["DiaShaderOn", ["\t#DiaShaderOn=outlinepixel:R:G:B"
-        , "\t#DiaShaderOn=outlinepixel:#FFFFFF"
-        , "启用对白勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`"]],
+    ["DiaShaderOn", ["\t#DiaShaderOn=OutlinePixel:R:G:B"
+        , "\t#DiaShaderOn=OutlinePixel:#FFFFFF"
+        , "启用对白勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`OutlinePixel`"]],
     ["DiaShaderOff", ["关闭对白勾边效果"]],
 
     ["DiaOutColor", ["\t#DiaOutColor=R:G:B"
         , "\t#DiaOutColor=#FFFFFF"
         , "启用勾边时，更改对白勾边颜色为`RGB/#FFFFFF`"]],
-    ["DiaOutPixel", ["\t#DiaOutPixel=outlinepixel"
-        , "启用勾边时，更改对白勾边像素数为`outlinepixel`"]],
+    ["DiaOutPixel", ["\t#DiaOutPixel=OutlinePixel"
+        , "启用勾边时，更改对白勾边像素数为`OutlinePixel`"]],
 
     ["NameColor", ["\t#NameColor=R:G:B"
         , "\t#NameColor=#FFFFFF"
@@ -680,16 +689,16 @@ export const commandDocList = new Map<string, string[]>([
     ["NameFont", ["\t#NameFont=font"
         , "定义姓名文字的字体"]],
 
-    ["NameShaderOn", ["\t#NameShaderOn=outlinepixel:R:G:B"
-        , "\t#NameShaderOn=outlinepixel:#FFFFFF"
-        , "启用姓名勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`outlinepixel`"]],
+    ["NameShaderOn", ["\t#NameShaderOn=OutlinePixel:R:G:B"
+        , "\t#NameShaderOn=OutlinePixel:#FFFFFF"
+        , "启用姓名勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`OutlinePixel`"]],
     ["NameShaderOff", ["关闭姓名勾边效果"]],
 
     ["NameOutColor", ["\t#NameOutColor=R:G:B"
         , "\t#NameOutColor=#FFFFFF"
         , "启用勾边时，更改姓名勾边颜色为`RGB/#FFFFFF`"]],
-    ["NameOutPixel", ["\t#NameOutPixel=outlinepixel"
-        , "启用勾边时，更改对白勾边像素数为`outlinepixel`"]],
+    ["NameOutPixel", ["\t#NameOutPixel=OutlinePixel"
+        , "启用勾边时，更改对白勾边像素数为`OutlinePixel`"]],
 
     ["Dia", ["\t@Dia=filename.png"
         , "\t@DiaChange=filename.png"
@@ -731,21 +740,21 @@ export const commandDocList = new Map<string, string[]>([
     ["Se", ["\t@SE=filename.MP3"
         , "播放SE"]],
 
-    ["Bgm", ["\t@Bgm=filename.MP3:fadeSpeed:startpoint:endpoint"
-        , "\t@BgmLoop=filename.MP3:fadeSpeed:startpoint:endpoint"
+    ["Bgm", ["\t@Bgm=filename.MP3:fadeSpeed:StartPoint:endpoint"
+        , "\t@BgmLoop=filename.MP3:fadeSpeed:StartPoint:endpoint"
         , "定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待"
         , "循环起始点/循环终止点参数设定为零，引擎会进行整曲循环"]],
-    ["BgmLoop", ["\t@Bgm=filename.MP3:fadeSpeed:startpoint:endpoint"
-        , "\t@BgmLoop=filename.MP3:fadeSpeed:startpoint:endpoint"
+    ["BgmLoop", ["\t@Bgm=filename.MP3:fadeSpeed:StartPoint:endpoint"
+        , "\t@BgmLoop=filename.MP3:fadeSpeed:StartPoint:endpoint"
         , "定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待"
         , "循环起始点/循环终止点参数设定为零，引擎会进行整曲循环"]],
 
-    ["BgmPre", ["\t@BgmPre=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
-        , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
+    ["BgmPre", ["\t@BgmPre=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
+        , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
         , "定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放"
         , "循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致"]],
-    ["BgmPreludeLoop", ["\t@BgmPre=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
-        , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:startpoint:endpoint:preludepoint"
+    ["BgmPreludeLoop", ["\t@BgmPre=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
+        , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
         , "定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放"
         , "循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致"]],
 
@@ -777,7 +786,10 @@ export const commandDocList = new Map<string, string[]>([
         , "更新语音内容，该语音会在显示下一句文本时播放，使用该指令会自动禁用语音序列"
         , "该指令所播放的音频文件类型由用户指定"]],
 
-    ["DubSeque", ["启用/禁用语音序列，默认启用"
+    ["DubSeque", ["启用语音序列，默认启用"
+        , "变更`NowTalking`后会自动启用语音序列"
+        , "使用`DubPlay`指令后会自动禁用语音序列"]],
+    ["DubSequeOff", ["禁用语音序列，默认启用"
         , "变更`NowTalking`后会自动启用语音序列"
         , "使用`DubPlay`指令后会自动禁用语音序列"]],
     ["Ntk", ["\t@NTK=NowTalking"
@@ -833,7 +845,7 @@ export const commandDocList = new Map<string, string[]>([
         , "该指令创建的景深对象位于演出对象最下方"]],
     ["AddBlur", ["\t@AddBlur=Num"
         , "`@AddBlur`会转译为`Num`个`@CreateBlur`指令，创建结束的景深对象默认位于演出对象最下方。`Num`数值越大，模糊效果越强，留空默认为1"
-        , "可使用`@Order`指令控制景深对象次序，使用`@CharAllDisopse`指令不会销毁景深对象。请勿使用`@CharDispose`指令销毁，该方法会破坏景深堆栈指针"]],
+        , "可使用`@Order`指令控制景深对象次序，使用`@CharAllDispose`指令不会销毁景深对象。请勿使用`@CharDispose`指令销毁，该方法会破坏景深堆栈指针"]],
     ["RemoveBlur", ["\t@RemoveBlur=Num"
         , "`@RemoveBlur`会转译为`Num`个`@DestroyBlur`指令，欲销毁全部景深对象，请将`Num`设定为一个较大的数，如`255`，实际指令转译最大只会进行当前景深对象数(即景深堆栈深度)次"]],
     ["DestroyBlur", ["移除景深堆栈最上方的景深对象"]],
@@ -853,19 +865,19 @@ export const commandDocList = new Map<string, string[]>([
         , "默认情况下淡入速度较快，建议使用`#TransitionSpeed`指令修改叠化速度为5左右"]],
     ["DestroyFade", ["消除之前创建的所有叠化效果，会被转译为`@PatternFadeOut`"]],
 
-    ["PF", ["\t@PF=picname:Orderable"
-        , "\t@PatternFade=picname:Orderable"
-        , "创建`Pattern`过渡元件，使用`pattern fade`读取`picname`图像叠化进入"]],
-    ["PatternFade", ["\t@PF=picname:Orderable"
-        , "\t@PatternFade=picname:Orderable"
-        , "创建`Pattern`过渡元件，使用`pattern fade`读取`picname`图像叠化进入"]],
-    ["PFO", ["\t@PFO=picname"
-        , "\t@PatternFadeOut=picname:Orderable"
-        , "使用`PatternFade`读取`picname`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序"
+    ["PF", ["\t@PF=PicName:Orderable"
+        , "\t@PatternFade=PicName:Orderable"
+        , "创建`Pattern`过渡元件，使用`pattern fade`读取`PicName`图像叠化进入"]],
+    ["PatternFade", ["\t@PF=PicName:Orderable"
+        , "\t@PatternFade=PicName:Orderable"
+        , "创建`Pattern`过渡元件，使用`pattern fade`读取`PicName`图像叠化进入"]],
+    ["PFO", ["\t@PFO=PicName"
+        , "\t@PatternFadeOut=PicName:Orderable"
+        , "使用`PatternFade`读取`PicName`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序"
         , "该指令运行结束后会自动销毁该Pattern过渡元件"]],
-    ["PatternFadeOut", ["\t@PFO=picname"
-        , "\t@PatternFadeOut=picname:Orderable"
-        , "使用`PatternFade`读取`picname`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序"
+    ["PatternFadeOut", ["\t@PFO=PicName"
+        , "\t@PatternFadeOut=PicName:Orderable"
+        , "使用`PatternFade`读取`PicName`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序"
         , "该指令运行结束后会自动销毁该Pattern过渡元件"]],
 
     ["Rain", ["立即创建下雨效果，允许连续使用"]],
@@ -1021,43 +1033,43 @@ export const commandDocList = new Map<string, string[]>([
         , "\t@CGChange=filename.png"
         , "切换CG，叠化阶段进行"]],
 
-    ["CPF", ["\t@CPF=picname:patternname:ID"
-        , "\t@CPatternFade=picname:patternname:ID"
+    ["CPF", ["\t@CPF=PicName:PatternName:ID"
+        , "\t@CPatternFade=PicName:PatternName:ID"
         , "读取贴图，前景背景同时叠化"]],
-    ["CPatternFade", ["\t@CPF=picname:patternname:ID"
-        , "\t@CPatternFade=picname:patternname:ID"
+    ["CPatternFade", ["\t@CPF=PicName:PatternName:ID"
+        , "\t@CPatternFade=PicName:PatternName:ID"
         , "读取贴图，前景背景同时叠化"]],
-    ["CPFI", ["\t@CPFI=picname:patternname:ID"
-        , "\t@CPatternFadeIn=picname:patternname:ID"
+    ["CPFI", ["\t@CPFI=PicName:PatternName:ID"
+        , "\t@CPatternFadeIn=PicName:PatternName:ID"
         , "读取贴图，叠化至前景图像"]],
-    ["CPatternFadeIn", ["\t@CPFI=picname:patternname:ID"
-        , "\t@CPatternFadeIn=picname:patternname:ID"
+    ["CPatternFadeIn", ["\t@CPFI=PicName:PatternName:ID"
+        , "\t@CPatternFadeIn=PicName:PatternName:ID"
         , "读取贴图，叠化至前景图像"]],
-    ["CPFO", ["\t@CPFO=picname:patternname:ID"
-        , "\t@CPatternFadeOut=picname:patternname:ID"
+    ["CPFO", ["\t@CPFO=PicName:PatternName:ID"
+        , "\t@CPatternFadeOut=PicName:PatternName:ID"
         , "读取贴图，叠化至背景图像"]],
-    ["CPatternFadeOut", ["\t@CPFO=picname:patternname:ID"
-        , "\t@CPatternFadeOut=picname:patternname:ID"
+    ["CPatternFadeOut", ["\t@CPFO=PicName:PatternName:ID"
+        , "\t@CPatternFadeOut=PicName:PatternName:ID"
         , "读取贴图，叠化至背景图像"]],
-    ["CGPFI", ["\t@CGPFI=picname:patternname"
-        , "\t@CGPatternFadeIn=picname:patternname"
+    ["CGPFI", ["\t@CGPFI=PicName:PatternName"
+        , "\t@CGPatternFadeIn=PicName:PatternName"
         , "转译指令，读取贴图，CG叠化至前景图像"]],
-    ["CGPatternFadeIn", ["\t@CGPFI=picname:patternname"
-        , "\t@CGPatternFadeIn=picname:patternname"
+    ["CGPatternFadeIn", ["\t@CGPFI=PicName:PatternName"
+        , "\t@CGPatternFadeIn=PicName:PatternName"
         , "转译指令，读取贴图，CG叠化至前景图像"]],
 
-    ["CGPFO", ["\t@CGPFO=picname:patternname"
-        , "\t@CGPatternFadeOut=picname:patternname"
+    ["CGPFO", ["\t@CGPFO=PicName:PatternName"
+        , "\t@CGPatternFadeOut=PicName:PatternName"
         , "转译指令，读取贴图，CG叠化至背景图像"]],
-    ["CGPatternFadeOut", ["\t@CGPFO=picname:patternname"
-        , "\t@CGPatternFadeOut=picname:patternname"
+    ["CGPatternFadeOut", ["\t@CGPFO=PicName:PatternName"
+        , "\t@CGPatternFadeOut=PicName:PatternName"
         , "转译指令，读取贴图，CG叠化至背景图像"]],
 
-    ["CharPF", ["\t@CharPF=picname:patternname:ID"
-        , "\t@CharPatternFade=picname:patternname:ID"
+    ["CharPF", ["\t@CharPF=PicName:PatternName:ID"
+        , "\t@CharPatternFade=PicName:PatternName:ID"
         , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]],
-    ["CharPatternFade", ["\t@CharPF=picname:patternname:ID"
-        , "\t@CharPatternFade=picname:patternname:ID"
+    ["CharPatternFade", ["\t@CharPF=PicName:PatternName:ID"
+        , "\t@CharPatternFade=PicName:PatternName:ID"
         , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]],
 
     ["Char", ["\t@Char=filename.png:ID:Alpha:X:Y:Width:Height"
@@ -1085,7 +1097,7 @@ export const commandDocList = new Map<string, string[]>([
         , "\t@CharAlpha=ID:Alpha"
         , "切换对象到指定的不透明度"]],
 
-    ["CharRotate", ["\t@CharRotate=ID:angle:clockwise:circlecount"
+    ["CharRotate", ["\t@CharRotate=ID:angle:clockwise:CircleCount"
         , "旋转对象至目标角度与预定圈数，`clockwise = 1`为顺时针，`clockwise = -1`为逆时针"
         , "若目标角度设定为360度，旋转0圈，将持续旋转"
         , "该指令不可与立绘叠化同时使用"]],
@@ -1139,6 +1151,17 @@ export enum ParamType {
 
 export enum inlayHintType {
     FileName,
+    CharacterFileName,
+    DiaFileName,
+    NameFileName,
+    CGFileName,
+    PatternFadeFileName,
+    AudioFileName,
+    BGMFileName,
+    BGSFileName,
+    SEFileName,
+    DubFileName,
+    VideoFileName,
     ID,
     Alpha,
     X,
@@ -1149,10 +1172,76 @@ export enum inlayHintType {
     ColorRGB_R,
     ColorRGB_G,
     ColorRGB_B,
+    MemLimit,
+    XOffset,
+    YOffset,
+    TransitionSpeed,
+    DebugMSG,
+    WaitTime,
+    Label,
+    Frame,
+    Chapter,
+    SwitchNum,
+    Text,
+    AchName,
+    StatName,
+    StatAdd,
+    ContentName,
+    ChapterName,
+    GraphicName,
+    AudioName,
+    Page,
+    Pos,
+    CaptureID,
+    Boolean,
+    ValueID,
+    Value,
+    Size,
+    Font,
+    OutlinePixel,
+    Volume,
+    Channel,
+    FadeSpeed,
+    StartPoint,
+    EndPoint,
+    PreludePoint,
+    NowTalking,
+    Num,
+    Easing_FuncA,
+    Easing_FuncB,
+    Speed,
+    Instant,
+    ForceWait,
+    Dir,
+    Duration,
+    Orderable,
+    Strength,
+    Period,
+    String,
+    TypeEffect,
+    Time,
+    Mode,
+    FixedValue,
+    Angle,
+    Clockwise,
+    CircleCount,
+    Order,
+    Type,
 }
 
 export const inlayHintMap = new Map<inlayHintType, string>([
     [inlayHintType.FileName, "文件名"],
+    [inlayHintType.CharacterFileName, "立绘文件名"],
+    [inlayHintType.DiaFileName, "对话框文件名"],
+    [inlayHintType.NameFileName, "姓名栏文件名"],
+    [inlayHintType.CGFileName, "CG文件名"],
+    [inlayHintType.PatternFadeFileName, "PatternFade文件名"],
+    [inlayHintType.AudioFileName, "音频文件名"],
+    [inlayHintType.BGMFileName, "BGM文件名"],
+    [inlayHintType.BGSFileName, "BGS文件名"],
+    [inlayHintType.SEFileName, "SE文件名"],
+    [inlayHintType.DubFileName, "配音文件名"],
+    [inlayHintType.VideoFileName, "视频文件名"],
     [inlayHintType.ID, "ID"],
     [inlayHintType.Alpha, "透明度"],
     [inlayHintType.X, "X坐标"],
@@ -1163,6 +1252,61 @@ export const inlayHintMap = new Map<inlayHintType, string>([
     [inlayHintType.ColorRGB_R, "颜色值(RGB),R分量"],
     [inlayHintType.ColorRGB_G, "颜色值(RGB),G分量"],
     [inlayHintType.ColorRGB_B, "颜色值(RGB),B分量"],
+    [inlayHintType.MemLimit, "内存限制"],
+    [inlayHintType.XOffset, "X偏移"],
+    [inlayHintType.YOffset, "Y偏移"],
+    [inlayHintType.TransitionSpeed, "过渡速度"],
+    [inlayHintType.DebugMSG, "调试信息"],
+    [inlayHintType.WaitTime, "等待时间(ms)"],
+    [inlayHintType.Label, "跳转标签"],
+    [inlayHintType.Frame, "跳转场景"],
+    [inlayHintType.Chapter, "跳转章节"],
+    [inlayHintType.SwitchNum, "选项个数"],
+    [inlayHintType.Text, "文本"],
+    [inlayHintType.AchName, "成就名称"],
+    [inlayHintType.StatName, "统计名称"],
+    [inlayHintType.StatAdd, "统计增量"],
+    [inlayHintType.ContentName, "内容名称"],
+    [inlayHintType.ChapterName, "章节名称"],
+    [inlayHintType.GraphicName, "图像名称"],
+    [inlayHintType.AudioName, "音频名称"],
+    [inlayHintType.Page, "页面"],
+    [inlayHintType.Pos, "位置"],
+    [inlayHintType.CaptureID, "捕获ID"],
+    [inlayHintType.Boolean, "布尔值"],
+    [inlayHintType.ValueID, "变量ID"],
+    [inlayHintType.Value, "变量值"],
+    [inlayHintType.Size, "字号"],
+    [inlayHintType.Font, "字体"],
+    [inlayHintType.OutlinePixel, "描边像素数"],
+    [inlayHintType.Volume, "音量"],
+    [inlayHintType.Channel, "声道"],
+    [inlayHintType.FadeSpeed, "淡入淡出速度"],
+    [inlayHintType.StartPoint, "开始点"],
+    [inlayHintType.EndPoint, "结束点"],
+    [inlayHintType.PreludePoint, "前奏点"],
+    [inlayHintType.NowTalking, "当前对话"],
+    [inlayHintType.Num, "个数"],
+    [inlayHintType.Easing_FuncA, "缓动函数A"],
+    [inlayHintType.Easing_FuncB, "缓动函数B"],
+    [inlayHintType.Speed, "速度"],
+    [inlayHintType.Instant, "立即"],
+    [inlayHintType.ForceWait, "强制等待"],
+    [inlayHintType.Dir, "方向"],
+    [inlayHintType.Duration, "持续时间"],
+    [inlayHintType.Orderable, "可排序"],
+    [inlayHintType.Strength, "强度"],
+    [inlayHintType.Period, "周期"],
+    [inlayHintType.String, "字符串"],
+    [inlayHintType.TypeEffect, "打字效果"],
+    [inlayHintType.Time, "运动时间"],
+    [inlayHintType.Mode, "运动模式"],
+    [inlayHintType.FixedValue, "固定值"],
+    [inlayHintType.Angle, "角度"],
+    [inlayHintType.Clockwise, "顺时针"],
+    [inlayHintType.CircleCount, "旋转圈数"],
+    [inlayHintType.Order, "层级"],
+    [inlayHintType.Type, "类型"],
 ]);
 
 export interface ParamFormat {
@@ -1175,317 +1319,1230 @@ export interface ParamFormat {
 export const commandParamList = new Map<string, ParamFormat>([
     // keywords_region
 
-    ["Begin", { minParam: 0, maxParam: 0, type: [] }],
-    ["End", { minParam: 0, maxParam: 0, type: [] }],
+    ["Begin", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["End", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
     // keywords_system
-    ["Error", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
-    ["NULL", { minParam: 0, maxParam: 0, type: [] }],
-    ["CacheClean", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["UnSkipAble", { minParam: 0, maxParam: 0, type: [] }],
-    ["SkipAble", { minParam: 0, maxParam: 0, type: [] }],
-    ["SGO", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SetGlobalOffset", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["TransitionSpeed", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["ForceTransition", { minParam: 0, maxParam: 0, type: [] }],
-    ["Save", { minParam: 0, maxParam: 0, type: [] }],
-    ["Debug", { minParam: 0, maxParam: 0, type: [] }],
-    ["DebugOff", { minParam: 0, maxParam: 0, type: [] }],
-    ["DefineRGB", { minParam: 1, maxParam: 3, type: [ParamType.Color, ParamType.Number, ParamType.Number], inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B] }],
+    ["Error", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+    }],
+    ["NULL", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["CacheClean", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.MemLimit]
+    }],
+    ["UnSkipAble", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["SkipAble", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["SGO", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.XOffset, inlayHintType.YOffset]
+    }],
+    ["SetGlobalOffset", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.XOffset, inlayHintType.YOffset]
+    }],
+    ["TransitionSpeed", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.TransitionSpeed]
+    }],
+    ["ForceTransition", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["Save", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["Debug", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["DebugOff", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["DefineRGB", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
 
-    ["MSG", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["MSGClear", { minParam: 0, maxParam: 0, type: [] }],
-    ["StopFF", { minParam: 0, maxParam: 0, type: [] }],
-    ["StopFastForward", { minParam: 0, maxParam: 0, type: [] }],
-    ["DisableUI", { minParam: 0, maxParam: 0, type: [] }],
-    ["EnableUI", { minParam: 0, maxParam: 0, type: [] }],
-    ["FNT", { minParam: 0, maxParam: 0, type: [] }],
-    ["ForceNoTransition", { minParam: 0, maxParam: 0, type: [] }],
+    ["MSG", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.DebugMSG]
+    }],
+    ["MSGClear", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["StopFF", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["StopFastForward", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["DisableUI", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["EnableUI", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["FNT", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["ForceNoTransition", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["FNTO", { minParam: 0, maxParam: 0, type: [] }],
-    ["ForceNoTransitionOff", { minParam: 0, maxParam: 0, type: [] }],
+    ["FNTO", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["ForceNoTransitionOff", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["EOF", { minParam: 0, maxParam: 0, type: [] }],
-    ["W", { minParam: 0, maxParam: 1, type: [ParamType.Number] }],
-    ["Wait", { minParam: 0, maxParam: 1, type: [ParamType.Number] }],
+    ["EOF", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["W", {
+        minParam: 0, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.WaitTime]
+    }],
+    ["Wait", {
+        minParam: 0, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.WaitTime]
+    }],
 
-    ["FW", { minParam: 0, maxParam: 1, type: [ParamType.Number] }],
-    ["ForceWait", { minParam: 0, maxParam: 1, type: [ParamType.Number] }],
+    ["FW", {
+        minParam: 0, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.WaitTime]
+    }],
+    ["ForceWait", {
+        minParam: 0, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.WaitTime]
+    }],
 
-    ["Jmp", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["NJMP", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["Call", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["Ret", { minParam: 0, maxParam: 0, type: [] }],
-    ["FJMP", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["JmpFra", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["Jmp", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Label]
+    }],
+    ["NJMP", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Label]
+    }],
+    ["Call", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Label]
+    }],
+    ["Ret", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["FJMP", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Frame]
+    }],
+    ["JmpFra", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Frame]
+    }],
 
-    ["CJMP", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["JmpCha", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["CJMP", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Chapter]
+    }],
+    ["JmpCha", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Chapter]
+    }],
 
-    ["SJMP", { minParam: 0, maxParam: 0, type: [] }],
-    ["SkipJmp", { minParam: 0, maxParam: 0, type: [] }],
-    ["SkipAnchor", { minParam: 0, maxParam: 0, type: [] }],
+    ["SJMP", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["SkipJmp", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["SkipAnchor", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["CreateSwitch", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["Switch", { minParam: 4, maxParam: 4, type: [ParamType.Number, ParamType.Number, ParamType.String, ParamType.String] }],
-    ["UnlockAch", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["AddToStat", { minParam: 1, maxParam: 2, type: [ParamType.String, ParamType.Number] }],
-    ["UnlockAppreciation", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
-    ["UnlockAppreciation_Chapter", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
-    ["UnlockAppreciation_Graphic", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
-    ["UnlockAppreciation_Audio", { minParam: 1, maxParam: 3, type: [ParamType.String, ParamType.Number, ParamType.Number] }],
-    ["VNMode_Newline", { minParam: 0, maxParam: 0, type: [] }],
-    ["VNMode_ChangePage", { minParam: 0, maxParam: 0, type: [] }],
+    ["CreateSwitch", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.SwitchNum]
+    }],
+    ["Switch", {
+        minParam: 4, maxParam: 4
+        , type: [ParamType.Number, ParamType.Number, ParamType.String, ParamType.String]
+        , inlayHintType: [inlayHintType.X, inlayHintType.Y, inlayHintType.Text, inlayHintType.Label]
+    }],
+    ["UnlockAch", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.AchName]
+    }],
+    ["AddToStat", {
+        minParam: 1, maxParam: 2
+        , type: [ParamType.String, ParamType.Number]
+        , inlayHintType: [inlayHintType.StatName, inlayHintType.StatAdd]
+    }],
+    ["UnlockAppreciation", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.String, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ContentName, inlayHintType.Page, inlayHintType.Pos]
+    }],
+    ["UnlockAppreciation_Chapter", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.String, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ChapterName, inlayHintType.Page, inlayHintType.Pos]
+    }],
+    ["UnlockAppreciation_Graphic", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.String, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.GraphicName, inlayHintType.Page, inlayHintType.Pos]
+    }],
+    ["UnlockAppreciation_Audio", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.String, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.AudioName, inlayHintType.Page, inlayHintType.Pos]
+    }],
+    ["VNMode_Newline", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["VNMode_ChangePage", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
 
-    ["SetCapture", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["CaptureSys", { minParam: 1, maxParam: 1, type: [ParamType.Boolean] }],
+    ["SetCapture", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.CaptureID]
+    }],
+    ["CaptureSys", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Boolean]
+        , inlayHintType: [inlayHintType.Boolean]
+    }],
 
     // keywords_values
-    ["SV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SetValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SVV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SetValueValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SVAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SetValueAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SSS", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SetStringString", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SSAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["SetStringAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["VA", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["ValueAdd", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["VAV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["ValueAddValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["VS", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["ValueSub", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["VSV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["ValueSubValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["VM", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["ValueMul", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["VMV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["ValueMulValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["VD", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["ValueDiv", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["VAV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["ValueDivValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["SV", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["SetValue", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["SVV", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["SetValueValue", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["SVAB", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["SetValueAB", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["SSS", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["SetStringString", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["SSAB", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["SetStringAB", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["VA", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["ValueAdd", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["VAV", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["ValueAddValue", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["VS", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["ValueSub", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["VSV", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["ValueSubValue", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["VM", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["ValueMul", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["VMV", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["ValueMulValue", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["VD", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["ValueDiv", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["VDV", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["ValueDivValue", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
 
-    ["CMP", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPVAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPValueAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPVV", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPValueValue", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPSAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPStringAB", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPSS", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["CMPStringString", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["CMP", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["CMPV", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["CMPValue", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["CMPAB", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["CMPVAB", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["CMPValueAB", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["CMPVV", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["CMPValueValue", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["CMPSAB", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["CMPStringAB", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["CMPSS", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
+    ["CMPStringString", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ValueID, inlayHintType.ValueID]
+    }],
 
-    ["JE", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["JA", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["JB", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
-    ["JNE", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["JE", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Label]
+    }],
+    ["JA", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Label]
+    }],
+    ["JB", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Label]
+    }],
+    ["JNE", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Label]
+    }],
 
     // keywords_dialogue
 
-    ["DiaColor", { minParam: 1, maxParam: 3, type: [ParamType.Color] }],
-    ["DiaSize", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["DiaFont", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["DiaColor", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.Color]
+        , inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["DiaSize", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Size]
+    }],
+    ["DiaFont", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Font]
+    }],
 
-    ["DiaShaderOn", { minParam: 2, maxParam: 4, type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["DiaShaderOff", { minParam: 0, maxParam: 0, type: [] }],
+    ["DiaShaderOn", {
+        minParam: 2, maxParam: 4
+        , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.OutlinePixel, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["DiaShaderOff", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["DiaOutColor", { minParam: 1, maxParam: 3, type: [ParamType.Color] }],
-    ["DiaOutPixel", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["DiaOutColor", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.Color]
+        , inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["DiaOutPixel", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.OutlinePixel]
+    }],
 
-    ["NameColor", { minParam: 1, maxParam: 3, type: [ParamType.Color] }],
-    ["NameSize", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["NameFont", { minParam: 1, maxParam: 1, type: [ParamType.String] }],
+    ["NameColor", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.Color]
+        , inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["NameSize", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Size]
+    }],
+    ["NameFont", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.String]
+        , inlayHintType: [inlayHintType.Font]
+    }],
 
-    ["NameShaderOn", { minParam: 2, maxParam: 4, type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["NameShaderOff", { minParam: 0, maxParam: 0, type: [] }],
+    ["NameShaderOn", {
+        minParam: 2, maxParam: 4
+        , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.OutlinePixel, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["NameShaderOff", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["NameOutColor", { minParam: 1, maxParam: 3, type: [ParamType.Color] }],
-    ["NameOutPixel", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["NameOutColor", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.Color]
+        , inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["NameOutPixel", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.OutlinePixel]
+    }],
 
-    ["Dia", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
-    ["DiaChange", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
-    ["DiaTrans", { minParam: 0, maxParam: 0, type: [] }],
-    ["Name", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
-    ["NameChange", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
-    ["NameTrans", { minParam: 0, maxParam: 0, type: [] }],
-    ["TextFadeOut", { minParam: 0, maxParam: 0, type: [] }],
+    ["Dia", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.DiaFileName]
+    }],
+    ["DiaChange", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.DiaFileName]
+    }],
+    ["DiaTrans", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["Name", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.NameFileName]
+    }],
+    ["NameChange", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.NameFileName]
+    }],
+    ["NameTrans", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["TextFadeOut", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
     // keywords_media
 
-    ["P", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.String, ParamType.Number] }],
-    ["Play", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.String, ParamType.Number] }],
+    ["P", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.String, ParamType.Number]
+        , inlayHintType: [inlayHintType.AudioFileName, inlayHintType.Volume, inlayHintType.Channel]
+    }],
+    ["Play", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.String, ParamType.Number]
+        , inlayHintType: [inlayHintType.AudioFileName, inlayHintType.Volume, inlayHintType.Channel]
+    }],
 
-    ["Stop", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["Stop", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Channel]
+    }],
 
-    ["Se", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["Se", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.SEFileName]
+    }],
 
-    ["Bgm", { minParam: 1, maxParam: 4, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["BgmLoop", { minParam: 1, maxParam: 4, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["Bgm", {
+        minParam: 1, maxParam: 4
+        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.BGMFileName, inlayHintType.FadeSpeed, inlayHintType.StartPoint, inlayHintType.EndPoint]
+    }],
+    ["BgmLoop", {
+        minParam: 1, maxParam: 4
+        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.BGMFileName, inlayHintType.FadeSpeed, inlayHintType.StartPoint, inlayHintType.EndPoint]
+    }],
 
-    ["BgmPre", { minParam: 1, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["BgmPreludeLoop", { minParam: 1, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["BgmPre", {
+        minParam: 1, maxParam: 5
+        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.BGMFileName, inlayHintType.FadeSpeed, inlayHintType.StartPoint, inlayHintType.EndPoint, inlayHintType.PreludePoint]
+    }],
+    ["BgmPreludeLoop", {
+        minParam: 1, maxParam: 5
+        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.BGMFileName, inlayHintType.FadeSpeed, inlayHintType.StartPoint, inlayHintType.EndPoint, inlayHintType.PreludePoint]
+    }],
 
-    ["BgmPause", { minParam: 0, maxParam: 0, type: [] }],
-    ["BgmResume", { minParam: 0, maxParam: 0, type: [] }],
+    ["BgmPause", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["BgmResume", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["BgmFadeOut", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["BgmFadeOut", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.FadeSpeed]
+    }],
 
-    ["Bgs", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
-    ["BgsLoop", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["Bgs", {
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.BGSFileName, inlayHintType.FadeSpeed]
+    }],
+    ["BgsLoop", {
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.BGSFileName, inlayHintType.FadeSpeed]
+    }],
 
-    ["BgsPause", { minParam: 0, maxParam: 0, type: [] }],
-    ["BgsResume", { minParam: 0, maxParam: 0, type: [] }],
+    ["BgsPause", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["BgsResume", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["BgsFadeOut", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["BgsFadeOut", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.FadeSpeed]
+    }],
 
-    ["Dub", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
-    ["DubPlay", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["Dub", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.DubFileName]
+    }],
+    ["DubPlay", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.DubFileName]
+    }],
 
-    ["DubSeque", { minParam: 0, maxParam: 0, type: [] }],
-    ["Ntk", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["NtkChange", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["DubSeque", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["DubSequeOff", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["Ntk", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.NowTalking]
+    }],
+    ["NtkChange", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.NowTalking]
+    }],
 
-    ["PV", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
-    ["PlayVideo", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
-    ["OV", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
-    ["OpenVideo", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
-    ["CV", { minParam: 0, maxParam: 0, type: [] }],
-    ["CloseVideo", { minParam: 0, maxParam: 0, type: [] }],
-    ["VR", { minParam: 0, maxParam: 0, type: [] }],
-    ["VideoResume", { minParam: 0, maxParam: 0, type: [] }],
-    ["VP", { minParam: 0, maxParam: 0, type: [] }],
-    ["VideoPause", { minParam: 0, maxParam: 0, type: [] }],
-    ["VW", { minParam: 0, maxParam: 0, type: [] }],
-    ["VideoWait", { minParam: 0, maxParam: 0, type: [] }],
-    ["VL", { minParam: 0, maxParam: 0, type: [] }],
-    ["VideoLoop", { minParam: 0, maxParam: 0, type: [] }],
-    ["SVP", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["SetVideoPos", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["PV", {
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.VideoFileName, inlayHintType.StartPoint]
+    }],
+    ["PlayVideo", {
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.VideoFileName, inlayHintType.StartPoint]
+    }],
+    ["OV", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.VideoFileName]
+    }],
+    ["OpenVideo", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.VideoFileName]
+    }],
+    ["CV", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["CloseVideo", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["VR", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["VideoResume", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["VP", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["VideoPause", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["VW", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["VideoWait", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["VL", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["VideoLoop", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["SVP", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.StartPoint]
+    }],
+    ["SetVideoPos", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.StartPoint]
+    }],
 
     // keywords_effect
 
-    ["CreateBlur", { minParam: 0, maxParam: 0, type: [] }],
-    ["AddBlur", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["RemoveBlur", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["DestroyBlur", { minParam: 0, maxParam: 0, type: [] }],
-    ["BackZoomParam", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["BackZoomReset", { minParam: 0, maxParam: 0, type: [] }],
-    ["BackZoom", { minParam: 5, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["Shake", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["ShakeDir", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["KeepShake", { minParam: 0, maxParam: 0, type: [] }],
-    ["KeepShakeOff", { minParam: 0, maxParam: 0, type: [] }],
-    ["Fade", { minParam: 0, maxParam: 0, type: [] }],
-    ["DestroyFade", { minParam: 0, maxParam: 0, type: [] }],
+    ["CreateBlur", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["AddBlur", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Num]
+    }],
+    ["RemoveBlur", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Num]
+    }],
+    ["DestroyBlur", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["BackZoomParam", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.Easing_FuncA, inlayHintType.Easing_FuncB]
+    }],
+    ["BackZoomReset", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["BackZoom", {
+        minParam: 5, maxParam: 7
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height, inlayHintType.Speed, inlayHintType.Instant, inlayHintType.ForceWait]
+    }],
+    ["Shake", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Duration]
+    }],
+    ["ShakeDir", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Dir]
+    }],
+    ["KeepShake", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["KeepShakeOff", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["Fade", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["DestroyFade", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["PF", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
-    ["PatternFade", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
-    ["PFO", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
-    ["PatternFadeOut", { minParam: 1, maxParam: 2, type: [ParamType.File, ParamType.Number] }],
+    ["PF", {
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.PatternFadeFileName, inlayHintType.Orderable]
+    }],
+    ["PatternFade", {
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.PatternFadeFileName, inlayHintType.Orderable]
+    }],
+    ["PFO", {
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.PatternFadeFileName, inlayHintType.Orderable]
+    }],
+    ["PatternFadeOut", {
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.PatternFadeFileName, inlayHintType.Orderable]
+    }],
 
-    ["Rain", { minParam: 0, maxParam: 0, type: [] }],
-    ["Snow", { minParam: 0, maxParam: 0, type: [] }],
-    ["Normal", { minParam: 0, maxParam: 0, type: [] }],
-    ["ToRain", { minParam: 0, maxParam: 0, type: [] }],
-    ["ToSnow", { minParam: 0, maxParam: 0, type: [] }],
-    ["ToNormal", { minParam: 0, maxParam: 0, type: [] }],
+    ["Rain", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["Snow", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["Normal", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["ToRain", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["ToSnow", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["ToNormal", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["CrossFade", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["CrossFade", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID]
+    }],
 
-    ["KeepRes", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["KeepResolution", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["KeepRes", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID]
+    }],
+    ["KeepResolution", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID]
+    }],
 
-    ["KeepResOff", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["KeepResolutionOff", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["KeepResOff", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID]
+    }],
+    ["KeepResolutionOff", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID]
+    }],
 
-    ["Sepia", { minParam: 0, maxParam: 3, type: [ParamType.Number, ParamType.Boolean, ParamType.Number] }],
-    ["SepiaToning", { minParam: 0, maxParam: 3, type: [ParamType.Number, ParamType.Boolean, ParamType.Number] }],
-    ["ChangeSepiaStrength", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["SetSepiaNoiseMotion", { minParam: 1, maxParam: 1, type: [ParamType.Boolean] }],
-    ["ChangeSepiaNoiseMotionPeriod", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["Sepia", {
+        minParam: 0, maxParam: 3
+        , type: [ParamType.Number, ParamType.Boolean, ParamType.Number]
+        , inlayHintType: [inlayHintType.Strength, inlayHintType.Boolean, inlayHintType.Period]
+    }],
+    ["SepiaToning", {
+        minParam: 0, maxParam: 3
+        , type: [ParamType.Number, ParamType.Boolean, ParamType.Number]
+        , inlayHintType: [inlayHintType.Strength, inlayHintType.Boolean, inlayHintType.Period]
+    }],
+    ["ChangeSepiaStrength", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Strength]
+    }],
+    ["SetSepiaNoiseMotion", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Boolean]
+        , inlayHintType: [inlayHintType.Boolean]
+    }],
+    ["ChangeSepiaNoiseMotionPeriod", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Period]
+    }],
 
     // keywords_preobj
 
-    ["StrCenter", { minParam: 0, maxParam: 0, type: [] }],
-    ["StrBottom", { minParam: 0, maxParam: 0, type: [] }],
-    ["Str", { minParam: 2, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["String", { minParam: 2, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["CreateStr", { minParam: 2, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["CreateString", { minParam: 2, maxParam: 11, type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["StrCenter", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["StrBottom", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["Str", {
+        minParam: 2, maxParam: 11
+        , type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.String, inlayHintType.ID, inlayHintType.TypeEffect, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Size, inlayHintType.Font, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["String", {
+        minParam: 2, maxParam: 11
+        , type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.String, inlayHintType.ID, inlayHintType.TypeEffect, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Size, inlayHintType.Font, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["CreateStr", {
+        minParam: 2, maxParam: 11
+        , type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.String, inlayHintType.ID, inlayHintType.TypeEffect, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Size, inlayHintType.Font, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["CreateString", {
+        minParam: 2, maxParam: 11
+        , type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.String, inlayHintType.ID, inlayHintType.TypeEffect, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Size, inlayHintType.Font, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
 
-    ["StrS", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["StrSize", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["StrF", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.String] }],
-    ["StrFont", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.String] }],
-    ["StrA", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["StrAlpha", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
+    ["StrS", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Size]
+    }],
+    ["StrSize", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Size]
+    }],
+    ["StrF", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.String]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Font]
+    }],
+    ["StrFont", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.String]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Font]
+    }],
+    ["StrA", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Alpha]
+    }],
+    ["StrAlpha", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Alpha]
+    }],
 
-    ["StrC", { minParam: 2, maxParam: 4, type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number] }],
-    ["StrColor", { minParam: 2, maxParam: 4, type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number] }],
+    ["StrC", {
+        minParam: 2, maxParam: 4
+        , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["StrColor", {
+        minParam: 2, maxParam: 4
+        , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
 
-    ["MS", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["MoveStr", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["DestroyStr", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["DestroyString", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["MS", {
+        minParam: 3, maxParam: 7
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.X, inlayHintType.Y, inlayHintType.Time, inlayHintType.Easing_FuncA, inlayHintType.Easing_FuncB, inlayHintType.Mode]
+    }],
+    ["MoveStr", {
+        minParam: 3, maxParam: 7
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.X, inlayHintType.Y, inlayHintType.Time, inlayHintType.Easing_FuncA, inlayHintType.Easing_FuncB, inlayHintType.Mode]
+    }],
+    ["DestroyStr", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID]
+    }],
+    ["DestroyString", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID]
+    }],
 
-    ["DestroyAllStr", { minParam: 0, maxParam: 0, type: [] }],
-    ["DestroyAllString", { minParam: 0, maxParam: 0, type: [] }],
+    ["DestroyAllStr", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["DestroyAllString", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["Spe", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["Spe", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.FileName]
+    }],
 
-    ["MO", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["MoveObj", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["MO", {
+        minParam: 3, maxParam: 7
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.FixedValue, inlayHintType.X, inlayHintType.Y, inlayHintType.Time, inlayHintType.Easing_FuncA, inlayHintType.Easing_FuncB, inlayHintType.Mode]
+    }],
+    ["MoveObj", {
+        minParam: 3, maxParam: 7
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.FixedValue, inlayHintType.X, inlayHintType.Y, inlayHintType.Time, inlayHintType.Easing_FuncA, inlayHintType.Easing_FuncB, inlayHintType.Mode]
+    }],
 
-    ["CG", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
-    ["CGChange", { minParam: 1, maxParam: 1, type: [ParamType.File] }],
+    ["CG", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.CGFileName]
+    }],
+    ["CGChange", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.CGFileName]
+    }],
 
-    ["CPF", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
-    ["CPatternFade", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
-    ["CPFI", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
-    ["CPatternFadeIn", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
-    ["CPFO", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
-    ["CPatternFadeOut", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
-    ["CGPFI", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.File] }],
-    ["CGPatternFadeIn", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.File] }],
+    ["CPF", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
+    ["CPatternFade", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
+    ["CPFI", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
+    ["CPatternFadeIn", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
+    ["CPFO", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
+    ["CPatternFadeOut", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
+    ["CGPFI", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.File, ParamType.File]
+        , inlayHintType: [inlayHintType.CGFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
+    ["CGPatternFadeIn", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.File, ParamType.File]
+        , inlayHintType: [inlayHintType.CGFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
 
-    ["CGPFO", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.File] }],
-    ["CGPatternFadeOut", { minParam: 2, maxParam: 2, type: [ParamType.File, ParamType.File] }],
+    ["CGPFO", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.File, ParamType.File]
+        , inlayHintType: [inlayHintType.CGFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
+    ["CGPatternFadeOut", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.File, ParamType.File]
+        , inlayHintType: [inlayHintType.CGFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
 
-    ["CharPF", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
-    ["CharPatternFade", { minParam: 3, maxParam: 3, type: [ParamType.File, ParamType.File, ParamType.Number] }],
+    ["CharPF", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
+    ["CharPatternFade", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.File, ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.PatternFadeFileName, inlayHintType.ID]
+    }],
 
-    ["Char", { minParam: 2, maxParam: 6, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number], inlayHintType: [inlayHintType.FileName, inlayHintType.ID, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height] }],
-    ["Character", { minParam: 2, maxParam: 6, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number], inlayHintType: [inlayHintType.FileName, inlayHintType.ID, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height] }],
+    ["Char", {
+        minParam: 2, maxParam: 6
+        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.ID, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height]
+    }],
+    ["Character", {
+        minParam: 2, maxParam: 6
+        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.ID, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height]
+    }],
 
-    ["CC", { minParam: 2, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["CharChange", { minParam: 2, maxParam: 5, type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["CC", {
+        minParam: 2, maxParam: 5
+        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.ID, inlayHintType.Alpha, inlayHintType.Width, inlayHintType.Height]
+    }],
+    ["CharChange", {
+        minParam: 2, maxParam: 5
+        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.ID, inlayHintType.Alpha, inlayHintType.Width, inlayHintType.Height]
+    }],
 
-    ["CA", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number,] }],
-    ["CharAlpha", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number,] }],
+    ["CA", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number,]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Alpha]
+    }],
+    ["CharAlpha", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number,]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Alpha]
+    }],
 
-    ["CharRotate", { minParam: 4, maxParam: 4, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["SetAutoArrange", { minParam: 1, maxParam: 1, type: [ParamType.Boolean] }],
-    ["CD", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
-    ["CharDispose", { minParam: 1, maxParam: 1, type: [ParamType.Number] }],
+    ["CharRotate", {
+        minParam: 4, maxParam: 4
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Angle, inlayHintType.Clockwise, inlayHintType.CircleCount]
+    }],
+    ["SetAutoArrange", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Boolean]
+        , inlayHintType: [inlayHintType.Boolean]
+    }],
+    ["CD", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID,]
+    }],
+    ["CharDispose", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID,]
+    }],
 
-    ["CAD", { minParam: 0, maxParam: 0, type: [] }],
-    ["CharAllDispose", { minParam: 0, maxParam: 0, type: [] }],
-    ["MC", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
-    ["MoveChar", { minParam: 3, maxParam: 7, type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number] }],
+    ["CAD", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["CharAllDispose", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["MC", {
+        minParam: 3, maxParam: 7
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.X, inlayHintType.Y, inlayHintType.Time, inlayHintType.Easing_FuncA, inlayHintType.Easing_FuncB, inlayHintType.Mode]
+    }],
+    ["MoveChar", {
+        minParam: 3, maxParam: 7
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.X, inlayHintType.Y, inlayHintType.Time, inlayHintType.Easing_FuncA, inlayHintType.Easing_FuncB, inlayHintType.Mode]
+    }],
 
-    ["HideUI", { minParam: 0, maxParam: 0, type: [] }],
-    ["ShowUI", { minParam: 0, maxParam: 0, type: [] }],
+    ["HideUI", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["ShowUI", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
 
-    ["Order", { minParam: 3, maxParam: 3, type: [ParamType.Number, ParamType.Number, ParamType.ObjType] }],
-    ["Front", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["Back", { minParam: 2, maxParam: 2, type: [ParamType.Number, ParamType.Number] }],
-    ["Forward", { minParam: 2, maxParam: 3, type: [ParamType.Number, ParamType.ObjType, ParamType.Number] }],
-    ["Backward", { minParam: 2, maxParam: 3, type: [ParamType.Number, ParamType.ObjType, ParamType.Number] }],
+    ["Order", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.Number, ParamType.Number, ParamType.ObjType]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Order, inlayHintType.Type]
+    }],
+    ["Front", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Type]
+    }],
+    ["Back", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Type]
+    }],
+    ["Forward", {
+        minParam: 2, maxParam: 3
+        , type: [ParamType.Number, ParamType.ObjType, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Num]
+    }],
+    ["Backward", {
+        minParam: 2, maxParam: 3
+        , type: [ParamType.Number, ParamType.ObjType, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Num]
+    }],
 ]);

@@ -4,15 +4,14 @@ import { pinyin } from 'pinyin-pro';
 import * as mm from 'music-metadata';
 import { ImageProbe } from "@zerodeps/image-probe";
 
-import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItem, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getFileStat, getNthParam, getAllParams, getBuffer, getCommentList, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment, arrayHasValue } from './lib/utilities';
+import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getNthParam, getAllParams, getBuffer, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment, arrayHasValue } from './lib/utilities';
 import {
 	sharpKeywordList, atKeywordList
-	, keywordList, settingsParamList
+	, settingsParamList
 	, commandDocList, settingsParamDocList, langDocList, commandParamList, ParamType, deprecatedKeywordList, internalKeywordList, internalImageID, inlayHintMap, inlayHintType
 } from './lib/dict';
-import { deprecate } from 'util';
-import { resolve } from 'path';
-import { rejects } from 'assert';
+import { regexNumber, regexHexColor, regexRep } from './lib/regExp';
+import { create } from 'domain';
 
 // config
 const confBasePath: string = "conf.AvgScript.basePath";
@@ -570,8 +569,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		provideInlayHints(document: vscode.TextDocument, range: vscode.Range, token: vscode.CancellationToken) {
 			let hints: vscode.InlayHint[] = [];
 
-			const regexHexColor = /(#|0[x|X])[0-9a-fA-F]{6}/gi;
-
 			iterateLines(document, (text, lineNumber
 				, lineStart, lineEnd
 				, firstLineNotComment) => {
@@ -581,8 +578,6 @@ export async function activate(context: vscode.ExtensionContext) {
 						|| text.startsWith("@")) {
 						const params = getAllParams(text);
 						const command = params[0].substring(1);
-						const commandWithPrefix = text.charAt(0) + params[0].substring(1);
-						const commandType = getCommandType(commandWithPrefix);
 						const paramNum = params.length - 1;
 						const paramDefinition = getMapValue(command, commandParamList);
 
@@ -598,9 +593,14 @@ export async function activate(context: vscode.ExtensionContext) {
 							return;
 						}
 
+						let curLinePrefix = params[0];
+
 						for (let j = 1; j < params.length; j++) {
 							let curParam = params[j];
 							let currentInlayHintType = paramInlayHintType[j - 1];
+
+							curLinePrefix = curLinePrefix + ":" + curParam;
+							const commandType = getCommandType(curLinePrefix);
 
 							if (currentInlayHintType === inlayHintType.ColorHex) {
 								if (j !== params.length - 1) {
@@ -1194,10 +1194,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 				let inComment: boolean = false;
 
-				let beginRegex = /^#Begin/gi;
-				let endRegex = /^#End/gi;
-				let labelRegex = /^;.*/gi;
-				let keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(.*JMP.*)|(#SkipAnchor|#Ret|#StopFF|#StopFastForward))/gi;
+				const beginRegex = /^#Begin/gi;
+				const endRegex = /^#End/gi;
+				const labelRegex = /^;.*/gi;
+				const keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(.*JMP.*)|(#SkipAnchor|#Ret|#StopFF|#StopFastForward))/gi;
 
 				iterateLines(document, (text, lineNumber
 					, lineStart, lineEnd
@@ -1266,10 +1266,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		if (document.languageId !== 'AvgScript') {
 			return;
 		}
-
-		const regexNumber = /\+[0-9]+(.[0-9]+)?|-[0-9]+(.[0-9]+)?|[0-9]+(.[0-9]+)?/gi;
-		const regexHexColor = /(#|0[x|X])[0-9a-fA-F]{6}/gi;
-		const regexRep = /\<.*\>/gi;
 
 		let diagnostics: vscode.Diagnostic[] = [];
 		let labels: string[] = [];
@@ -1374,8 +1370,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 				const params = getAllParams(text);
 				const command = params[0].substring(1);
-				const commandWithPrefix = text.charAt(0) + params[0].substring(1);
-				const commandType = getCommandType(commandWithPrefix);
 				const paramNum = params.length - 1;
 				const paramDefinition = getMapValue(command, commandParamList);
 
@@ -1394,11 +1388,26 @@ export async function activate(context: vscode.ExtensionContext) {
 				}
 
 				let checkImageID = false;
+				let checkPos = 0;
+
+				enum ImageBehavior {
+					create,
+					destroy
+				}
+
+				let imageBehavior;
 
 				// check internal ID for @Char
-				if (params[0].toLowerCase() === "@Char".toLowerCase()
-					|| params[0].toLowerCase() === "@Character".toLowerCase()) {
+				if (matchEntire(params[0], /(@Char|@Character)/gi)) {
 					checkImageID = true;
+					imageBehavior = ImageBehavior.create;
+					checkPos = 2;
+				}
+
+				if (matchEntire(params[0], /(@CD|@CharDispose)/gi)) {
+					checkImageID = true;
+					imageBehavior = ImageBehavior.destroy;
+					checkPos = 1;
 				}
 
 				if (paramDefinition === undefined) {
@@ -1414,6 +1423,8 @@ export async function activate(context: vscode.ExtensionContext) {
 				const paramNumMin = paramDefinition.minParam;
 				const paramNumMax = paramDefinition.maxParam;
 
+				let curLinePrefix = params[0];
+
 				for (let j = 1; j < params.length; j++) {
 					if (j > paramNumMax) {
 						diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, lineEnd)
@@ -1425,16 +1436,27 @@ export async function activate(context: vscode.ExtensionContext) {
 
 					let curParam = params[j];
 					let currentType = paramFormat[j - 1];
+
+					curLinePrefix = curLinePrefix + ":" + curParam;
+					const commandType = getCommandType(curLinePrefix);
+
 					contentStart++;
 
 					if (curParam.match(regexRep)) {
 						continue;
 					}
 
-					if (arrayHasValue(parseInt(curParam), internalImageID)) {
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
-							, "Cannot Use Internal ID"
-							, vscode.DiagnosticSeverity.Error));
+					if (checkImageID
+						&& checkPos === j) {
+						const availableBehavior = internalImageID.get(parseInt(curParam));
+
+						if (availableBehavior !== undefined
+							&& ((imageBehavior === ImageBehavior.create && !availableBehavior.Create)
+								|| (imageBehavior === ImageBehavior.destroy && !availableBehavior.Destroy))) {
+							diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+								, "Cannot Use Internal ID"
+								, vscode.DiagnosticSeverity.Error));
+						}
 					}
 
 					switch (currentType) {
@@ -1451,8 +1473,8 @@ export async function activate(context: vscode.ExtensionContext) {
 							break;
 						case ParamType.Boolean:
 							if (!matchEntire(curParam, regexNumber)
-								|| curParam.toLowerCase() !== "on"
-								|| curParam.toLowerCase() !== "off") {
+								&& (curParam.toLowerCase() !== "on"
+									&& curParam.toLowerCase() !== "off")) {
 								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
 									, "Invalid Option: " + curParam
 									, vscode.DiagnosticSeverity.Error));

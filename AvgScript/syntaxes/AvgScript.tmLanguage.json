@@ -161,7 +161,7 @@
 			}
 		},
 		"keywords_system": {
-			"match": "(?i)(#Error|#NULL|#CacheClean|#UnSkipAble|#SkipAble|#SGO|#SetGlobalOffset|#TransitionSpeed|#ForceTransition|#Save|#debug|#debugoff|#defineRGB|#MSG|#MSGClear|#StopFF|#StopFastForward|#DisableUI|#EnableUI|#FNT|#ForceNoTransition|#FNTO|#ForceNoTransitionOff|#EOF|#W|#wait|#FW|#forcewait|#jmp|#NJMP|#Call|#Ret|#FJMP|#jmpfra|#CJMP|#jmpcha|#SJMP|#SkipJmp|#SkipAnchor|#CreateSwitch|#switch|#UnlockAch|#AddtoStat|#UnlockAppreciation|#UnlockAppreciation_Chapter|#UnlockAppreciation_Graphic|#UnlockAppreciation_Audio|#VNMode_Newline|#VNMode_ChangePage|#SetCapture|#CaptureSys)\\b",
+			"match": "(?i)(#Error|#NULL|#CacheClean|#UnSkipAble|#SkipAble|#SGO|#SetGlobalOffset|#TransitionSpeed|#ForceTransition|#Save|#debug|#debugoff|#defineRGB|#MSG|#MSGClear|#StopFF|#StopFastForward|#DisableUI|#EnableUI|#FNT|#ForceNoTransition|#FNTO|#ForceNoTransitionOff|#EOF|#W|#wait|#FW|#ForceWait|#jmp|#NJMP|#Call|#Ret|#FJMP|#JmpFra|#CJMP|#JmpCha|#SJMP|#SkipJmp|#SkipAnchor|#CreateSwitch|#switch|#UnlockAch|#AddToStat|#UnlockAppreciation|#UnlockAppreciation_Chapter|#UnlockAppreciation_Graphic|#UnlockAppreciation_Audio|#VNMode_Newline|#VNMode_ChangePage|#SetCapture|#CaptureSys)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.system.AvgScript"
@@ -177,7 +177,7 @@
 			}
 		},
 		"keywords_dialogue": {
-			"match": "(?i)(#diacolor|#diasize|#diafont|#diashaderon|#diashaderoff|#diaoutcolor|#diaoutpixel|#namecolor|#namesize|#namefont|#nameshaderon|#nameshaderoff|#nameoutcolor|#nameoutpixel|@dia|@diachange|@DiaTrans|@name|@namechange|@NameTrans|@TextFadeOut)\\b",
+			"match": "(?i)(#diacolor|#DiaSize|#DiaFont|#diashaderon|#DiaShaderOff|#diaoutcolor|#DiaOutPixel|#namecolor|#NameSize|#NameFont|#nameshaderon|#NameShaderOff|#nameoutcolor|#NameOutPixel|@dia|@DiaChange|@DiaTrans|@name|@NameChange|@NameTrans|@TextFadeOut)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.dialogue.AvgScript"
@@ -185,7 +185,7 @@
 			}
 		},
 		"keywords_media": {
-			"match": "(?i)(@play|@P|@Stop|@se|@bgmloop|@bgmpreludeloop|@bgmpre|@bgmpause|@bgmresume|@bgmfadeout|@bgm|@bgsloop|@bgspause|@bgsresume|@bgsfadeout|@bgs|@dubplay|@dub|@DubSeque|@ntkchange|@ntk|@PV|@PlayVideo|@OV|@OpenVideo|@CV|@CloseVideo|@VR|@VideoResume|@VP|@VideoPause|@VW|@VideoWait|@VL|@VideoLoop|@SVP|@SetVideoPos)\\b",
+			"match": "(?i)(@play|@P|@Stop|@se|@BgmLoop|@BgmPreludeLoop|@BgmPre|@BgmPause|@BgmResume|@BgmFadeOut|@bgm|@BgsLoop|@BgsPause|@BgsResume|@BgsFadeOut|@bgs|@dubplay|@dub|@DubSeque|@ntkchange|@ntk|@PV|@PlayVideo|@OV|@OpenVideo|@CV|@CloseVideo|@VR|@VideoResume|@VP|@VideoPause|@VW|@VideoWait|@VL|@VideoLoop|@SVP|@SetVideoPos)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.media.AvgScript"
@@ -193,7 +193,7 @@
 			}
 		},
 		"keywords_effect": {
-			"match": "(?i)(@CreateBlur|@AddBlur|@RemoveBlur|@DestroyBlur|@BackZoomParam|@BackZoomReset|@backzoom|@shake|@ShakeDir|@keepshake|@keepshakeoff|@fade|@destroyfade|@PFO|@patternfadeout|@PF|@patternfade|@rain|@snow|@normal|@torain|@tosnow|@tonormal|@CrossFade|@KeepResolutionOff|@KeepResOff|@KeepResolution|@KeepRes|@SepiaToning|@Sepia|@ChangeSepiaStrength|@SetSepiaNoiseMotion|@ChangeSepiaNoiseMotionPeriod)\\b",
+			"match": "(?i)(@CreateBlur|@AddBlur|@RemoveBlur|@DestroyBlur|@BackZoomParam|@BackZoomReset|@BackZoom|@shake|@ShakeDir|@keepshake|@keepshakeoff|@fade|@DestroyFade|@PFO|@patternfadeout|@PF|@patternfade|@rain|@snow|@normal|@torain|@tosnow|@tonormal|@CrossFade|@KeepResolutionOff|@KeepResOff|@KeepResolution|@KeepRes|@SepiaToning|@Sepia|@ChangeSepiaStrength|@SetSepiaNoiseMotion|@ChangeSepiaNoiseMotionPeriod)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.effect.AvgScript"
@@ -201,7 +201,7 @@
 			}
 		},
 		"keywords_preobj": {
-			"match": "(?i)(@StrCenter|@StrBottom|@str|@string|@createstr|@createstring|@StrS|@StrSize|@StrF|@StrFont|@StrA|@StrAlpha|@StrC|@StrColor|@MS|@MoveStr|@destroystr|@destroystring|@destroyallstr|@destroyallstring|@Spe|@MO|@MoveObj|@cg|@cgchange|@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CGPFI|@cgpatternfadein|@CGPFO|@cgpatternfadeout|@CharPF|@CharPatternFade|@char|@character|@CC|@charchange|@CA|@charalpha|@charrotate|@SetAutoArrange|@CD|@chardispose|@CAD|@charalldispose|@MC|@MoveChar|@HideUI|@ShowUI|@Order|@Front|@Back|@Forward|@Backward)\\b",
+			"match": "(?i)(@StrCenter|@StrBottom|@str|@string|@createstr|@createstring|@StrS|@StrSize|@StrF|@StrFont|@StrA|@StrAlpha|@StrC|@StrColor|@MS|@MoveStr|@destroystr|@destroystring|@DestroyAllStr|@DestroyAllString|@Spe|@MO|@MoveObj|@cg|@CGChange|@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CGPFI|@cgpatternfadein|@CGPFO|@cgpatternfadeout|@CharPF|@CharPatternFade|@char|@character|@CC|@CharChange|@CA|@charalpha|@charrotate|@SetAutoArrange|@CD|@CharDispose|@CAD|@CharAllDispose|@MC|@MoveChar|@HideUI|@ShowUI|@Order|@Front|@Back|@Forward|@Backward)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.preobj.AvgScript"

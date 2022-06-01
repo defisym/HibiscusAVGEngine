@@ -1,5 +1,13 @@
 # Change Log
 
+## 20220601
+
+- inlay hint dict
+- fix file diagnostic false positive due to wrong file type verdict
+- fix typo
+- fix boolean type diagnostic issue when using `on`/`off`
+- fix parsing issue and position issue of internal ID diagnostic
+
 ## 20220531
 
 - fixed an issue that stops the file diagnostic from working

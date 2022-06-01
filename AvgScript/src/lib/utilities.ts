@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import { deprecatedKeywordList, docList, internalKeywordList } from './dict';
+import { regexNumber, regexHexColor, regexRep } from './regExp';
+
 import { audioBgmCompletions, audioBgmPath, audioBgsCompletions, audioBgsPath, audioDubsCompletions, audioDubsPath, audioSECompletions, audioSEPath, graphicCGCompletions, graphicCGPath, graphicCharactersCompletions, graphicCharactersPath, graphicPatternFadeCompletions, graphicPatternFadePath, graphicUICompletions, graphicUIPath, scriptCompletions, scriptPath } from './../extension';
 
 const delimiter = ['=', ':'];
@@ -229,9 +231,9 @@ export function getCompletionItemList(src: string[], commentList: docList) {
         }
 
         if (arrayHasValue(src[i], deprecatedKeywordList)
-        || arrayHasValue(src[i], internalKeywordList)) {
+            || arrayHasValue(src[i], internalKeywordList)) {
             completionItem.tags = [vscode.CompletionItemTag.Deprecated];
-    }
+        }
 
         ret.push(completionItem);
     }
@@ -353,7 +355,7 @@ export function getType(linePrefix: string, getCommand: boolean = false) {
 }
 
 export function getCommandType(command: string) {
-    return getType(command, true);
+    return getType(command, false);
 }
 
 export function getFilePath(linePrefix: string, fileName: string) {
@@ -469,7 +471,6 @@ export function matchEntire(src: string, regex: RegExp) {
 }
 
 export function strIsNum(src: string) {
-    const regexNumber = /\+[0-9]+(.[0-9]+)?|-[0-9]+(.[0-9]+)?|[0-9]+(.[0-9]+)?/gi;
     return matchEntire(src, regexNumber);
 }
 

@@ -49,7 +49,7 @@
       "",
       "\t/*跳转处理*/",
       "\t#Wait",
-      "\t#jmpfra=1",
+      "\t#JmpFra=1",
       "\t#EOF",
       "",
       "#End"
@@ -64,7 +64,7 @@
       "\t/*该章节导演代码仅供参考*/",
       "\t;注释区块外以';'开头的行会被视为跳转标签",
       "\t",
-      "\t@bgmloop=$1:0:0",
+      "\t@BgmLoop=$1:0:0",
       "\t",
       "\t/*CG、姓名栏与对话框默认为空，初始化时需手动指定*/",
       "\t@cg=$2",
@@ -96,8 +96,8 @@
       "#Begin 文件尾",
       "",
       "\t/*文件的最后一条有效指令必须为跳转指令*/",
-      "\t/*#jmpfra=*/",
-      "\t#jmpcha=$5",
+      "\t/*#JmpFra=*/",
+      "\t#JmpCha=$5",
       "\t/*文件的末尾必须为#EOF*/",
       "\t#EOF",
       "",
@@ -120,7 +120,7 @@
       "#FNT",
       "@Char=..\\CG\\white.png:-10",
       "#FNTO",
-      "@chardispose=-10"
+      "@CharDispose=-10"
     ],
     "description": "Flash"
   },
@@ -160,8 +160,8 @@
       "@Fade",
       "#Wait",
       "",
-      "@chardispose:-5",
-      "@chardispose:20",
+      "@CharDispose:-5",
+      "@CharDispose:20",
       "#Wait",
       "",
       "@DestroyFade"
@@ -198,7 +198,7 @@
       "\t@CG=VNMBG.png",
       "\t@dia=VNModeBG.png",
       "",
-      "\t@bgmloop=$1",
+      "\t@BgmLoop=$1",
       "",
       "#End",
       "",
