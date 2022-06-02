@@ -18,11 +18,12 @@ export async function getFileStat(filePath: string) {
     }
 }
 
+// Obsolete due to change of sub folder support
 export function getFileName(name: string, fileList: vscode.CompletionItem[]) {
     name = name.toLowerCase();
 
     for (let i in fileList) {
-        let element = fileList[i].insertText?.toString().toLowerCase();
+        let element = fileList[i].insertText?.toString().toLowerCase()!;
 
         if (element?.startsWith(name)) {
             return element;
@@ -30,6 +31,46 @@ export function getFileName(name: string, fileList: vscode.CompletionItem[]) {
     };
 
     return undefined;
+}
+
+export function getCompletion(name: string, fileList: vscode.CompletionItem[]) {
+    name = name.toLowerCase();
+
+    for (let i in fileList) {
+        let element = fileList[i].insertText?.toString().toLowerCase()!;
+
+        if (element?.startsWith(name)) {
+            return fileList[i];
+        }
+    };
+
+    return undefined;
+}
+
+export function getFileCompletionByType(type: FileType, fileName: string) {
+    switch (type) {
+        case FileType.characters:
+            return getCompletion(fileName, graphicCharactersCompletions);
+        case FileType.ui:
+            return getCompletion(fileName, graphicUICompletions);
+        case FileType.cg:
+            return getCompletion(fileName, graphicCGCompletions);
+        case FileType.patternFade:
+            return getCompletion(fileName, graphicPatternFadeCompletions);
+        case FileType.bgm:
+            return getCompletion(fileName, audioBgmCompletions);
+        case FileType.bgs:
+            return getCompletion(fileName, audioBgsCompletions);
+        case FileType.dubs:
+            return getCompletion(fileName, audioDubsCompletions);
+        case FileType.se:
+            return getCompletion(fileName, audioSECompletions);
+        // case FileType.video:
+        case FileType.script:
+            return getCompletion(fileName, scriptCompletions);
+        default:
+            return undefined;
+    }
 }
 
 export function getLastIndexOfDelimiter(src: string, position: number) {
@@ -359,65 +400,66 @@ export function getCommandType(command: string) {
 }
 
 export function getFilePath(linePrefix: string, fileName: string) {
-    let realFileName: string | undefined = undefined;
-    let filePath: string;
+    let filePath = getFileCompletionByType(getType(linePrefix), fileName)?.sortText;
 
-    switch (getType(linePrefix)) {
-        case FileType.characters:
-            realFileName = getFileName(fileName, graphicCharactersCompletions);
-            filePath = graphicCharactersPath + "\\";
+    return filePath;
 
-            break;
-        case FileType.ui:
-            realFileName = getFileName(fileName, graphicUICompletions);
-            filePath = graphicUIPath + "\\";
+    // switch (getType(linePrefix)) {
+    //     case FileType.characters:
+    //         realFileName = getFileName(fileName, graphicCharactersCompletions);
+    //         filePath = graphicCharactersPath + "\\";
 
-            break;
-        case FileType.cg:
-            realFileName = getFileName(fileName, graphicCGCompletions);
-            filePath = graphicCGPath + "\\";
+    //         break;
+    //     case FileType.ui:
+    //         realFileName = getFileName(fileName, graphicUICompletions);
+    //         filePath = graphicUIPath + "\\";
 
-            break;
-        case FileType.patternFade:
-            realFileName = getFileName(fileName, graphicPatternFadeCompletions);
-            filePath = graphicPatternFadePath + "\\";
+    //         break;
+    //     case FileType.cg:
+    //         realFileName = getFileName(fileName, graphicCGCompletions);
+    //         filePath = graphicCGPath + "\\";
 
-            break;
-        case FileType.bgm:
-            realFileName = getFileName(fileName, audioBgmCompletions);
-            filePath = audioBgmPath + "\\";
+    //         break;
+    //     case FileType.patternFade:
+    //         realFileName = getFileName(fileName, graphicPatternFadeCompletions);
+    //         filePath = graphicPatternFadePath + "\\";
 
-            break;
-        case FileType.bgs:
-            realFileName = getFileName(fileName, audioBgsCompletions);
-            filePath = audioBgsPath + "\\";
+    //         break;
+    //     case FileType.bgm:
+    //         realFileName = getFileName(fileName, audioBgmCompletions);
+    //         filePath = audioBgmPath + "\\";
 
-            break;
-        case FileType.dubs:
-            realFileName = getFileName(fileName, audioDubsCompletions);
-            filePath = audioDubsPath + "\\";
+    //         break;
+    //     case FileType.bgs:
+    //         realFileName = getFileName(fileName, audioBgsCompletions);
+    //         filePath = audioBgsPath + "\\";
 
-            break;
-        case FileType.se:
-            realFileName = getFileName(fileName, audioSECompletions);
-            filePath = audioSEPath + "\\";
+    //         break;
+    //     case FileType.dubs:
+    //         realFileName = getFileName(fileName, audioDubsCompletions);
+    //         filePath = audioDubsPath + "\\";
 
-            break;
-        // case FileType.video:
-        case FileType.script:
-            realFileName = getFileName(fileName, scriptCompletions);
-            filePath = scriptPath + "\\";
+    //         break;
+    //     case FileType.se:
+    //         realFileName = getFileName(fileName, audioSECompletions);
+    //         filePath = audioSEPath + "\\";
 
-            break;
-        default:
-            return undefined;
-    }
+    //         break;
+    //     // case FileType.video:
+    //     case FileType.script:
+    //         realFileName = getFileName(fileName, scriptCompletions);
+    //         filePath = scriptPath + "\\";
 
-    if (realFileName === undefined) {
-        return undefined;
-    }
+    //         break;
+    //     default:
+    //         return undefined;
+    // }
 
-    return filePath + realFileName;
+    // if (realFileName === undefined) {
+    //     return undefined;
+    // }
+
+    // return filePath + realFileName;
 }
 
 export function getUri(linePrefix: string, fileName: string) {
@@ -431,29 +473,31 @@ export function getUri(linePrefix: string, fileName: string) {
 };
 
 export function getFileNameByType(type: FileType, fileName: string) {
-    switch (type) {
-        case FileType.characters:
-            return getFileName(fileName, graphicCharactersCompletions);
-        case FileType.ui:
-            return getFileName(fileName, graphicUICompletions);
-        case FileType.cg:
-            return getFileName(fileName, graphicCGCompletions);
-        case FileType.patternFade:
-            return getFileName(fileName, graphicPatternFadeCompletions);
-        case FileType.bgm:
-            return getFileName(fileName, audioBgmCompletions);
-        case FileType.bgs:
-            return getFileName(fileName, audioBgsCompletions);
-        case FileType.dubs:
-            return getFileName(fileName, audioDubsCompletions);
-        case FileType.se:
-            return getFileName(fileName, audioSECompletions);
-        // case FileType.video:
-        case FileType.script:
-            return getFileName(fileName, scriptCompletions);
-        default:
-            return undefined;
-    }
+    return getFileCompletionByType(type, fileName)?.insertText;
+
+    // switch (type) {
+    //     case FileType.characters:
+    //         return getFileName(fileName, graphicCharactersCompletions);
+    //     case FileType.ui:
+    //         return getFileName(fileName, graphicUICompletions);
+    //     case FileType.cg:
+    //         return getFileName(fileName, graphicCGCompletions);
+    //     case FileType.patternFade:
+    //         return getFileName(fileName, graphicPatternFadeCompletions);
+    //     case FileType.bgm:
+    //         return getFileName(fileName, audioBgmCompletions);
+    //     case FileType.bgs:
+    //         return getFileName(fileName, audioBgsCompletions);
+    //     case FileType.dubs:
+    //         return getFileName(fileName, audioDubsCompletions);
+    //     case FileType.se:
+    //         return getFileName(fileName, audioSECompletions);
+    //     // case FileType.video:
+    //     case FileType.script:
+    //         return getFileName(fileName, scriptCompletions);
+    //     default:
+    //         return undefined;
+    // }
 }
 
 export function fileExists(type: FileType, fileName: string) {

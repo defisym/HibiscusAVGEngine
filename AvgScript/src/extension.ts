@@ -4,7 +4,7 @@ import { pinyin } from 'pinyin-pro';
 import * as mm from 'music-metadata';
 import { ImageProbe } from "@zerodeps/image-probe";
 
-import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getNthParam, getAllParams, getBuffer, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment, arrayHasValue } from './lib/utilities';
+import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getNthParam, getAllParams, getBuffer, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment, arrayHasValue, getCompletion } from './lib/utilities';
 import {
 	sharpKeywordList, atKeywordList
 	, settingsParamList
@@ -175,6 +175,37 @@ export async function activate(context: vscode.ExtensionContext) {
 		return vscode.workspace.fs.readDirectory(uri);
 	}
 
+	async function getFileListRecursively(filePath: string) {
+		let fileList: [string, vscode.FileType][] = [];
+		await getFileListRecursivelyFunc(filePath, fileList);
+
+		return fileList;
+	}
+
+	async function getFileListRecursivelyFunc(filePath: string, fileList: [string, vscode.FileType][]) {
+		let uri = vscode.Uri.file(filePath);
+		let result: [string, vscode.FileType][] = await getFileList(uri);
+		let promiseList: Promise<void>[] = [];
+
+		for (let i in result) {
+			let fileName = result[i][0];
+			let type = result[i][1];
+
+			if (type === vscode.FileType.Directory) {
+				promiseList.push(new Promise(async (resolve, reject) => {
+					let subFilePath = filePath + "\\" + fileName;
+					await getFileListRecursivelyFunc(subFilePath, fileList);
+
+					resolve();
+				}));
+			} else if (type === vscode.FileType.File) {
+				fileList.push([filePath + "\\" + fileName, type]);
+			}
+		}
+
+		await Promise.all(promiseList);
+	}
+
 	async function updateFileList(progress: vscode.Progress<{
 		message?: string | undefined;
 		increment?: number | undefined;
@@ -219,15 +250,16 @@ export async function activate(context: vscode.ExtensionContext) {
 		graphicCharactersPath = graphic + "Characters";
 
 		progress.report({ increment: 4, message: "Updating FX fileList..." });
-		let graphicFX = await getFileList(vscode.Uri.file(graphicFXPath));
+		let graphicFX = await getFileListRecursively(graphicFXPath);
+		// let graphicFX = await getFileList(vscode.Uri.file(graphicFXPath));
 		progress.report({ increment: 4, message: "Updating CG fileList..." });
-		let graphicCG = await getFileList(vscode.Uri.file(graphicCGPath));
+		let graphicCG = await getFileListRecursively(graphicCGPath);
 		progress.report({ increment: 4, message: "Updating UI fileList..." });
-		let graphicUI = await getFileList(vscode.Uri.file(graphicUIPath));
+		let graphicUI = await getFileListRecursively(graphicUIPath);
 		progress.report({ increment: 4, message: "Updating PatternFade fileList..." });
-		let graphicPatternFade = await getFileList(vscode.Uri.file(graphicPatternFadePath));
+		let graphicPatternFade = await getFileListRecursively(graphicPatternFadePath);
 		progress.report({ increment: 4, message: "Updating Characters fileList..." });
-		let graphicCharacters = await getFileList(vscode.Uri.file(graphicCharactersPath));
+		let graphicCharacters = await getFileListRecursively(graphicCharactersPath);
 
 		progress.report({ increment: 4, message: "Updating audio fileList..." });
 
@@ -239,18 +271,18 @@ export async function activate(context: vscode.ExtensionContext) {
 		audioSEPath = audio + "SE";
 
 		progress.report({ increment: 4, message: "Updating BGM fileList..." });
-		let audioBgm = await getFileList(vscode.Uri.file(audioBgmPath));
+		let audioBgm = await getFileListRecursively(audioBgmPath);
 		progress.report({ increment: 4, message: "Updating BGS fileList..." });
-		let audioBgs = await getFileList(vscode.Uri.file(audioBgsPath));
+		let audioBgs = await getFileListRecursively(audioBgsPath);
 		progress.report({ increment: 4, message: "Updating Dubs fileList..." });
-		let audioDubs = await getFileList(vscode.Uri.file(audioDubsPath));
+		let audioDubs = await getFileListRecursively(audioDubsPath);
 		progress.report({ increment: 4, message: "Updating SE fileList..." });
-		let audioSE = await getFileList(vscode.Uri.file(audioSEPath));
+		let audioSE = await getFileListRecursively(audioSEPath);
 
 		progress.report({ increment: 4, message: "Updating script fileList..." });
 
 		scriptPath = basePath + "\\dialogue";
-		let script = await getFileList(vscode.Uri.file(scriptPath));
+		let script = await getFileListRecursively(scriptPath);
 
 		let generateCompletionList = async (fileList: [string, vscode.FileType][]
 			, completions: vscode.CompletionItem[]
@@ -265,11 +297,16 @@ export async function activate(context: vscode.ExtensionContext) {
 			fileList.forEach(async element => {
 				if (element[1] === vscode.FileType.File) {
 					promiseList.push(new Promise(async (resolve, reject) => {
-						let fileName: string = element[0];
-						let fileNameNoSuffix: string = element[0].lastIndexOf(".") === -1 ? element[0] : element[0].substring(0, element[0].lastIndexOf("."));
-						let fileNameSuffix: string = element[0].lastIndexOf(".") === -1 ? "" : element[0].substring(element[0].lastIndexOf("."));
+						let fileName: string = element[0].substring(element[0].lastIndexOf("\\") + 1);
+						let fileRelativeName: string = element[0].substring(basePath.length + 1);
 
-						let filePath: string = basePath + "\\{$FILENAME}";
+						// let fileNameNoSuffix: string = fileName.lastIndexOf(".") === -1 ? fileName : fileName.substring(0, fileName.lastIndexOf("."));
+						let fileNameNoSuffix: string = fileRelativeName.lastIndexOf(".") === -1 ? fileRelativeName : fileRelativeName.substring(0, fileRelativeName.lastIndexOf("."));
+						// let fileNameSuffix: string = fileName.lastIndexOf(".") === -1 ? "" : fileName.substring(fileName.lastIndexOf("."));
+						let fileNameSuffix: string = fileRelativeName.lastIndexOf(".") === -1 ? "" : fileRelativeName.substring(fileRelativeName.lastIndexOf("."));
+
+						// let filePath: string = basePath + "\\{$FILENAME}";
+						let filePath: string = element[0];
 
 						let py = pinyin(fileNameNoSuffix
 							, {
@@ -289,7 +326,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						}
 							, vscode.CompletionItemKind.File);
 
-						item.insertText = fileName;
+						item.insertText = fileRelativeName;
 						item.filterText = fileNameToEnglish;
 						let previewStr: string = nonePreview;
 						let detail: string | undefined = undefined;
@@ -317,10 +354,20 @@ export async function activate(context: vscode.ExtensionContext) {
 								break;
 						}
 
+						// normal
+						// item.documentation = await getFileComment(previewStr
+						// 	, element[0]
+						// 	, filePath
+						// 	, type);
+
+						// recursive
 						item.documentation = await getFileComment(previewStr
-							, element[0]
+							, fileName
 							, filePath
 							, type);
+						
+						// sort based on file path
+						item.sortText = filePath;
 
 						completions.push(item);
 
@@ -675,6 +722,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	const hoverFile = vscode.languages.registerHoverProvider('AvgScript', {
 		async provideHover(document, position, token) {
+			if(!fileListInitialized){
+				return undefined;
+			}
+
 			let range = document.getWordRangeAtPosition(position);
 
 			if (!range) {
@@ -693,71 +744,100 @@ export async function activate(context: vscode.ExtensionContext) {
 				return undefined;
 			}
 
-			let returnHover = async function (previewStr: string
-				, fileName: string | undefined
-				, filePath: string
-				, type: CompletionType) {
-				return new vscode.Hover(await getFileComment(previewStr
-					, fileName
-					, filePath
-					, type));
-			};
-
 			switch (getType(linePrefix!)) {
 				case FileType.characters:
-					return returnHover(imagePreview
-						, getFileName(fileName, graphicCharactersCompletions)
-						, graphicCharactersPath + "\\{$FILENAME}"
-						, CompletionType.image);
+					return new vscode.Hover(getCompletion(fileName, graphicCharactersCompletions)?.documentation!);
 				case FileType.ui:
-					return returnHover(imagePreview
-						, getFileName(fileName, graphicUICompletions)
-						, graphicUIPath + "\\{$FILENAME}"
-						, CompletionType.image);
+					return new vscode.Hover(getCompletion(fileName, graphicUICompletions)?.documentation!);
 				case FileType.cg:
-					return returnHover(imagePreview
-						, getFileName(fileName, graphicCGCompletions)
-						, graphicCGPath + "\\{$FILENAME}"
-						, CompletionType.image);
+					return new vscode.Hover(getCompletion(fileName, graphicCGCompletions)?.documentation!);
 				case FileType.patternFade:
-					return returnHover(imagePreview
-						, getFileName(fileName, graphicPatternFadeCompletions)
-						, graphicPatternFadePath + "\\{$FILENAME}"
-						, CompletionType.image);
+					return new vscode.Hover(getCompletion(fileName, graphicPatternFadeCompletions)?.documentation!);
 
 				case FileType.bgm:
-					return returnHover(audioPreview
-						, getFileName(fileName, audioBgmCompletions)
-						, audioBgmPath + "\\{$FILENAME}"
-						, CompletionType.audio);
+					return new vscode.Hover(getCompletion(fileName, audioBgmCompletions)?.documentation!);
 				case FileType.bgs:
-					return returnHover(audioPreview
-						, getFileName(fileName, audioBgsCompletions)
-						, audioBgsPath + "\\{$FILENAME}"
-						, CompletionType.audio);
+					return new vscode.Hover(getCompletion(fileName, audioBgsCompletions)?.documentation!);
 				case FileType.dubs:
-					return returnHover(audioPreview
-						, getFileName(fileName, audioDubsCompletions)
-						, audioDubsPath + "\\{$FILENAME}"
-						, CompletionType.audio);
+					return new vscode.Hover(getCompletion(fileName, audioDubsCompletions)?.documentation!);
 				case FileType.se:
-					return returnHover(audioPreview
-						, getFileName(fileName, audioSECompletions)
-						, audioSEPath + "\\{$FILENAME}"
-						, CompletionType.audio);
+					return new vscode.Hover(getCompletion(fileName, audioSECompletions)?.documentation!);
 
 				// case FileType.video:
 				case FileType.script:
-					return returnHover(audioPreview
-						, getFileName(fileName, scriptCompletions)
-						, scriptPath + "\\{$FILENAME}"
-						, CompletionType.script);
+					return new vscode.Hover(getCompletion(fileName, scriptCompletions)?.documentation!);
 				case FileType.frame:
 				case FileType.label:
 					return new vscode.Hover(new vscode.MarkdownString(getLabelComment(fileName)));
 				default:
 					return undefined;
 			}
+
+			// let returnHover = async function (previewStr: string
+			// 	, fileName: string | undefined
+			// 	, filePath: string
+			// 	, type: CompletionType) {
+			// 	return new vscode.Hover(await getFileComment(previewStr
+			// 		, fileName
+			// 		, filePath
+			// 		, type));
+			// };
+
+			// switch (getType(linePrefix!)) {
+			// 	case FileType.characters:
+			// 		return returnHover(imagePreview
+			// 			, getFileName(fileName, graphicCharactersCompletions)
+			// 			, graphicCharactersPath + "\\{$FILENAME}"
+			// 			, CompletionType.image);
+			// 	case FileType.ui:
+			// 		return returnHover(imagePreview
+			// 			, getFileName(fileName, graphicUICompletions)
+			// 			, graphicUIPath + "\\{$FILENAME}"
+			// 			, CompletionType.image);
+			// 	case FileType.cg:
+			// 		return returnHover(imagePreview
+			// 			, getFileName(fileName, graphicCGCompletions)
+			// 			, graphicCGPath + "\\{$FILENAME}"
+			// 			, CompletionType.image);
+			// 	case FileType.patternFade:
+			// 		return returnHover(imagePreview
+			// 			, getFileName(fileName, graphicPatternFadeCompletions)
+			// 			, graphicPatternFadePath + "\\{$FILENAME}"
+			// 			, CompletionType.image);
+
+			// 	case FileType.bgm:
+			// 		return returnHover(audioPreview
+			// 			, getFileName(fileName, audioBgmCompletions)
+			// 			, audioBgmPath + "\\{$FILENAME}"
+			// 			, CompletionType.audio);
+			// 	case FileType.bgs:
+			// 		return returnHover(audioPreview
+			// 			, getFileName(fileName, audioBgsCompletions)
+			// 			, audioBgsPath + "\\{$FILENAME}"
+			// 			, CompletionType.audio);
+			// 	case FileType.dubs:
+			// 		return returnHover(audioPreview
+			// 			, getFileName(fileName, audioDubsCompletions)
+			// 			, audioDubsPath + "\\{$FILENAME}"
+			// 			, CompletionType.audio);
+			// 	case FileType.se:
+			// 		return returnHover(audioPreview
+			// 			, getFileName(fileName, audioSECompletions)
+			// 			, audioSEPath + "\\{$FILENAME}"
+			// 			, CompletionType.audio);
+
+			// 	// case FileType.video:
+			// 	case FileType.script:
+			// 		return returnHover(audioPreview
+			// 			, getFileName(fileName, scriptCompletions)
+			// 			, scriptPath + "\\{$FILENAME}"
+			// 			, CompletionType.script);
+			// 	case FileType.frame:
+			// 	case FileType.label:
+			// 		return new vscode.Hover(new vscode.MarkdownString(getLabelComment(fileName)));
+			// 	default:
+			// 		return undefined;
+			// }
 		}
 	});
 

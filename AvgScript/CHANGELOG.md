@@ -1,5 +1,9 @@
 # Change Log
 
+## 20220602
+
+- support sub folder
+
 ## 20220601
 
 - inlay hint dict
