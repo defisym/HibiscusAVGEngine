@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-export const sharpKeywordList: string[] = [
+export let sharpKeywordList: string[] = [
     'Settings',
     'Begin',
     'End',
@@ -112,7 +112,7 @@ export const sharpKeywordList: string[] = [
     'NameOutColor',
     'NameOutPixel'];
 
-export const atKeywordList: string[] = [
+export let atKeywordList: string[] = [
     'Dia',
     'DiaChange',
     'DiaTrans',
@@ -249,7 +249,7 @@ export const atKeywordList: string[] = [
     'Forward',
     'Backward'];
 
-export const keywordList: string[] = sharpKeywordList.concat(atKeywordList);
+export let keywordList: string[] = sharpKeywordList.concat(atKeywordList);
 
 export const internalKeywordList: string[] = [
     'Error',
@@ -351,7 +351,7 @@ export const langDocList = new Map<string, string[]>([
     ["RU", ["русский язык"]],
 ]);
 
-export const commandDocList = new Map<string, string[]>([
+export let commandDocList = new Map<string, string[]>([
     // keywords_region
     ["Begin", ["代码块开始/结束标志，允许你在编辑器中将代码段折叠，在引擎内部无任何效果"]],
     ["End", ["代码块开始/结束标志，允许你在编辑器中将代码段折叠，在引擎内部无任何效果"]],
@@ -1149,6 +1149,17 @@ export enum ParamType {
     Any,
 };
 
+export const ParamTypeMap = new Map<string, ParamType>([
+    ["String", ParamType.String],
+    ["Number", ParamType.Number],
+    ["Boolean", ParamType.Boolean],
+    ["Volume", ParamType.Volume],
+    ["ObjType", ParamType.ObjType],
+    ["Color", ParamType.Color],
+    ["File", ParamType.File],
+    ["Any", ParamType.Any],
+]);
+
 export enum inlayHintType {
     FileName,
     CharacterFileName,
@@ -1229,7 +1240,7 @@ export enum inlayHintType {
     Type,
 }
 
-export const inlayHintMap = new Map<inlayHintType, string>([
+export let inlayHintMap = new Map<number, string>([
     [inlayHintType.FileName, "文件名"],
     [inlayHintType.CharacterFileName, "立绘文件名"],
     [inlayHintType.DiaFileName, "对话框文件名"],
@@ -1313,10 +1324,10 @@ export interface ParamFormat {
     minParam: number;
     maxParam: number;
     type: ParamType[];
-    inlayHintType?: inlayHintType[];
+    inlayHintType?: number[];
 }
 
-export const commandParamList = new Map<string, ParamFormat>([
+export let commandParamList = new Map<string, ParamFormat>([
     // keywords_region
 
     ["Begin", {

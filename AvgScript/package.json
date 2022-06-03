@@ -19,7 +19,7 @@
     "extensionDependencies": [
         "sukumo28.wav-preview"
     ],
-    "contributes": {        
+    "contributes": {
         "languages": [
             {
                 "id": "AvgScript",
@@ -60,22 +60,79 @@
         "configuration": [
             {
                 "id": "AvgScript",
-                "title": "AvgScript Configuration",
+                "title": "AvgScript",
                 "order": 2,
                 "properties": {
                     "conf.AvgScript.basePath": {
                         "type": "string",
-                        "order": 2,
-                        "description": "Base path for the assets files",
-                        "properties": {
-                            "path": {
-                                "type": "string",
-                                "description": "Path to the data folder",
-                                "default": "",
-                                "scope": "resource"
+                        "order": 0,
+                        "description": "Base path for the assets files"
+                    },
+                    "conf.AvgScript.commandExtension": {
+                        "type": "array",
+                        "order": 1,
+                        "description": "Command extension",
+                        "items": {
+                            "required": [
+                                "prefix",
+                                "command",
+                                "minParam",
+                                "maxParam",
+                                "paramType"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "prefix": {
+                                    "enum": [
+                                        "@",
+                                        "#"
+                                    ],
+                                    "description": "Command prefix"
+                                },
+                                "command": {
+                                    "type": "string",
+                                    "description": "Command"
+                                },
+                                "description": {
+                                    "type": "array",
+                                    "description": "Command description",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "minParam": {
+                                    "type": "integer",
+                                    "description": "min available param"
+                                },
+                                "maxParam": {
+                                    "type": "integer",
+                                    "description": "max available param"
+                                },
+                                "paramType": {
+                                    "type": "array",
+                                    "description": "Type of each param",
+                                    "items": {
+                                        "enum": [
+                                            "String",
+                                            "Number",
+                                            "Boolean",
+                                            "Volume",
+                                            "ObjType",
+                                            "Color",
+                                            "File",
+                                            "Any"
+                                        ]
+                                    }
+                                },
+                                "inlayHint": {
+                                    "type": "array",
+                                    "description": "Inlay hint type of each param",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
                             }
-                        },
-                        "additionalProperties": false
+                        }
                     }
                 }
             }
@@ -94,6 +151,13 @@
                 "title": "Refresh Assets information",
                 "icon": "media/AvgScript.png",
                 "shortTitle": "Refresh Assets"
+            },
+            {
+                "category": "AvgScript",
+                "command": "config.AvgScript.updateCommandExtension",
+                "title": "Update command extension",
+                "icon": "media/AvgScript.png",
+                "shortTitle": "Command Extension"
             }
         ],
         "menus": {

@@ -1,3 +1,30 @@
 {
-    "conf.AvgScript.basePath": "F:\\DEV\\AVG+SRPG\\Program\\data"
+    "conf.AvgScript.basePath": "F:\\DEV\\AVG+SRPG\\Program\\data",
+    "conf.AvgScript.commandExtension": [
+        {
+            "prefix": "#",
+            "command": "CallPhone",
+            "description": [
+                "\t@CallPhone:X:Y:Name:Avatar:PhoneNumber",
+                "创建手机，并将界面移动至(X,Y)坐标处。其中短信界面显示的头像路径为`Avatar`，电话号码为`PhoneNumber`",
+                "该指令会进行转译，自动执行`@MoveObj`指令，用于移动对象，执行`@DisableUI`指令，用于禁用UI，执行`#Wait`指令，强制主程序进入演出等待阶段"
+            ],
+            "minParam": 5,
+            "maxParam": 5,
+            "paramType": [
+                "Number",
+                "Number",
+                "String",
+                "Any",
+                "Any",
+            ],
+            "inlayHint": [
+                "XPos",
+                "YPos",
+                "Name",
+                "Avatar",
+                "PhoneNumber",
+            ]
+        }
+    ]
 }

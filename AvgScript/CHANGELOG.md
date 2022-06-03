@@ -1,5 +1,10 @@
 # Change Log
 
+## 20220603
+
+- fix number regex typo
+- command extension
+
 ## 20220602
 
 - support sub folder

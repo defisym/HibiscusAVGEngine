@@ -6,19 +6,21 @@ import { ImageProbe } from "@zerodeps/image-probe";
 
 import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getNthParam, getAllParams, getBuffer, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment, arrayHasValue, getCompletion } from './lib/utilities';
 import {
-	sharpKeywordList, atKeywordList
+	sharpKeywordList, atKeywordList, keywordList
 	, settingsParamList
-	, commandDocList, settingsParamDocList, langDocList, commandParamList, ParamType, deprecatedKeywordList, internalKeywordList, internalImageID, inlayHintMap, inlayHintType
+	, commandDocList, settingsParamDocList, langDocList, commandParamList, ParamType, ParamTypeMap, deprecatedKeywordList, internalKeywordList, internalImageID, inlayHintMap, inlayHintType, ParamFormat, docList
 } from './lib/dict';
 import { regexNumber, regexHexColor, regexRep } from './lib/regExp';
 import { create } from 'domain';
 
 // config
 const confBasePath: string = "conf.AvgScript.basePath";
+const confCommandExt: string = "conf.AvgScript.commandExtension";
 
 // command
 const commandBasePath: string = "config.AvgScript.basePath";
 const commandRefreshAssets: string = "config.AvgScript.refreshAssets";
+const commandUpdateCommandExtension: string = "config.AvgScript.updateCommandExtension";
 
 // settings
 export let currentLocalCode: string;
@@ -365,7 +367,7 @@ export async function activate(context: vscode.ExtensionContext) {
 							, fileName
 							, filePath
 							, type);
-						
+
 						// sort based on file path
 						item.sortText = filePath;
 
@@ -427,6 +429,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	//--------------------
 
+	vscode.commands.executeCommand(commandUpdateCommandExtension);
 	vscode.commands.executeCommand(commandRefreshAssets);
 
 	//--------------------
@@ -648,7 +651,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 						for (let j = 1; j < params.length; j++) {
 							let curParam = params[j];
-							let currentInlayHintType = paramInlayHintType[j - 1];
+							let currentInlayHintType: number = paramInlayHintType[j - 1];
 
 							curLinePrefix = curLinePrefix + ":" + curParam;
 							const commandType = getCommandType(curLinePrefix);
@@ -722,7 +725,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	const hoverFile = vscode.languages.registerHoverProvider('AvgScript', {
 		async provideHover(document, position, token) {
-			if(!fileListInitialized){
+			if (!fileListInitialized) {
 				return undefined;
 			}
 
@@ -1044,6 +1047,79 @@ export async function activate(context: vscode.ExtensionContext) {
 			await updateFileList(progress);
 			refreshFileDiagnostics();
 		});
+	});
+
+	vscode.commands.registerCommand(commandUpdateCommandExtension, async () => {
+		interface CommandExt {
+			// basic
+			prefix: string,
+			command: string,
+			description: string[],
+
+			// diagnostic
+			minParam: number,
+			maxParam: number,
+			paramType: string[],
+
+			// inlayHint
+			inlayHint: string[],
+		}
+
+		let commandExt = vscode.workspace.getConfiguration().get<CommandExt[]>(confCommandExt);
+
+		if (commandExt === undefined) {
+			return;
+		}
+
+		let insertCommandExt = (commandExtItem: CommandExt, commandList: string[], commandDocList: docList,) => {
+			let command = commandExtItem.command;
+
+			commandList.push(command);
+			keywordList.push(command);
+
+			let paramFormat: ParamFormat = { minParam: 0, maxParam: 0, type: [], inlayHintType: [] };
+
+			paramFormat.minParam = commandExtItem.minParam;
+			paramFormat.maxParam = commandExtItem.maxParam;
+
+			for (let type in commandExtItem.paramType) {
+				paramFormat.type.push(ParamTypeMap.get(commandExtItem.paramType[type])!);
+			}
+
+			let inlayHints = commandExtItem.inlayHint;
+
+			if (inlayHints !== undefined) {
+				for (let hints in inlayHints) {
+					let pos = inlayHintMap.size;
+					inlayHintMap.set(pos, inlayHints[hints]);
+					paramFormat.inlayHintType?.push(pos);
+				}
+			}
+
+			commandParamList.set(command, paramFormat);
+
+			let description = commandExtItem.description;
+
+			if (description !== undefined) {
+				commandDocList.set(command, description);
+			}
+		};
+
+		for (let i in commandExt!) {
+			if (commandExt[i].prefix === "#") {
+				insertCommandExt(commandExt[i], sharpKeywordList, commandDocList);
+			} else if (commandExt[i].prefix === "@") {
+				insertCommandExt(commandExt[i], atKeywordList, commandDocList);
+			}
+		}
+
+		if (activeEditor === undefined) {
+			return;
+		}
+
+		let activeDocument = activeEditor.document;
+
+		updateDiagnostics(activeDocument, fileListInitialized);
 	});
 
 	//--------------------
@@ -1522,7 +1598,6 @@ export async function activate(context: vscode.ExtensionContext) {
 					let currentType = paramFormat[j - 1];
 
 					curLinePrefix = curLinePrefix + ":" + curParam;
-					const commandType = getCommandType(curLinePrefix);
 
 					contentStart++;
 
@@ -1608,6 +1683,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 							break;
 						case ParamType.File:
+							const commandType = getCommandType(curLinePrefix);
 							if (checkFile
 								&& !fileExists(commandType, curParam)) {
 								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
@@ -1694,6 +1770,8 @@ export async function activate(context: vscode.ExtensionContext) {
 			, nonActiveLanguageDecorator
 			, currentLocalCode
 			, currentLocalCodeDisplay);
+
+		vscode.commands.executeCommand(commandUpdateCommandExtension);
 	}
 
 	function triggerUpdate(throttle = false) {
