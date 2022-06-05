@@ -1,5 +1,14 @@
 # Change Log
 
+## 20220605
+
+- fix diagnostic doesn't work with `#CJMP`& `#JmpCha`
+
+## 20220604
+
+- protections for invalid extension properties
+- protections for invalid extension min & max param num
+
 ## 20220603
 
 - fix number regex typo

@@ -451,7 +451,7 @@ export let commandDocList = new Map<string, string[]>([
         , "\t#NJMP=Init"
         , "\t#FNT"
         , "\t@CAD"
-        , "\t@CG=BG_Indoor_HYBR_Cloudy_Noon.png"
+        , "\t@CG=NewCG.png"
         , "\t#TransitionSpeed=10"
         , "\t#FNTO"
         , "\t;Init"]],
@@ -1499,12 +1499,12 @@ export let commandParamList = new Map<string, ParamFormat>([
 
     ["CJMP", {
         minParam: 1, maxParam: 1
-        , type: [ParamType.String]
+        , type: [ParamType.File]
         , inlayHintType: [inlayHintType.Chapter]
     }],
     ["JmpCha", {
         minParam: 1, maxParam: 1
-        , type: [ParamType.String]
+        , type: [ParamType.File]
         , inlayHintType: [inlayHintType.Chapter]
     }],
 

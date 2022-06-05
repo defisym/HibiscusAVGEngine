@@ -7,6 +7,7 @@
     "repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
     "homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
     "icon": "media/AvgScript.png",
+    "_comment": "./out/extension.js during debug and ./dist/extension.js when releasing",
     "main": "./dist/extension.js",
     "engines": {
         "vscode": "^1.67.0"
@@ -81,6 +82,7 @@
                                 "paramType"
                             ],
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "prefix": {
                                     "enum": [
@@ -102,11 +104,13 @@
                                 },
                                 "minParam": {
                                     "type": "integer",
-                                    "description": "min available param"
+                                    "description": "min available param",
+                                    "minimum": 0
                                 },
                                 "maxParam": {
                                     "type": "integer",
-                                    "description": "max available param"
+                                    "description": "max available param",
+                                    "minimum": 0
                                 },
                                 "paramType": {
                                     "type": "array",

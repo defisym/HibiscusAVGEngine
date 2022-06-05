@@ -1079,8 +1079,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			let paramFormat: ParamFormat = { minParam: 0, maxParam: 0, type: [], inlayHintType: [] };
 
-			paramFormat.minParam = commandExtItem.minParam;
-			paramFormat.maxParam = commandExtItem.maxParam;
+			paramFormat.minParam = Math.max(0, commandExtItem.minParam);
+			paramFormat.maxParam = Math.max(paramFormat.minParam, commandExtItem.maxParam);
 
 			for (let type in commandExtItem.paramType) {
 				paramFormat.type.push(ParamTypeMap.get(commandExtItem.paramType[type])!);
@@ -1503,7 +1503,6 @@ export async function activate(context: vscode.ExtensionContext) {
 				}
 				if (text.match(/(#CJMP|#JMPCha|#FJMP|#JMPFra)/gi)) {
 					nextJMP = true;
-					return;
 				}
 
 				if (text.match(/#Begin/gi)) {
