@@ -1984,16 +1984,12 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 创建淡入淡出叠化效果，会被转译为`@PatternFade`
 
-默认情况下淡入速度较快，建议使用`#TransitionSpeed`指令修改叠化速度为5左右
-
 ##### `@DestroyFade`
 
 消除之前创建的所有叠化效果，会被转译为`@PatternFadeOut`
 
-默认情况下淡出速度较快，建议使用`#TransitionSpeed`指令修改叠化速度为5左右，并在销毁后将其还原为默认速度
-
 ```C++
-@fade
+@Fade
 #wait=4000
 @DestroyFade
 ```

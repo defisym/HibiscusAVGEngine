@@ -861,8 +861,7 @@ export let commandDocList = new Map<string, string[]>([
         , "设置震动方向，`X=0`，`Y=1`"]],
     ["KeepShake", ["持续震动"]],
     ["KeepShakeOff", ["停止震动"]],
-    ["Fade", ["创建淡入淡出叠化效果，会被转译为`@PatternFade`"
-        , "默认情况下淡入速度较快，建议使用`#TransitionSpeed`指令修改叠化速度为5左右"]],
+    ["Fade", ["创建淡入淡出叠化效果，会被转译为`@PatternFade`"]],
     ["DestroyFade", ["消除之前创建的所有叠化效果，会被转译为`@PatternFadeOut`"]],
 
     ["PF", ["\t@PF=PicName:Orderable"
