@@ -43,6 +43,10 @@ export let sharpKeywordList: string[] = [
     'SJMP',
     'SkipJmp',
     'SkipAnchor',
+    'SetSwitchColor',
+    'SetSwitchHoverColor',
+    'SetSwitchNegativeColor',
+    'SetSwitchShader',
     'CreateSwitch',
     'Switch',
     'UnlockAch',
@@ -455,6 +459,23 @@ export let commandDocList = new Map<string, string[]>([
         , "\t#TransitionSpeed=10"
         , "\t#FNTO"
         , "\t;Init"]],
+
+    ["SetSwitchColor", ["\t#SetSwitchColor=R:G:B"
+        , "\t#SetSwitchColor=#FFFFFF"
+        , "指定通常选项的颜色"
+        , "该指令对所有选项生效，请在`#CreateSwitch`前调用"]],
+    ["SetSwitchHoverColor", ["\t#SetSwitchHoverColor=R:G:B"
+        , "\t#SetSwitchHoverColor=#FFFFFF"
+        , "指定鼠标悬浮选项的颜色"
+        , "该指令对所有选项生效，请在`#CreateSwitch`前调用"]],
+    ["SetSwitchNegativeColor", ["\t#SetSwitchNegativeColor=R:G:B"
+        , "\t#SetSwitchNegativeColor=#FFFFFF"
+        , "指定不可用选项的颜色"
+        , "该指令对所有选项生效，请在`#CreateSwitch`前调用"]],
+    ["SetSwitchShader", ["\t#SetSwitchShader=Outline:R:G:B"
+        , "\t#SetSwitchShader=Outline:#FFFFFF"
+        , "指定通常选项的描边效果"
+        , "该指令对所有选项生效，请在`#CreateSwitch`前调用"]],
 
     ["CreateSwitch", ["\t#CreateSwitch=SwitchNum"
         , "选项分支创建的入口指令，用于创建`SwitchNum`个分支"
@@ -1518,6 +1539,27 @@ export let commandParamList = new Map<string, ParamFormat>([
     ["SkipAnchor", {
         minParam: 0, maxParam: 0
         , type: []
+    }],
+
+    ["SetSwitchColor", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["SetSwitchHoverColor", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["SetSwitchNegativeColor", {
+        minParam: 1, maxParam: 3
+        , type: [ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
+    }],
+    ["SetSwitchShader", {
+        minParam: 2, maxParam: 4
+        , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.OutlinePixel, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
     }],
 
     ["CreateSwitch", {

@@ -1309,6 +1309,30 @@ Debug_AVG=Chapter_1
 
 ### 选项分支
 
+#### `#SetSwitchColor=R:G:B` / `#SetSwitchColor=#FFFFFF`
+
+指定通常选项的颜色
+
+该指令对所有选项生效，请在`#CreateSwitch`前调用
+
+#### `#SetSwitchHoverColor=R:G:B` / `#SetSwitchHoverColor=#FFFFFF`
+
+指定鼠标悬浮选项的颜色
+
+该指令对所有选项生效，请在`#CreateSwitch`前调用
+
+#### `#SetSwitchNegativeColor=R:G:B` / `#SetSwitchNegativeColor=#FFFFFF`
+
+指定不可用选项的颜色
+
+该指令对所有选项生效，请在`#CreateSwitch`前调用
+
+#### `#SetSwitchShader=Outline:R:G:B` / `#SetSwitchShader=Outline:#FFFFFF`
+
+指定通常选项的描边效果
+
+该指令对所有选项生效，请在`#CreateSwitch`前调用
+
 #### `#CreateSwitch=SwitchNum`
 
 选项分支创建的入口指令，用于创建`SwitchNum`个分支
@@ -1330,6 +1354,11 @@ Debug_AVG=Chapter_1
 #### 示例
 
 ```C++
+#SetSwitchColor=#F0F0F0
+#SetSwitchHoverColor=#0000FF
+#SetSwitchNegativeColor=#00FF00
+#SetSwitchShader=3:#FF0000
+
 #CreateSwitch=3
 #Switch=0:465:直接结束:结束标签
 #Switch=0:335:彻底搞晕:测试标签
