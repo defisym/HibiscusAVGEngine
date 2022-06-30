@@ -1,5 +1,18 @@
 # Change Log
 
+## 20220630
+
+- find label reference & definition by inlay hints, instead of manually wrote regex
+- handle color decorations by inlay hints, instead of manually wrote regex
+
+## 20220629
+
+- new commands
+  - `#SetSwitchColor`
+  - `#SetSwitchHoverColor`
+  - `#SetSwitchNegativeColor`
+  - `#SetSwitchShader`
+
 ## 20220605
 
 - fix diagnostic doesn't work with `#CJMP`& `#JmpCha`

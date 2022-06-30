@@ -161,7 +161,7 @@
 			}
 		},
 		"keywords_system": {
-			"match": "(?i)(#Error|#NULL|#CacheClean|#UnSkipAble|#SkipAble|#SGO|#SetGlobalOffset|#TransitionSpeed|#ForceTransition|#Save|#debug|#debugoff|#defineRGB|#MSG|#MSGClear|#StopFF|#StopFastForward|#DisableUI|#EnableUI|#FNT|#ForceNoTransition|#FNTO|#ForceNoTransitionOff|#EOF|#W|#wait|#FW|#ForceWait|#jmp|#NJMP|#Call|#Ret|#FJMP|#JmpFra|#CJMP|#JmpCha|#SJMP|#SkipJmp|#SkipAnchor|#CreateSwitch|#switch|#UnlockAch|#AddToStat|#UnlockAppreciation|#UnlockAppreciation_Chapter|#UnlockAppreciation_Graphic|#UnlockAppreciation_Audio|#VNMode_Newline|#VNMode_ChangePage|#SetCapture|#CaptureSys)\\b",
+			"match": "(?i)(#Error|#NULL|#CacheClean|#UnSkipAble|#SkipAble|#SGO|#SetGlobalOffset|#TransitionSpeed|#ForceTransition|#Save|#debug|#debugoff|#defineRGB|#MSG|#MSGClear|#StopFF|#StopFastForward|#DisableUI|#EnableUI|#FNT|#ForceNoTransition|#FNTO|#ForceNoTransitionOff|#EOF|#W|#wait|#FW|#ForceWait|#jmp|#NJMP|#Call|#Ret|#FJMP|#JmpFra|#CJMP|#JmpCha|#SJMP|#SkipJmp|#SkipAnchor|#SetSwitchColor|#SetSwitchHoverColor|#SetSwitchNegativeColor|#SetSwitchShader|#CreateSwitch|#Switch|#UnlockAch|#AddToStat|#UnlockAppreciation|#UnlockAppreciation_Chapter|#UnlockAppreciation_Graphic|#UnlockAppreciation_Audio|#VNMode_Newline|#VNMode_ChangePage|#SetCapture|#CaptureSys)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.system.AvgScript"

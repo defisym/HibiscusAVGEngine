@@ -860,10 +860,9 @@ export async function activate(context: vscode.ExtensionContext) {
 					, lineStart, lineEnd
 					, firstLineNotComment) => {
 					const params = getAllParams(text);
-					const paramNum = getNumberOfParam(text);
+					const paramNum = params.length - 1;
 
 					// match command that set RGB
-
 					let handleHex = (hex: string, start: number) => {
 						let charPos = 0;
 
@@ -904,35 +903,44 @@ export async function activate(context: vscode.ExtensionContext) {
 					};
 
 					let handle = (paramStart: number, start: number) => {
-						if (paramNum === paramStart + 1) {
-							handleHex(params[paramStart + 1], lineStart + start);
+						if (paramNum === paramStart) {
+							handleHex(params[paramStart], start);
 						}
-						if (paramNum === paramStart + 3) {
-							handleRGB(params[paramStart + 1], params[paramStart + 2], params[paramStart + 3], lineStart + start);
+						if (paramNum === paramStart) {
+							handleRGB(params[paramStart], params[paramStart + 1], params[paramStart + 2], start);
 						}
 					};
 
-					if (text.match(/(#DefineRGB|#DiaColor|#NameColor|#NameOutColor|#DiaOutColor|@StrC|@StrColor)/gi)) {
-						handle(0, params[0].length + 1);
-					}
 
-					if (text.match(/(#NameShaderOn|#DiaShaderOn)/gi)) {
-						handle(1, params[0].length + 1 + params[1].length + 1);
-					}
+					if (text.startsWith("#")
+						|| text.startsWith("@")) {
+						const command = params[0].substring(1);
+						const paramDefinition = getMapValue(command, commandParamList);
 
-					if (text.match(/(@Str|@String|@CreateStr|@CreateString)/gi)) {
-						if (paramNum < 9) {
+						if (paramDefinition === undefined) {
 							return;
 						}
 
-						let paramStart = 0;
+						let contentStart: number = lineStart + command.length + 1;
 
-						for (let param = 0; param <= 8; param++) {
-							paramStart + params[param].length + 1;
+						const paramFormat = paramDefinition.type;
+
+						for (let j = 1; j < params.length; j++) {
+							let curParam = params[j];
+							let currentType = paramFormat[j - 1];
+
+							contentStart++;
+
+							if (curParam.match(regexRep)) {
+								continue;
+							}
+
+							if (currentType === ParamType.Color) {
+								handle(j, contentStart);
+							}
+
+							contentStart += curParam.length;
 						}
-
-						handle(8, paramStart);
-
 					}
 				});
 
@@ -955,7 +963,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				const colB = Math.round(color.blue * 255);
 
 				let colorLabel: string = "";
-				if (text.substring(text.length - 8).match(/(#|0[x|X])[0-9a-fA-F]{6}/gi)) {
+				if (text.substring(text.length - 8).match(regexHexColor)) {
 					let toHex = (color: number) => {
 						let hex = color.toString(16);
 						return hex.length === 1 ? "0" + hex : hex;
@@ -1141,20 +1149,67 @@ export async function activate(context: vscode.ExtensionContext) {
 					return undefined;
 				}
 
-				if (getType(line) !== FileType.label) {
-					return undefined;
+				const params = getAllParams(line);
+				const paramNum = params.length - 1;
+
+				if (line.startsWith("#")
+					|| line.startsWith("@")) {
+					const command = params[0].substring(1);
+					const paramDefinition = getMapValue(command, commandParamList);
+
+					if (paramDefinition === undefined) {
+						return;
+					}
+
+					const paramFormat = paramDefinition.inlayHintType;
+
+					if (paramFormat === undefined) {
+						return;
+					}
+
+					let contentStart: number = lineStart! + command.length + 1;
+
+					for (let j = 1; j < params.length; j++) {
+						let curParam = params[j];
+						let currentType = paramFormat[j - 1];
+
+						contentStart++;
+
+						if (curParam.match(regexRep)) {
+							continue;
+						}
+
+						if (currentType === inlayHintType.Label) {
+							let curLabel = curParam;
+
+							labelJumpMap.forEach((line, label) => {
+								if (curLabel.toLowerCase() === label.toLowerCase()) {
+									let link = new vscode.Location(document.uri
+										, new vscode.Position(line, 0));
+
+									definitions.push(link);
+								}
+							});
+						}
+
+						contentStart += curParam.length;
+					}
 				}
 
-				let curLabel = getNthParam(line, 1);
+				// if (getType(line) !== FileType.label) {
+				// 	return undefined;
+				// }
 
-				labelJumpMap.forEach((line, label) => {
-					if (curLabel === label) {
-						let link = new vscode.Location(document.uri
-							, new vscode.Position(line, 0));
+				// let curLabel = getNthParam(line, 1);
 
-						definitions.push(link);
-					}
-				});
+				// labelJumpMap.forEach((line, label) => {
+				// 	if (curLabel === label) {
+				// 		let link = new vscode.Location(document.uri
+				// 			, new vscode.Position(line, 0));
+
+				// 		definitions.push(link);
+				// 	}
+				// });
 
 				return definitions;
 			}
@@ -1217,16 +1272,60 @@ export async function activate(context: vscode.ExtensionContext) {
 			iterateLines(document, (text, lineNumber
 				, lineStart, lineEnd
 				, firstLineNotComment) => {
-				if (getType(text) === FileType.label) {
-					let curLabel = getNthParam(text, 1);
+				const params = getAllParams(text);
+				const paramNum = params.length - 1;
 
-					if (curLabel === label) {
-						let link = new vscode.Location(document.uri
-							, new vscode.Position(lineNumber, 0));
+				if (text.startsWith("#")
+					|| text.startsWith("@")) {
+					const command = params[0].substring(1);
+					const paramDefinition = getMapValue(command, commandParamList);
 
-						references.push(link);
+					if (paramDefinition === undefined) {
+						return;
+					}
+
+					const paramFormat = paramDefinition.inlayHintType;
+
+					if (paramFormat === undefined) {
+						return;
+					}
+
+					let contentStart: number = lineStart + command.length + 1;
+
+					for (let j = 1; j < params.length; j++) {
+						let curParam = params[j];
+						let currentType = paramFormat[j - 1];
+
+						contentStart++;
+
+						if (curParam.match(regexRep)) {
+							continue;
+						}
+
+						if (currentType === inlayHintType.Label) {
+							if (curParam.toLowerCase() === label.toLowerCase()) {
+								let link = new vscode.Location(document.uri
+									, new vscode.Position(lineNumber, 0));
+
+								references.push(link);
+							}
+						}
+
+						contentStart += curParam.length;
 					}
 				}
+
+
+				// if (getType(text) === FileType.label) {
+				// 	let curLabel = getNthParam(text, 1);
+
+				// 	if (curLabel === label) {
+				// 		let link = new vscode.Location(document.uri
+				// 			, new vscode.Position(lineNumber, 0));
+
+				// 		references.push(link);
+				// 	}
+				// }
 			});
 
 			return references;
@@ -1528,6 +1627,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				}
 
 				const params = getAllParams(text);
+				const prefix = params[0][0];
 				const command = params[0].substring(1);
 				const paramNum = params.length - 1;
 				const paramDefinition = getMapValue(command, commandParamList);
@@ -1573,6 +1673,15 @@ export async function activate(context: vscode.ExtensionContext) {
 					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
 						, "Undocumented Command: " + params[0]
 						, vscode.DiagnosticSeverity.Information));
+
+					return;
+				}
+
+				if ((prefix === '@' && arrayHasValue(command, sharpKeywordList))
+					|| (prefix === '#' && arrayHasValue(command, atKeywordList))) {
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineStart + 1)
+						, "Wrong Command Prefix: " + params[0]
+						, vscode.DiagnosticSeverity.Error));
 
 					return;
 				}

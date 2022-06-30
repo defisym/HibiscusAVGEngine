@@ -2,7 +2,7 @@
     "conf.AvgScript.basePath": "F:\\DEV\\AVG+SRPG\\Program\\data",
     "conf.AvgScript.commandExtension": [
         {
-            "prefix": "#",
+            "prefix": "@",
             "command": "CallPhone",
             "description": [
                 "\t@CallPhone:X:Y:Name:Avatar:PhoneNumber",

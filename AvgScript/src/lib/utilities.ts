@@ -395,6 +395,14 @@ export function getType(linePrefix: string, getCommand: boolean = false) {
     return FileType.inValid;
 }
 
+export function getParamType() {
+
+}
+
+export function geInlayHintType() {
+
+}
+
 export function getCommandType(command: string) {
     return getType(command, false);
 }
