@@ -28,6 +28,7 @@ export let sharpKeywordList: string[] = [
     'FNTO',
     'ForceNoTransitionOff',
     'EOF',
+    'WaitGeneral',
     'W',
     'Wait',
     'FW',
@@ -264,6 +265,7 @@ export const internalKeywordList: string[] = [
     'MoveObj',
     'DiaTrans',
     'NameTrans',
+    'WaitGeneral',
 ];
 
 export const deprecatedKeywordList: string[] = [
@@ -402,6 +404,10 @@ export let commandDocList = new Map<string, string[]>([
     ["ForceNoTransitionOff", ["关闭强制无叠化"]],
 
     ["EOF", ["文件尾标志，普通模式下解析到该指令即返回报错信息`脚本文件结尾必须为有效跳转`，`Lite`模式下则为执行完成标记"]],
+
+    ["WaitGeneral", ["\t#WaitGeneral=Time"
+        , "等待指令的公共调用，处理初始化、等待时间与状态机"]],
+
     ["W", ["\t#W=2000"
         , "\t#Wait=2000"
         , "等待指令:等待时间"
@@ -479,7 +485,8 @@ export let commandDocList = new Map<string, string[]>([
 
     ["CreateSwitch", ["\t#CreateSwitch=SwitchNum"
         , "选项分支创建的入口指令，用于创建`SwitchNum`个分支"
-        , "该指令会记录当前扫描指针位置，用于保存/读取"]],
+        , "该指令会记录当前扫描指针位置，用于保存/读取"
+        , "同时转义为`#Wait`来执行该指令前的其他带叠化指令的演出"]],
     ["Switch", ["\t#Switch=X:Y:Text:Label"
         , "控制创建的分支选项，指定其X/Y坐标，选项文本与跳转标签"
         , "如果跳转标签定义为`Negative`，则该选项设定为灰色，无效"]],
@@ -1464,6 +1471,11 @@ export let commandParamList = new Map<string, ParamFormat>([
     ["EOF", {
         minParam: 0, maxParam: 0
         , type: []
+    }],
+    ["WaitGeneral", {
+        minParam: 0, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.WaitTime]
     }],
     ["W", {
         minParam: 0, maxParam: 1
