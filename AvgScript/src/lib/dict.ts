@@ -834,21 +834,19 @@ export let commandDocList = new Map<string, string[]>([
     ["PV", ["\t@PV=FileName.AVI:StartPos"
         , "\t@PlayVideo=FileName.AVI:StartPos"
         , "最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒<等价于以下指令组合"
-        , "\t@OpenVideo=FileName.AVI"
-        , "\t@SetVideoPos=StartPos"
+        , "\t@OpenVideo=FileName.AVI:StartPos"
         , "\t@VideoResume"]],
     ["PlayVideo", ["\t@PV=FileName.AVI:StartPos"
         , "\t@PlayVideo=FileName.AVI:StartPos"
         , "最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒<等价于以下指令组合"
-        , "\t@OpenVideo=FileName.AVI"
-        , "\t@SetVideoPos=StartPos"
+        , "\t@OpenVideo=FileName.AVI:StartPos"
         , "\t@VideoResume"]],
-    ["OV", ["\t@OV=FileName.AVI"
-        , "\t@OpenVideo=FileName.AVI"
-        , "打开视频但并不播放，需要播放时请使用`@VideoResume`"]],
-    ["OpenVideo", ["\t@OV=FileName.AVI"
-        , "\t@OpenVideo=FileName.AVI"
-        , "打开视频但并不播放，需要播放时请使用`@VideoResume`"]],
+    ["OV", ["\t@OV=FileName.AVI:StartPos"
+        , "\t@OpenVideo=FileName.AVI:StartPos"
+        , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"]],
+    ["OpenVideo", ["\t@OV=FileName.AVI:StartPos"
+        , "\t@OpenVideo=FileName.AVI:StartPos"
+        , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"]],
     ["CV", ["关闭视频"]],
     ["CloseVideo", ["关闭视频"]],
     ["VR", ["继续播放视频"]],
@@ -2087,14 +2085,14 @@ export let commandParamList = new Map<string, ParamFormat>([
         , inlayHintType: [inlayHintType.VideoFileName, inlayHintType.StartPoint]
     }],
     ["OV", {
-        minParam: 1, maxParam: 1
-        , type: [ParamType.File]
-        , inlayHintType: [inlayHintType.VideoFileName]
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.VideoFileName, inlayHintType.StartPoint]
     }],
     ["OpenVideo", {
-        minParam: 1, maxParam: 1
-        , type: [ParamType.File]
-        , inlayHintType: [inlayHintType.VideoFileName]
+        minParam: 1, maxParam: 2
+        , type: [ParamType.File, ParamType.Number]
+        , inlayHintType: [inlayHintType.VideoFileName, inlayHintType.StartPoint]
     }],
     ["CV", {
         minParam: 0, maxParam: 0

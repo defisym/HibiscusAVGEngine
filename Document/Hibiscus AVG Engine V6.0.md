@@ -1738,18 +1738,17 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 等价于以下指令组合：
 
 ```C++
-@OpenVideo=FileName.AVI
-@SetVideoPos=StartPos
+OpenVideo=FileName.AVI:StartPos
 @VideoResume
 ```
 
-##### `@OV=FileName.AVI`
+##### `@OV=FileName.AVI:StartPos`
 
 同义指令
 
-- `@OpenVideo=FileName.AVI`
+- `@OpenVideo=FileName.AVI:StartPos`
 
-打开视频但并不播放，需要播放时请使用`@VideoResume`
+打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`
 
 ##### `@CV`
 
