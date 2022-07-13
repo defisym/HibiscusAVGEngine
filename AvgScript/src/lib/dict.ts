@@ -152,6 +152,7 @@ export let atKeywordList: string[] = [
     'OpenVideo',
     'CV',
     'CloseVideo',
+    'CloseVideo_Core',
     'VR',
     'VideoResume',
     'VP',
@@ -266,6 +267,7 @@ export const internalKeywordList: string[] = [
     'DiaTrans',
     'NameTrans',
     'WaitGeneral',
+    'CloseVideo_Core',
 ];
 
 export const deprecatedKeywordList: string[] = [
@@ -849,6 +851,7 @@ export let commandDocList = new Map<string, string[]>([
         , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"]],
     ["CV", ["关闭视频"]],
     ["CloseVideo", ["关闭视频"]],
+    ["CloseVideo_Core", ["不考虑当前情况与过渡直接关闭视频，用于历史记录跳转等场合"]],
     ["VR", ["继续播放视频"]],
     ["VideoResume", ["继续播放视频"]],
     ["VP", ["暂停视频"]],
@@ -2099,6 +2102,10 @@ export let commandParamList = new Map<string, ParamFormat>([
         , type: []
     }],
     ["CloseVideo", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["CloseVideo_Core", {
         minParam: 0, maxParam: 0
         , type: []
     }],
