@@ -2320,6 +2320,10 @@ CG/UI不会被销毁
 
 启用自动间距后，新建/销毁立绘时会自动调整间距，最大支持处理六张立绘的间距
 
+##### `@AttachShader=ID:ShaderName:Param1:Param2:...`
+
+为非特效图像附加Shader，依照内部顺序指定参数
+
 #### UI / CG指令
 
 ##### 说明
@@ -2380,6 +2384,10 @@ CG/UI不会被销毁
 ##### `#EnableUI`
 
 启用UI
+
+##### `#UpdateUICoord`
+
+更新UI坐标
 
 ##### `@HideUI`
 
@@ -2731,7 +2739,10 @@ VSCode插件中提供了多个可供参考的Snippets，可以方便的快速插
 | 姓名栏      | -1     | namenull.png |
 | 对话框      | -2     | dianull.png  |
 | CG          | -3     | null.png     |
+| 头像栏          | -4     | null.png     |
 | Sepia Toning | -5     | N/A          |
+| 头像栏头像          | -6     | null.png     |
+
 | 景深        | -100   | N/A          |
 | 错误提示    | -65535 | N/A          |
 
