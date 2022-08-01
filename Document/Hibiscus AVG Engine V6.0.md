@@ -1029,6 +1029,20 @@ Debug_AVG=Chapter_1
 
 等待时间为零时，则会在当前叠化指令完成后立即继续解析操作
 
+### 自动文本
+
+#### `#AutoChangePage=Time`
+
+该指令后的文本会在等待时间后自动换行，覆盖自动与手动翻页操作
+
+```C++
+    #AutoChangePage=1500
+    ……1
+    &……2
+```
+
+文本会先显示`……1`，等待1500毫秒，然后追加显示`&……2`，随后通常处理
+
 ### 跳转指令
 
 #### `#JMP=Label`
@@ -2364,15 +2378,27 @@ CG/UI不会被销毁
 
 内部转译指令，判定并更新姓名栏
 
+##### `@StashUIGraphic`
+
+保存UI图像，用于在`@TextFadeOut`后还原
+
+##### `@RestoreUIGraphic`
+
+还原`@StashUIGraphic`保存的信息
+
 ##### `@TextFadeOut`
 
 该指令会自动转译为
 
 ```C++
+@StashUIGraphic
+
 @Name=NameNull.png
 @NameTrans
 @Dia=DiaNull.png
 @DiaTrans
+
+...
 ```
 
 将姓名栏、对话框及相应的文本淡出，适用于VNMode
