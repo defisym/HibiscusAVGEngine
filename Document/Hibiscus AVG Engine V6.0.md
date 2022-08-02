@@ -957,9 +957,13 @@ Debug_AVG=Chapter_1
 
 ##### `#TransitionSpeed=Value`
 
-更改不透明度叠化速度，默认为`10`
+更改叠化速度，默认为`10`，参数设定为`default`可重置默认值
 
-参数设定为`default`可重置默认值
+##### `#SeparateTransitionSpeed=ID:Type:Value`
+
+更改对象叠化速度，默认为`10`，参数设定为`default`可重置默认值
+
+该值不为零时，会在叠化阶段覆盖全局叠化速度，并在叠化阶段结束后重置为零
 
 #### 强制叠化
 
