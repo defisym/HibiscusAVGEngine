@@ -1047,6 +1047,12 @@ Debug_AVG=Chapter_1
 
 文本会先显示`……1`，等待1500毫秒，然后追加显示`&……2`，随后通常处理
 
+### 文本速度
+
+#### `#TextDisplaySpeed=Time`
+
+`Time`为显示间隔的毫秒数，该指令会覆盖当前行文本的显示速度，无视设置中的`ShowAll`属性
+
 ### 跳转指令
 
 #### `#JMP=Label`
@@ -2018,6 +2024,10 @@ OpenVideo=FileName.AVI:StartPos
 ##### `@ShakeDir=Dir`
 
 设置震动方向，`X=0`，`Y=1`
+
+##### `@ShakeCoef=Strength`
+
+设置震动强度
 
 ##### `@KeepShake`
 
