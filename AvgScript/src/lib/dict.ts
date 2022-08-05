@@ -12,6 +12,7 @@ export let sharpKeywordList: string[] = [
     'SGO',
     'SetGlobalOffset',
     'TransitionSpeed',
+    'SeparateTransitionSpeed',
     'ForceTransition',
     'Save',
     'Debug',
@@ -33,6 +34,8 @@ export let sharpKeywordList: string[] = [
     'Wait',
     'FW',
     'ForceWait',
+    'AutoChangePage',
+    'TextDisplaySpeed',
     'Jmp',
     'NJMP',
     'Call',
@@ -124,6 +127,8 @@ export let atKeywordList: string[] = [
     'Name',
     'NameChange',
     'NameTrans',
+    'StashUIGraphic',
+    'RestoreUIGraphic',
     'TextFadeOut',
     'P',
     'Play',
@@ -170,8 +175,11 @@ export let atKeywordList: string[] = [
     'BackZoomParam',
     'BackZoomReset',
     'BackZoom',
-    'Shake',
     'ShakeDir',
+    'ShakeCoef',
+    'ShakeAttenuation',
+    'ShakeAttenuationParam',
+    'Shake',
     'KeepShake',
     'KeepShakeOff',
     'Fade',
@@ -383,6 +391,9 @@ export let commandDocList = new Map<string, string[]>([
     ["TransitionSpeed", ["\t#TransitionSpeed=Value"
         , "更改不透明度叠化速度，默认为`10`"
         , "参数设定为`default`可重置默认值"]],
+    ["SeparateTransitionSpeed", ["\t#SeparateTransitionSpeed=ID:Type:Value"
+        , "更改对象叠化速度，默认为`10`，参数设定为`default`可重置默认值"
+        , "该值不为零时，会在叠化阶段覆盖全局叠化速度，并在叠化阶段结束后重置为零"]],
     ["ForceTransition", ["该指令会截取当前窗口，并按照`TransitionSpeed`指定的速度进行淡出，用于为无法创建叠化的指令(如`@Order`、`#DefineRGB`等)强制添加叠化"]],
     ["Save", ["保存中断存档"]],
 
@@ -431,6 +442,15 @@ export let commandDocList = new Map<string, string[]>([
         , "强制等待指令:等待时间"
         , "强制等待指令对**移动旋转、BGM淡出淡出**等有效"
         , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]],
+    ["AutoChangePage", ["\t#AutoChangePage=Time"
+        , "该指令后的文本会在等待时间后自动换行，覆盖自动与手动翻页操作"
+        , "\t#AutoChangePage=1500"
+        , "\t……1"
+        , "\t&……2"
+        , "文本会先显示`……1`，等待1500毫秒，然后追加显示`&……2`，随后通常处理"]],
+    ["TextDisplaySpeed", ["\t#TextDisplaySpeed=Time"
+        , "`Time`为显示间隔的毫秒数，该指令会覆盖当前行文本的显示速度，无视设置中的`ShowAll`属性"]],
+
 
     ["Jmp", ["\t#JMP=Label"
         , "脚本内跳转，跳转到指定的标签位"
@@ -744,6 +764,8 @@ export let commandDocList = new Map<string, string[]>([
         , "\t@NameChange=filename.png"
         , "切换姓名栏，解析到文本后进行，调用指令`@NameTrans`"]],
     ["NameTrans", ["内部转译指令，判定并更新姓名栏"]],
+    ["StashUIGraphic", ["保存UI图像，用于在`@TextFadeOut`后还原"]],
+    ["RestoreUIGraphic", ["还原`@StashUIGraphic`保存的信息"]],
     ["TextFadeOut", ["该指令会自动转译为"
         , "\t@Name=NameNull.png"
         , "\t@NameTrans"
@@ -884,10 +906,17 @@ export let commandDocList = new Map<string, string[]>([
     ["BackZoom", ["\t@BackZoom=X:Y:width:height:Speed:Instant:ForceWait"
         , "缩放到大小为`(width,height)`，区域中心坐标`(x,y)`指定缩放速度以及是否立即缩放"
         , "`ForceWait`参数为`0/1`，`0`表示默认在阶段二进行变化，`1`表示跨阶段变化"]],
-    ["Shake", ["\t@Shake=5000"
-        , "震动一定时长后停止震动，单位为帧，通常情况下设定为60代表震动一秒"]],
+
     ["ShakeDir", ["\t@ShakeDir=Dir"
         , "设置震动方向，`X=0`，`Y=1`"]],
+    ["ShakeCoef", ["\t@ShakeCoef=Strength"
+        , "设置震动强度"]],
+    ["ShakeAttenuation", ["\t@ShakeAttenuation=On"
+        , "设置震动幅度衰减，仅适用于模式0"]],
+    ["ShakeAttenuationParam", ["\t@ShakeAttenuationParam=FuncA:FuncB"
+        , "设置震动衰减Easing参数"]],
+    ["Shake", ["\t@Shake=5000"
+        , "震动一定时长后停止震动，单位为帧，通常情况下设定为60代表震动一秒"]],
     ["KeepShake", ["持续震动"]],
     ["KeepShakeOff", ["停止震动"]],
     ["Fade", ["创建淡入淡出叠化效果，会被转译为`@PatternFade`"]],
@@ -1251,6 +1280,7 @@ export enum inlayHintType {
     Speed,
     Instant,
     ForceWait,
+    DelayTime,
     Dir,
     Duration,
     Orderable,
@@ -1331,6 +1361,7 @@ export let inlayHintMap = new Map<number, string>([
     [inlayHintType.Speed, "速度"],
     [inlayHintType.Instant, "立即"],
     [inlayHintType.ForceWait, "强制等待"],
+    [inlayHintType.DelayTime, "间隔时间"],
     [inlayHintType.Dir, "方向"],
     [inlayHintType.Duration, "持续时间"],
     [inlayHintType.Orderable, "可排序"],
@@ -1403,6 +1434,11 @@ export let commandParamList = new Map<string, ParamFormat>([
         minParam: 1, maxParam: 1
         , type: [ParamType.Number]
         , inlayHintType: [inlayHintType.TransitionSpeed]
+    }],
+    ["SeparateTransitionSpeed", {
+        minParam: 3, maxParam: 3
+        , type: [ParamType.Number, ParamType.ObjType, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Type, inlayHintType.TransitionSpeed]
     }],
     ["ForceTransition", {
         minParam: 0, maxParam: 0
@@ -1498,6 +1534,16 @@ export let commandParamList = new Map<string, ParamFormat>([
         minParam: 0, maxParam: 1
         , type: [ParamType.Number]
         , inlayHintType: [inlayHintType.WaitTime]
+    }],
+    ["AutoChangePage", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.DelayTime]
+    }],
+    ["TextDisplaySpeed", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.DelayTime]
     }],
 
     ["Jmp", {
@@ -1954,6 +2000,14 @@ export let commandParamList = new Map<string, ParamFormat>([
         minParam: 0, maxParam: 0
         , type: []
     }],
+    ["StashUIGraphic", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["RestoreUIGraphic", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
     ["TextFadeOut", {
         minParam: 0, maxParam: 0
         , type: []
@@ -2186,15 +2240,30 @@ export let commandParamList = new Map<string, ParamFormat>([
         , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height, inlayHintType.Speed, inlayHintType.Instant, inlayHintType.ForceWait]
     }],
-    ["Shake", {
-        minParam: 1, maxParam: 1
-        , type: [ParamType.Number]
-        , inlayHintType: [inlayHintType.Duration]
-    }],
     ["ShakeDir", {
         minParam: 1, maxParam: 1
         , type: [ParamType.Number]
         , inlayHintType: [inlayHintType.Dir]
+    }],
+    ["ShakeCoef", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Strength]
+    }],
+    ["ShakeAttenuation", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Boolean]
+        , inlayHintType: [inlayHintType.Boolean]
+    }],
+    ["ShakeAttenuationParam", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.Easing_FuncA, inlayHintType.Easing_FuncA]
+    }],
+    ["Shake", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.Duration]
     }],
     ["KeepShake", {
         minParam: 0, maxParam: 0
