@@ -2017,35 +2017,51 @@ OpenVideo=FileName.AVI:StartPos
 
 #### 特效指令
 
-##### `@Shake=5000`
+##### 震动
 
-震动一定时长后停止震动，单位为帧，通常情况下设定为60代表震动一秒
+###### 震动控制
 
-##### `@ShakeDir=Dir`
+####### `@ShakeDir=Dir`
 
 设置震动方向，`X=0`，`Y=1`
 
-##### `@ShakeCoef=Strength`
+####### `@ShakeCoef=Strength`
 
 设置震动强度
 
-##### `@KeepShake`
+####### `@ShakeAttenuation=On`
 
-持续震动
+设置震动幅度衰减，仅适用于模式0
 
-##### `@KeepShakeOff`
+####### `@ShakeAttenuationParam=FuncA:FuncB`
 
-停止震动
+设置震动衰减Easing参数
 
-##### `@BackZoomParam=Easing_FuncA:Easing_FuncB`
+###### 震动模式
+
+####### `@Shake=5000`
+
+模式0，震动一定时长后停止震动，单位为帧，通常情况下设定为60代表震动一秒
+
+####### `@KeepShake`
+
+模式1，持续震动
+
+####### `@KeepShakeOff`
+
+模式2，停止震动
+
+##### 缩放
+
+###### `@BackZoomParam=Easing_FuncA:Easing_FuncB`
 
 指定进行缩放时的Easing参数
 
-##### `@BackZoomReset`
+###### `@BackZoomReset`
 
 按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:10:0:0`在真实坐标模式下执行
 
-##### `@BackZoom=X:Y:width:height:Speed:Instant:ForceWait`
+###### `@BackZoom=X:Y:width:height:Speed:Instant:ForceWait`
 
 缩放到大小为`(width,height)`，区域中心坐标`(x,y)`指定缩放速度以及是否立即缩放
 
