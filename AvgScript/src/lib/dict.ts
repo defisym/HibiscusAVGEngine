@@ -2577,8 +2577,8 @@ export let commandParamList = new Map<string, ParamFormat>([
     }],
 
     ["Char", {
-        minParam: 2, maxParam: 6
-        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        minParam: 2, maxParam: 7
+        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [inlayHintType.CharacterFileName, inlayHintType.ID, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height]
     }],
     ["Character", {
