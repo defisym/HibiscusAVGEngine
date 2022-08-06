@@ -1285,7 +1285,7 @@ export enum inlayHintType {
     Easing_FuncB,
     Speed,
     Instant,
-    ForceWait,
+    CrossState,
     DelayTime,
     Dir,
     Duration,
@@ -1369,7 +1369,7 @@ export let inlayHintMap = new Map<number, string>([
     [inlayHintType.Easing_FuncB, "缓动函数B"],
     [inlayHintType.Speed, "速度"],
     [inlayHintType.Instant, "立即"],
-    [inlayHintType.ForceWait, "强制等待"],
+    [inlayHintType.CrossState, "跨阶段演出"],
     [inlayHintType.DelayTime, "间隔时间"],
     [inlayHintType.Dir, "方向"],
     [inlayHintType.Duration, "持续时间"],
@@ -2254,7 +2254,7 @@ export let commandParamList = new Map<string, ParamFormat>([
     ["BackZoom", {
         minParam: 5, maxParam: 7
         , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
-        , inlayHintType: [inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height, inlayHintType.Speed, inlayHintType.Instant, inlayHintType.ForceWait]
+        , inlayHintType: [inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height, inlayHintType.Speed, inlayHintType.Instant, inlayHintType.CrossState]
     }],
     ["ShakeDir", {
         minParam: 1, maxParam: 1
