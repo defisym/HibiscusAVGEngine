@@ -22,6 +22,7 @@ export let sharpKeywordList: string[] = [
     'MSGClear',
     'StopFF',
     'StopFastForward',
+    'UpdateUICoord',
     'DisableUI',
     'EnableUI',
     'FNT',
@@ -248,6 +249,7 @@ export let atKeywordList: string[] = [
     'CA',
     'CharAlpha',
     'CharRotate',
+    'AttachShader',
     'SetAutoArrange',
     'CD',
     'CharDispose',
@@ -276,6 +278,7 @@ export const internalKeywordList: string[] = [
     'NameTrans',
     'WaitGeneral',
     'CloseVideo_Core',
+    'UpdateUICoord',
 ];
 
 export const deprecatedKeywordList: string[] = [
@@ -410,6 +413,7 @@ export let commandDocList = new Map<string, string[]>([
     ["StopFastForward", ["仅调试模式下可用，解析至该语句后，快进将会在下一句文本处停止"]],
     ["DisableUI", ["禁用UI"]],
     ["EnableUI", ["启用UI"]],
+    ["UpdateUICoord", ["相对对话框更新UI坐标"]],
     ["FNT", ["强制无叠化，强制无叠化状态在解析到文本后重置为关闭"]],
     ["ForceNoTransition", ["强制无叠化，强制无叠化状态在解析到文本后重置为关闭"]],
 
@@ -1153,11 +1157,13 @@ export let commandDocList = new Map<string, string[]>([
     ["CharAlpha", ["\t@CA=ID:Alpha"
         , "\t@CharAlpha=ID:Alpha"
         , "切换对象到指定的不透明度"]],
-
     ["CharRotate", ["\t@CharRotate=ID:angle:clockwise:CircleCount"
         , "旋转对象至目标角度与预定圈数，`clockwise = 1`为顺时针，`clockwise = -1`为逆时针"
         , "若目标角度设定为360度，旋转0圈，将持续旋转"
         , "该指令不可与立绘叠化同时使用"]],
+    ["AttachShader", ["\t@AttachShader=ID:ShaderName:Param1:Param2:..."
+        , "为非特效图像附加Shader，依照内部顺序指定参数"]],
+
     ["SetAutoArrange", ["\t@SetAutoArrange=On/Off"
         , "控制自动间距功能的开启与关闭，设定为1或On时启用自动间距，设定为0或Off时禁用自动间距，参数为空会Toggle当前启用状态"
         , "启用自动间距后，新建/销毁立绘时会自动调整间距，最大支持处理六张立绘的间距"]],
@@ -1296,6 +1302,9 @@ export enum inlayHintType {
     CircleCount,
     Order,
     Type,
+    ShaderName,
+    ShaderParamName,
+    ShaderParam,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -1377,6 +1386,9 @@ export let inlayHintMap = new Map<number, string>([
     [inlayHintType.CircleCount, "旋转圈数"],
     [inlayHintType.Order, "层级"],
     [inlayHintType.Type, "类型"],
+    [inlayHintType.ShaderName, "Shader"],
+    [inlayHintType.ShaderParamName, "Shader参数名"],
+    [inlayHintType.ShaderParam, "Shader参数"],
 ]);
 
 export interface ParamFormat {
@@ -1484,6 +1496,10 @@ export let commandParamList = new Map<string, ParamFormat>([
         , type: []
     }],
     ["EnableUI", {
+        minParam: 0, maxParam: 0
+        , type: []
+    }],
+    ["UpdateUICoord", {
         minParam: 0, maxParam: 0
         , type: []
     }],
@@ -2607,6 +2623,27 @@ export let commandParamList = new Map<string, ParamFormat>([
         minParam: 2, maxParam: 2
         , type: [ParamType.Number, ParamType.Number,]
         , inlayHintType: [inlayHintType.ID, inlayHintType.Alpha]
+    }],
+    ["AttachShader", {
+        minParam: 2, maxParam: 34
+        , type: [ParamType.Number, ParamType.String
+            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
+            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
+            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
+            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
+            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
+            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
+            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
+            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.ShaderName
+            , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam
+            , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam
+            , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam
+            , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam
+            , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam
+            , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam
+            , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam
+            , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam]
     }],
 
     ["CharRotate", {
