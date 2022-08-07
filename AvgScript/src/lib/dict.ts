@@ -799,39 +799,47 @@ export let commandDocList = new Map<string, string[]>([
     ["Bgm", ["\t@Bgm=filename.MP3:fadeSpeed:StartPoint:endpoint"
         , "\t@BgmLoop=filename.MP3:fadeSpeed:StartPoint:endpoint"
         , "定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待"
+        , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"
         , "循环起始点/循环终止点参数设定为零，引擎会进行整曲循环"]],
     ["BgmLoop", ["\t@Bgm=filename.MP3:fadeSpeed:StartPoint:endpoint"
         , "\t@BgmLoop=filename.MP3:fadeSpeed:StartPoint:endpoint"
         , "定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待"
+        , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"
         , "循环起始点/循环终止点参数设定为零，引擎会进行整曲循环"]],
 
     ["BgmPre", ["\t@BgmPre=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
         , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
         , "定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放"
+        , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"
         , "循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致"]],
     ["BgmPreludeLoop", ["\t@BgmPre=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
         , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
         , "定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放"
+        , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"
         , "循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致"]],
 
     ["BgmPause", ["暂停BGM"]],
     ["BgmResume", ["恢复BGM"]],
 
     ["BgmFadeOut", ["\t@BgmFadeOut=fadeSpeed"
-        , "淡出BGM"]],
+        , "淡出BGM"
+        , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"]],
 
     ["Bgs", ["\t@Bgs=filename.MP3:fadeSpeed"
         , "\t@BgsLoop=filename.MP3:fadeSpeed"
-        , "定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环"]],
+        , "定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环"
+        , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"]],
     ["BgsLoop", ["\t@Bgs=filename.MP3:fadeSpeed"
         , "\t@BgsLoop=filename.MP3:fadeSpeed"
-        , "定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环"]],
+        , "定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环"
+        , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"]],
 
     ["BgsPause", ["暂停BGS"]],
     ["BgsResume", ["恢复BGS"]],
 
     ["BgsFadeOut", ["\t@BgsFadeOut=fadeSpeed"
-        , "淡出BGS"]],
+        , "淡出BGS"
+        , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"]],
 
     ["Dub", ["\t@Dub=filename.mp3"
         , "\t@DubPlay=filename.mp3"
@@ -906,7 +914,8 @@ export let commandDocList = new Map<string, string[]>([
     ["DestroyBlur", ["移除景深堆栈最上方的景深对象"]],
     ["BackZoomParam", ["\t@BackZoomParam=Easing_FuncA:Easing_FuncB"
         , "指定进行缩放时的Easing参数"]],
-    ["BackZoomReset", ["按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:10:0:0`在真实坐标模式下执行"]],
+    ["BackZoomReset", ["\t@BackZoomReset=Speed:Instant:ForceWait"
+        , "按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:Speed:Instant:ForceWait`在真实坐标模式下执行"]],
     ["BackZoom", ["\t@BackZoom=X:Y:width:height:Speed:Instant:ForceWait"
         , "缩放到大小为`(width,height)`，区域中心坐标`(x,y)`指定缩放速度以及是否立即缩放"
         , "`ForceWait`参数为`0/1`，`0`表示默认在阶段二进行变化，`1`表示跨阶段变化"]],
@@ -2248,8 +2257,9 @@ export let commandParamList = new Map<string, ParamFormat>([
         , inlayHintType: [inlayHintType.Easing_FuncA, inlayHintType.Easing_FuncB]
     }],
     ["BackZoomReset", {
-        minParam: 0, maxParam: 0
-        , type: []
+        minParam: 1, maxParam: 3
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.Speed, inlayHintType.Instant, inlayHintType.CrossState]
     }],
     ["BackZoom", {
         minParam: 5, maxParam: 7
