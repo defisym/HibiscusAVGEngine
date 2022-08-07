@@ -1640,7 +1640,9 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 - `@BgmLoop=filename.MP3:fadeSpeed:StartPoint:endpoint`
 
-定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待
+定义BGM的A-B循环，从起点开始循环播放到终点
+
+淡入淡出速度为持续秒数，等待淡入淡出属于强制等待
 
 循环起始点/循环终止点参数设定为零，引擎会进行整曲循环
 
@@ -1652,11 +1654,15 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放
 
+淡入淡出速度为持续秒数，等待淡入淡出属于强制等待
+
 循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致
 
 ##### `@BgmFadeOut=fadeSpeed`
 
 淡出BGM
+
+淡入淡出速度为持续秒数，等待淡入淡出属于强制等待
 
 ##### `@BgmPause`
 
@@ -1676,9 +1682,13 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环
 
+淡入淡出速度为持续秒数，等待淡入淡出属于强制等待
+
 ##### `@BgsFadeOut=fadeSpeed`
 
 淡出BGS
+
+淡入淡出速度为持续秒数，等待淡入淡出属于强制等待
 
 ##### `@BgsPause`
 
@@ -2057,9 +2067,9 @@ OpenVideo=FileName.AVI:StartPos
 
 指定进行缩放时的Easing参数
 
-###### `@BackZoomReset`
+###### `@BackZoomReset=Speed:Instant:ForceWait`
 
-按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:10:0:0`在真实坐标模式下执行
+按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:Speed:Instant:ForceWait`在真实坐标模式下执行
 
 ###### `@BackZoom=X:Y:width:height:Speed:Instant:ForceWait`
 
@@ -2443,7 +2453,7 @@ CG/UI不会被销毁
 
 ##### `#UpdateUICoord`
 
-更新UI坐标
+相对对话框更新UI坐标
 
 ##### `@HideUI`
 
