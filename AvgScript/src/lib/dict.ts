@@ -448,6 +448,7 @@ export let commandDocList = new Map<string, string[]>([
         , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]],
     ["AutoChangePage", ["\t#AutoChangePage=Time"
         , "该指令后的文本会在等待时间后自动换行，覆盖自动与手动翻页操作"
+        , "若不指定Time，则会使用当前设置中的默认翻页延时"
         , "\t#AutoChangePage=1500"
         , "\t……1"
         , "\t&……2"
@@ -1561,7 +1562,7 @@ export let commandParamList = new Map<string, ParamFormat>([
         , inlayHintType: [inlayHintType.WaitTime]
     }],
     ["AutoChangePage", {
-        minParam: 1, maxParam: 1
+        minParam: 0, maxParam: 1
         , type: [ParamType.Number]
         , inlayHintType: [inlayHintType.DelayTime]
     }],
