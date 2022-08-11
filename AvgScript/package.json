@@ -6,7 +6,7 @@
     "publisher": "Defisym",
     "repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
     "homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
-    "icon": "media/AvgScript.png",
+    "icon": "https://github.com/defisym/HibisucsAVGEngine/blob/main/AvgScript/media/AvgScript.png",
     "_comment": "./out/extension.js during debug and ./dist/extension.js when releasing",
     "main": "./dist/extension.js",
     "engines": {

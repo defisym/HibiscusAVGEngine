@@ -761,14 +761,18 @@ export let commandDocList = new Map<string, string[]>([
     ["DiaChange", ["\t@Dia=filename.png"
         , "\t@DiaChange=filename.png"
         , "切换对话框，解析到文本后进行，调用指令`@DiaTrans`"]],
-    ["DiaTrans", ["内部转译指令，判定并更新对话框"]],
+    ["DiaTrans", ["\t@DiaTrans=force"
+        , "内部转译指令，判定并更新对话框"
+        , "`force` = `1`时，强制执行叠化"]],
     ["Name", ["\t@Name=filename.png"
         , "\t@NameChange=filename.png"
         , "切换姓名栏，解析到文本后进行，调用指令`@NameTrans`"]],
     ["NameChange", ["\t@Name=filename.png"
         , "\t@NameChange=filename.png"
         , "切换姓名栏，解析到文本后进行，调用指令`@NameTrans`"]],
-    ["NameTrans", ["内部转译指令，判定并更新姓名栏"]],
+    ["NameTrans", ["\t@NameTrans=force"
+        , "内部转译指令，判定并更新姓名栏"
+        , "`force` = `1`时，强制执行叠化"]],
     ["StashUIGraphic", ["保存UI图像，用于在`@TextFadeOut`后还原"]],
     ["RestoreUIGraphic", ["还原`@StashUIGraphic`保存的信息"]],
     ["TextFadeOut", ["该指令会自动转译为"
@@ -1214,8 +1218,10 @@ export let commandDocList = new Map<string, string[]>([
 export enum ParamType {
     String,
     Number,
+    ZeroOne,
     Boolean,
     Volume,
+    Order,
     ObjType,
     Color,
     File,
@@ -1225,8 +1231,10 @@ export enum ParamType {
 export const ParamTypeMap = new Map<string, ParamType>([
     ["String", ParamType.String],
     ["Number", ParamType.Number],
+    ["ZeroOne", ParamType.ZeroOne],
     ["Boolean", ParamType.Boolean],
     ["Volume", ParamType.Volume],
+    ["Order", ParamType.Order],
     ["ObjType", ParamType.ObjType],
     ["Color", ParamType.Color],
     ["File", ParamType.File],
@@ -1315,6 +1323,7 @@ export enum inlayHintType {
     ShaderName,
     ShaderParamName,
     ShaderParam,
+    Force,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -1399,6 +1408,7 @@ export let inlayHintMap = new Map<number, string>([
     [inlayHintType.ShaderName, "Shader"],
     [inlayHintType.ShaderParamName, "Shader参数名"],
     [inlayHintType.ShaderParam, "Shader参数"],
+    [inlayHintType.Force, "强制执行"],
 ]);
 
 export interface ParamFormat {
@@ -2009,8 +2019,9 @@ export let commandParamList = new Map<string, ParamFormat>([
         , inlayHintType: [inlayHintType.DiaFileName]
     }],
     ["DiaTrans", {
-        minParam: 0, maxParam: 0
-        , type: []
+        minParam: 0, maxParam: 1
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [inlayHintType.Force]
     }],
     ["Name", {
         minParam: 1, maxParam: 1
@@ -2023,8 +2034,9 @@ export let commandParamList = new Map<string, ParamFormat>([
         , inlayHintType: [inlayHintType.NameFileName]
     }],
     ["NameTrans", {
-        minParam: 0, maxParam: 0
-        , type: []
+        minParam: 0, maxParam: 1
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [inlayHintType.Force]
     }],
     ["StashUIGraphic", {
         minParam: 0, maxParam: 0
@@ -2259,17 +2271,17 @@ export let commandParamList = new Map<string, ParamFormat>([
     }],
     ["BackZoomReset", {
         minParam: 1, maxParam: 3
-        , type: [ParamType.Number, ParamType.Number, ParamType.Number]
+        , type: [ParamType.Number, ParamType.ZeroOne, ParamType.ZeroOne]
         , inlayHintType: [inlayHintType.Speed, inlayHintType.Instant, inlayHintType.CrossState]
     }],
     ["BackZoom", {
         minParam: 5, maxParam: 7
-        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.ZeroOne, ParamType.ZeroOne]
         , inlayHintType: [inlayHintType.X, inlayHintType.Y, inlayHintType.Width, inlayHintType.Height, inlayHintType.Speed, inlayHintType.Instant, inlayHintType.CrossState]
     }],
     ["ShakeDir", {
         minParam: 1, maxParam: 1
-        , type: [ParamType.Number]
+        , type: [ParamType.ZeroOne]
         , inlayHintType: [inlayHintType.Dir]
     }],
     ["ShakeCoef", {
@@ -2311,22 +2323,22 @@ export let commandParamList = new Map<string, ParamFormat>([
 
     ["PF", {
         minParam: 1, maxParam: 2
-        , type: [ParamType.File, ParamType.Number]
+        , type: [ParamType.File, ParamType.ZeroOne]
         , inlayHintType: [inlayHintType.PatternFadeFileName, inlayHintType.Orderable]
     }],
     ["PatternFade", {
         minParam: 1, maxParam: 2
-        , type: [ParamType.File, ParamType.Number]
+        , type: [ParamType.File, ParamType.ZeroOne]
         , inlayHintType: [inlayHintType.PatternFadeFileName, inlayHintType.Orderable]
     }],
     ["PFO", {
         minParam: 1, maxParam: 2
-        , type: [ParamType.File, ParamType.Number]
+        , type: [ParamType.File, ParamType.ZeroOne]
         , inlayHintType: [inlayHintType.PatternFadeFileName, inlayHintType.Orderable]
     }],
     ["PatternFadeOut", {
         minParam: 1, maxParam: 2
-        , type: [ParamType.File, ParamType.Number]
+        , type: [ParamType.File, ParamType.ZeroOne]
         , inlayHintType: [inlayHintType.PatternFadeFileName, inlayHintType.Orderable]
     }],
 
@@ -2421,22 +2433,22 @@ export let commandParamList = new Map<string, ParamFormat>([
     }],
     ["Str", {
         minParam: 2, maxParam: 11
-        , type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
+        , type: [ParamType.String, ParamType.Number, ParamType.ZeroOne, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [inlayHintType.String, inlayHintType.ID, inlayHintType.TypeEffect, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Size, inlayHintType.Font, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
     }],
     ["String", {
         minParam: 2, maxParam: 11
-        , type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
+        , type: [ParamType.String, ParamType.Number, ParamType.ZeroOne, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [inlayHintType.String, inlayHintType.ID, inlayHintType.TypeEffect, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Size, inlayHintType.Font, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
     }],
     ["CreateStr", {
         minParam: 2, maxParam: 11
-        , type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
+        , type: [ParamType.String, ParamType.Number, ParamType.ZeroOne, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [inlayHintType.String, inlayHintType.ID, inlayHintType.TypeEffect, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Size, inlayHintType.Font, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
     }],
     ["CreateString", {
         minParam: 2, maxParam: 11
-        , type: [ParamType.String, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
+        , type: [ParamType.String, ParamType.Number, ParamType.ZeroOne, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [inlayHintType.String, inlayHintType.ID, inlayHintType.TypeEffect, inlayHintType.Alpha, inlayHintType.X, inlayHintType.Y, inlayHintType.Size, inlayHintType.Font, inlayHintType.ColorHex, inlayHintType.ColorRGB_G, inlayHintType.ColorRGB_B]
     }],
 
@@ -2638,14 +2650,14 @@ export let commandParamList = new Map<string, ParamFormat>([
     ["AttachShader", {
         minParam: 2, maxParam: 34
         , type: [ParamType.Number, ParamType.String
-            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
-            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
-            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
-            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
-            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
-            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
-            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number
-            , ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+            , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+            , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+            , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+            , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+            , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+            , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+            , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+            , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any]
         , inlayHintType: [inlayHintType.ID, inlayHintType.ShaderName
             , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam
             , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam
@@ -2708,27 +2720,27 @@ export let commandParamList = new Map<string, ParamFormat>([
 
     ["Order", {
         minParam: 3, maxParam: 3
-        , type: [ParamType.Number, ParamType.Number, ParamType.ObjType]
+        , type: [ParamType.Number, ParamType.Order, ParamType.ObjType]
         , inlayHintType: [inlayHintType.ID, inlayHintType.Order, inlayHintType.Type]
     }],
     ["Front", {
         minParam: 2, maxParam: 2
-        , type: [ParamType.Number, ParamType.Number]
+        , type: [ParamType.Number, ParamType.ObjType]
         , inlayHintType: [inlayHintType.ID, inlayHintType.Type]
     }],
     ["Back", {
         minParam: 2, maxParam: 2
-        , type: [ParamType.Number, ParamType.Number]
+        , type: [ParamType.Number, ParamType.ObjType]
         , inlayHintType: [inlayHintType.ID, inlayHintType.Type]
     }],
     ["Forward", {
         minParam: 2, maxParam: 3
         , type: [ParamType.Number, ParamType.ObjType, ParamType.Number]
-        , inlayHintType: [inlayHintType.ID, inlayHintType.Num]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Type, inlayHintType.Num]
     }],
     ["Backward", {
         minParam: 2, maxParam: 3
         , type: [ParamType.Number, ParamType.ObjType, ParamType.Number]
-        , inlayHintType: [inlayHintType.ID, inlayHintType.Num]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Type, inlayHintType.Num]
     }],
 ]);

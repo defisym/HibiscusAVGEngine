@@ -2404,9 +2404,11 @@ CG/UI不会被销毁
 
 切换对话框，解析到文本后进行，调用指令`@DiaTrans`
 
-##### `@DiaTrans`
+##### `@DiaTrans=force`
 
 内部转译指令，判定并更新对话框
+
+`force` = `1`时，强制执行叠化
 
 ##### `@name=filename.png`
 
@@ -2416,9 +2418,11 @@ CG/UI不会被销毁
 
 切换姓名栏，解析到文本后进行，调用指令`@NameTrans`
 
-##### `@NameTrans`
+##### `@NameTrans=force`
 
 内部转译指令，判定并更新姓名栏
+
+`force` = `1`时，强制执行叠化
 
 ##### `@StashUIGraphic`
 

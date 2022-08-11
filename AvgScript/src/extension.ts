@@ -1738,6 +1738,17 @@ export async function activate(context: vscode.ExtensionContext) {
 							}
 
 							break;
+						case ParamType.ZeroOne:
+							let curParamVal = parseInt(curParam);
+
+							if (curParamVal !== 0
+								&& curParamVal !== 1) {
+								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+									, "Invalid ZeroOne Param: " + curParam
+									, vscode.DiagnosticSeverity.Error));
+							}
+
+							break;
 						case ParamType.Boolean:
 							if (!matchEntire(curParam, regexNumber)
 								&& (curParam.toLowerCase() !== "on"
@@ -1760,9 +1771,19 @@ export async function activate(context: vscode.ExtensionContext) {
 							}
 
 							break;
+						case ParamType.Order:
+							if (curParam.toLowerCase() !== "Front".toLowerCase()
+								|| curParam.toLowerCase() !== "Back".toLowerCase()
+								|| parseInt(curParam) === NaN) {
+								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+									, "Invalid Order: " + curParam
+									, vscode.DiagnosticSeverity.Error));
+							}
+
+							break;
 						case ParamType.ObjType:
 							if (curParam.toLowerCase() !== "Pic".toLowerCase()
-								|| curParam.toLowerCase() !== "Str".toLowerCase()) {
+								&& curParam.toLowerCase() !== "Str".toLowerCase()) {
 								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
 									, "Invalid Object Type: " + curParam
 									, vscode.DiagnosticSeverity.Error));

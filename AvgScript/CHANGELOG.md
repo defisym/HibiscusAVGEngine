@@ -1,5 +1,10 @@
 # Change Log
 
+## 20220811
+
+- New ParamType `ZeroOne`
+- New ParamType `Order`
+
 ## 20220630
 
 - find label reference & definition by inlay hints, instead of manually wrote regex
