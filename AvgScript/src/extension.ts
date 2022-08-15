@@ -4,7 +4,7 @@ import { pinyin } from 'pinyin-pro';
 import * as mm from 'music-metadata';
 import { ImageProbe } from "@zerodeps/image-probe";
 
-import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getNthParam, getAllParams, getBuffer, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment, arrayHasValue, getCompletion } from './lib/utilities';
+import { getNumberOfParam, lineValidForCommandCompletion, getCompletionItemList, getHoverContents, getType, FileType, getParamAtPosition, getIndexOfDelimiter, getFileName, getNthParam, getAllParams, getBuffer, getMapValue, getUri, fileExists, getCommandType, matchEntire, strIsNum, iterateLines, currentLineNotComment, arrayHasValue, getCompletion, iterateArray } from './lib/utilities';
 import {
 	sharpKeywordList, atKeywordList, keywordList
 	, settingsParamList
@@ -55,6 +55,10 @@ export let audioBgmCompletions: vscode.CompletionItem[] = [];
 export let audioBgsCompletions: vscode.CompletionItem[] = [];
 export let audioDubsCompletions: vscode.CompletionItem[] = [];
 export let audioSECompletions: vscode.CompletionItem[] = [];
+
+export let videoPath: string;
+
+export let videoCompletions: vscode.CompletionItem[] = [];
 
 export let scriptPath: string;
 
@@ -212,6 +216,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		message?: string | undefined;
 		increment?: number | undefined;
 	}>) {
+		const total = 100;
+		const steps = 27;
+
+		const incrementPerStep = total / steps;
+
 		progress.report({ increment: 0, message: "Updating file list..." });
 
 		basePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
@@ -229,7 +238,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		let configPath = basePath + "\\..\\settings\\settings.ini";
 		let config = iniParser.parse((await getBuffer(configPath)).toString(encoding));
 
-		progress.report({ increment: 4, message: "Updating LocalSettings..." });
+		progress.report({ increment: incrementPerStep, message: "Updating LocalSettings..." });
 
 		currentLocalCode = config.Display.Language;
 
@@ -241,7 +250,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			"LanguageDisplayName_" + currentLocalCode];
 
 		// Update completion list		
-		progress.report({ increment: 4, message: "Updating graphic fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating graphic fileList..." });
 
 		graphic = basePath + "\\Graphics\\";
 
@@ -251,19 +260,19 @@ export async function activate(context: vscode.ExtensionContext) {
 		graphicPatternFadePath = graphic + "PatternFade";
 		graphicCharactersPath = graphic + "Characters";
 
-		progress.report({ increment: 4, message: "Updating FX fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating FX fileList..." });
 		let graphicFX = await getFileListRecursively(graphicFXPath);
 		// let graphicFX = await getFileList(vscode.Uri.file(graphicFXPath));
-		progress.report({ increment: 4, message: "Updating CG fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating CG fileList..." });
 		let graphicCG = await getFileListRecursively(graphicCGPath);
-		progress.report({ increment: 4, message: "Updating UI fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating UI fileList..." });
 		let graphicUI = await getFileListRecursively(graphicUIPath);
-		progress.report({ increment: 4, message: "Updating PatternFade fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating PatternFade fileList..." });
 		let graphicPatternFade = await getFileListRecursively(graphicPatternFadePath);
-		progress.report({ increment: 4, message: "Updating Characters fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating Characters fileList..." });
 		let graphicCharacters = await getFileListRecursively(graphicCharactersPath);
 
-		progress.report({ increment: 4, message: "Updating audio fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating audio fileList..." });
 
 		audio = basePath + "\\Audio\\";
 
@@ -272,16 +281,21 @@ export async function activate(context: vscode.ExtensionContext) {
 		audioDubsPath = audio + "Dubs";
 		audioSEPath = audio + "SE";
 
-		progress.report({ increment: 4, message: "Updating BGM fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating BGM fileList..." });
 		let audioBgm = await getFileListRecursively(audioBgmPath);
-		progress.report({ increment: 4, message: "Updating BGS fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating BGS fileList..." });
 		let audioBgs = await getFileListRecursively(audioBgsPath);
-		progress.report({ increment: 4, message: "Updating Dubs fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating Dubs fileList..." });
 		let audioDubs = await getFileListRecursively(audioDubsPath);
-		progress.report({ increment: 4, message: "Updating SE fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating SE fileList..." });
 		let audioSE = await getFileListRecursively(audioSEPath);
 
-		progress.report({ increment: 4, message: "Updating script fileList..." });
+		progress.report({ increment: incrementPerStep, message: "Updating video fileList..." });
+		videoPath = basePath + "\\Assets\\Movies\\";
+
+		let videoVideo = await getFileListRecursively(videoPath);
+
+		progress.report({ increment: incrementPerStep, message: "Updating script fileList..." });
 
 		scriptPath = basePath + "\\dialogue";
 		let script = await getFileListRecursively(scriptPath);
@@ -381,7 +395,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			await Promise.all(promiseList);
 		};
 
-		progress.report({ increment: 4, message: "Generating graphic completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating graphic completionList..." });
 
 		graphicFXCompletions = [];
 		graphicCGCompletions = [];
@@ -389,34 +403,40 @@ export async function activate(context: vscode.ExtensionContext) {
 		graphicPatternFadeCompletions = [];
 		graphicCharactersCompletions = [];
 
-		progress.report({ increment: 4, message: "Generating FX completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating FX completionList..." });
 		await generateCompletionList(graphicFX, graphicFXCompletions, graphicFXPath);
-		progress.report({ increment: 4, message: "Generating CG completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating CG completionList..." });
 		await generateCompletionList(graphicCG, graphicCGCompletions, graphicCGPath);
-		progress.report({ increment: 4, message: "Generating UI completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating UI completionList..." });
 		await generateCompletionList(graphicUI, graphicUICompletions, graphicUIPath);
-		progress.report({ increment: 4, message: "Generating PatternFade completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating PatternFade completionList..." });
 		await generateCompletionList(graphicPatternFade, graphicPatternFadeCompletions, graphicPatternFadePath);
-		progress.report({ increment: 4, message: "Generating Characters completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating Characters completionList..." });
 		await generateCompletionList(graphicCharacters, graphicCharactersCompletions, graphicCharactersPath);
 
-		progress.report({ increment: 4, message: "Generating audio completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating audio completionList..." });
 
 		audioBgmCompletions = [];
 		audioBgsCompletions = [];
 		audioDubsCompletions = [];
 		audioSECompletions = [];
 
-		progress.report({ increment: 4, message: "Generating BGM completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating BGM completionList..." });
 		await generateCompletionList(audioBgm, audioBgmCompletions, audioBgmPath, CompletionType.audio);
-		progress.report({ increment: 4, message: "Generating BGS completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating BGS completionList..." });
 		await generateCompletionList(audioBgs, audioBgsCompletions, audioBgsPath, CompletionType.audio);
-		progress.report({ increment: 4, message: "Generating Dubs completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating Dubs completionList..." });
 		await generateCompletionList(audioDubs, audioDubsCompletions, audioDubsPath, CompletionType.audio);
-		progress.report({ increment: 4, message: "Generating SE completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating SE completionList..." });
 		await generateCompletionList(audioSE, audioSECompletions, audioSEPath, CompletionType.audio);
 
-		progress.report({ increment: 4, message: "Generating script completionList..." });
+		progress.report({ increment: incrementPerStep, message: "Generating video completionList..." });
+
+		videoCompletions = [];
+
+		await generateCompletionList(videoVideo, videoCompletions, videoPath, CompletionType.video);
+
+		progress.report({ increment: incrementPerStep, message: "Generating script completionList..." });
 
 		scriptCompletions = [];
 
@@ -574,6 +594,14 @@ export async function activate(context: vscode.ExtensionContext) {
 					return undefined;
 				}
 
+				if (!fileListInitialized) {
+					let ret = new vscode.CompletionItem("Loading file list, please wait...");
+					ret.preselect = true;
+					ret.insertText = "";
+
+					return [ret];
+				}
+
 				switch (getType(linePrefix!)) {
 					case FileType.inValid:
 						return undefined;
@@ -595,6 +623,9 @@ export async function activate(context: vscode.ExtensionContext) {
 						return audioDubsCompletions;
 					case FileType.se:
 						return audioSECompletions;
+
+					case FileType.video:
+						return videoCompletions;
 
 					case FileType.script:
 						return scriptCompletions;
@@ -766,7 +797,9 @@ export async function activate(context: vscode.ExtensionContext) {
 				case FileType.se:
 					return new vscode.Hover(getCompletion(fileName, audioSECompletions)?.documentation!);
 
-				// case FileType.video:
+				case FileType.video:
+					return new vscode.Hover(getCompletion(fileName, videoCompletions)?.documentation!);
+
 				case FileType.script:
 					return new vscode.Hover(getCompletion(fileName, scriptCompletions)?.documentation!);
 				case FileType.frame:

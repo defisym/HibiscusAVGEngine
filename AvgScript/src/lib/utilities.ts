@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { deprecatedKeywordList, docList, internalKeywordList } from './dict';
 import { regexNumber, regexHexColor, regexRep } from './regExp';
 
-import { audioBgmCompletions, audioBgmPath, audioBgsCompletions, audioBgsPath, audioDubsCompletions, audioDubsPath, audioSECompletions, audioSEPath, graphicCGCompletions, graphicCGPath, graphicCharactersCompletions, graphicCharactersPath, graphicPatternFadeCompletions, graphicPatternFadePath, graphicUICompletions, graphicUIPath, scriptCompletions, scriptPath } from './../extension';
+import { audioBgmCompletions, audioBgmPath, audioBgsCompletions, audioBgsPath, audioDubsCompletions, audioDubsPath, audioSECompletions, audioSEPath, graphicCGCompletions, graphicCGPath, graphicCharactersCompletions, graphicCharactersPath, graphicPatternFadeCompletions, graphicPatternFadePath, graphicUICompletions, graphicUIPath, scriptCompletions, scriptPath, videoCompletions } from './../extension';
 
 const delimiter = ['=', ':'];
 
@@ -65,7 +65,8 @@ export function getFileCompletionByType(type: FileType, fileName: string) {
             return getCompletion(fileName, audioDubsCompletions);
         case FileType.se:
             return getCompletion(fileName, audioSECompletions);
-        // case FileType.video:
+        case FileType.video:
+            return getCompletion(fileName, videoCompletions);
         case FileType.script:
             return getCompletion(fileName, scriptCompletions);
         default:
@@ -202,6 +203,12 @@ export function lineValidForCommandCompletion(src: string): boolean {
 
     //return (!include) && (!startWith);
     return (!include);
+}
+
+export function iterateArray<T>(array: T[]) {
+    for (let i = 0; i < array.length; i++) {
+        let watch = array[i];
+    }
 }
 
 export function arrayHasValue(item: number, array: number[]): boolean;
@@ -351,10 +358,10 @@ export function getType(linePrefix: string, getCommand: boolean = false) {
     }
 
     // audio
-    if (linePrefix.match(/(@P|@Play)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.inValid;
-    }
+    // if (linePrefix.match(/(@P|@Play)/gi)
+    //     && (getCommand || (paramNum === 1))) {
+    //     return FileType.inValid;
+    // }
 
     if (linePrefix.match(/(@BGM|@BgmLoop|@BgmPre|@BgmPreludeLoop)/gi)
         && (getCommand || (paramNum === 1))) {

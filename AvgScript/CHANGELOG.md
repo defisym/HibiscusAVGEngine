@@ -1,5 +1,9 @@
 # Change Log
 
+## 20220815
+
+- Video functions
+
 ## 20220811
 
 - New ParamType `ZeroOne`
