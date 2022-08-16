@@ -1,5 +1,5 @@
 {
-  // Place your AvgScript 工作区 snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+  // Place your AvgScript workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
   // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
   // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
   // used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
@@ -15,8 +15,10 @@
   //  ],
   //  "description": "Log output to console"
   // }
-  "Block": {
-  "prefix": "Block",
+
+  // basic
+  "Snippet: Block": {
+  "prefix": "Snippet: Block",
   "body": [
     "#Begin $1",
     "\t$2",    
@@ -24,40 +26,10 @@
   ],
   "description": "Block"
   },
-  "Play Video": {
-    "prefix": "Video",
-    "body": [
-      "#Begin 参考视频播放",
-      "",
-      "\t/*使用黑色CG作为遮罩实现淡入效果*/",
-      "\t#HideUI",
-      "\t@CG=black.png",
-      "\t#Wait",
-      "\t@CG=null.png",
-      "",
-      "\t/*播放*/",
-      "\t@PlayVideo=$1",
-      "\t@VideoWait",
-      "",
-      "\t/*另一种写法*/",
-      "\t/*",
-      "\t@OpenVideo=DemoVideo.avi",
-      "\t@SetVideoPos=0",
-      "\t@VideoResume",
-      "\t@VideoWait",
-      "\t*/",
-      "",
-      "\t/*跳转处理*/",
-      "\t#Wait",
-      "\t#JmpFra=1",
-      "\t#EOF",
-      "",
-      "#End"
-    ],
-    "description": "Play Video"
-  },
-  "Basic Template": {
-    "prefix": "Basic",
+  
+  // script template
+  "Snippet: Basic Template": {
+    "prefix": "Snippet: Basic",
     "body": [
       "#Begin 参考初始化",
       "\t/*这一整行都是注释区块*/",
@@ -105,100 +77,20 @@
     ],
     "description": "Basic Template"
   },
-  "One Line Dialogue Size Change": {
-    "prefix": "Size",
+  "Snippet: VNMode Template": {
+    "prefix": "Snippet: VNMode",
     "body": [
-      "#DiaSize=$1",
-      "$3",
-      "#DiaSize=$2"
-    ],
-    "description": "Small Dialogue"
-  },
-  "Flash": {
-    "prefix": "Flash",
-    "body": [
-      "#FNT",
-      "@Char=..\\CG\\white.png:-10",
-      "#FNTO",
-      "@CharDispose=-10"
-    ],
-    "description": "Flash"
-  },
-  "SkipAnchor": {
-    "prefix": "SkipAnchor",
-    "body": [
-      "#SkipAnchor",
-      "",
-      "#NJMP=$1",
-      "#FNT",
-      "@CharAllDispose",
-      "@TransitionSpeed=10",
-      "$2",
-      "#FNTO",
-      "",
-      ";$1"
-    ],
-    "description": "Re-init after JMP"
-  },
-  "Create Sepia": {
-    "prefix": "Create Sepia",
-    "body": [
-      "@Fade",
-      "#Wait",
-      "",
-      "@SepiaToning:0.5:On:300",
-      "@Char=..\\FX\\Memory.png:20:0:0:0",
-      "#Wait",
-      "",
-      "@DestroyFade"
-    ],
-    "description": "Create Sepia"
-  },
-  "Dispose Sepia": {
-    "prefix": "Dispose Sepia",
-    "body": [
-      "@Fade",
-      "#Wait",
-      "",
-      "@CharDispose:-5",
-      "@CharDispose:20",
-      "#Wait",
-      "",
-      "@DestroyFade"
-    ],
-    "description": "Dispose Sepia"
-  },
-  "Scene Transition": {
-    "prefix": "Transition",
-    "body": [
-      "@TextFadeOut",
-      "@PF=$1",
-      "#Wait",
-      "",
-      "@CG=$2",
-      "#DefineRGB=$3:$4:$5",
-      "#Wait",
-      "",
-      "@PFO=$6.png",
-      "@dia=$7.png",
-      "@name=$8.png"
-    ],
-    "description": "Scene Transition"
-  },
-  "VNMode Template": {
-    "prefix": "VNMode",
-    "body": [
-      "#Settings=VNMod",
+      "#Settings=VNMode",
       "",
       "#Begin 初始化",
       "",
-      "\t#DiaColor:254:254:254",
-      "\t#DiaShaderNn:1:0:0:0",
-      "",
-      "\t@CG=VNMBG.png",
-      "\t@Dia=VNModeBG.png",
-      "",
       "\t@BgmLoop=$1",
+      "",
+      "\t@CG=$2",
+      "\t@Dia=$3",
+      "",
+      "\t#DiaColor=255:255:255",
+      "\t#DiaShaderOn=1:0:0:0",
       "",
       "#End",
       "",
@@ -206,7 +98,7 @@
       "",
       "\t/*请将需要调试的导演代码粘贴至此*/",
       "\t/*↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓*/",
-      "\t$3",
+      "\t$4",
       "\t/*↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑*/",
       "",
       "\t@TextFadeOut",
@@ -224,10 +116,100 @@
       "#End"
     ],
     "description": "VNMode Init"
+  },
+
+  // system
+  "Snippet: SkipAnchor": {
+    "prefix": "Snippet: SkipAnchor",
+    "body": [
+      "#SkipAnchor",
+      "",
+      "#NJMP=$1",
+      "#FNT",
+      "",
+      "@CharAllDispose",
+      "@TransitionSpeed=10",
+      "$2",
+      "",
+      "#FNTO",
+      "",
+      ";$1"
+    ],
+    "description": "Re-init after JMP"
+  },
+
+  "Snippet: One Line Dialogue Size Change": {
+    "prefix": "Snippet: Size",
+    "body": [
+      "#DiaSize=$1",
+      "$3",
+      "#DiaSize=$2"
+    ],
+    "description": "Small Dialogue"
+  },
+
+  // cut scene
+  "Snippet: Scene Transition": {
+    "prefix": "Snippet: Scene Transition",
+    "body": [
+      "@TextFadeOut",
+      "@PF=$1",
+      "#Wait",
+      "",
+      "@CG=$2",
+      "#DefineRGB=$3",
+      "#Wait",
+      "",
+      "@PFO=$4",
+      "@RestoreUIGraphic"
+    ],
+    "description": "Scene Transition"
+  },
+
+  "Snippet: Flash": {
+    "prefix": "Snippet: Flash",
+    "body": [
+      "#FNT",
+      "@Char=..\\CG\\white.png:-10",
+      "#FNTO",
+      "@CharDispose=-10"
+    ],
+    "description": "Flash"
+  },
+
+  "Snippet: Create Sepia": {
+    "prefix": "Snippet: Create Sepia",
+    "body": [
+      "@Fade",
+      "#Wait",
+      "",
+      "@SepiaToning:0.5:On:300",
+      "@Char=..\\FX\\Memory.png:20:0:0:0",
+      "#Wait",
+      "",
+      "@DestroyFade"
+    ],
+    "description": "Create Sepia"
+  },
+  "Snippet: Dispose Sepia": {
+    "prefix": "Snippet: Dispose Sepia",
+    "body": [
+      "@Fade",
+      "#Wait",
+      "",
+      "@CharDispose:-5",
+      "@CharDispose:20",
+      "#Wait",
+      "",
+      "@DestroyFade"
+    ],
+    "description": "Dispose Sepia"
   }
-  // "Play Video": {
-  // "prefix": "Video",
+  
+  // template
+  // "Snippet: Name": {
+  // "prefix": "Snippet: Name",
   // "body": [],
-  // "description": "Play Video"
+  // "description": "Name"
   // }
 }

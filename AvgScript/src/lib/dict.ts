@@ -884,12 +884,14 @@ export let commandDocList = new Map<string, string[]>([
         , "\t@VideoResume"]],
     ["OV", ["\t@OV=FileName.AVI:StartPos"
         , "\t@OpenVideo=FileName.AVI:StartPos"
-        , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"]],
+        , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"
+        , "若已经打开了视频，会抓取旧视频的当前帧作为CG进行过渡，否则则抓取新视频的首帧作为CG进行过渡"]],
     ["OpenVideo", ["\t@OV=FileName.AVI:StartPos"
         , "\t@OpenVideo=FileName.AVI:StartPos"
-        , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"]],
-    ["CV", ["关闭视频"]],
-    ["CloseVideo", ["关闭视频"]],
+        , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"
+        , "若已经打开了视频，会抓取旧视频的当前帧作为CG进行过渡，否则则抓取新视频的首帧作为CG进行过渡"]],
+    ["CV", ["抓取当前帧作为CG，并关闭视频"]],
+    ["CloseVideo", ["抓取当前帧作为CG，并关闭视频"]],
     ["CloseVideo_Core", ["不考虑当前情况与过渡直接关闭视频，用于历史记录跳转等场合"]],
     ["VR", ["继续播放视频"]],
     ["VideoResume", ["继续播放视频"]],

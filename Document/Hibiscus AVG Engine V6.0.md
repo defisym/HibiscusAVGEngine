@@ -1787,10 +1787,10 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒
 
-等价于以下指令组合：
+等价于以下指令组合:
 
 ```C++
-OpenVideo=FileName.AVI:StartPos
+@OpenVideo=FileName.AVI:StartPos
 @VideoResume
 ```
 
@@ -1802,6 +1802,8 @@ OpenVideo=FileName.AVI:StartPos
 
 打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`
 
+若已经打开了视频，会抓取旧视频的当前帧作为CG进行过渡，否则则抓取新视频的首帧作为CG进行过渡
+
 ##### `@CloseVideo_Core`
 
 不考虑当前情况与过渡直接关闭视频，用于历史记录跳转等场合
@@ -1812,7 +1814,7 @@ OpenVideo=FileName.AVI:StartPos
 
 - `@CloseVideo`
 
-关闭视频
+抓取当前帧作为CG，并关闭视频
 
 #### 控制
 
