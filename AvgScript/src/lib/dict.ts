@@ -156,6 +156,7 @@ export let atKeywordList: string[] = [
     'NtkChange',
     'PV',
     'PlayVideo',
+    'ChangeVideo',
     'OV',
     'OpenVideo',
     'CV',
@@ -874,14 +875,20 @@ export let commandDocList = new Map<string, string[]>([
 
     ["PV", ["\t@PV=FileName.AVI:StartPos"
         , "\t@PlayVideo=FileName.AVI:StartPos"
-        , "最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒<等价于以下指令组合"
+        , "最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒，等价于以下指令组合"
         , "\t@OpenVideo=FileName.AVI:StartPos"
         , "\t@VideoResume"]],
     ["PlayVideo", ["\t@PV=FileName.AVI:StartPos"
         , "\t@PlayVideo=FileName.AVI:StartPos"
-        , "最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒<等价于以下指令组合"
+        , "最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒，等价于以下指令组合"
         , "\t@OpenVideo=FileName.AVI:StartPos"
         , "\t@VideoResume"]],
+    ["ChangeVideo", ["\t@ChangeVideo=FileName.AVI"
+        , "切换视频，新打开的视频会自动切换至当前视频的进度，用于无缝切换差分视频"
+        , "若当前正在播放视频，则该指令转义为:"
+        , "\t@PlayVideo=FileName.AVI:CurrentVideoPosition"
+        , "否则转义为:"
+        , "\t@OpenVideo=FileName.AVI:CurrentVideoPosition"]],
     ["OV", ["\t@OV=FileName.AVI:StartPos"
         , "\t@OpenVideo=FileName.AVI:StartPos"
         , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"
@@ -2180,6 +2187,11 @@ export let commandParamList = new Map<string, ParamFormat>([
         minParam: 1, maxParam: 2
         , type: [ParamType.File, ParamType.Number]
         , inlayHintType: [inlayHintType.VideoFileName, inlayHintType.StartPoint]
+    }],
+    ["ChangeVideo", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.VideoFileName]
     }],
     ["OV", {
         minParam: 1, maxParam: 2

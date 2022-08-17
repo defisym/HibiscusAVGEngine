@@ -1794,6 +1794,12 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 @VideoResume
 ```
 
+##### `@ChangeVideo=FileName.AVI`
+
+切换视频，新打开的视频会自动切换至当前视频的进度，用于无缝切换差分视频
+
+若当前正在播放视频，则该指令转义为`@PlayVideo=FileName.AVI:CurrentVideoPosition`，否则转义为`@OpenVideo=FileName.AVI:CurrentVideoPosition`
+
 ##### `@OV=FileName.AVI:StartPos`
 
 同义指令

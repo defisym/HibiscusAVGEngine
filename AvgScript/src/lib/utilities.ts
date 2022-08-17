@@ -326,6 +326,7 @@ export enum FileType {
 
 export function getType(linePrefix: string, getCommand: boolean = false) {
     const paramNum = getNumberOfParam(linePrefix, true);
+    
     // image
     if (linePrefix.match(/(@Char|@Character|@CC|@CharChange|@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CharPF|@CharPatternFade)/gi)
         && (getCommand || (paramNum === 1))) {
@@ -383,7 +384,7 @@ export function getType(linePrefix: string, getCommand: boolean = false) {
         return FileType.se;
     }
 
-    if (linePrefix.match(/(@PV|@PlayVideo|@OV|@OpenVideo)/gi)) {
+    if (linePrefix.match(/(@PV|@PlayVideo|@OV|@OpenVideo|@ChangeVideo)/gi)) {
         return FileType.video;
     }
 
