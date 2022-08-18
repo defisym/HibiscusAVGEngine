@@ -251,6 +251,10 @@ export let atKeywordList: string[] = [
     'CharChange',
     'CA',
     'CharAlpha',
+    'HideChar',
+    'HideAllChar',
+    'ShowChar',
+    'ShowAllChar',
     'CharRotate',
     'AttachShader',
     'SetAutoArrange',
@@ -1180,6 +1184,17 @@ export let commandDocList = new Map<string, string[]>([
     ["CharAlpha", ["\t@CA=ID:Alpha"
         , "\t@CharAlpha=ID:Alpha"
         , "切换对象到指定的不透明度"]],
+    ["HideChar", ["\t@HideChar=ID"
+        , "若`PreviousAlpha = -1`，记忆当前的目标不透明度，并执行"
+        , "\t@CharAlpha=ID:255"]],
+    ["HideAllChar", ["为所有未隐藏的图像对象执行"
+        , "\t@HideChar=ID"]],
+    ["ShowChar", ["\t@ShowChar=ID"
+        , "执行"
+        , "\t@CharAlpha=ID:PreviousAlpha"
+        , "还原已隐藏的图像对象的目标不透明度，并重置`PreviousAlpha = -1`"]],
+    ["ShowAllChar", ["为所有隐藏的图像对象执行"
+        , "\t@ShowChar=ID"]],
     ["CharRotate", ["\t@CharRotate=ID:angle:clockwise:CircleCount"
         , "旋转对象至目标角度与预定圈数，`clockwise = 1`为顺时针，`clockwise = -1`为逆时针"
         , "若目标角度设定为360度，旋转0圈，将持续旋转"
@@ -2661,6 +2676,31 @@ export let commandParamList = new Map<string, ParamFormat>([
         , type: [ParamType.Number, ParamType.Number,]
         , inlayHintType: [inlayHintType.ID, inlayHintType.Alpha]
     }],
+    ["HideChar", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID]
+    }],
+    ["HideAllChar", {
+        minParam: 0, maxParam: 0
+        , type: []
+        , inlayHintType: []
+    }],
+    ["ShowChar", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.Number]
+        , inlayHintType: [inlayHintType.ID]
+    }],
+    ["ShowAllChar", {
+        minParam: 0, maxParam: 0
+        , type: []
+        , inlayHintType: []
+    }],
+    ["CharRotate", {
+        minParam: 4, maxParam: 4
+        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , inlayHintType: [inlayHintType.ID, inlayHintType.Angle, inlayHintType.Clockwise, inlayHintType.CircleCount]
+    }],
     ["AttachShader", {
         minParam: 2, maxParam: 34
         , type: [ParamType.Number, ParamType.String
@@ -2683,11 +2723,6 @@ export let commandParamList = new Map<string, ParamFormat>([
             , inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam, inlayHintType.ShaderParam]
     }],
 
-    ["CharRotate", {
-        minParam: 4, maxParam: 4
-        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
-        , inlayHintType: [inlayHintType.ID, inlayHintType.Angle, inlayHintType.Clockwise, inlayHintType.CircleCount]
-    }],
     ["SetAutoArrange", {
         minParam: 1, maxParam: 1
         , type: [ParamType.Boolean]

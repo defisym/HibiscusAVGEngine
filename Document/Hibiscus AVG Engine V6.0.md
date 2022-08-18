@@ -2037,37 +2037,35 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 #### 特效指令
 
-##### 震动
+##### 震动控制
 
-###### 震动控制
-
-####### `@ShakeDir=Dir`
+###### `@ShakeDir=Dir`
 
 设置震动方向，`X=0`，`Y=1`
 
-####### `@ShakeCoef=Strength`
+###### `@ShakeCoef=Strength`
 
 设置震动强度
 
-####### `@ShakeAttenuation=On`
+###### `@ShakeAttenuation=On`
 
 设置震动幅度衰减，仅适用于模式0
 
-####### `@ShakeAttenuationParam=FuncA:FuncB`
+###### `@ShakeAttenuationParam=FuncA:FuncB`
 
 设置震动衰减Easing参数
 
-###### 震动模式
+##### 震动模式
 
-####### `@Shake=5000`
+###### `@Shake=5000`
 
 模式0，震动一定时长后停止震动，单位为帧，通常情况下设定为60代表震动一秒
 
-####### `@KeepShake`
+###### `@KeepShake`
 
 模式1，持续震动
 
-####### `@KeepShakeOff`
+###### `@KeepShakeOff`
 
 模式2，停止震动
 
@@ -2343,6 +2341,22 @@ Toggle Sepia Noise Motion
 - `@CharAlpha=ID:Alpha`
 
 切换对象到指定的不透明度
+
+##### `@HideChar=ID`
+
+若`PreviousAlpha = -1`，记忆当前的目标不透明度，并执行`@CharAlpha=ID:255`
+
+##### `@HideAllChar`
+
+为所有未隐藏的图像对象执行`@HideChar=ID`
+
+##### `@ShowChar=ID`
+
+执行`@CharAlpha=ID:PreviousAlpha`还原已隐藏的图像对象的目标不透明度，并重置`PreviousAlpha = -1`
+
+##### `@ShowAllChar`
+
+为所有隐藏的图像对象执行`@ShowChar=ID`
 
 ##### `@CD=ID`
 
