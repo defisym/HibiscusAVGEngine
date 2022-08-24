@@ -28,6 +28,8 @@ export let currentLocalCodeDefinition: any;
 export let currentLocalCodeDisplay: string;
 
 // file
+import path = require("path");
+
 export let basePath: string;
 
 export let graphic: string;
@@ -1721,6 +1723,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 				// Check param valid
 				const paramFormat = paramDefinition.type;
+				const paramHint = paramDefinition.inlayHintType;
 				const paramNumMin = paramDefinition.minParam;
 				const paramNumMax = paramDefinition.maxParam;
 
@@ -1737,6 +1740,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
 					let curParam = params[j];
 					let currentType = paramFormat[j - 1];
+					let currentHintType = paramHint !== undefined
+						? paramHint[j - 1]
+						: undefined;
 
 					curLinePrefix = curLinePrefix + ":" + curParam;
 
@@ -1858,6 +1864,20 @@ export async function activate(context: vscode.ExtensionContext) {
 							break;
 
 						default:
+							break;
+					}
+
+					switch (currentHintType) {
+						case inlayHintType.Alpha:
+							let curParamVal = parseInt(curParam);
+
+							if (curParamVal < 0
+								|| curParamVal > 255) {
+								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+									, "Invalid Alpha Param: " + curParam
+									, vscode.DiagnosticSeverity.Error));
+							}
+
 							break;
 					}
 
