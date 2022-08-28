@@ -1310,6 +1310,10 @@ Debug_AVG=Chapter_1
 
 比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较
 
+###### `#CMPGeneral=Value:Value`
+
+不引用变量，直接比较两个值，规则与`#CMP`相同
+
 ##### 数值
 
 ###### `#CMPAB=ValueIDA:ValueIDB`

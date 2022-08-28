@@ -169,7 +169,7 @@
 			}
 		},
 		"keywords_values": {
-			"match": "(?i)(#SV|#SetValue|#SVV|#SetValueValue|#SVAB|#SetValueAB|#SSS|#SetStringString|#SSAB|#SetStringAB|#VA|#ValueAdd|#VAV|#ValueAddValue|#VS|#ValueSub|#VSV|#ValueSubValue|#VM|#ValueMul|#VMV|#ValueMulValue|#VD|#ValueDiv|#VDV|#ValueDivValue|#CMP|#CMPV|#CMPValue|#CMPVV|#CMPValueValue|#CMPAB|#CMPVAB|#CMPValueAB|#CMPSAB|#CMPStringAB|#CMPSS|#CMPStringString|#JE|#JA|#JB|#JNE)\\b",
+			"match": "(?i)(#SV|#SetValue|#SVV|#SetValueValue|#SVAB|#SetValueAB|#SSS|#SetStringString|#SSAB|#SetStringAB|#VA|#ValueAdd|#VAV|#ValueAddValue|#VS|#ValueSub|#VSV|#ValueSubValue|#VM|#ValueMul|#VMV|#ValueMulValue|#VD|#ValueDiv|#VDV|#ValueDivValue|#CMP|#CMPV|#CMPValue|#CMPGeneral|#CMPVV|#CMPValueValue|#CMPAB|#CMPVAB|#CMPValueAB|#CMPSAB|#CMPStringAB|#CMPSS|#CMPStringString|#JE|#JA|#JB|#JNE)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.values.AvgScript"

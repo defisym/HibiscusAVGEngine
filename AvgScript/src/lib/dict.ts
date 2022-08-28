@@ -95,6 +95,7 @@ export let sharpKeywordList: string[] = [
     'CMP',
     'CMPV',
     'CMPValue',
+    'CMPGeneral',
     'CMPVV',
     'CMPValueValue',
     'CMPAB',
@@ -659,6 +660,9 @@ export let commandDocList = new Map<string, string[]>([
         , "\t#CMPV=ValueID:Value"
         , "\t#CMPValue=ValueID:Value"
         , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]],
+    ["CMPGeneral", ["\t#CMPGeneral=Value:Value"
+        , "不引用变量，直接比较两个值，规则与`#CMP`相同"]],
+
     ["CMPAB", ["\t#CMPAB=ValueIDA:ValueIDB"
         , "\t#CMPVAB=ValueIDA:ValueIDB"
         , "\t#CMPValueAB=ValueIDA:ValueIDB"
@@ -1876,18 +1880,23 @@ export let commandParamList = new Map<string, ParamFormat>([
 
     ["CMP", {
         minParam: 2, maxParam: 2
-        , type: [ParamType.Number, ParamType.Number]
+        , type: [ParamType.Number, ParamType.Any]
         , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
     }],
     ["CMPV", {
         minParam: 2, maxParam: 2
-        , type: [ParamType.Number, ParamType.Number]
+        , type: [ParamType.Number, ParamType.Any]
         , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
     }],
     ["CMPValue", {
         minParam: 2, maxParam: 2
-        , type: [ParamType.Number, ParamType.Number]
+        , type: [ParamType.Number, ParamType.Any]
         , inlayHintType: [inlayHintType.ValueID, inlayHintType.Value]
+    }],
+    ["CMPGeneral", {
+        minParam: 2, maxParam: 2
+        , type: [ParamType.Any, ParamType.Any]
+        , inlayHintType: [inlayHintType.Value, inlayHintType.Value]
     }],
     ["CMPAB", {
         minParam: 2, maxParam: 2
