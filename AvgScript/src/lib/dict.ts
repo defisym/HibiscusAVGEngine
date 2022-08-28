@@ -415,8 +415,12 @@ export let commandDocList = new Map<string, string[]>([
     ["MSG", ["\t#MSG=Message"
         , "仅调试模式下可用，于调试输出中输出Message"]],
     ["MSGClear", ["仅调试模式下可用，清空调试输出，在翻页时会自动调用"]],
-    ["StopFF", ["仅调试模式下可用，解析至该语句后，快进将会在下一句文本处停止"]],
-    ["StopFastForward", ["仅调试模式下可用，解析至该语句后，快进将会在下一句文本处停止"]],
+    ["StopFF", ["\t#StopFF=IgnoreDebug"
+        , "解析至该语句后，快进将会在下一句文本处停止"
+        , "默认仅调试模式下可用，`IgnoreDebug`为`1`时在通常模式下也可用"]],
+    ["StopFastForward", ["\t#StopFF=IgnoreDebug"
+        , "解析至该语句后，快进将会在下一句文本处停止"
+        , "默认仅调试模式下可用，`IgnoreDebug`为`1`时在通常模式下也可用"]],
     ["DisableUI", ["禁用UI"]],
     ["EnableUI", ["启用UI"]],
     ["UpdateUICoord", ["相对对话框更新UI坐标"]],
@@ -1352,6 +1356,7 @@ export enum inlayHintType {
     ShaderParamName,
     ShaderParam,
     Force,
+    IgnoreDebug,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -1437,6 +1442,7 @@ export let inlayHintMap = new Map<number, string>([
     [inlayHintType.ShaderParamName, "Shader参数名"],
     [inlayHintType.ShaderParam, "Shader参数"],
     [inlayHintType.Force, "强制执行"],
+    [inlayHintType.IgnoreDebug, "忽略仅调试可用"],
 ]);
 
 export interface ParamFormat {
@@ -1532,12 +1538,14 @@ export let commandParamList = new Map<string, ParamFormat>([
         , type: []
     }],
     ["StopFF", {
-        minParam: 0, maxParam: 0
-        , type: []
+        minParam: 0, maxParam: 1
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [inlayHintType.IgnoreDebug]
     }],
     ["StopFastForward", {
-        minParam: 0, maxParam: 0
-        , type: []
+        minParam: 0, maxParam: 1
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [inlayHintType.IgnoreDebug]
     }],
     ["DisableUI", {
         minParam: 0, maxParam: 0

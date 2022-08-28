@@ -822,13 +822,15 @@ Debug_AVG=Chapter_1
 
 #### 快进控制
 
-##### `#StopFF`
+##### `#StopFF=IgnoreDebug`
 
 同义指令
 
-- `#StopFastForward`
+- `#StopFastForward=IgnoreDebug`
 
-仅调试模式下可用，解析至该语句后，快进将会在下一句文本处停止
+解析至该语句后，快进将会在下一句文本处停止
+
+默认仅调试模式下可用，`IgnoreDebug`为`1`时在通常模式下也可用
 
 ### 缓存
 
