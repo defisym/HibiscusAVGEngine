@@ -903,6 +903,10 @@ Debug_AVG=Chapter_1
 
 启用勾边时，更改对白勾边像素数为`OutlinePixel`
 
+##### `#NameShadow=On/Off`
+
+打开或关闭阴影模式，该模式仅在描边启用时有效
+
 ##### `#NameShaderOff`
 
 关闭姓名勾边效果
@@ -920,6 +924,10 @@ Debug_AVG=Chapter_1
 ##### `#DiaOutPixel=OutlinePixel`
 
 启用勾边时，更改对白勾边像素数为`OutlinePixel`
+
+##### `#DiaShadow=On/Off`
+
+打开或关闭阴影模式，该模式仅在描边启用时有效
 
 ##### `#DiaShaderOff`
 

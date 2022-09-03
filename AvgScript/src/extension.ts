@@ -28,6 +28,9 @@ export let currentLocalCodeDefinition: any;
 export let currentLocalCodeDisplay: string;
 
 // file
+// Get full file path in Node.js
+// https://stackoverflow.com/questions/31317007/get-full-file-path-in-node-js
+// https://nodejs.org/api/path.html#pathresolvepaths
 import path = require("path");
 
 export let basePath: string;

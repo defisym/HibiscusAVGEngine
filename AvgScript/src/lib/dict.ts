@@ -116,13 +116,16 @@ export let sharpKeywordList: string[] = [
     'DiaShaderOff',
     'DiaOutColor',
     'DiaOutPixel',
+    'DiaShadow',
     'NameColor',
     'NameSize',
     'NameFont',
     'NameShaderOn',
     'NameShaderOff',
     'NameOutColor',
-    'NameOutPixel'];
+    'NameOutPixel',
+    'NameShadow'
+];
 
 export let atKeywordList: string[] = [
     'Dia',
@@ -747,6 +750,8 @@ export let commandDocList = new Map<string, string[]>([
         , "启用勾边时，更改对白勾边颜色为`RGB/#FFFFFF`"]],
     ["DiaOutPixel", ["\t#DiaOutPixel=OutlinePixel"
         , "启用勾边时，更改对白勾边像素数为`OutlinePixel`"]],
+    ["DiaShadow", ["\t#DiaShadow=On/Off"
+        , "打开或关闭阴影模式，该模式仅在描边启用时有效"]],
 
     ["NameColor", ["\t#NameColor=R:G:B"
         , "\t#NameColor=#FFFFFF"
@@ -767,6 +772,8 @@ export let commandDocList = new Map<string, string[]>([
         , "启用勾边时，更改姓名勾边颜色为`RGB/#FFFFFF`"]],
     ["NameOutPixel", ["\t#NameOutPixel=OutlinePixel"
         , "启用勾边时，更改对白勾边像素数为`OutlinePixel`"]],
+    ["NameShadow", ["\t#NameShadow=On/Off"
+        , "打开或关闭阴影模式，该模式仅在描边启用时有效"]],
 
     ["Dia", ["\t@Dia=filename.png"
         , "\t@DiaChange=filename.png"
@@ -1357,6 +1364,7 @@ export enum inlayHintType {
     ShaderParam,
     Force,
     IgnoreDebug,
+    ShadowMode,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -1443,6 +1451,7 @@ export let inlayHintMap = new Map<number, string>([
     [inlayHintType.ShaderParam, "Shader参数"],
     [inlayHintType.Force, "强制执行"],
     [inlayHintType.IgnoreDebug, "忽略仅调试可用"],
+    [inlayHintType.ShadowMode, "阴影模式"],
 ]);
 
 export interface ParamFormat {
@@ -2011,6 +2020,11 @@ export let commandParamList = new Map<string, ParamFormat>([
         , type: [ParamType.Number]
         , inlayHintType: [inlayHintType.OutlinePixel]
     }],
+    ["DiaShadow", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [inlayHintType.ShadowMode]
+    }],
 
     ["NameColor", {
         minParam: 1, maxParam: 3
@@ -2047,6 +2061,11 @@ export let commandParamList = new Map<string, ParamFormat>([
         minParam: 1, maxParam: 1
         , type: [ParamType.Number]
         , inlayHintType: [inlayHintType.OutlinePixel]
+    }],
+    ["NameShadow", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [inlayHintType.ShadowMode]
     }],
 
     ["Dia", {

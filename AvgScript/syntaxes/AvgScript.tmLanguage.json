@@ -177,7 +177,7 @@
 			}
 		},
 		"keywords_dialogue": {
-			"match": "(?i)(#DiaColor|#DiaSize|#DiaFont|#DiaShaderOon|#DiaShaderOff|#DiaOutColor|#DiaOutPixel|#NameColor|#NameSize|#NameFont|#NameShaderOn|#NameShaderOff|#NameOutColor|#NameOutPixel|@dia|@DiaChange|@DiaTrans|@name|@NameChange|@NameTrans|@StashUIGraphic|@RestoreUIGraphic|@TextFadeOut)\\b",
+			"match": "(?i)(#DiaColor|#DiaSize|#DiaFont|#DiaShaderOon|#DiaShaderOff|#DiaOutColor|#DiaOutPixel|#DiaShadow|#NameColor|#NameSize|#NameFont|#NameShaderOn|#NameShaderOff|#NameOutColor|#NameOutPixel|#NameShadow|@dia|@DiaChange|@DiaTrans|@name|@NameChange|@NameTrans|@StashUIGraphic|@RestoreUIGraphic|@TextFadeOut)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.dialogue.AvgScript"
