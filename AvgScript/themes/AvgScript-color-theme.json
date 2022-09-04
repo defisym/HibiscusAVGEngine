@@ -22,7 +22,7 @@
 			],
 			"settings": {
 				"fontStyle": "bold",
-				"foreground": "#FFFFFF"
+				"foreground": "#FFFFFF",				
 			}
 		},
 		{
@@ -144,7 +144,7 @@
 			}
 		},
 		{
-			"name": "dialogue_dialouge",
+			"name": "dialogue_dialogue",
 			"scope": [
 				"dialogue.dialogue.AvgScript"
 			],
@@ -153,7 +153,7 @@
 			}
 		},
 		{
-			"name": "language_perfix",
+			"name": "language_prefix",
 			"scope": [
 				"language.prefix.AvgScript"
 			],
@@ -162,7 +162,7 @@
 			}
 		},
 		{
-			"name": "language_reigon",
+			"name": "language_region",
 			"scope": [
 				"language.region.AvgScript"
 			],
