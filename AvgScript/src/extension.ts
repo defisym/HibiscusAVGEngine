@@ -221,6 +221,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		message?: string | undefined;
 		increment?: number | undefined;
 	}>) {
+		fileListInitialized = false;
+
 		const total = 100;
 		const steps = 27;
 
@@ -1034,6 +1036,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	//--------------------
 
+	
+	//--------------------
 
 	vscode.commands.registerCommand(commandBasePath, async () => {
 		// 1) Getting the value

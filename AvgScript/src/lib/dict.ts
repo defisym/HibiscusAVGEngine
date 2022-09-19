@@ -426,7 +426,8 @@ export let commandDocList = new Map<string, string[]>([
         , "默认仅调试模式下可用，`IgnoreDebug`为`1`时在通常模式下也可用"]],
     ["DisableUI", ["禁用UI"]],
     ["EnableUI", ["启用UI"]],
-    ["UpdateUICoord", ["相对对话框更新UI坐标"]],
+    ["UpdateUICoord", ["\t#UpdateUICoord=Forced"
+        , "相对对话框更新UI坐标，`Forced = 1`时强制更新"]],
     ["FNT", ["强制无叠化，强制无叠化状态在解析到文本后重置为关闭"]],
     ["ForceNoTransition", ["强制无叠化，强制无叠化状态在解析到文本后重置为关闭"]],
 
@@ -1565,8 +1566,9 @@ export let commandParamList = new Map<string, ParamFormat>([
         , type: []
     }],
     ["UpdateUICoord", {
-        minParam: 0, maxParam: 0
-        , type: []
+        minParam: 0, maxParam: 1
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [inlayHintType.Force]
     }],
     ["FNT", {
         minParam: 0, maxParam: 0

@@ -1,5 +1,5 @@
 {
-    "conf.AvgScript.basePath": "F:\\DEV\\AVG+SRPG\\Program\\data",
+    "conf.AvgScript.basePath": "F:\\DEV\\Mobius\\程序\\data",
     "conf.AvgScript.commandExtension": [
         {
             "prefix": "@",

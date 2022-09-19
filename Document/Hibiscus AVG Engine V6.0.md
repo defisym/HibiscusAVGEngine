@@ -2503,9 +2503,9 @@ CG/UI不会被销毁
 
 启用UI
 
-##### `#UpdateUICoord`
+##### `#UpdateUICoord=Forced`
 
-相对对话框更新UI坐标
+相对对话框更新UI坐标，`Forced = 1`时强制更新
 
 ##### `#HideUI`
 
