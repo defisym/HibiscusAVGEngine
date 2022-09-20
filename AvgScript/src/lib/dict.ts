@@ -908,7 +908,8 @@ export let commandDocList = new Map<string, string[]>([
         , "若当前正在播放视频，则该指令转义为:"
         , "\t@PlayVideo=FileName.AVI:CurrentVideoPosition"
         , "否则转义为:"
-        , "\t@OpenVideo=FileName.AVI:CurrentVideoPosition"]],
+        , "\t@OpenVideo=FileName.AVI:CurrentVideoPosition"
+        , "视频的循环状态和循环叠化会被保留"]],
     ["OV", ["\t@OV=FileName.AVI:StartPos"
         , "\t@OpenVideo=FileName.AVI:StartPos"
         , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"
@@ -927,7 +928,8 @@ export let commandDocList = new Map<string, string[]>([
     ["VW", ["当前视频播放结束后才会进入下一阶段"]],
     ["VideoWait", ["当前视频播放结束后才会进入下一阶段"]],
     ["VL", ["设定当前视频循环播放"]],
-    ["VideoLoop", ["设定当前视频循环播放"]],
+    ["VideoLoop", ["\t@VideoLoop=LoopTransition"
+        , "设定当前视频循环播放，若`LoopTransition = 1`，则会在循环结束时叠化至视频开头，适用于视频本身非无缝循环的场合"]],
     ["SVP", ["\t@SVP=StartPos"
         , "\t@SetVideoPos=StartPos"
         , "设置视频位置"]],
@@ -1366,6 +1368,7 @@ export enum inlayHintType {
     Force,
     IgnoreDebug,
     ShadowMode,
+    LoopTransition,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -1453,6 +1456,7 @@ export let inlayHintMap = new Map<number, string>([
     [inlayHintType.Force, "强制执行"],
     [inlayHintType.IgnoreDebug, "忽略仅调试可用"],
     [inlayHintType.ShadowMode, "阴影模式"],
+    [inlayHintType.LoopTransition, "循环时叠化"],
 ]);
 
 export interface ParamFormat {
@@ -2297,8 +2301,9 @@ export let commandParamList = new Map<string, ParamFormat>([
         , type: []
     }],
     ["VideoLoop", {
-        minParam: 0, maxParam: 0
-        , type: []
+        minParam: 0, maxParam: 1
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [inlayHintType.LoopTransition]
     }],
     ["SVP", {
         minParam: 1, maxParam: 1

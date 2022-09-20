@@ -1824,6 +1824,8 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 若当前正在播放视频，则该指令转义为`@PlayVideo=FileName.AVI:CurrentVideoPosition`，否则转义为`@OpenVideo=FileName.AVI:CurrentVideoPosition`
 
+视频的循环状态和循环叠化会被保留
+
 ##### `@OV=FileName.AVI:StartPos`
 
 同义指令
@@ -1876,9 +1878,9 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 同义指令
 
-- `@VideoLoop`
+- `@VideoLoop=LoopTransition`
 
-设定当前视频循环播放
+设定当前视频循环播放，若`LoopTransition = 1`，则会在循环结束时叠化至视频开头，适用于视频本身非无缝循环的场合
 
 ##### `@SVP=StartPos`
 
