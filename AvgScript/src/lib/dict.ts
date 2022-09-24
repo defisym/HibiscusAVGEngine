@@ -176,6 +176,8 @@ export let atKeywordList: string[] = [
     'VideoLoop',
     'SVP',
     'SetVideoPos',
+    'VideoCache',
+    'VideoErase',
     'CreateBlur',
     'AddBlur',
     'RemoveBlur',
@@ -936,7 +938,12 @@ export let commandDocList = new Map<string, string[]>([
     ["SetVideoPos", ["\t@SVP=StartPos"
         , "\t@SetVideoPos=StartPos"
         , "设置视频位置"]],
-
+    ["VideoCache", ["\t@VideoCache=FilePath"
+        , "缓存视频，用于节省读取加密视频的用时。非加密视频会直接读取磁盘，因此无需缓存"
+        , "若运行于非加密模式或若视频已被缓存，则不会执行任何操作"]],
+    ["VideoErase", ["\t@VideoErase=FilePath"
+        , "清除已缓存的视频，若不指定`FilePath`，则会清除所有缓存的视频"
+        , "当前正在被使用的视频不会被清除"]],
 
     // keywords_effect
 
@@ -2314,6 +2321,16 @@ export let commandParamList = new Map<string, ParamFormat>([
         minParam: 1, maxParam: 1
         , type: [ParamType.Number]
         , inlayHintType: [inlayHintType.StartPoint]
+    }],
+    ["VideoCache", {
+        minParam: 1, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.VideoFileName]
+    }],
+    ["VideoErase", {
+        minParam: 0, maxParam: 1
+        , type: [ParamType.File]
+        , inlayHintType: [inlayHintType.VideoFileName]
     }],
 
     // keywords_effect

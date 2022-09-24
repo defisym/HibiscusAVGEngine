@@ -422,6 +422,8 @@ History_Audio_Y=480
 
 ### 缓存
 
+**注意:**缓存行为控制并未实现，默认行为为首次读取时缓存，并由用户手动释放，即`Load On Call`&`Erase At End`
+
 在退出游戏前，所有使用到的图像素材均会被缓存，供下次使用时快速读取。默认行为为`Load On Call`&`Erase At End`，全部行为见下表：
 
 | 名称            | 行为                                               |
@@ -720,6 +722,34 @@ Debug_AVG=Chapter_1
 | Wait      | 设定自动模式下对话显示完成之后切换的间隔     |
 | ShowAll   | 设定文本是否直接显示                         |
 | FFJumpAll | 设定是否跳过已读文本，跳过已读=1，跳过全部=0 |
+
+## 发行
+
+1. 在全局事件->全局_数据初始化->Release Key中指定使用的加密Key
+2. 使用`ContentGenerator.bat`生成应用程序并移除非必要文件
+3. 使用附带的Encrypter加密文件
+   1. `settings`
+      1. `settings\settings.ini`
+      2. `settings\settings_Template.ini`
+   2. `savings`
+      1. `savings\_Global`
+         1. `savings\_Global\_GlobalProgress`
+         2. `savings\_GlobalAppreciation_Definition`
+         3. `savings\_GlobalAppreciation_Progress`
+         4. `savings\_GlobalData_Template.sav`
+      2. `savings\_Sys`
+         1. `savings\_Sys\Null.png`
+   3. `localization`
+      1. `localization\Localization.dat`
+   4. `data`
+      1. `data\Assets\Movies\*.*`
+      2. `data\dialogue\*.*`
+      3. `data\Graphics`
+         1. `data\Graphics\UI\*.*`
+         2. `data\Graphics\_Sys\*.*`
+         3. `data\Graphics\CG\*.*`
+         4. `data\Graphics\Characters\*.*`
+4. 打包上传
 
 ## #系统指令
 
@@ -1889,6 +1919,18 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 - `@SetVideoPos=StartPos`
 
 设置视频位置
+
+##### `@VideoCache=FilePath`
+
+缓存视频，用于节省读取加密视频的用时。非加密视频会直接读取磁盘，因此无需缓存
+
+若运行于非加密模式或若视频已被缓存，则不会执行任何操作
+
+##### `@VideoErase=FilePath`
+
+清除已缓存的视频，若不指定`FilePath`，则会清除所有缓存的视频
+
+当前正在被使用的视频不会被清除
 
 #### 范例代码
 
