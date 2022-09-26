@@ -726,8 +726,9 @@ Debug_AVG=Chapter_1
 ## 发行
 
 1. 在全局事件->全局_数据初始化->Release Key中指定使用的加密Key
-2. 使用`ContentGenerator.bat`生成应用程序并移除非必要文件
-3. 使用附带的Encrypter加密文件
+2. 生成应用程序，使用`ContentGenerator.bat`生成实际发行版本并移除非必要文件
+3. 对生成的可执行程序进行处理，如增加DRM壳。若启用了`HashVerification`，则需要验证其哈希并将结果填入`ExeHash`
+4. 使用附带的Encrypter加密文件
    1. `settings`
       1. `settings\settings.ini`
       2. `settings\settings_Template.ini`
@@ -745,11 +746,13 @@ Debug_AVG=Chapter_1
       1. `data\Assets\Movies\*.*`
       2. `data\dialogue\*.*`
       3. `data\Graphics`
-         1. `data\Graphics\UI\*.*`
-         2. `data\Graphics\_Sys\*.*`
-         3. `data\Graphics\CG\*.*`
-         4. `data\Graphics\Characters\*.*`
-4. 打包上传
+         1. `data\Graphics\FX\*.*`
+         2. `data\Graphics\PatternFade\*.*`
+         3. `data\Graphics\UI\*.*`
+         4. `data\Graphics\_Sys\*.*`
+         5. `data\Graphics\CG\*.*`
+         6. `data\Graphics\Characters\*.*`
+5. 打包上传
 
 ## #系统指令
 
