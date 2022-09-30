@@ -2550,9 +2550,9 @@ CG/UI不会被销毁
 
 启用UI
 
-##### `#UpdateUICoord=Forced`
+##### `#UpdateUICoord=Forced:CoordOnly`
 
-相对对话框更新UI坐标，`Forced = 1`时强制更新
+相对对话框更新UI坐标，`Forced = 1`时强制更新，`CoordOnly = 1`时不更新不透明度
 
 ##### `#HideUI`
 
