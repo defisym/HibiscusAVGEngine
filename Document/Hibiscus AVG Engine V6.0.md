@@ -307,9 +307,61 @@ History_Audio_Y=480
 这是换行的演出。
 ```
 
-#### 历史记录
+#### 格式控制
+
+##### 插入图标
+
+`[ICon = Direction, Frame]`
+
+在文本中插入图标。若参数不足，则从右至左引用，即有一个参数时认为其是`Frame`
+
+##### 震动
+
+`[Shake = Type, Amplitude, TimerCoef, CharOffset]`
+
+控制文本震动。若参数不足，则从左至右引用，即有一个参数时认为其是`Type`，两个参数时认为其是`Type`与`Amplitude`
+
+`Type`: 震动类型，默认为`None`，可为`X`，`Y`，`Random`，其中`X`、`Y`基于三角函数
+`Amplitude`: 震动幅度，默认为`1.0`，相对于震动文本的大小。如文本高度为`30`，`Amplitude = 0.5`，则震动幅度为`15`，会在`+/- 15`范围内震动
+`TimerCoef`: 时间参数，默认为`1.0`，决定震动的速度
+`CharOffset`: 字符偏移，默认为`1.0 / 6.0`，决定相邻字符的运动间隔，数值越大，运动间隔越大。该指仅在`X`、`Y`模式下有效，为相对于`360°`的系数。即`CharOffset = 0.2`，间隔为`72°`
+
+##### 颜色
+
+`[Color = #FFFFFFFF][/Color]` or `[C = #FFFFFFFF][/C]`
+
+##### 字体
+
+更新`LogFont`并创建绘制字体指针
+
+###### 字体
+
+`[Font = FontName][/Font]` or `[F = FontName][/F]`
+
+###### 字号
+
+`[Size = FontSize][/Size]` or `[S = FontSize][/S]`
+
+###### 加粗
+
+`[Bold][/Bold]` or `[B][/B]`
+
+###### 倾斜
+
+`[Italic][/Italic]` or `[I][/I]`
+
+###### 下划线
+
+`[Underline][/Underline]` or `[U][/U]`
+
+###### 删除线
+
+`[StrikeOut][/StrikeOut]` or `[S][/S]`
+
+### 历史记录
 
 历史记录头像位于`Data\Graphic\Heads`路径下，通过姓名匹配对应的`.PNG`文件
+姓名后`[]`为头像提示，可通过替换表达式`<PF+ID>`替换为立绘文件名，如`<PF5>`代表`5`号立绘的立绘文件名，用于绑定
 
 ### 语音
 
