@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
+
+import { graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions } from '../functions/file';
 import { deprecatedKeywordList, docList, internalKeywordList } from './dict';
 import { regexNumber, regexHexColor, regexRep } from './regExp';
-
-import { audioBgmCompletions, audioBgmPath, audioBgsCompletions, audioBgsPath, audioDubsCompletions, audioDubsPath, audioSECompletions, audioSEPath, graphicCGCompletions, graphicCGPath, graphicCharactersCompletions, graphicCharactersPath, graphicPatternFadeCompletions, graphicPatternFadePath, graphicUICompletions, graphicUIPath, scriptCompletions, scriptPath, videoCompletions } from './../extension';
 
 const delimiter = ['=', ':'];
 
@@ -326,7 +326,7 @@ export enum FileType {
 
 export function getType(linePrefix: string, getCommand: boolean = false) {
     const paramNum = getNumberOfParam(linePrefix, true);
-    
+
     // image
     if (linePrefix.match(/(@Char|@Character|@CC|@CharChange|@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CharPF|@CharPatternFade)/gi)
         && (getCommand || (paramNum === 1))) {

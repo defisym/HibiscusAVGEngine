@@ -1,5 +1,9 @@
 # Change Log
 
+## 20221226
+
+- refactor
+
 ## 20220815
 
 - Video functions
