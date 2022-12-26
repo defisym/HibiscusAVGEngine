@@ -274,7 +274,8 @@ export let atKeywordList: string[] = [
     'Front',
     'Back',
     'Forward',
-    'Backward'];
+    'Backward'
+];
 
 export let keywordList: string[] = sharpKeywordList.concat(atKeywordList);
 
