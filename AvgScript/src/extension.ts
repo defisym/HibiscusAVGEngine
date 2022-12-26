@@ -1820,7 +1820,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						case ParamType.Order:
 							if (curParam.toLowerCase() !== "Front".toLowerCase()
 								|| curParam.toLowerCase() !== "Back".toLowerCase()
-								|| parseInt(curParam) === NaN) {
+								|| Number.isNaN(parseInt(curParam))) {
 								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
 									, "Invalid Order: " + curParam
 									, vscode.DiagnosticSeverity.Error));
