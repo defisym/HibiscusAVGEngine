@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { commandInfoList, inlayHintType, inlayHintMap } from '../lib/dict';
+import { commandInfoList, InlayHintType, inlayHintMap } from '../lib/dict';
 import { iterateLines, getAllParams, getMapValue, getCommandType } from '../lib/utilities';
 
 export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript', {
@@ -39,9 +39,9 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
                         curLinePrefix = curLinePrefix + ":" + curParam;
                         const commandType = getCommandType(curLinePrefix);
 
-                        if (currentInlayHintType === inlayHintType.ColorHex) {
+                        if (currentInlayHintType === InlayHintType.ColorHex) {
                             if (j !== params.length - 1) {
-                                currentInlayHintType = inlayHintType.ColorRGB_R;
+                                currentInlayHintType = InlayHintType.ColorRGB_R;
                             }
                         }
 

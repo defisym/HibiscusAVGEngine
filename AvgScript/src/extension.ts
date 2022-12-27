@@ -4,7 +4,7 @@ import { labelDefinition, labelReference } from './functions/label';
 import { hover, hoverFile } from './functions/hover';
 import { inlayHint } from './functions/inlayHint';
 import { diagnosticsCollection, onUpdate, triggerUpdate } from './functions/diagnostic';
-import { commandBasePath, commandBasePath_impl, commandRefreshAssets, commandRefreshAssets_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl } from './functions/command';
+import { assetsListPanel, commandBasePath, commandBasePath_impl, commandGetAssetsList, commandGetAssetsList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl } from './functions/command';
 import { outline } from './functions/outline';
 import { rename } from './functions/rename';
 import { atCommands, fileName, fileSuffix, langPrefix, settingsParam, sharpCommands } from './functions/completion';
@@ -14,6 +14,10 @@ import { fileDefinition } from './functions/file';
 export let activeEditor = vscode.window.activeTextEditor;
 
 export async function activate(context: vscode.ExtensionContext) {
+	//--------------------
+	// Debug
+	//--------------------
+
 	console.log("AvgScript extension activated");
 
 	//--------------------
@@ -56,10 +60,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	//--------------------
 
 	vscode.commands.registerCommand(commandBasePath, commandBasePath_impl);
-
 	vscode.commands.registerCommand(commandRefreshAssets, commandRefreshAssets_impl);
-
 	vscode.commands.registerCommand(commandUpdateCommandExtension, commandUpdateCommandExtension_impl);
+	vscode.commands.registerCommand(commandGetAssetsList, commandGetAssetsList_impl);
 
 	//--------------------
 	// Goto Definition
@@ -113,5 +116,17 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
+	//--------------------
+	// Debug
+	//--------------------
+
 	console.log("AvgScript extension deactivating");
+	
+	//--------------------
+	// Webview
+	//--------------------
+
+	if (assetsListPanel !== undefined) {
+        assetsListPanel.dispose();
+    }
 }

@@ -5,7 +5,7 @@ import { pinyin } from 'pinyin-pro';
 import { ImageProbe } from '@zerodeps/image-probe';
 
 import { currentLineNotComment, getBuffer, getParamAtPosition, getUri } from '../lib/utilities';
-import { confBasePath } from './command';
+import { commandGetAssetsList, confBasePath } from './command';
 
 // file
 // Get full file path in Node.js
@@ -69,6 +69,9 @@ const imagePreview = "<div align=\"center\"><img src =\"{$FILENAME}\" height = \
 const audioPreview = nonePreview;
 const videoPreview = nonePreview;
 const scriptPreview = nonePreview;
+
+// project config
+export let projectConfig: any = undefined;
 
 export async function getFileInfo(filePath: string, type: CompletionType) {
     let getDuration = (duration: number) => {
@@ -228,11 +231,11 @@ export async function updateFileList(progress: vscode.Progress<{
     let encoding: BufferEncoding = 'utf-8';
 
     let configPath = basePath + "\\..\\settings\\settings.ini";
-    let config = iniParser.parse((await getBuffer(configPath)).toString(encoding));
+    projectConfig = iniParser.parse((await getBuffer(configPath)).toString(encoding));
 
     progress.report({ increment: incrementPerStep, message: "Updating LocalSettings..." });
 
-    currentLocalCode = config.Display.Language;
+    currentLocalCode = projectConfig.Display.Language;
 
     let localizationPath = basePath + "\\..\\localization\\Localization.dat";
     let localization = iniParser.parse((await getBuffer(localizationPath)).toString(encoding));
@@ -283,6 +286,7 @@ export async function updateFileList(progress: vscode.Progress<{
     let audioSE = await getFileListRecursively(audioSEPath);
 
     progress.report({ increment: incrementPerStep, message: "Updating video fileList..." });
+
     videoPath = basePath + "\\Assets\\Movies\\";
 
     let videoVideo = await getFileListRecursively(videoPath);

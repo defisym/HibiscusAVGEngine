@@ -162,6 +162,13 @@
                 "title": "Update command extension",
                 "icon": "media/AvgScript.png",
                 "shortTitle": "Command Extension"
+            },
+            {
+                "category": "AvgScript",
+                "command": "config.AvgScript.getAssetsList",
+                "title": "Get assets used in project",
+                "icon": "media/AvgScript.png",
+                "shortTitle": "Assets List"
             }
         ],
         "menus": {

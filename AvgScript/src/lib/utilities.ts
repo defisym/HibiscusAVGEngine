@@ -1,10 +1,14 @@
 import * as vscode from 'vscode';
 
 import { graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions } from '../functions/file';
-import { deprecatedKeywordList, docList, internalKeywordList } from './dict';
+import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, internalKeywordList } from './dict';
 import { regexNumber, regexHexColor, regexRep } from './regExp';
 
 const delimiter = ['=', ':'];
+
+export function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export async function getBuffer(filePath: string) {
     return Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(filePath)));
@@ -233,6 +237,22 @@ export function arrayHasValue(item: string | number, array: (string | number)[])
     return false;
 }
 
+export function arrayUniquePush<T>(array: T[], elementToPush: T) {
+    let haveElement = false;
+
+    for (let element of array) {
+        if (element === elementToPush) {
+            haveElement = true;
+
+            break;
+        }
+    }
+
+    if (!haveElement) {
+        array.push(elementToPush);
+    }
+};
+
 export function getMapValue<V>(item: string, map: Map<string, V>): V | undefined {
     let ret: V | undefined = undefined;
 
@@ -324,91 +344,98 @@ export enum FileType {
     label,
 };
 
+export const fileTypeMap = new Map<number, string>([
+    [FileType.inValid, "无效"],
+    [FileType.characters, "人物立绘"],
+    [FileType.ui, "UI"],
+    [FileType.cg, "CG"],
+    [FileType.patternFade, "过渡纹理"],
+    [FileType.bgm, "BGM"],
+    [FileType.bgs, "BGS"],
+    [FileType.dubs, "语音"],
+    [FileType.se, "音效"],
+    [FileType.video, "视频"],
+    [FileType.script, "脚本"],
+    [FileType.frame, "场景"],
+    [FileType.label, "标签"],
+]);
+
 export function getType(linePrefix: string, getCommand: boolean = false) {
-    const paramNum = getNumberOfParam(linePrefix, true);
+    const params = getAllParams(linePrefix);
+    const prefix = params[0][0];
+    const command = params[0].substring(1);
 
-    // image
-    if (linePrefix.match(/(@Char|@Character|@CC|@CharChange|@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CharPF|@CharPatternFade)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.characters;
+    // update pos by checking if in param (not end by delimiter)
+    let inParam = true;
+    let lastChar = linePrefix[linePrefix.length - 1];
+
+    for (let deli of delimiter) {
+        if (lastChar === deli) {
+            inParam = false;
+        }
     }
 
-    if (linePrefix.match(/(@Dia|@DiaChange|@Name|@NameChange)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.ui;
-    }
+    const paramNum = params.length - 1
+        - (inParam ? 1 : 0);
 
-    if (linePrefix.match(/(@Dia|@DiaChange|@Name|@NameChange)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.ui;
-    }
+    do {
+        let commandInfo = getMapValue(command, commandInfoList);
 
-    if (linePrefix.match(/(@CG|@CGChange|@CGPFI|@CGPatternFadeIn|@CGPFO|@CGPatternFadeOut)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.cg;
-    }
+        if (commandInfo === undefined) {
+            break;
+        }
 
-    if (linePrefix.match(/(@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CGPFI|@CGPatternFadeIn|@CGPFO|@CGPatternFadeOut|@CharPF|@CharPatternFade)/gi)
-        && (getCommand || (paramNum === 2))) {
-        return FileType.patternFade;
-    }
+        let inlayHintType = commandInfo.inlayHintType;
 
-    if (linePrefix.match(/(@PF|@PatternFade|@PFO|@PatternFadeOut)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.patternFade;
-    }
+        if (inlayHintType === undefined) {
+            break;
+        }
 
-    // audio
-    // if (linePrefix.match(/(@P|@Play)/gi)
-    //     && (getCommand || (paramNum === 1))) {
-    //     return FileType.inValid;
-    // }
+        if (paramNum > inlayHintType.length) {
+            break;
+        }
 
-    if (linePrefix.match(/(@BGM|@BgmLoop|@BgmPre|@BgmPreludeLoop)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.bgm;
-    }
+        let paramType = inlayHintType[paramNum];
 
-    if (linePrefix.match(/(@Bgs|@BgsLoop)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.bgs;
-    }
+        if (paramType === undefined) {
+            break;
+        }
 
-    if (linePrefix.match(/(@Dub|@DubPlay)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.dubs;
-    }
+        switch (paramType) {
+            case InlayHintType.CharacterFileName:
+                return FileType.characters;
+            case InlayHintType.DiaFileName:
+                return FileType.ui;
+            case InlayHintType.NameFileName:
+                return FileType.ui;
+            case InlayHintType.CGFileName:
+                return FileType.cg;
+            case InlayHintType.PatternFadeFileName:
+                return FileType.patternFade;
+            case InlayHintType.BGMFileName:
+                return FileType.bgm;
+            case InlayHintType.BGSFileName:
+                return FileType.bgs;
+            case InlayHintType.DubFileName:
+                return FileType.dubs;
+            case InlayHintType.SEFileName:
+                return FileType.se;
+            case InlayHintType.VideoFileName:
+                return FileType.video;
+            case InlayHintType.Chapter:
+                return FileType.script;
+            case InlayHintType.Frame:
+                return FileType.frame;
+            case InlayHintType.Label:
+                return FileType.label;
 
-    if (linePrefix.match(/(@SE)/gi)
-        && (getCommand || (paramNum === 1))) {
-        return FileType.se;
-    }
+            default:
+                return FileType.inValid;
 
-    if (linePrefix.match(/(@PV|@PlayVideo|@OV|@OpenVideo|@ChangeVideo)/gi)) {
-        return FileType.video;
-    }
-
-    if (linePrefix.match(/(#CJMP|#JMPCha)/gi)) {
-        return FileType.script;
-    }
-
-    if (linePrefix.match(/(#FJMP|#JMPFra)/gi)) {
-        return FileType.frame;
-    }
-
-    if (linePrefix.match(/(#Call|#JMP|#NJMP)/gi)) {
-        return FileType.label;
-    }
+        }
+    } while (0);
 
     return FileType.inValid;
-}
-
-export function getParamType() {
-
-}
-
-export function geInlayHintType() {
-
 }
 
 export function getCommandType(command: string) {

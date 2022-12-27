@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
-import { settingsParamDocList, commandInfoList, internalKeywordList, deprecatedKeywordList, sharpKeywordList, atKeywordList, internalImageID, ParamType, inlayHintType } from '../lib/dict';
+import { settingsParamDocList, commandInfoList, internalKeywordList, deprecatedKeywordList, sharpKeywordList, atKeywordList, internalImageID, ParamType, InlayHintType } from '../lib/dict';
 import { regexRep, regexNumber, regexHexColor } from '../lib/regExp';
 import { iterateLines, getMapValue, getAllParams, arrayHasValue, matchEntire, getCommandType, fileExists } from '../lib/utilities';
 import { commandUpdateCommandExtension } from './command';
@@ -327,7 +327,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                 }
 
                 switch (currentHintType) {
-                    case inlayHintType.Alpha:
+                    case InlayHintType.Alpha:
                         let curParamVal = parseInt(curParam);
 
                         if (curParamVal < 0

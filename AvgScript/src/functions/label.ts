@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { commandInfoList, inlayHintType } from '../lib/dict';
+import { commandInfoList, InlayHintType } from '../lib/dict';
 import { regexRep } from '../lib/regExp';
 import { currentLineNotComment, getAllParams, getMapValue, iterateLines } from "../lib/utilities";
 
@@ -110,7 +110,7 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
                         continue;
                     }
 
-                    if (currentType === inlayHintType.Label) {
+                    if (currentType === InlayHintType.Label) {
                         let curLabel = curParam;
 
                         labelJumpMap.forEach((line, label) => {
@@ -196,7 +196,7 @@ export const labelReference = vscode.languages.registerReferenceProvider(
                         continue;
                     }
 
-                    if (currentType === inlayHintType.Label) {
+                    if (currentType === InlayHintType.Label) {
                         if (curParam.toLowerCase() === label.toLowerCase()) {
                             let link = new vscode.Location(document.uri
                                 , new vscode.Position(lineNumber, 0));

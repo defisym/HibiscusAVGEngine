@@ -3,6 +3,7 @@
 ## 20221227
 
 - now update command will not add extension commands twice
+- show asset list
 
 ## 20221226
 
