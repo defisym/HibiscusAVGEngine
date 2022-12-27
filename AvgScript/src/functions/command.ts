@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 
 import { activeEditor, } from '../extension';
-import { docList, keywordList, ParamFormat, ParamTypeMap, inlayHintMap, commandParamList, sharpKeywordList, commandDocList, atKeywordList } from '../lib/dict';
+import { ParamInfo, ParamTypeMap, inlayHintMap, commandInfoList, generateList, resetList } from '../lib/dict';
 import { refreshFileDiagnostics, updateDiagnostics } from './diagnostic';
 import { basePath, updateFileList, fileListInitialized, updateBasePath } from './file';
 
@@ -77,74 +77,79 @@ export const commandRefreshAssets_impl = async () => {
 };
 
 export const commandUpdateCommandExtension_impl = async () => {
-    interface CommandExt {
-        // basic
-        prefix: string,
-        command: string,
-        description: string[],
+    // reset list to base
+    resetList();
 
-        // diagnostic
-        minParam: number,
-        maxParam: number,
-        paramType: string[],
+    // add ext
+    do {
+        interface CommandExt {
+            // basic
+            prefix: string,
+            command: string,
+            description: string[],
 
-        // inlayHint
-        inlayHint: string[],
-    }
+            // diagnostic
+            minParam: number,
+            maxParam: number,
+            paramType: string[],
 
-    let commandExt = vscode.workspace.getConfiguration().get<CommandExt[]>(confCommandExt);
-
-    if (commandExt === undefined) {
-        return;
-    }
-
-    let insertCommandExt = (commandExtItem: CommandExt, commandList: string[], commandDocList: docList,) => {
-        let command = commandExtItem.command;
-
-        commandList.push(command);
-        keywordList.push(command);
-
-        let paramFormat: ParamFormat = { minParam: 0, maxParam: 0, type: [], inlayHintType: [] };
-
-        paramFormat.minParam = Math.max(0, commandExtItem.minParam);
-        paramFormat.maxParam = Math.max(paramFormat.minParam, commandExtItem.maxParam);
-
-        for (let type in commandExtItem.paramType) {
-            paramFormat.type.push(ParamTypeMap.get(commandExtItem.paramType[type])!);
+            // inlayHint
+            inlayHint: string[],
         }
 
-        let inlayHints = commandExtItem.inlayHint;
+        let commandExt = vscode.workspace.getConfiguration().get<CommandExt[]>(confCommandExt);
 
-        if (inlayHints !== undefined) {
-            for (let hints in inlayHints) {
-                let pos = inlayHintMap.size;
-                inlayHintMap.set(pos, inlayHints[hints]);
-                paramFormat.inlayHintType?.push(pos);
+        if (commandExt === undefined) {
+            break;
+        }
+
+
+        let insertCommandExt = (commandExtItem: CommandExt) => {
+            let command = commandExtItem.command;
+
+            let paramInfo: ParamInfo = {
+                prefix: commandExtItem.prefix
+                , minParam: 0, maxParam: 0
+                , description: commandExtItem.description
+                , type: []
+                , inlayHintType: []
+            };
+
+            paramInfo.minParam = Math.max(0, commandExtItem.minParam);
+            paramInfo.maxParam = Math.max(paramInfo.minParam, commandExtItem.maxParam);
+
+            let paramType = commandExtItem.paramType;
+
+            for (let type in paramType) {
+                paramInfo.type.push(ParamTypeMap.get(paramType[type])!);
             }
+
+            let inlayHints = commandExtItem.inlayHint;
+
+            if (inlayHints !== undefined) {
+                for (let hints in inlayHints) {
+                    let pos = inlayHintMap.size;
+                    inlayHintMap.set(pos, inlayHints[hints]);
+                    paramInfo.inlayHintType?.push(pos);
+                }
+            }
+
+            commandInfoList.set(command, paramInfo);
+        };
+
+        for (let i in commandExt!) {
+            insertCommandExt(commandExt[i]);
         }
+    } while (0);
 
-        commandParamList.set(command, paramFormat);
+    // update list
+    generateList();
 
-        let description = commandExtItem.description;
-
-        if (description !== undefined) {
-            commandDocList.set(command, description);
-        }
-    };
-
-    for (let i in commandExt!) {
-        if (commandExt[i].prefix === "#") {
-            insertCommandExt(commandExt[i], sharpKeywordList, commandDocList);
-        } else if (commandExt[i].prefix === "@") {
-            insertCommandExt(commandExt[i], atKeywordList, commandDocList);
-        }
-    }
-
+    // update diagnostic
     if (activeEditor === undefined) {
         return;
     }
 
     let activeDocument = activeEditor.document;
-
     updateDiagnostics(activeDocument, fileListInitialized);
 };

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { commandParamList, inlayHintType } from '../lib/dict';
+import { commandInfoList, inlayHintType } from '../lib/dict';
 import { regexRep } from '../lib/regExp';
 import { currentLineNotComment, getAllParams, getMapValue, iterateLines } from "../lib/utilities";
 
@@ -86,7 +86,7 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
             if (line.startsWith("#")
                 || line.startsWith("@")) {
                 const command = params[0].substring(1);
-                const paramDefinition = getMapValue(command, commandParamList);
+                const paramDefinition = getMapValue(command, commandInfoList);
 
                 if (paramDefinition === undefined) {
                     return;
@@ -172,7 +172,7 @@ export const labelReference = vscode.languages.registerReferenceProvider(
             if (text.startsWith("#")
                 || text.startsWith("@")) {
                 const command = params[0].substring(1);
-                const paramDefinition = getMapValue(command, commandParamList);
+                const paramDefinition = getMapValue(command, commandInfoList);
 
                 if (paramDefinition === undefined) {
                     return;

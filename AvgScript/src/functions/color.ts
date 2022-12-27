@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { commandParamList, ParamType } from '../lib/dict';
+import { commandInfoList, ParamType } from '../lib/dict';
 import { regexRep, regexHexColor } from '../lib/regExp';
 import { iterateLines, getAllParams, strIsNum, getMapValue } from '../lib/utilities';
 
@@ -71,7 +71,7 @@ export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
                 if (text.startsWith("#")
                     || text.startsWith("@")) {
                     const command = params[0].substring(1);
-                    const paramDefinition = getMapValue(command, commandParamList);
+                    const paramDefinition = getMapValue(command, commandInfoList);
 
                     if (paramDefinition === undefined) {
                         return;

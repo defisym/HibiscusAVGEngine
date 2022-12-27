@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 
 import { labelDefinition, labelReference } from './functions/label';
-
 import { hover, hoverFile } from './functions/hover';
 import { inlayHint } from './functions/inlayHint';
 import { diagnosticsCollection, onUpdate, triggerUpdate } from './functions/diagnostic';

@@ -1,5 +1,9 @@
 # Change Log
 
+## 20221227
+
+- now update command will not add extension commands twice
+
 ## 20221226
 
 - refactor

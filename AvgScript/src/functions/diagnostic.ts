@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
-import { activeEditor} from '../extension';
-import { settingsParamDocList, commandParamList, internalKeywordList, deprecatedKeywordList, sharpKeywordList, atKeywordList, internalImageID, ParamType, inlayHintType } from '../lib/dict';
+import { activeEditor } from '../extension';
+import { settingsParamDocList, commandInfoList, internalKeywordList, deprecatedKeywordList, sharpKeywordList, atKeywordList, internalImageID, ParamType, inlayHintType } from '../lib/dict';
 import { regexRep, regexNumber, regexHexColor } from '../lib/regExp';
 import { iterateLines, getMapValue, getAllParams, arrayHasValue, matchEntire, getCommandType, fileExists } from '../lib/utilities';
 import { commandUpdateCommandExtension } from './command';
@@ -124,7 +124,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
             const prefix = params[0][0];
             const command = params[0].substring(1);
             const paramNum = params.length - 1;
-            const paramDefinition = getMapValue(command, commandParamList);
+            const paramDefinition = getMapValue(command, commandInfoList);
 
             let contentStart: number = lineStart + command.length + 1;
 
