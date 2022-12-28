@@ -43,8 +43,7 @@ export function getLabelComment(input: string) {
     return "标签不存在";
 }
 
-export function getLabelCompletion(labelCompletions: vscode.CompletionItem[]
-    , document: vscode.TextDocument) {
+export function getLabelCompletion(document: vscode.TextDocument) {
     labelCompletions = [];
     labelJumpMap.clear();
 

@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
-import { graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions } from '../functions/file';
+import { graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions, getFullFileNameByType, fileListHasItem, graphicFXCompletions, getCorrectPathAndType } from '../functions/file';
 import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, internalKeywordList } from './dict';
-import { regexNumber, regexHexColor, regexRep } from './regExp';
+import { regexNumber } from './regExp';
 
 const delimiter = ['=', ':'];
 
@@ -23,19 +23,19 @@ export async function getFileStat(filePath: string) {
 }
 
 // Obsolete due to change of sub folder support
-export function getFileName(name: string, fileList: vscode.CompletionItem[]) {
-    name = name.toLowerCase();
+// export function getFileName(name: string, fileList: vscode.CompletionItem[]) {
+//     name = name.toLowerCase();
 
-    for (let i in fileList) {
-        let element = fileList[i].insertText?.toString().toLowerCase()!;
+//     for (let i in fileList) {
+//         let element = fileList[i].insertText?.toString().toLowerCase()!;
 
-        if (element?.startsWith(name)) {
-            return element;
-        }
-    };
+//         if (element?.startsWith(name)) {
+//             return element;
+//         }
+//     };
 
-    return undefined;
-}
+//     return undefined;
+// }
 
 export function getCompletion(name: string, fileList: vscode.CompletionItem[]) {
     name = name.toLowerCase();
@@ -52,7 +52,15 @@ export function getCompletion(name: string, fileList: vscode.CompletionItem[]) {
 }
 
 export function getFileCompletionByType(type: FileType, fileName: string) {
+    // correction
+    let [corType, corFileName] = getCorrectPathAndType(type, fileName)!;
+
+    fileName = corFileName;
+    type = corType;
+
     switch (type) {
+        case FileType.fx:
+            return getCompletion(fileName, graphicFXCompletions);
         case FileType.characters:
             return getCompletion(fileName, graphicCharactersCompletions);
         case FileType.ui:
@@ -327,6 +335,7 @@ export function getHoverContents(item: string, commentList: docList) {
 export enum FileType {
     inValid,
 
+    fx,
     characters,
     ui,
     cg,
@@ -346,6 +355,7 @@ export enum FileType {
 
 export const fileTypeMap = new Map<number, string>([
     [FileType.inValid, "无效"],
+    [FileType.fx, "特效"],
     [FileType.characters, "人物立绘"],
     [FileType.ui, "UI"],
     [FileType.cg, "CG"],
@@ -446,63 +456,6 @@ export function getFilePath(linePrefix: string, fileName: string) {
     let filePath = getFileCompletionByType(getType(linePrefix), fileName)?.sortText;
 
     return filePath;
-
-    // switch (getType(linePrefix)) {
-    //     case FileType.characters:
-    //         realFileName = getFileName(fileName, graphicCharactersCompletions);
-    //         filePath = graphicCharactersPath + "\\";
-
-    //         break;
-    //     case FileType.ui:
-    //         realFileName = getFileName(fileName, graphicUICompletions);
-    //         filePath = graphicUIPath + "\\";
-
-    //         break;
-    //     case FileType.cg:
-    //         realFileName = getFileName(fileName, graphicCGCompletions);
-    //         filePath = graphicCGPath + "\\";
-
-    //         break;
-    //     case FileType.patternFade:
-    //         realFileName = getFileName(fileName, graphicPatternFadeCompletions);
-    //         filePath = graphicPatternFadePath + "\\";
-
-    //         break;
-    //     case FileType.bgm:
-    //         realFileName = getFileName(fileName, audioBgmCompletions);
-    //         filePath = audioBgmPath + "\\";
-
-    //         break;
-    //     case FileType.bgs:
-    //         realFileName = getFileName(fileName, audioBgsCompletions);
-    //         filePath = audioBgsPath + "\\";
-
-    //         break;
-    //     case FileType.dubs:
-    //         realFileName = getFileName(fileName, audioDubsCompletions);
-    //         filePath = audioDubsPath + "\\";
-
-    //         break;
-    //     case FileType.se:
-    //         realFileName = getFileName(fileName, audioSECompletions);
-    //         filePath = audioSEPath + "\\";
-
-    //         break;
-    //     // case FileType.video:
-    //     case FileType.script:
-    //         realFileName = getFileName(fileName, scriptCompletions);
-    //         filePath = scriptPath + "\\";
-
-    //         break;
-    //     default:
-    //         return undefined;
-    // }
-
-    // if (realFileName === undefined) {
-    //     return undefined;
-    // }
-
-    // return filePath + realFileName;
 }
 
 export function getUri(linePrefix: string, fileName: string) {
@@ -517,34 +470,17 @@ export function getUri(linePrefix: string, fileName: string) {
 
 export function getFileNameByType(type: FileType, fileName: string) {
     return getFileCompletionByType(type, fileName)?.insertText;
-
-    // switch (type) {
-    //     case FileType.characters:
-    //         return getFileName(fileName, graphicCharactersCompletions);
-    //     case FileType.ui:
-    //         return getFileName(fileName, graphicUICompletions);
-    //     case FileType.cg:
-    //         return getFileName(fileName, graphicCGCompletions);
-    //     case FileType.patternFade:
-    //         return getFileName(fileName, graphicPatternFadeCompletions);
-    //     case FileType.bgm:
-    //         return getFileName(fileName, audioBgmCompletions);
-    //     case FileType.bgs:
-    //         return getFileName(fileName, audioBgsCompletions);
-    //     case FileType.dubs:
-    //         return getFileName(fileName, audioDubsCompletions);
-    //     case FileType.se:
-    //         return getFileName(fileName, audioSECompletions);
-    //     // case FileType.video:
-    //     case FileType.script:
-    //         return getFileName(fileName, scriptCompletions);
-    //     default:
-    //         return undefined;
-    // }
 }
 
 export function fileExists(type: FileType, fileName: string) {
-    return getFileNameByType(type, fileName) !== undefined;
+    // return getFileNameByType(type, fileName) !== undefined;
+    let filePath = getFullFileNameByType(type, fileName);
+
+    if (filePath === undefined) {
+        return false;
+    }
+
+    return fileListHasItem(filePath);
 }
 
 export function matchEntire(src: string, regex: RegExp) {

@@ -121,12 +121,12 @@ export function deactivate() {
 	//--------------------
 
 	console.log("AvgScript extension deactivating");
-	
+
 	//--------------------
 	// Webview
 	//--------------------
 
 	if (assetsListPanel !== undefined) {
-        assetsListPanel.dispose();
-    }
+		assetsListPanel.dispose();
+	}
 }

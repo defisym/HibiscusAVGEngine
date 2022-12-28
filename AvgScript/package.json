@@ -232,6 +232,7 @@
         "@zerodeps/image-probe": "^0.2.0",
         "music-metadata": "^7.12.3",
         "ffprobe": "^1.1.2",
-        "ffprobe-static": "^3.0.0"
+        "ffprobe-static": "^3.0.0",
+        "path":"^0.12.7"
     }
 }

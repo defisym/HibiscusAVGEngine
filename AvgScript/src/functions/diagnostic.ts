@@ -4,9 +4,8 @@ import { activeEditor } from '../extension';
 import { settingsParamDocList, commandInfoList, internalKeywordList, deprecatedKeywordList, sharpKeywordList, atKeywordList, internalImageID, ParamType, InlayHintType } from '../lib/dict';
 import { regexRep, regexNumber, regexHexColor } from '../lib/regExp';
 import { iterateLines, getMapValue, getAllParams, arrayHasValue, matchEntire, getCommandType, fileExists } from '../lib/utilities';
-import { commandUpdateCommandExtension } from './command';
 import { fileListInitialized, currentLocalCode, currentLocalCodeDisplay } from './file';
-import { getLabelCompletion, labelCompletions } from './label';
+import { getLabelCompletion } from './label';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
 
@@ -399,13 +398,11 @@ export function onUpdate() {
     let activeDocument = activeEditor.document;
 
     updateDiagnostics(activeDocument, fileListInitialized);
-    getLabelCompletion(labelCompletions, activeDocument);
+    getLabelCompletion(activeDocument);
     updateLanguageDecorations(activeEditor
         , nonActiveLanguageDecorator
         , currentLocalCode
         , currentLocalCodeDisplay);
-
-    vscode.commands.executeCommand(commandUpdateCommandExtension);
 }
 
 export function triggerUpdate(throttle = false) {

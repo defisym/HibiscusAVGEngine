@@ -4,8 +4,8 @@ import * as mm from 'music-metadata';
 import { pinyin } from 'pinyin-pro';
 import { ImageProbe } from '@zerodeps/image-probe';
 
-import { currentLineNotComment, getBuffer, getParamAtPosition, getUri } from '../lib/utilities';
-import { commandGetAssetsList, confBasePath } from './command';
+import { currentLineNotComment, FileType, getBuffer, getParamAtPosition, getUri } from '../lib/utilities';
+import { confBasePath } from './command';
 
 // file
 // Get full file path in Node.js
@@ -21,6 +21,12 @@ export let currentLocalCode: string;
 export let currentLocalCodeDefinition: any;
 export let currentLocalCodeDisplay: string;
 
+// completion type
+export enum CompletionType { image, audio, video, script };
+
+//file List
+export let projectFileList: [string, vscode.FileType][] = [];
+
 // paths
 export let basePath: string;
 
@@ -32,6 +38,12 @@ export let graphicUIPath: string;
 export let graphicPatternFadePath: string;
 export let graphicCharactersPath: string;
 
+export const graphicFXRelativePath = 'Graphics\\FX';
+export const graphicCGRelativePath = 'Graphics\\CG';
+export const graphicUIRelativePath = 'Graphics\\UI';
+export const graphicPatternFadeRelativePath = 'Graphics\\PatternFade';
+export const graphicCharactersRelativePath = 'Graphics\\Characters';
+
 // completion
 export let graphicFXCompletions: vscode.CompletionItem[] = [];
 export let graphicCGCompletions: vscode.CompletionItem[] = [];
@@ -39,6 +51,7 @@ export let graphicUICompletions: vscode.CompletionItem[] = [];
 export let graphicPatternFadeCompletions: vscode.CompletionItem[] = [];
 export let graphicCharactersCompletions: vscode.CompletionItem[] = [];
 
+// paths
 export let audio: string;
 
 export let audioBgmPath: string;
@@ -46,19 +59,31 @@ export let audioBgsPath: string;
 export let audioDubsPath: string;
 export let audioSEPath: string;
 
-export enum CompletionType { image, audio, video, script };
+export const audioBgmRelativePath = 'Audio\\BGM';
+export const audioBgsRelativePath = 'Audio\\BGS';
+export const audioDubRelativePath = 'Audio\\DUB';
+export const audioSERelativePath = 'Audio\\SE';
 
+// completion
 export let audioBgmCompletions: vscode.CompletionItem[] = [];
 export let audioBgsCompletions: vscode.CompletionItem[] = [];
 export let audioDubsCompletions: vscode.CompletionItem[] = [];
 export let audioSECompletions: vscode.CompletionItem[] = [];
 
+// paths
 export let videoPath: string;
 
+export const videoRelativePath = 'Assets\\Movies';
+
+// completion
 export let videoCompletions: vscode.CompletionItem[] = [];
 
+// paths
 export let scriptPath: string;
 
+export const scriptRelativePath = 'dialogue';
+
+// completion
 export let scriptCompletions: vscode.CompletionItem[] = [];
 
 // preview
@@ -72,6 +97,132 @@ const scriptPreview = nonePreview;
 
 // project config
 export let projectConfig: any = undefined;
+
+export function getFullFilePath(filePath: string) {
+    return getFileListItem(path.resolve(filePath));
+}
+
+export function getBasePathByType(type: FileType) {
+    switch (type) {
+        case FileType.fx:
+            return graphicFXPath;
+        case FileType.characters:
+            return graphicCharactersPath;
+        case FileType.ui:
+            return graphicUIPath;
+        case FileType.cg:
+            return graphicCGPath;
+        case FileType.patternFade:
+            return graphicPatternFadePath;
+
+        case FileType.bgm:
+            return audioBgmPath;
+        case FileType.bgs:
+            return audioBgsPath;
+        case FileType.dubs:
+            return audioDubsPath;
+        case FileType.se:
+            return audioSEPath;
+
+        case FileType.video:
+            return videoPath;
+        case FileType.script:
+            return scriptPath;
+        default:
+            return undefined;
+    }
+}
+
+export function getFullFileNameByType(type: FileType, fileName: string) {
+    let handler = (basePath: string, fileNameToHandle: string) => {
+        return getFullFilePath(basePath + '\\' + fileNameToHandle);
+    };
+
+    let basePath = getBasePathByType(type);
+
+    if (basePath === undefined) {
+        return undefined;
+    }
+
+    return handler(basePath, fileName);
+}
+
+export function getCorrectPathAndType(type: FileType, fileName: string): [FileType, string] | undefined {
+    let relativeFileName = getFullFileNameByType(type, fileName);
+
+    if (relativeFileName === undefined) {
+        return undefined;
+    }
+
+    type = getPathType(relativeFileName)!;
+
+    let base = getBasePathByType(type)!;
+
+    return [type, relativeFileName.substring(base.length + 1)];
+}
+
+// input should be full path
+export function getPathType(fileName: string) {
+    fileName = fileName.substring(basePath.length + 1);
+
+    let compareStart = (toCmp: string, base: string) => {
+        return toCmp.substring(0, base.length).toLowerCase() === base.toLowerCase();
+    };
+
+    if (compareStart(fileName, graphicFXRelativePath)) {
+        return FileType.fx;
+    }
+    if (compareStart(fileName, graphicCGRelativePath)) {
+        return FileType.cg;
+    }
+    if (compareStart(fileName, graphicUIRelativePath)) {
+        return FileType.ui;
+    }
+    if (compareStart(fileName, graphicPatternFadeRelativePath)) {
+        return FileType.patternFade;
+    }
+    if (compareStart(fileName, graphicCharactersRelativePath)) {
+        return FileType.characters;
+    }
+
+    if (compareStart(fileName, audioBgmRelativePath)) {
+        return FileType.bgm;
+    }
+    if (compareStart(fileName, audioBgsRelativePath)) {
+        return FileType.bgs;
+    }
+    if (compareStart(fileName, audioDubRelativePath)) {
+        return FileType.dubs;
+    }
+    if (compareStart(fileName, audioSERelativePath)) {
+        return FileType.se;
+    }
+
+    if (compareStart(fileName, videoRelativePath)) {
+        return FileType.video;
+    }
+
+    if (compareStart(fileName, scriptRelativePath)) {
+        return FileType.script;
+    }
+
+}
+
+export function getFileListItem(filePath: string) {
+    for (let [path, type] of projectFileList) {
+        if (filePath.toLowerCase() === path.substring(0, filePath.length).toLowerCase()) {
+            return path;
+        }
+    }
+
+    return undefined;
+}
+
+export function fileListHasItem(filePath: string) {
+    let fullPath = getFullFilePath(filePath);
+
+    return fullPath !== undefined;
+}
 
 export async function getFileInfo(filePath: string, type: CompletionType) {
     let getDuration = (duration: number) => {
@@ -256,16 +407,15 @@ export async function updateFileList(progress: vscode.Progress<{
     graphicCharactersPath = graphic + "Characters";
 
     progress.report({ increment: incrementPerStep, message: "Updating FX fileList..." });
-    let graphicFX = await getFileListRecursively(graphicFXPath);
-    // let graphicFX = await getFileList(vscode.Uri.file(graphicFXPath));
+    let graphicFXFileList = await getFileListRecursively(graphicFXPath);
     progress.report({ increment: incrementPerStep, message: "Updating CG fileList..." });
-    let graphicCG = await getFileListRecursively(graphicCGPath);
+    let graphicCGFileList = await getFileListRecursively(graphicCGPath);
     progress.report({ increment: incrementPerStep, message: "Updating UI fileList..." });
-    let graphicUI = await getFileListRecursively(graphicUIPath);
+    let graphicUIFileList = await getFileListRecursively(graphicUIPath);
     progress.report({ increment: incrementPerStep, message: "Updating PatternFade fileList..." });
-    let graphicPatternFade = await getFileListRecursively(graphicPatternFadePath);
+    let graphicPatternFadeFileList = await getFileListRecursively(graphicPatternFadePath);
     progress.report({ increment: incrementPerStep, message: "Updating Characters fileList..." });
-    let graphicCharacters = await getFileListRecursively(graphicCharactersPath);
+    let graphicCharactersFileList = await getFileListRecursively(graphicCharactersPath);
 
     progress.report({ increment: incrementPerStep, message: "Updating audio fileList..." });
 
@@ -277,24 +427,28 @@ export async function updateFileList(progress: vscode.Progress<{
     audioSEPath = audio + "SE";
 
     progress.report({ increment: incrementPerStep, message: "Updating BGM fileList..." });
-    let audioBgm = await getFileListRecursively(audioBgmPath);
+    let audioBgmFileList = await getFileListRecursively(audioBgmPath);
     progress.report({ increment: incrementPerStep, message: "Updating BGS fileList..." });
-    let audioBgs = await getFileListRecursively(audioBgsPath);
+    let audioBgsFileList = await getFileListRecursively(audioBgsPath);
     progress.report({ increment: incrementPerStep, message: "Updating Dubs fileList..." });
-    let audioDubs = await getFileListRecursively(audioDubsPath);
+    let audioDubsFileList = await getFileListRecursively(audioDubsPath);
     progress.report({ increment: incrementPerStep, message: "Updating SE fileList..." });
-    let audioSE = await getFileListRecursively(audioSEPath);
+    let audioSEFileList = await getFileListRecursively(audioSEPath);
 
     progress.report({ increment: incrementPerStep, message: "Updating video fileList..." });
 
-    videoPath = basePath + "\\Assets\\Movies\\";
+    videoPath = basePath + "\\Assets\\Movies";
 
-    let videoVideo = await getFileListRecursively(videoPath);
+    let videoFileList = await getFileListRecursively(videoPath);
 
     progress.report({ increment: incrementPerStep, message: "Updating script fileList..." });
 
     scriptPath = basePath + "\\dialogue";
-    let script = await getFileListRecursively(scriptPath);
+    let scriptFileList = await getFileListRecursively(scriptPath);
+
+    projectFileList = projectFileList.concat(graphicFXFileList, graphicCGFileList, graphicUIFileList, graphicPatternFadeFileList, graphicCharactersFileList
+        , audioBgmFileList, audioBgsFileList, audioDubsFileList, audioSEFileList
+        , videoFileList, scriptFileList);
 
     let generateCompletionList = async (fileList: [string, vscode.FileType][]
         , completions: vscode.CompletionItem[]
@@ -400,15 +554,15 @@ export async function updateFileList(progress: vscode.Progress<{
     graphicCharactersCompletions = [];
 
     progress.report({ increment: incrementPerStep, message: "Generating FX completionList..." });
-    await generateCompletionList(graphicFX, graphicFXCompletions, graphicFXPath);
+    await generateCompletionList(graphicFXFileList, graphicFXCompletions, graphicFXPath);
     progress.report({ increment: incrementPerStep, message: "Generating CG completionList..." });
-    await generateCompletionList(graphicCG, graphicCGCompletions, graphicCGPath);
+    await generateCompletionList(graphicCGFileList, graphicCGCompletions, graphicCGPath);
     progress.report({ increment: incrementPerStep, message: "Generating UI completionList..." });
-    await generateCompletionList(graphicUI, graphicUICompletions, graphicUIPath);
+    await generateCompletionList(graphicUIFileList, graphicUICompletions, graphicUIPath);
     progress.report({ increment: incrementPerStep, message: "Generating PatternFade completionList..." });
-    await generateCompletionList(graphicPatternFade, graphicPatternFadeCompletions, graphicPatternFadePath);
+    await generateCompletionList(graphicPatternFadeFileList, graphicPatternFadeCompletions, graphicPatternFadePath);
     progress.report({ increment: incrementPerStep, message: "Generating Characters completionList..." });
-    await generateCompletionList(graphicCharacters, graphicCharactersCompletions, graphicCharactersPath);
+    await generateCompletionList(graphicCharactersFileList, graphicCharactersCompletions, graphicCharactersPath);
 
     progress.report({ increment: incrementPerStep, message: "Generating audio completionList..." });
 
@@ -418,25 +572,25 @@ export async function updateFileList(progress: vscode.Progress<{
     audioSECompletions = [];
 
     progress.report({ increment: incrementPerStep, message: "Generating BGM completionList..." });
-    await generateCompletionList(audioBgm, audioBgmCompletions, audioBgmPath, CompletionType.audio);
+    await generateCompletionList(audioBgmFileList, audioBgmCompletions, audioBgmPath, CompletionType.audio);
     progress.report({ increment: incrementPerStep, message: "Generating BGS completionList..." });
-    await generateCompletionList(audioBgs, audioBgsCompletions, audioBgsPath, CompletionType.audio);
+    await generateCompletionList(audioBgsFileList, audioBgsCompletions, audioBgsPath, CompletionType.audio);
     progress.report({ increment: incrementPerStep, message: "Generating Dubs completionList..." });
-    await generateCompletionList(audioDubs, audioDubsCompletions, audioDubsPath, CompletionType.audio);
+    await generateCompletionList(audioDubsFileList, audioDubsCompletions, audioDubsPath, CompletionType.audio);
     progress.report({ increment: incrementPerStep, message: "Generating SE completionList..." });
-    await generateCompletionList(audioSE, audioSECompletions, audioSEPath, CompletionType.audio);
+    await generateCompletionList(audioSEFileList, audioSECompletions, audioSEPath, CompletionType.audio);
 
     progress.report({ increment: incrementPerStep, message: "Generating video completionList..." });
 
     videoCompletions = [];
 
-    await generateCompletionList(videoVideo, videoCompletions, videoPath, CompletionType.video);
+    await generateCompletionList(videoFileList, videoCompletions, videoPath, CompletionType.video);
 
     progress.report({ increment: incrementPerStep, message: "Generating script completionList..." });
 
     scriptCompletions = [];
 
-    await generateCompletionList(script, scriptCompletions, scriptPath, CompletionType.script);
+    await generateCompletionList(scriptFileList, scriptCompletions, scriptPath, CompletionType.script);
 
     progress.report({ increment: 0, message: "Done" });
 
