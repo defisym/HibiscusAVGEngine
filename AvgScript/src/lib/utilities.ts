@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions, getFullFileNameByType, fileListHasItem, graphicFXCompletions, getCorrectPathAndType } from '../functions/file';
+import { graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions, getFullFileNameByType, fileListHasItem, graphicFXCompletions, getCorrectPathAndType, projectConfig, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, videoPath } from '../functions/file';
 import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, internalKeywordList } from './dict';
 import { regexNumber } from './regExp';
 
@@ -245,20 +245,40 @@ export function arrayHasValue(item: string | number, array: (string | number)[])
     return false;
 }
 
+// always return the element position in array
 export function arrayUniquePush<T>(array: T[], elementToPush: T) {
-    let haveElement = false;
+    return arrayUniquePushIf(array, elementToPush, (l: T, r: T) => {
+        return l === r;
+    });
+};
 
-    for (let element of array) {
-        if (element === elementToPush) {
-            haveElement = true;
+export function arrayUniquePushIf<T>(array: T[], elementToPush: T
+    , cmp: (l: T, r: T) => boolean) {
+    let elementPosition = arrayFindIf(array, elementToPush, cmp);
+
+    if (elementPosition === -1) {
+        return array.push(elementToPush) - 1;
+    } else {
+        return elementPosition;
+    }
+
+};
+
+export function arrayFindIf<T>(array: T[], elementToPush: T
+    , cmp: (l: T, r: T) => boolean) {
+    let elementPosition = -1;
+
+    for (let i = 0; i < array.length; i++) {
+        const element = array[i];
+
+        if (cmp(element, elementToPush)) {
+            elementPosition = i;
 
             break;
         }
     }
 
-    if (!haveElement) {
-        array.push(elementToPush);
-    }
+    return elementPosition;
 };
 
 export function getMapValue<V>(item: string, map: Map<string, V>): V | undefined {
@@ -589,4 +609,82 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
     let curLinePrefix: string = curText.substring(0, curPos).trim().toLowerCase();
 
     return [curText, curStart, curLinePrefix, curPos];
+}
+
+export async function iterateScripts(
+    newScriptCallback: (script: string, document: vscode.TextDocument) => void
+    , paramCallback: (initScript: string
+        , script: string, lineNumber: number
+        , currentType: InlayHintType, currentParam: string) => void) {
+    // get settings
+    do {
+        await sleep(50);
+    } while (projectConfig === undefined);
+
+    let initSettings: string = projectConfig.System.Initial_AVG;
+    let initScript = initSettings.substring(initSettings.lastIndexOf('\\') + 1);
+
+    // generate ref list
+    let scripts: string[] = [initScript];
+    let scannedScripts: string[] = [];
+
+    let praseScript = async (scripts: string[]) => {
+        let referredScripts: string[] = [];
+
+        for (let script of scripts) {
+            let filePath = scriptPath + '\\' + script;
+
+            if (filePath.substring(filePath.length - 4).toLowerCase() !== '.asc') {
+                filePath += '.asc';
+            }
+
+            let document = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
+
+            newScriptCallback(script, document);
+
+            iterateLines(document, (text, lineNumber
+                , lineStart, lineEnd
+                , firstLineNotComment) => {
+                const params = getAllParams(text);
+                const command = params[0].substring(1);
+
+                let commandInfo = getMapValue(command, commandInfoList);
+
+                if (commandInfo === undefined) {
+                    return;
+                }
+
+                let inlayHintType = commandInfo.inlayHintType;
+
+                if (inlayHintType === undefined) {
+                    return;
+                }
+
+                const itNum = Math.min(inlayHintType.length, params.length - 1);
+
+                for (let i = 0; i < itNum; i++) {
+                    const currentType = inlayHintType[i];
+                    let currentParam = params[i + 1];
+
+                    if (currentType === InlayHintType.Chapter
+                        && !arrayHasValue(currentParam, scannedScripts)) {
+                        scannedScripts.push(currentParam);
+                        referredScripts.push(currentParam);
+                    }
+
+                    paramCallback(initScript
+                        , script, lineNumber
+                        , currentType, currentParam);
+                }
+            });
+        }
+
+        if (referredScripts.length === 0) {
+            return;
+        } else {
+            await praseScript(referredScripts);
+        }
+    };
+
+    await praseScript(scripts);
 }

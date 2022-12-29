@@ -87,10 +87,9 @@ export const scriptRelativePath = 'dialogue';
 export let scriptCompletions: vscode.CompletionItem[] = [];
 
 // preview
-const nonePreview = "暂无预览";
+export const nonePreview = "暂无预览";
 
-// const imagePreview = "<div><img src =\"{$FILENAME}\" width = \"300\"/></div>";
-const imagePreview = "<div align=\"center\"><img src =\"{$FILENAME}\" height = \"160\"/></div>";
+const imagePreview = `<div align="center"><img src ="{$FILENAME}" height = "160"/></div>`;
 const audioPreview = nonePreview;
 const videoPreview = nonePreview;
 const scriptPreview = nonePreview;

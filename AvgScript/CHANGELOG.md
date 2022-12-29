@@ -1,5 +1,9 @@
 # Change Log
 
+## 20221229
+
+- preview for asset list
+
 ## 20221228
 
 - diagnostic & hover support `\..` path

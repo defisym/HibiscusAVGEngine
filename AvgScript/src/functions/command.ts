@@ -4,10 +4,12 @@ import * as vscode from 'vscode';
 
 import { activeEditor, } from '../extension';
 import { ParamInfo, ParamTypeMap, inlayHintMap, commandInfoList, generateList, resetList, InlayHintType } from '../lib/dict';
-import { arrayUniquePush, FileType, getAllParams, getMapValue, iterateLines, sleep } from '../lib/utilities';
+import { arrayUniquePush, arrayUniquePushIf, FileType, iterateScripts, sleep } from '../lib/utilities';
 import { assetList_getWebviewContent } from '../webview/assetList';
+import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { refreshFileDiagnostics, updateDiagnostics } from './diagnostic';
-import { basePath, updateFileList, fileListInitialized, updateBasePath, projectConfig, scriptPath, graphicCharactersPath, videoPath, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, graphicCGPath, graphicPatternFadePath, graphicUIPath, getFullFilePath } from './file';
+import { basePath, updateFileList, fileListInitialized, updateBasePath, scriptPath, graphicCharactersPath, videoPath, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, graphicCGPath, graphicPatternFadePath, graphicUIPath, getFullFilePath, fileListHasItem } from './file';
+import { getLabelJumpMap } from './label';
 
 // config
 export const confBasePath: string = "conf.AvgScript.basePath";
@@ -18,6 +20,7 @@ export const commandBasePath: string = "config.AvgScript.basePath";
 export const commandRefreshAssets: string = "config.AvgScript.refreshAssets";
 export const commandUpdateCommandExtension: string = "config.AvgScript.updateCommandExtension";
 export const commandGetAssetsList: string = "config.AvgScript.getAssetsList";
+export const commandShowJumpFlow: string = "config.AvgScript.showJumpFlow";
 
 export const commandBasePath_impl = async () => {
     // 1) Getting the value
@@ -158,7 +161,10 @@ export const commandUpdateCommandExtension_impl = async () => {
 
 export let assetsListPanel: vscode.WebviewPanel;
 export interface RefInfo {
+    fileExist: boolean;
     type: FileType[];
+    uri: vscode.Uri;
+    webUri: vscode.Uri;
     refCount: number;
     refScript: Map<string, number[]>;
 };
@@ -186,152 +192,6 @@ export const commandGetAssetsList_impl = async () => {
             assetsListPanel.dispose();
         }
 
-        // get settings
-        progress.report({ increment: 10, message: "Update settings..." });
-        let initSettings: string = projectConfig.System.Initial_AVG;
-        let initScript = initSettings.substring(initSettings.lastIndexOf('\\') + 1);
-
-        // generate ref list
-        let scripts: string[] = [initScript];
-        let assets = new Map<string, RefInfo>();
-
-        let praseScript = async (scripts: string[]) => {
-            let referredScripts: string[] = [];
-
-            for (let script of scripts) {
-                let filePath = scriptPath + '\\' + script;
-
-                if (filePath.substring(filePath.length - 4).toLowerCase() !== '.asc') {
-                    filePath += '.asc';
-                }
-
-                let document = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
-
-                iterateLines(document, (text, lineNumber
-                    , lineStart, lineEnd
-                    , firstLineNotComment) => {
-                    const params = getAllParams(text);
-                    const command = params[0].substring(1);
-
-                    let commandInfo = getMapValue(command, commandInfoList);
-
-                    if (commandInfo === undefined) {
-                        return;
-                    }
-
-                    let inlayHintType = commandInfo.inlayHintType;
-
-                    if (inlayHintType === undefined) {
-                        return;
-                    }
-
-                    const itNum = Math.min(inlayHintType.length, params.length - 1);
-                    for (let i = 0; i < itNum; i++) {
-                        const currentType = inlayHintType[i];
-                        let currentParam = params[i + 1];
-
-                        let UpdateAssets = (fileName: string, fileType: FileType) => {
-                            let fullName = getFullFilePath(fileName);
-                            fileName = fullName !== undefined ? fullName : fileName;
-
-                            let refInfo = assets.get(fileName);
-
-                            if (refInfo === undefined) {
-                                assets.set(fileName
-                                    , {
-                                        type: []
-                                        , refCount: 0
-                                        , refScript: new Map<string, number[]>()
-                                    });
-                            }
-
-                            refInfo = assets.get(fileName)!;
-
-                            // ref count
-                            refInfo.refCount++;
-
-                            // ref type
-                            arrayUniquePush(refInfo.type, fileType);
-
-                            // ref position
-                            let posIt = refInfo.refScript.get(script);
-
-                            if (posIt === undefined) {
-                                refInfo.refScript.set(script, []);
-                            }
-
-                            posIt = refInfo.refScript.get(script);
-
-                            posIt?.push(lineNumber);
-                        };
-
-                        switch (currentType) {
-                            case InlayHintType.CharacterFileName:
-                                UpdateAssets(graphicCharactersPath + '\\' + currentParam, FileType.characters);
-
-                                break;
-                            case InlayHintType.DiaFileName:
-                                UpdateAssets(graphicUIPath + '\\' + currentParam, FileType.ui);
-
-                                break;
-                            case InlayHintType.NameFileName:
-                                UpdateAssets(graphicUIPath + '\\' + currentParam, FileType.ui);
-
-                                break;
-                            case InlayHintType.CGFileName:
-                                UpdateAssets(graphicCGPath + '\\' + currentParam, FileType.cg);
-
-                                break;
-                            case InlayHintType.PatternFadeFileName:
-                                UpdateAssets(graphicPatternFadePath + '\\' + currentParam, FileType.patternFade);
-
-                                break;
-                            case InlayHintType.BGMFileName:
-                                UpdateAssets(audioBgmPath + '\\' + currentParam, FileType.bgm);
-
-                                break;
-                            case InlayHintType.BGSFileName:
-                                UpdateAssets(audioBgsPath + '\\' + currentParam, FileType.bgs);
-
-                                break;
-                            case InlayHintType.DubFileName:
-                                UpdateAssets(audioDubsPath + '\\' + currentParam, FileType.dubs);
-
-                                break;
-                            case InlayHintType.SEFileName:
-                                UpdateAssets(audioSEPath + '\\' + currentParam, FileType.se);
-
-                                break;
-                            case InlayHintType.VideoFileName:
-                                UpdateAssets(videoPath + '\\' + currentParam, FileType.video);
-
-                                break;
-                            case InlayHintType.Chapter:
-                                referredScripts.push(currentParam);
-                                UpdateAssets(scriptPath + '\\' + currentParam, FileType.script);
-
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-                });
-            }
-
-            if (referredScripts.length === 0) {
-                return;
-            } else {
-                await praseScript(referredScripts);
-            }
-        };
-
-        progress.report({ increment: 70, message: "Parsing scripts..." });
-        await praseScript(scripts);
-
-        // update display
-        progress.report({ increment: 10, message: "Creating scripts..." });
-
         assetsListPanel = vscode.window.createWebviewPanel(
             'AssetList', // Identifies the type of the webview. Used internally
             'Asset List', // Title of the panel displayed to the user
@@ -339,12 +199,245 @@ export const commandGetAssetsList_impl = async () => {
             {
                 enableScripts: true
                 , enableForms: true
+                , enableCommandUris: true
+                , localResourceRoots: [vscode.Uri.file(basePath)]
             } // Webview options. More on these later.
         );
+
+        // generate ref list
+        progress.report({ increment: 80, message: "Parsing scripts..." });
+
+        let assets = new Map<string, RefInfo>();
+
+        await iterateScripts(
+            (script: string, document: vscode.TextDocument) => { },
+            (initScript: string
+                , script: string, lineNumber: number
+                , currentType: InlayHintType, currentParam: string) => {
+                let UpdateAssets = (fileName: string, fileType: FileType) => {
+                    let fullName = getFullFilePath(fileName);
+                    fileName = fullName !== undefined ? fullName : fileName;
+
+                    let refInfo = assets.get(fileName);
+
+                    if (refInfo === undefined) {
+
+                        assets.set(fileName, {
+                            fileExist: fileListHasItem(fileName)
+                            , type: []
+                            , uri: vscode.Uri.file(fileName)
+                            , webUri: assetsListPanel.webview.asWebviewUri(vscode.Uri.file(fileName))
+                            , refCount: 0
+                            , refScript: new Map<string, number[]>()
+                        });
+                    }
+
+                    refInfo = assets.get(fileName)!;
+
+                    // ref count
+                    refInfo.refCount++;
+
+                    // ref type
+                    arrayUniquePush(refInfo.type, fileType);
+
+                    // ref position
+                    let posIt = refInfo.refScript.get(script);
+
+                    if (posIt === undefined) {
+                        refInfo.refScript.set(script, []);
+                    }
+
+                    posIt = refInfo.refScript.get(script);
+
+                    posIt?.push(lineNumber);
+                };
+
+                switch (currentType) {
+                    case InlayHintType.CharacterFileName:
+                        UpdateAssets(graphicCharactersPath + '\\' + currentParam, FileType.characters);
+
+                        break;
+                    case InlayHintType.DiaFileName:
+                        UpdateAssets(graphicUIPath + '\\' + currentParam, FileType.ui);
+
+                        break;
+                    case InlayHintType.NameFileName:
+                        UpdateAssets(graphicUIPath + '\\' + currentParam, FileType.ui);
+
+                        break;
+                    case InlayHintType.CGFileName:
+                        UpdateAssets(graphicCGPath + '\\' + currentParam, FileType.cg);
+
+                        break;
+                    case InlayHintType.PatternFadeFileName:
+                        UpdateAssets(graphicPatternFadePath + '\\' + currentParam, FileType.patternFade);
+
+                        break;
+                    case InlayHintType.BGMFileName:
+                        UpdateAssets(audioBgmPath + '\\' + currentParam, FileType.bgm);
+
+                        break;
+                    case InlayHintType.BGSFileName:
+                        UpdateAssets(audioBgsPath + '\\' + currentParam, FileType.bgs);
+
+                        break;
+                    case InlayHintType.DubFileName:
+                        UpdateAssets(audioDubsPath + '\\' + currentParam, FileType.dubs);
+
+                        break;
+                    case InlayHintType.SEFileName:
+                        UpdateAssets(audioSEPath + '\\' + currentParam, FileType.se);
+
+                        break;
+                    case InlayHintType.VideoFileName:
+                        UpdateAssets(videoPath + '\\' + currentParam, FileType.video);
+
+                        break;
+                    case InlayHintType.Chapter:
+                        UpdateAssets(scriptPath + '\\' + currentParam, FileType.script);
+
+                        break;
+
+                    default:
+                        break;
+                }
+            });
+
+        // update display
+        progress.report({ increment: 10, message: "Creating scripts..." });
 
         // And set its HTML content
         progress.report({ increment: 10, message: "Generating webview..." });
         assetsListPanel.webview.html = assetList_getWebviewContent(assets);
+
+        // done
+        progress.report({ increment: 0, message: "Done" });
+
+        return;
+    });
+};
+
+export let jumpFlowPanel: vscode.WebviewPanel;
+export interface NodeInfo {
+    type: InlayHintType,
+    script: string,
+    lineNumber: number
+};
+
+// TODO not finished yet
+export const commandShowJumpFlow_impl = async () => {
+    // wait for file refresh
+    if (!fileListInitialized) {
+        vscode.window.showInformationMessage('Waiting for file scanning complete');
+    }
+
+    do {
+        await sleep(50);
+    } while (!fileListInitialized);
+
+    vscode.window.withProgress({
+        // location: vscode.ProgressLocation.Notification,
+        location: vscode.ProgressLocation.Window,
+        title: "Generating jump flows...\t",
+        cancellable: false
+    }, async (progress, token) => {
+        // close old ones
+        progress.report({ increment: 0, message: "Closing tab..." });
+
+        if (jumpFlowPanel !== undefined) {
+            jumpFlowPanel.dispose();
+        }
+
+        jumpFlowPanel = vscode.window.createWebviewPanel(
+            'JumpFlow', // Identifies the type of the webview. Used internally
+            'Jump Flow', // Title of the panel displayed to the user
+            vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
+            {
+                enableScripts: true
+                , enableForms: true
+                , enableCommandUris: true
+                , localResourceRoots: [vscode.Uri.file(basePath)]
+            } // Webview options. More on these later.
+        );
+
+        // generate jump flow
+        progress.report({ increment: 80, message: "Parsing scripts..." });
+
+        // [node, jump to index]
+        let jumpTable: [NodeInfo, number][] = [];
+        let curLabelJumpMap: Map<string, number>;
+
+        await iterateScripts(
+            (script: string, document: vscode.TextDocument) => {
+                curLabelJumpMap = getLabelJumpMap(document);
+            },
+            (initScript: string
+                , script: string, lineNumber: number
+                , currentType: InlayHintType, currentParam: string) => {
+                let cur: NodeInfo = { type: currentType, script: script, lineNumber: lineNumber };
+                let target: NodeInfo = { type: currentType, script: script, lineNumber: -1 };
+
+                let cmp = (l: [NodeInfo, number], r: [NodeInfo, number]) => {
+                    return l[0].type === r[0].type
+                        && l[0].script === r[0].script;
+                };
+
+                let updateNodes = () => {
+                    let targetIndexInArray = arrayUniquePushIf(jumpTable, [target, -1], cmp);
+                    let curIndexInArray = arrayUniquePushIf(jumpTable, [cur, targetIndexInArray], cmp);
+
+                    jumpTable[curIndexInArray][0] = cur;
+                    jumpTable[curIndexInArray][1] = targetIndexInArray;
+                };
+
+                switch (currentType) {
+                    case InlayHintType.Label: {
+                        const labelTarget = curLabelJumpMap.get(currentParam);
+
+                        if (labelTarget === undefined) {
+                            break;
+                        }
+
+                        cur.script = cur.script + " Label at " + lineNumber.toString();
+
+                        target.script = target.script + " Label at " + labelTarget.toString();
+                        target.lineNumber = labelTarget;
+
+                        updateNodes();
+
+                        break;
+                    }
+                    case InlayHintType.Frame: {
+                        cur.script = cur.script + " Frame jump";
+
+                        target.script = "Frame " + currentParam;
+
+                        updateNodes();
+
+                        break;
+                    }
+                    case InlayHintType.Chapter: {
+                        cur.script = cur.script + " Chapter jump";
+
+                        target.script = currentParam + " Chapter jump";
+
+                        updateNodes();
+
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+            });
+
+        // update display
+        progress.report({ increment: 10, message: "Creating scripts..." });
+
+
+        // And set its HTML content
+        progress.report({ increment: 10, message: "Generating webview..." });
+        jumpFlowPanel.webview.html = jumpFlow_getWebviewContent(jumpTable);
 
         // done
         progress.report({ increment: 0, message: "Done" });

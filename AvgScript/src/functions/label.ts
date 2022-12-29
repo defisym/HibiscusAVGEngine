@@ -68,6 +68,21 @@ export function getLabelCompletion(document: vscode.TextDocument) {
     });
 }
 
+export function getLabelJumpMap(document: vscode.TextDocument) {
+    let labelJumpMap: Map<string, number> = new Map();
+
+    iterateLines(document, (text, lineNumber
+        , lineStart, lineEnd
+        , firstLineNotComment) => {
+        if (text.match(/(;.*)/gi)) {
+            let label = text.substring(text.indexOf(";") + 1);
+            labelJumpMap.set(label, lineNumber);
+        }
+    });
+
+    return labelJumpMap;
+}
+
 export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgScript',
     {
         provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
