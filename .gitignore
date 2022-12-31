@@ -24,3 +24,6 @@ Utilities/RGBDefiner/Assets/
 
 # Program/_Docs/DataBaseEditor/.vs/*
 *.bak
+
+# Release
+*_B*.zip
