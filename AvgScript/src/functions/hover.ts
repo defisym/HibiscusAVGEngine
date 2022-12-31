@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { getNumberOfParam, getHoverContents, getType, FileType, getParamAtPosition, currentLineNotComment, getFileCompletionByType } from '../lib/utilities';
 import {
-    commandDocList, settingsParamDocList, langDocList
+    commandDocList, settingsParamDocList, langDocList, normalTextDoc
 } from '../lib/dict';
 import { getLabelComment } from './label';
 import { fileListInitialized } from './file';
@@ -23,19 +23,26 @@ export const hover = vscode.languages.registerHoverProvider('AvgScript', {
 
         let word: string = document.getText(range).toLowerCase();
 
+        // settings
         if (line.startsWith('#Settings='.toLowerCase())) {
             return new vscode.Hover(getHoverContents(word, settingsParamDocList));
         }
 
         if (getNumberOfParam(linePrefix!) === 0) {
+            // command
             if ((linePrefix!.lastIndexOf('@', curPos!) !== -1
                 || linePrefix!.lastIndexOf('#', curPos!) !== -1)) {
                 return new vscode.Hover(getHoverContents(word, commandDocList));
             }
-            else if (line.startsWith('Lang'.toLowerCase())
+
+            // language prefix
+            if (line.startsWith('Lang'.toLowerCase())
                 && curPos! <= 'Lang[ZH]'.length) {
                 return new vscode.Hover(getHoverContents(word, langDocList));
             }
+
+            // normal text
+            return new vscode.Hover(new vscode.MarkdownString(normalTextDoc));
         }
 
         return undefined;

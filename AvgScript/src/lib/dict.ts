@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 export let sharpKeywordList: string[] = [];
-
 export let atKeywordList: string[] = [];
-
 export let keywordList: string[] = [];
 
 export let internalKeywordList: string[] = [];
-
 export let deprecatedKeywordList: string[] = [];
 
 // cannot be created by user
@@ -46,22 +43,8 @@ export const internalImageID = new Map<number, internalImageIDAvailableBehavior>
 
 export type docList = Map<string, string[]>;
 
-export const settingsParamList: string[] = [
-    "LangSwitchAble",
-    "VNMode",
-    "VN",
-    "LiteMode",
-    "Lite",
-    "UnSkipAble",
-    "NoHistory",
-    "NoHistoryJump",
-    "ResetHistory",
-    "LoadOnCall",
-    "LoadAtStart",
-    "LoadAll",
-    "EraseAtEnd",
-    "EraseAtEOF",
-];
+export let settingsParamList: string[] = [];
+
 export const settingsParamDocList = new Map<string, string[]>([
     ["Settings", ["在脚本的第一行可以使用`#Settings`指令对脚本进行设置，格式如下:"
         , "\t#Settings=Param1|Param2|..."
@@ -95,6 +78,194 @@ export const langDocList = new Map<string, string[]>([
 ]);
 
 export let commandDocList = new Map<string, string[]>();
+
+export const normalTextDoc = `
+### 基本
+
+非注释区块内，无\`;\`、\`(\`、\`//\`、\`#\`、\`@\`前缀的行会被视为文本，非\`$\`开头且具有姓名部分的行会被视为对白，其余情况视为旁白
+
+| 旁白前缀 | 姓名   | 头像提示     | 英文冒号 | 桥接符   | 文本       |
+| -------- | ------ | ------------ | -------- | -------- | ---------- |
+| \`($)\`    | \`Name\` | \`[HeadHint]\` | \`:\`      | \`(&/&&)\` | \`Dialogue\` |
+
+### 旁白前缀
+
+存在该前缀，且存在姓名部分时，该行按照旁白处理
+
+### 姓名
+
+说话人的姓名，默认作为语音提示以查找音量定义。在头像提示不存在或头像提示指定的文件不存在时，姓名也用作替代头像提示
+
+支持格式控制
+
+### 头像提示
+
+姓名末尾的\`[FileName]\`会被视为头像提示，优先按照其指定的文件名在\`Data\Graphics\Characters\Heads\`下查找，若文件不存在，则使用姓名作为替代文件名查找。若姓名对应的文件名也不存在，则显示对应文件夹下的\`Unknown.png\`作为替代
+
+### 桥接符
+
+在非VN模式下可以使用桥接符号\`&\`对旁白文本进行桥接，以实现在文本显示途中追加演出，可配合\`#AutoChangePage\`等指令实现自动翻页演出
+
+\`\`\`C++
+对话中间插入演出。
+......
+&这是不换行的演出。
+......
+&&这是换行的演出。
+\`\`\`
+
+\`\`\`C++
+对话中间插入演出。这是不换行的演出。
+这是换行的演出。
+\`\`\`
+
+### 文本
+
+可使用\`/n\`作为换行的转义字符
+
+支持格式控制
+
+### 格式控制
+
+#### 通用
+
+##### 转义
+
+\`/[\`会被转义为\`]\`
+
+##### 忽略
+
+\`[^]\`后的所有格式控制都会被忽略
+
+##### 忽略非图标
+
+\`[^-]\`后除\`[ICon]\`外的所有格式控制，包括\`[IConOffsetX]\`等图标格式控制都会被忽略
+
+##### 取消忽略
+
+\`[!^]\`取消忽略所有格式
+
+##### 重置
+
+\`[!]\`重置格式到默认状态(即对象属性定义)
+
+#### 图标
+
+#### 插入图标
+
+\`[ICon = Direction, Frame]\`
+
+在文本中插入图标。若参数不足，则从右至左引用，即有一个参数时认为其是\`Frame\`
+
+如果链接的是其他对象，则需要手动处理每个参数，并返回引用Key和对应的Surface指针
+
+例:将文件路径的哈希值作为Key并返回库中的指针
+
+\`这里是头像[ICon = heads\<PF1>]\`
+
+#### 图标格式
+
+##### 图标偏移
+
+\`[IConOffsetX = 0.0][/IConOffsetX]\`&\`[IConOffsetY = 0.0][/IConOffsetY]\`
+
+相对于当前字符大小百分比的偏移量，用于对齐图标与文本
+
+参数为时\`!\`重置至默认值，参数以\`+/-\`开头则增/减至当前值
+
+##### 图标比例
+
+\`[IConScale = 1.0][/IConScale]\`
+
+图标缩放比例
+
+参数为时\`!\`重置至默认值，参数以\`+/-\`开头则增/减至当前值
+
+##### 图标重采样
+
+\`[IConResample = 1][/IConResample]\`
+
+缩放时是否对原始图像进行重采样，1 = 启用，0 = 禁用
+
+参数为时\`!\`重置至默认值
+
+#### 震动
+
+\`[Shake = Type, Amplitude, TimerCoef, CharOffset]\`
+
+控制文本震动。若参数不足，则从左至右引用，即有一个参数时认为其是\`Type\`，两个参数时认为其是\`Type\`与\`Amplitude\`
+
+\`Type\`: 震动类型，默认为\`None\`，可为\`X\`，\`Y\`，\`Random\`，其中\`X\`、\`Y\`基于三角函数
+\`Amplitude\`: 震动幅度，默认为\`1.0\`，相对于震动文本的大小。如文本高度为\`30\`，\`Amplitude = 0.5\`，则震动幅度为\`15\`，会在\`+/- 15\`范围内震动
+\`TimerCoef\`: 时间参数，默认为\`1.0\`，决定震动的速度
+\`CharOffset\`: 字符偏移，默认为\`1.0 / 6.0\`，决定相邻字符的运动间隔，数值越大，运动间隔越大。该指仅在\`X\`、\`Y\`模式下有效，为相对于\`360°\`的系数。即\`CharOffset = 0.2\`，间隔为\`72°\`
+
+#### 颜色
+
+\`[Color = #FFFFFFFF][/Color]\` or \`[C = #FFFFFFFF][/C]\`
+
+颜色参数为十六进制，顺序为\`AARRGGBB\`，或\`A, R, G, B\`
+
+当RGB参数少于四个时，按照如下顺序引用:
+
+\`\`\`C++
+R
+R G
+R G B
+A R G B
+\`\`\`
+
+参数为时\`!\`重置至默认值，参数以\`+/-\`开头则增/减至当前值
+
+#### 字体
+
+更新\`LogFont\`并创建绘制字体指针
+
+##### 字体
+
+\`[Font = FontName][/Font]\` or \`[F = FontName][/F]\`
+
+参数为时\`!\`重置至默认值
+
+##### 字号
+
+\`[Size = FontSize][/Size]\` or \`[S = FontSize][/S]\`
+
+参数为时\`!\`重置至默认值，参数以\`+/-\`开头则增/减至当前值
+
+##### 加粗
+
+\`[Bold][/Bold]\` or \`[B][/B]\`
+
+##### 取消加粗
+
+\`[!Bold][/!Bold]\` or \`[!B][/!B]\`
+
+##### 倾斜
+
+\`[Italic][/Italic]\` or \`[I][/I]\`
+
+##### 取消倾斜
+
+\`[!Italic][/!Italic]\` or \`[!I][/!I]\`
+
+##### 下划线
+
+\`[Underline][/Underline]\` or \`[U][/U]\`
+
+##### 取消下划线
+
+\`[!Underline][/!Underline]\` or \`[!U][/!U]\`
+
+##### 删除线
+
+\`[StrikeOut][/StrikeOut]\` or \`[S][/S]\`
+
+##### 取消删除线
+
+\`[!StrikeOut][/!StrikeOut]\` or \`[!S][/!S]\`
+
+`;
 
 export enum ParamType {
     String,
@@ -307,6 +478,8 @@ export interface ParamInfo {
     inlayHintType?: number[];
     internal?: boolean;
     deprecated?: boolean;
+    VNModeOnly?: boolean;
+    NonVNModeOnly?: boolean;
 }
 
 // base list
@@ -817,6 +990,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , minParam: 0, maxParam: 0
         , description: ["在文本间插入一个空行。建议在对白文本前后使用，以示区分"]
         , type: []
+        , VNModeOnly: true
     }],
     ["VNMode_ChangePage", {
         prefix: "#"
@@ -824,6 +998,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , description: ["切换页面"
             , "由于VN模式允许一个页面内显示多句文本，因此程序无法自动处理，需要手动指定翻页点。不进行翻页会导致文本显示出界"]
         , type: []
+        , VNModeOnly: true
     }],
 
 
@@ -1353,6 +1528,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误"]
         , type: [ParamType.Color]
         , inlayHintType: [InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
+        , NonVNModeOnly: true
     }],
     ["NameSize", {
         prefix: "#"
@@ -1361,6 +1537,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "定义姓名文字的大小，默认大小为18"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.Size]
+        , NonVNModeOnly: true
     }],
     ["NameFont", {
         prefix: "#"
@@ -1369,6 +1546,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "定义姓名文字的字体"]
         , type: [ParamType.String]
         , inlayHintType: [InlayHintType.Font]
+        , NonVNModeOnly: true
     }],
 
     ["NameShaderOn", {
@@ -1379,12 +1557,14 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "启用姓名勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`OutlinePixel`"]
         , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.OutlinePixel, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
+        , NonVNModeOnly: true
     }],
     ["NameShaderOff", {
         prefix: "#"
         , minParam: 0, maxParam: 0
         , description: ["关闭姓名勾边效果"]
         , type: []
+        , NonVNModeOnly: true
     }],
 
     ["NameOutColor", {
@@ -1395,6 +1575,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "启用勾边时，更改姓名勾边颜色为`RGB/#FFFFFF`"]
         , type: [ParamType.Color]
         , inlayHintType: [InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
+        , NonVNModeOnly: true
     }],
     ["NameOutPixel", {
         prefix: "#"
@@ -1403,6 +1584,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "启用勾边时，更改对白勾边像素数为`OutlinePixel`"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.OutlinePixel]
+        , NonVNModeOnly: true
     }],
     ["NameShadow", {
         prefix: "#"
@@ -1411,6 +1593,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "打开或关闭阴影模式，该模式仅在描边启用时有效"]
         , type: [ParamType.ZeroOne]
         , inlayHintType: [InlayHintType.ShadowMode]
+        , NonVNModeOnly: true
     }],
 
     //----------
@@ -1453,6 +1636,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "切换姓名栏，解析到文本后进行，调用指令`@NameTrans`"]
         , type: [ParamType.File]
         , inlayHintType: [InlayHintType.NameFileName]
+        , NonVNModeOnly: true
     }],
     ["NameChange", {
         prefix: "@"
@@ -1462,6 +1646,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "切换姓名栏，解析到文本后进行，调用指令`@NameTrans`"]
         , type: [ParamType.File]
         , inlayHintType: [InlayHintType.NameFileName]
+        , NonVNModeOnly: true
     }],
     ["NameTrans", {
         prefix: "@"
@@ -1472,6 +1657,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.ZeroOne]
         , inlayHintType: [InlayHintType.Force]
         , internal: true
+        , NonVNModeOnly: true
     }],
     ["StashUIGraphic", {
         prefix: "@"
@@ -2824,4 +3010,13 @@ export function generateList() {
     });
 
     keywordList = sharpKeywordList.concat(atKeywordList);
+
+    // settings    
+    settingsParamList = [];
+
+    settingsParamDocList.forEach((value: string[], key: string) => {
+        if (key.toLowerCase() !== 'Settings'.toLowerCase()) {
+            settingsParamList.push(key);
+        }
+    });
 }

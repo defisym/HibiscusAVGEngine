@@ -123,33 +123,37 @@ export function getParamAtPosition(src: string, position: number) {
     return src.substring(start + 1, end);
 }
 
-export function getAllParams(src: string) {
-    let params: string[] = [];
+export function getSubStrings(src: string, delimiters: string[]) {
+    let subStr: string[] = [];
 
     let start = -1;
     let end = -1;
 
     let lastChar = src[src.length - 1];
 
-    if (!delimiter.includes(lastChar)) {
-        src = src + delimiter[0];
+    if (!delimiters.includes(lastChar)) {
+        src = src + delimiters[0];
     }
 
     for (let i = 0; i < src.length; i++) {
-        for (let j = 0; j < delimiter.length; j++) {
-            if (src[i] === delimiter[j]
+        for (let j = 0; j < delimiters.length; j++) {
+            if (src[i] === delimiters[j]
                 || i === src.length - 1) {
                 start = end;
                 end = i;
 
-                params.push(src.substring(start + 1, end));
+                subStr.push(src.substring(start + 1, end));
             }
         }
     }
 
-    params.pop();
+    subStr.pop();
 
-    return params;
+    return subStr;
+}
+
+export function getAllParams(src: string) {
+    return getSubStrings(src, delimiter);
 }
 
 // position: Nth param

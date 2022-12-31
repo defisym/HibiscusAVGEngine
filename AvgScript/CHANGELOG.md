@@ -1,5 +1,11 @@
 # Change Log
 
+## 20221231
+
+- filter setting params that already exists
+- check VNMode command usability
+- hover for normal text
+
 ## 20221229
 
 - preview for asset list

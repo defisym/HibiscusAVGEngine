@@ -26,6 +26,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
     let settings = false;
     let liteMode = false;
+    let bVNMode = false;
+
     let EOF = false;
     let nextJMP = false;
 
@@ -78,6 +80,10 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                     liteMode = true;
                 }
 
+                if (!settings && text.match(/VN/gi)) {
+                    bVNMode = true;
+                }
+
                 if (settings) {
                     diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
                         , "Duplicated Setting"
@@ -91,8 +97,10 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
             if (text.match(/#EOF/gi)) {
                 EOF = true;
+
                 return;
             }
+
             if (text.match(/(#CJMP|#JMPCha|#FJMP|#JMPFra)/gi)) {
                 nextJMP = true;
             }
@@ -168,6 +176,18 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                     , vscode.DiagnosticSeverity.Information));
 
                 return;
+            }
+
+            if (!bVNMode && paramDefinition.VNModeOnly) {
+                diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
+                    , "Using VNMode Exclusive command in Non VNMode"
+                    , vscode.DiagnosticSeverity.Warning));
+            }
+
+            if (bVNMode && paramDefinition.NonVNModeOnly) {
+                diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
+                    , "Using Non VNMode Exclusive command in VNMode"
+                    , vscode.DiagnosticSeverity.Warning));
             }
 
             if ((prefix === '@' && arrayHasValue(command, sharpKeywordList))
