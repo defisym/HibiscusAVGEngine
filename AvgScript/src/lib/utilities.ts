@@ -6,6 +6,49 @@ import { regexNumber } from './regExp';
 
 const delimiter = ['=', ':'];
 
+declare global {
+    interface String {
+        replaceAt(index: number, replacement: string): string;
+        replaceRange(start: number, end: number, replacement: string): string;
+        replaceRanges(ranges: [number, number][], replacement: string): string;
+    }
+}
+
+String.prototype.replaceAt = function (index: number, replacement: string) {
+    return this.substring(0, index) + replacement + this.substring(index + replacement.length);
+};
+
+String.prototype.replaceRange = function (start: number, end: number, replacement: string) {
+    return this.substring(0, start) + replacement + this.substring(end + 1);
+};
+
+String.prototype.replaceRanges = function (ranges: [number, number][], replacement: string) {
+    let ret: string = '';
+    let subRanges: number[] = [];
+
+    subRanges.push(-1);
+
+    for (const [start, end] of ranges) {
+        subRanges.push(start);
+        subRanges.push(end);
+    }
+
+    subRanges.push(-1);
+
+    for (let i = 0; i < subRanges.length / 2; i++) {
+        const start = subRanges[i * 2] + 1;
+        const end = subRanges[i * 2 + 1];
+
+        if (end !== -1) {
+            ret += this.substring(start, end);
+        } else {
+            ret += this.substring(start);
+        }
+    }
+
+    return ret;
+};
+
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -591,7 +634,7 @@ export function iterateLines(document: vscode.TextDocument
     }
 }
 
-export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position): undefined[] | [string, number, string, number] {
+export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position): undefined[] | [string, number, string, number, string] {
     const curLine = position.line;
     let curText = "";
     let curStart = 0;
@@ -600,7 +643,8 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
         , lineStart, lineEnd
         , firstLineNotComment) => {
         if (lineNumber === curLine) {
-            curText = text.toLowerCase();
+            // curText = text.toLowerCase();
+            curText = text;
             curStart = lineStart;
         }
     });
@@ -612,7 +656,7 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
     let curPos = position.character - curStart!;
     let curLinePrefix: string = curText.substring(0, curPos).trim().toLowerCase();
 
-    return [curText, curStart, curLinePrefix, curPos];
+    return [curText.toLowerCase(), curStart, curLinePrefix, curPos, curText];
 }
 
 export async function iterateScripts(

@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230101
+
+- add parser for dialogue text
+
 ## 20221231
 
 - filter setting params that already exists

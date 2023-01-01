@@ -79,6 +79,24 @@ export const langDocList = new Map<string, string[]>([
 
 export let commandDocList = new Map<string, string[]>();
 
+export const dialogueTextElement = `
+| 姓名    | 头像提示    | 语音提示   | 文本        |
+| ------- | ----------- | ---------- | ----------- |
+| \`{$Name}\` | \`{$HeadHint}\` | \`{$DubHint}\` | \`{$Dialogue}\` |
+`;
+
+export const narratorTextElement = `
+| 头像提示    | 语音提示   | 文本        |
+| ----------- | ---------- | ----------- |
+| \`{$HeadHint}\` | \`{$DubHint}\` | \`{$Dialogue}\` |
+`;
+
+export const narratorTextPlain = `
+| 文本        |
+| ----------- |
+| \`{$Dialogue}\` |
+`;
+
 export const normalTextDoc = `
 ### 基本
 
@@ -2597,7 +2615,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , minParam: 1, maxParam: 1
         , description: ["\t@CG=filename.png"
             , "\t@CGChange=filename.png"
-            , "切换CG，叠化阶段进行"]
+            , "切换CG，叠化阶段进行"
+            , "由于视频指令会在特定时刻更新CG，故该指令会在视频打开时调用`@CloseVideo_Core`关闭视频，避免两者冲突"]
         , type: [ParamType.File]
         , inlayHintType: [InlayHintType.CGFileName]
     }],
@@ -2606,7 +2625,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , minParam: 1, maxParam: 1
         , description: ["\t@CG=filename.png"
             , "\t@CGChange=filename.png"
-            , "切换CG，叠化阶段进行"]
+            , "切换CG，叠化阶段进行"
+            , "由于视频指令会在特定时刻更新CG，故该指令会在视频打开时调用`@CloseVideo_Core`关闭视频，避免两者冲突"]
         , type: [ParamType.File]
         , inlayHintType: [InlayHintType.CGFileName]
     }],
