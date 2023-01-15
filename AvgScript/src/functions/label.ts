@@ -9,6 +9,10 @@ export let labelJumpMap: Map<string, number> = new Map();
 
 export function getLabelPos(input: string) {
     for (let i in labelCompletions) {
+        if (i === "empty") {
+            continue;
+        }
+
         let label = labelCompletions[i].label;
         if (typeof label === "string") {
             if (label.toLowerCase() === input.toLowerCase()) {
@@ -26,8 +30,8 @@ export function getLabelPos(input: string) {
 }
 
 export function getLabelComment(input: string) {
-    for (let i in labelCompletions) {
-        let label = labelCompletions[i].label;
+    for (let labelCompletion of labelCompletions) {
+        let label = labelCompletion.label;
         if (typeof label === "string") {
             if (label.toLowerCase() === input.toLowerCase()) {
                 return label;

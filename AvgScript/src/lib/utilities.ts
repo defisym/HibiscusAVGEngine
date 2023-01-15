@@ -7,6 +7,16 @@ import { regexNumber } from './regExp';
 const delimiter = ['=', ':'];
 
 declare global {
+    interface Array<T> {
+        empty(): boolean;
+    }
+}
+
+Array.prototype.empty = function () {
+    return this.length === 0;
+};
+
+declare global {
     interface String {
         replaceAt(index: number, replacement: string): string;
         replaceRange(start: number, end: number, replacement: string): string;
@@ -65,29 +75,14 @@ export async function getFileStat(filePath: string) {
     }
 }
 
-// Obsolete due to change of sub folder support
-// export function getFileName(name: string, fileList: vscode.CompletionItem[]) {
-//     name = name.toLowerCase();
-
-//     for (let i in fileList) {
-//         let element = fileList[i].insertText?.toString().toLowerCase()!;
-
-//         if (element?.startsWith(name)) {
-//             return element;
-//         }
-//     };
-
-//     return undefined;
-// }
-
 export function getCompletion(name: string, fileList: vscode.CompletionItem[]) {
     name = name.toLowerCase();
 
-    for (let i in fileList) {
-        let element = fileList[i].insertText?.toString().toLowerCase()!;
+    for (let file of fileList) {
+        let element = file.insertText?.toString().toLowerCase()!;
 
         if (element?.startsWith(name)) {
-            return fileList[i];
+            return file;
         }
     };
 
@@ -274,6 +269,10 @@ export function arrayHasValue(item: number, array: number[]): boolean;
 export function arrayHasValue(item: string, array: string[]): boolean;
 export function arrayHasValue(item: string | number, array: (string | number)[]): boolean {
     for (let i in array) {
+        if(i === "empty"){
+            continue;
+        }
+        
         if (typeof item !== (typeof array[i])) {
             return false;
         }
@@ -331,7 +330,15 @@ export function arrayFindIf<T>(array: T[], elementToPush: T
 export function getMapValue<V>(item: string, map: Map<string, V>): V | undefined {
     let ret: V | undefined = undefined;
 
+    if (map === undefined || item === undefined) {
+        return undefined;
+    }
+
     map.forEach((value, key) => {
+        if(key === undefined){
+            return;
+        }
+
         if (key.toLowerCase() === item.toLowerCase()) {
             ret = value;
         }

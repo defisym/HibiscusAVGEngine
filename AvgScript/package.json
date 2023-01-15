@@ -137,6 +137,29 @@
                                 }
                             }
                         }
+                    },
+                    "conf.AvgScript.replaceScript":{
+                        "type":"array",
+                        "order": 2,
+                        "description":"Regex used to replace script",
+                        "items": {
+                            "required": [
+                                "regex",
+                                "repStr"
+                            ],
+                            "type":"object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "regex":{
+                                    "type":"string",
+                                    "description": "Regex used to replace script"
+                                },
+                                "repStr":{
+                                    "type":"string",
+                                    "description": "string to replace"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -176,6 +199,13 @@
                 "title": "Show the jump flow in project",
                 "icon": "media/AvgScript.png",
                 "shortTitle": "Jump Flow"
+            },
+            {
+                "category": "AvgScript",
+                "command": "config.AvgScript.replaceScript",
+                "title": "Replace raw script to generate basic script",
+                "icon": "media/AvgScript.png",
+                "shortTitle": "Replace Script"
             }
         ],
         "menus": {

@@ -26,5 +26,77 @@
                 "PhoneNumber",
             ]
         }
+    ],
+    "conf.AvgScript.replaceScript": [
+        // conver to English char
+        {
+            "regex": "：",
+            "repStr": ":"
+        },
+        {
+            "regex": "（",
+            "repStr": "("
+        },
+        {
+            "regex": "）",
+            "repStr": ")"
+        },
+        // conver script
+        {
+            "regex": "(.*)(\\((([a-zA-z]).*)\\))[:：][\\s]?[“「](.*)[”」]",
+            "repStr": "// $1 $2\n$1:$5\n@CharChange=$4\\$3:ID"
+        },
+        {
+            "regex": "(@CharChange=.*?)(-[左中右])(:)",
+            "repStr": "$1$3"
+        },
+        {
+            "regex": "(.*)[:：][\\s]?[“「](.*)[”」]",
+            "repStr": "$1:$2"
+        },
+        {
+            "regex": "^「(.*)」",
+            "repStr": "// Unknown\n$:$1"
+        },
+        {
+            "regex": "(场景[:：][\\s]*(.*))",
+            "repStr": "// $1\n@CG=$2"
+        },
+        {
+            "regex": "(时间[:：].*)",
+            "repStr": "// $1"
+        },
+        {
+            "regex": "(【.*】)",
+            "repStr": "// $1"
+        },
+        {
+            "regex": "(基利尔):",
+            "repStr": "$1[<PF1>]"
+        },
+        {
+            "regex": "(墨威):",
+            "repStr": "$1[<PF2>]"
+        },
+        {
+            "regex": "(菲利雅):",
+            "repStr": "$1[<PF3>]"
+        },
+        {
+            "regex": "(丽丽娅):",
+            "repStr": "$1[<PF4>]"
+        },
+        {
+            "regex": "(威廉|菲尔):",
+            "repStr": "$1[<PF5>]"
+        },
+        {
+            "regex": "(爱[奈倷]):",
+            "repStr": "$1[<PF6>]"
+        },
+        {
+            "regex": "(赛里斯):",
+            "repStr": "$1[<PF7>]"
+        },
     ]
 }

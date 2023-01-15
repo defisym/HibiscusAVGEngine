@@ -14,6 +14,7 @@ import { getLabelJumpMap } from './label';
 // config
 export const confBasePath: string = "conf.AvgScript.basePath";
 export const confCommandExt: string = "conf.AvgScript.commandExtension";
+export const confReplaceScript: string = "conf.AvgScript.replaceScript";
 
 // command
 export const commandBasePath: string = "config.AvgScript.basePath";
@@ -21,6 +22,7 @@ export const commandRefreshAssets: string = "config.AvgScript.refreshAssets";
 export const commandUpdateCommandExtension: string = "config.AvgScript.updateCommandExtension";
 export const commandGetAssetsList: string = "config.AvgScript.getAssetsList";
 export const commandShowJumpFlow: string = "config.AvgScript.showJumpFlow";
+export const commandReplaceScript: string = "config.AvgScript.replaceScript";
 
 export const commandBasePath_impl = async () => {
     // 1) Getting the value
@@ -108,7 +110,6 @@ export const commandUpdateCommandExtension_impl = async () => {
             break;
         }
 
-
         let insertCommandExt = (commandExtItem: CommandExt) => {
             let command = commandExtItem.command;
 
@@ -125,16 +126,16 @@ export const commandUpdateCommandExtension_impl = async () => {
 
             let paramType = commandExtItem.paramType;
 
-            for (let type in paramType) {
-                paramInfo.type.push(ParamTypeMap.get(paramType[type])!);
+            for (let type of paramType) {
+                paramInfo.type.push(ParamTypeMap.get(type)!);
             }
 
             let inlayHints = commandExtItem.inlayHint;
 
             if (inlayHints !== undefined) {
-                for (let hints in inlayHints) {
+                for (let hints of inlayHints) {
                     let pos = inlayHintMap.size;
-                    inlayHintMap.set(pos, inlayHints[hints]);
+                    inlayHintMap.set(pos, hints);
                     paramInfo.inlayHintType?.push(pos);
                 }
             }
@@ -142,8 +143,8 @@ export const commandUpdateCommandExtension_impl = async () => {
             commandInfoList.set(command, paramInfo);
         };
 
-        for (let i in commandExt!) {
-            insertCommandExt(commandExt[i]);
+        for (let commandExtItem of commandExt!) {
+            insertCommandExt(commandExtItem);
         }
     } while (0);
 
@@ -441,6 +442,83 @@ export const commandShowJumpFlow_impl = async () => {
 
         // done
         progress.report({ increment: 0, message: "Done" });
+
+        return;
+    });
+};
+
+export const commandReplaceScript_impl = async () => {
+    vscode.window.withProgress({
+        // location: vscode.ProgressLocation.Notification,
+        location: vscode.ProgressLocation.Window,
+        title: "Replacing Script...\t",
+        cancellable: false
+    }, async (progress, token) => {
+        interface ReplacePair {
+            "regex": string;
+            "repStr": string;
+        }
+
+        let regexArray: ReplacePair[] = vscode.workspace.getConfiguration().get<ReplacePair[]>(confReplaceScript, []);
+        let bEmpty = regexArray.empty();
+
+        if (bEmpty) {
+            return;
+        }
+
+        if (activeEditor === undefined) {
+            return;
+        }
+
+        const document = activeEditor.document;
+
+        if (document === undefined) {
+            return;
+        }
+
+        vscode.languages.setTextDocumentLanguage(document, 'AvgScript');
+
+        let count = 0;
+        let increase = 100 / regexArray.length;
+
+        const editOptions = { undoStopBefore: false, undoStopAfter: false };
+
+        for (let item of regexArray) {
+            progress.report({ increment: increase, message: "Replacing " + item.regex + " by " + item.repStr });
+
+            const regex: RegExp = new RegExp(item.regex);
+            const repStr: string = item.repStr;
+
+            for (let i = 0; i < document.lineCount; ++i) {
+                const line = document.lineAt(i);
+
+                if (!line.isEmptyOrWhitespace) {
+                    let range = new vscode.Range(i, 0, i, line.text.length);
+                    let repResult = line.text.replace(regex, repStr);
+
+                    if (repResult !== line.text) {
+                        await activeEditor.edit((editBuilder: vscode.TextEditorEdit) => {
+                            editBuilder.replace(range, repResult);
+                        }, editOptions);
+
+                        count++;
+                    }
+                }
+            }
+        }
+
+        await activeEditor.edit((editBuilder: vscode.TextEditorEdit) => {
+            editBuilder.insert(new vscode.Position(0, 0), "// #Settings=\n\n");
+        }, editOptions);
+
+        await activeEditor.edit((editBuilder: vscode.TextEditorEdit) => {
+            editBuilder.insert(new vscode.Position(document.lineCount, 0), "\n\n\n#JmpCha=NextChapter\n\n#EOF");
+        }, editOptions);
+
+        // done
+        progress.report({ increment: 0, message: "Done" });
+
+        vscode.window.showInformationMessage('Replace complete');
 
         return;
     });

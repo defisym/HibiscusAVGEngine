@@ -1,5 +1,11 @@
 # Change Log
 
+## 20230115
+
+- fix undefine command extension causes error in hover
+- add empty & undefine protections
+- replace text to generate script by a set of regex
+
 ## 20230101
 
 - add parser for dialogue text

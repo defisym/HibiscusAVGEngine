@@ -263,8 +263,8 @@ export async function getFileInfo(filePath: string, type: CompletionType) {
                 const string = (await getBuffer(filePath)).toString('utf-8').replace(commentRegex, "");
                 const lines = string.split('\r\n');
 
-                for (let i in lines) {
-                    let line = lines[i].trim().replace(blankRegex, "");
+                for (let lineRaw of lines) {
+                    let line = lineRaw.trim().replace(blankRegex, "");
 
                     if (line.length > 0
                         && !line.startsWith("#")
@@ -332,9 +332,9 @@ export async function getFileListRecursivelyFunc(filePath: string, fileList: [st
     let result: [string, vscode.FileType][] = await getFileList(uri);
     let promiseList: Promise<void>[] = [];
 
-    for (let i in result) {
-        let fileName = result[i][0];
-        let type = result[i][1];
+    for (let resultItem of result) {
+        let fileName = resultItem[0];
+        let type = resultItem[1];
 
         if (type === vscode.FileType.Directory) {
             promiseList.push(new Promise(async (resolve, reject) => {

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
-import { settingsParamDocList, commandInfoList, internalKeywordList, deprecatedKeywordList, sharpKeywordList, atKeywordList, internalImageID, ParamType, InlayHintType } from '../lib/dict';
+import { settingsParamDocList, commandInfoList, internalKeywordList, deprecatedKeywordList, sharpKeywordList, atKeywordList, internalImageID, ParamType, InlayHintType, commandListInitialized } from '../lib/dict';
 import { regexRep, regexNumber, regexHexColor } from '../lib/regExp';
 import { iterateLines, getMapValue, getAllParams, arrayHasValue, matchEntire, getCommandType, fileExists } from '../lib/utilities';
 import { fileListInitialized, currentLocalCode, currentLocalCodeDisplay } from './file';
@@ -15,6 +15,10 @@ export const nonActiveLanguageDecorator = vscode.window.createTextEditorDecorati
 });
 
 export function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = false) {
+    if (commandListInitialized === false) {
+        return;
+    }
+
     if (document.languageId !== 'AvgScript') {
         return;
     }
@@ -55,8 +59,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                 start += lineStart;
 
-                for (let settingsParam in params) {
-                    let cutSettingsParam = params[settingsParam];
+                for (let settingsParam of params) {
+                    let cutSettingsParam = settingsParam;
                     let cutSettingsParamLength = cutSettingsParam.length;
 
                     start++;
@@ -372,8 +376,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
         }
     });
 
-    for (let j in blockPos) {
-        diagnostics.push(new vscode.Diagnostic(blockPos[j]
+    for (let blockPosItem of blockPos) {
+        diagnostics.push(new vscode.Diagnostic(blockPosItem
             , "Begin Without End"
             , vscode.DiagnosticSeverity.Warning));
     }
