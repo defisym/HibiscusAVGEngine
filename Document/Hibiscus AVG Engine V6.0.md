@@ -1655,7 +1655,7 @@ Script_0=
 
 于场景回想中解锁位于`Page`页第`Pos`个指向`GraphicName`的鉴赏。`ChapterName`应为`Characters`的相对路径，CG文件夹下的文件的完整`ChapterName`为`..CG\Graphic.png`
 
-该指令会自动忽略非CG文件夹下的文件。
+该指令会自动忽略非CG文件夹下的文件，同时会根据`Appreciation_Definition`中`Graphic_SeparateBG`的启用情况，根据`Appreciation_CGToBGList`决定当前文件是否作为背景进行鉴赏映射处理
 
 含转译指令在内，解析到`@Char`或`@CharChange`指令后，会自动执行留空`Page`与`Pos`参数的指令。
 
@@ -1664,6 +1664,12 @@ Script_0=
 于场景回想中解锁位于`Page`页第`Pos`个指向`AudioName`的鉴赏。
 
 含转译指令在内，解析到`@BGM`或`@BGMPre`指令后，会自动执行留空`Page`与`Pos`参数的指令
+
+#### `#UnlockAppreciation_Video=VideoName:Page:Pos`
+
+于场景回想中解锁位于`Page`页第`Pos`个指向`VideoName`的鉴赏。
+
+含转译指令在内，解析到`@PlayVideo`、`@OpenVideo`或`@ChangeVideo`指令后，会自动执行留空`Page`与`Pos`参数的指令
 
 #### 说明
 
