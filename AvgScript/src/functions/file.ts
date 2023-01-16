@@ -143,7 +143,19 @@ export function getFullFileNameByType(type: FileType, fileName: string) {
         return undefined;
     }
 
-    return handler(basePath, fileName);
+    let filePath = handler(basePath, fileName);
+
+    if (filePath === undefined) {
+        return undefined;
+    }
+
+    // fix incorrect result when has the same prefix
+    let ext = path.extname(filePath);
+    let actualFileName = path.basename(filePath, ext);
+
+    return actualFileName === fileName
+        ? filePath
+        : undefined;
 }
 
 export function getCorrectPathAndType(type: FileType, fileName: string): [FileType, string] | undefined {

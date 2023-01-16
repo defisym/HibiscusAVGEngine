@@ -6,11 +6,12 @@
     "publisher": "Defisym",
     "repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
     "homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
+    "icon_comment": "ignore this warning as using webpack",
     "icon": "media/AvgScript.png",
-    "_comment": "./out/extension.js during debug and ./dist/extension.js when releasing",
+    "main_comment": "./out/extension.js during debug and ./dist/extension.js when releasing",
     "main": "./dist/extension.js",
     "engines": {
-        "vscode": "^1.71.0"
+        "vscode": "^1.67.0"
     },
     "categories": [
         "Programming Languages",
@@ -227,7 +228,8 @@
         "onCommand:config.AvgScript.refreshAssets",
         "onCommand:config.AvgScript.updateCommandExtension",
         "onCommand:config.AvgScript.getAssetsList",
-        "onCommand:config.AvgScript.showJumpFlow"
+        "onCommand:config.AvgScript.showJumpFlow",
+        "onCommand:config.AvgScript.replaceScript"
     ],
     "scripts": {
         "vscode:prepublish": "npm run package",

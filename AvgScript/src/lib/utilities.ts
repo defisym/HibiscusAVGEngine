@@ -1,3 +1,4 @@
+import path = require('path');
 import * as vscode from 'vscode';
 
 import { graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions, getFullFileNameByType, fileListHasItem, graphicFXCompletions, getCorrectPathAndType, projectConfig, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, videoPath } from '../functions/file';
@@ -269,10 +270,10 @@ export function arrayHasValue(item: number, array: number[]): boolean;
 export function arrayHasValue(item: string, array: string[]): boolean;
 export function arrayHasValue(item: string | number, array: (string | number)[]): boolean {
     for (let i in array) {
-        if(i === "empty"){
+        if (i === "empty") {
             continue;
         }
-        
+
         if (typeof item !== (typeof array[i])) {
             return false;
         }
@@ -335,7 +336,7 @@ export function getMapValue<V>(item: string, map: Map<string, V>): V | undefined
     }
 
     map.forEach((value, key) => {
-        if(key === undefined){
+        if (key === undefined) {
             return;
         }
 
@@ -554,7 +555,7 @@ export function fileExists(type: FileType, fileName: string) {
         return false;
     }
 
-    return fileListHasItem(filePath);
+   return fileListHasItem(filePath);
 }
 
 export function matchEntire(src: string, regex: RegExp) {

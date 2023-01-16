@@ -1,5 +1,10 @@
 # Change Log
 
+## 20230116
+
+- windows 7 compatibility
+- fix incorrect file diagnostic & hover result if actual file has the same prefix
+
 ## 20230115
 
 - fix undefine command extension causes error in hover
