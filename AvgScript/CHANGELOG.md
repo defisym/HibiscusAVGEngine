@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230117
+
+- fix incorrect file diagnostic & hover result if file name has calculated path (including `\\`)
+
 ## 20230116
 
 - windows 7 compatibility

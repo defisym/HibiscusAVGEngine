@@ -7,3 +7,5 @@ dist/
 tsconfig.lsif.json
 *.lsif
 *.db
+
+.VSCodeCounter

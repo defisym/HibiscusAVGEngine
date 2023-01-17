@@ -97,6 +97,13 @@ const scriptPreview = nonePreview;
 // project config
 export let projectConfig: any = undefined;
 
+export function getActualFileName(filePath: string, bHasExt: boolean = true) {
+    let ext = bHasExt ? path.extname(filePath) : '';
+    let actualFileName = path.basename(filePath, ext);
+
+    return actualFileName;
+};
+
 export function getFullFilePath(filePath: string) {
     return getFileListItem(path.resolve(filePath));
 }
@@ -149,11 +156,13 @@ export function getFullFileNameByType(type: FileType, fileName: string) {
         return undefined;
     }
 
-    // fix incorrect result when has the same prefix
-    let ext = path.extname(filePath);
-    let actualFileName = path.basename(filePath, ext);
+    let actualFileName = getActualFileName(filePath).toLowerCase();
 
-    return actualFileName === fileName
+    // fix incorrect result when has the same prefix
+    let bHasExtSame = actualFileName === getActualFileName(fileName).toLowerCase();
+    let bNoExtSame = actualFileName === getActualFileName(fileName, false).toLowerCase();
+
+    return bHasExtSame || bNoExtSame
         ? filePath
         : undefined;
 }
