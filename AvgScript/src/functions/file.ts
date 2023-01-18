@@ -5,7 +5,7 @@ import { pinyin } from 'pinyin-pro';
 import { ImageProbe } from '@zerodeps/image-probe';
 
 import { currentLineNotComment, FileType, getBuffer, getParamAtPosition, getUri } from '../lib/utilities';
-import { confBasePath } from './command';
+import { commandBasePath, confBasePath } from './command';
 
 // file
 // Get full file path in Node.js
@@ -29,6 +29,7 @@ export let projectFileList: [string, vscode.FileType][] = [];
 
 // paths
 export let basePath: string;
+export let execPath: string;
 
 export let graphic: string;
 
@@ -96,6 +97,16 @@ const scriptPreview = nonePreview;
 
 // project config
 export let projectConfig: any = undefined;
+
+export async function fileExistsOnDisk(filePath: string) {
+    try {
+        await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
+
+        return true;
+    } catch {
+        return false;
+    }
+}
 
 export function getActualFileName(filePath: string, bHasExt: boolean = true) {
     let ext = bHasExt ? path.extname(filePath) : '';
@@ -372,8 +383,53 @@ export async function getFileListRecursivelyFunc(filePath: string, fileList: [st
     await Promise.all(promiseList);
 }
 
-export function updateBasePath(newPath: string) {
-    basePath = newPath;
+// pass undefined -> update from config
+export async function updateBasePath(newPath: string | undefined = undefined, bPopUp: boolean = true) {
+    // popup
+    let popUp = () => {
+        if (bPopUp) {
+            vscode.window.showErrorMessage('Invalid base path');
+        }
+
+        return false;
+    };
+
+    // undefined
+    if (newPath === undefined) {
+        newPath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
+    }
+
+    // remove ''/""
+    while (newPath.startsWith("\'") || newPath.startsWith("\"")) {
+        newPath = newPath.substring(1);
+    }
+    while (newPath.endsWith("\'") || newPath.endsWith("\"")) {
+        newPath = newPath.substring(0, newPath.length - 1);
+    }
+
+
+    // exist
+    if (!await fileExistsOnDisk(newPath)) {
+        return popUp();
+    }
+
+    // split
+    const ext = path.extname(newPath);
+    const dir = path.dirname(newPath);
+    const name = path.basename(newPath, ext);
+
+    if (ext !== ".exe" || dir === "" || name === "") {
+        return popUp();
+    }
+
+    // base path
+    const calcBasePath = dir + '\\data';
+
+    // update
+    basePath = calcBasePath;
+    execPath = newPath;
+
+    return true;
 }
 
 export async function updateFileList(progress: vscode.Progress<{
@@ -389,10 +445,8 @@ export async function updateFileList(progress: vscode.Progress<{
 
     progress.report({ increment: 0, message: "Updating file list..." });
 
-    basePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
-
-    if (basePath === "") {
-        return;
+    if (!await updateBasePath()) {
+        await vscode.commands.executeCommand(commandBasePath);
     }
 
     // Update config

@@ -10,6 +10,7 @@ import { rename } from './functions/rename';
 import { atCommands, fileName, fileSuffix, langPrefix, settingsParam, sharpCommands } from './functions/completion';
 import { colorProvider } from './functions/color';
 import { fileDefinition } from './functions/file';
+import { debuggerFactory, debuggerProvider } from './functions/debugger';
 
 export let activeEditor = vscode.window.activeTextEditor;
 
@@ -19,6 +20,20 @@ export async function activate(context: vscode.ExtensionContext) {
 	//--------------------
 
 	console.log("AvgScript extension activated");
+
+	context.subscriptions.push(debuggerProvider);
+	context.subscriptions.push(debuggerFactory);
+
+	//--------------------
+	// Command
+	//--------------------
+
+	vscode.commands.registerCommand(commandBasePath, commandBasePath_impl);
+	vscode.commands.registerCommand(commandRefreshAssets, commandRefreshAssets_impl);
+	vscode.commands.registerCommand(commandUpdateCommandExtension, commandUpdateCommandExtension_impl);
+	vscode.commands.registerCommand(commandGetAssetsList, commandGetAssetsList_impl);
+	vscode.commands.registerCommand(commandShowJumpFlow, commandShowJumpFlow_impl);
+	vscode.commands.registerCommand(commandReplaceScript, commandReplaceScript_impl);
 
 	//--------------------
 	// Init Command
@@ -54,17 +69,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	//--------------------
 
 	context.subscriptions.push(colorProvider);
-
-	//--------------------
-	// Command
-	//--------------------
-
-	vscode.commands.registerCommand(commandBasePath, commandBasePath_impl);
-	vscode.commands.registerCommand(commandRefreshAssets, commandRefreshAssets_impl);
-	vscode.commands.registerCommand(commandUpdateCommandExtension, commandUpdateCommandExtension_impl);
-	vscode.commands.registerCommand(commandGetAssetsList, commandGetAssetsList_impl);
-	vscode.commands.registerCommand(commandShowJumpFlow, commandShowJumpFlow_impl);
-	vscode.commands.registerCommand(commandReplaceScript, commandReplaceScript_impl);
 
 	//--------------------
 	// Goto Definition
@@ -112,6 +116,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.workspace.onDidChangeTextDocument(event => {
 		if (activeEditor && event.document === activeEditor.document) {
+			triggerUpdate(true);
+		}
+	}, null, context.subscriptions);
+
+	vscode.workspace.onDidCloseTextDocument(document => {
+		if (activeEditor && document === activeEditor.document) {
 			triggerUpdate(true);
 		}
 	}, null, context.subscriptions);

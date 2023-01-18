@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import path = require('path');
 import * as vscode from 'vscode';
 
 import { activeEditor, } from '../extension';
@@ -27,50 +28,42 @@ export const commandReplaceScript: string = "config.AvgScript.replaceScript";
 export const commandBasePath_impl = async () => {
     // 1) Getting the value
     let oldBasePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
+    let value: string | undefined = undefined;
 
-    const value = await vscode.window.showInputBox({
-        value: oldBasePath,
-        prompt: "Base path for the assets files"
-    });
-
-    if (value !== undefined
-        && value !== oldBasePath) {
-        // 2) Get the configuration
-        const configuration = vscode.workspace.getConfiguration();
-
-        // 3) Get the current value
-        //const currentValue = configuration.get<{}>(confBasePath);
-
-        // 4) Update the value in the User Settings
-        if (value.endsWith("\\")) {
-            updateBasePath(value.substring(0, value.length - 1));
-        } else {
-            updateBasePath(value);
-        }
-
-        await configuration.update(confBasePath
-            , basePath
-            //, vscode.ConfigurationTarget.Workspace);
-            , false);
-
-        // 5) Update fileList
-        vscode.window.withProgress({
-            // location: vscode.ProgressLocation.Notification,
-            location: vscode.ProgressLocation.Window,
-            title: "Refreshing assets...\t",
-            cancellable: false
-        }, async (progress, token) => {
-            await updateFileList(progress);
-            refreshFileDiagnostics();
+    do {
+        // press esc -> return undefined
+        value = await vscode.window.showInputBox({
+            value: oldBasePath,
+            prompt: "Absolute path of main program, e.g., \"C:\\Hibiscus\\AVG.exe\""
         });
+    } while (!await updateBasePath(value));
+
+    if (value === oldBasePath) {
+        return;
     }
+
+    const configuration = vscode.workspace.getConfiguration();
+
+    await configuration.update(confBasePath
+        , value
+        //, vscode.ConfigurationTarget.Workspace);
+        , false);
+
+    // 5) Update fileList
+    vscode.window.withProgress({
+        // location: vscode.ProgressLocation.Notification,
+        location: vscode.ProgressLocation.Window,
+        title: "Refreshing assets...\t",
+        cancellable: false
+    }, async (progress, token) => {
+        await updateFileList(progress);
+        refreshFileDiagnostics();
+    });
 };
 
 export const commandRefreshAssets_impl = async () => {
-    updateBasePath(vscode.workspace.getConfiguration().get<string>(confBasePath, ""));
-
-    if (basePath === "") {
-        vscode.commands.executeCommand(commandBasePath);
+    if (!await updateBasePath()) {
+        await vscode.commands.executeCommand(commandBasePath);
     }
 
     vscode.window.withProgress({

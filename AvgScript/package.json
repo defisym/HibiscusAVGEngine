@@ -15,7 +15,9 @@
     },
     "categories": [
         "Programming Languages",
+        "Debuggers",        
         "Snippets",
+        "Linters",
         "Themes"
     ],
     "extensionDependencies": [
@@ -281,9 +283,19 @@
                 "label": "AvgScript",
                 "icon": "media/AvgScript.png"
             }
+        ],
+        "debuggers": [
+            {
+                "type": "AvgScript",
+                "label": "AvgScript Debugger",
+                "languages": [
+                    "AvgScript"
+                ]               
+            }
         ]
     },
     "activationEvents": [
+        "onDebug:AvgScript",
         "onLanguage:AvgScript",
         "onCommand:config.AvgScript.basePath",
         "onCommand:config.AvgScript.refreshAssets",

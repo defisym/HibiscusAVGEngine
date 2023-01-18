@@ -1,5 +1,12 @@
 # Change Log
 
+## 20230118
+
+- update context menu
+- debug without config
+- clear diagnostic info when file is closed
+- base path check
+
 ## 20230117
 
 - fix incorrect file diagnostic & hover result if file name has calculated path (including `\\`)
