@@ -825,6 +825,8 @@ Debug_AVG=Chapter_1
 
 ![StartDebug](media/image5.jpeg)
 
+该调试方法所执行的完整命令行和目标脚本文件会被记录在`Settings.ini`->`Debug`一节中的`CommandLine`和`TargetScript`项
+
 ##### 通过文件关联调试
 
 拖拽调试的本质是解析命令行，因此可以通过配置文件关联来实现快速调试。选中脚本文件，右键点击，选择打开方式，指定为主程序，即可通过双击打开脚本来进行调试。
@@ -832,6 +834,12 @@ Debug_AVG=Chapter_1
 ![File association](media/image6.png)
 
 ##### 使用编辑器调试
+
+###### 自动
+
+若安装了`AvgScript`扩展，**打开需要调试的脚本**，即可在编辑器内按下F5直接启动调试
+
+###### 手动
 
 拖拽调试的本质是解析命令行，因此可以通过配置编辑器来实现快速调试。以VSCode为例，依照范例定义`Launch.json`，将`{Your Project Name}`替换为实际名称，安装[C++扩展集合](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack)，并**打开需要调试的脚本**，即可在编辑器内按下F5直接启动调试
 
@@ -874,9 +882,9 @@ Debug_AVG=Chapter_1
    2. `savings`
       1. `savings\_Global`
          1. `savings\_Global\_GlobalProgress`
-         2. `savings\_GlobalAppreciation_Definition`
-         3. `savings\_GlobalAppreciation_Progress`
-         4. `savings\_GlobalData_Template.sav`
+         2. `savings\_Global\Appreciation_Definition`
+         3. `savings\_Global\Appreciation_Progress`
+         4. `savings\_Global\Data_Template.sav`
       2. `savings\_Sys`
          1. `savings\_Sys\Null.png`
    3. `localization`
@@ -891,7 +899,8 @@ Debug_AVG=Chapter_1
          4. `data\Graphics\_Sys\*.*`
          5. `data\Graphics\CG\*.*`
          6. `data\Graphics\Characters\*.*`
-5. 打包上传
+5. 更新初始鉴赏`Appreciation_Progress`，用于解锁标题画面音乐等正常游玩不会被记录到的文件
+6. 打包上传
 
 ## #系统指令
 
@@ -2907,7 +2916,9 @@ CG/UI不会被销毁
 
 用于转换剧本到导演代码的宏
 
-### VSCode配置
+### VSCode
+
+#### 配置
 
 1.安装[VSCode](https://code.visualstudio.com/)
 
@@ -2931,15 +2942,15 @@ CG/UI不会被销毁
 
 ![OpenWithVSCode](media/image21.png)
 
-7.使用`Ctrl + Shift + P`组合键呼出命令面板，选择`AvgScript Configuration: Base path for the assets files`:
+7.使用`Ctrl + Shift + P`组合键呼出命令面板，选择`AvgScript: Set Base path`:
 
 ![Command](media/image22.png)
 
-输入开发工程中主程序所在文件夹的下一级路径`Data`的完整路径:
+输入开发工程中主程序`Game.exe`的完整路径:
 
 ![BasePath](media/image23.png)
 
-本例中主程序所在文件夹为`F:\DEV\AVG+SRPG\Program`，因此实际输入的路径应为`F:\DEV\AVG+SRPG\Program\data`
+本例中主程序所在文件夹为`F:\DEV\AVG+SRPG\Program`，主程序为`Game.exe`，因此实际输入的路径应为`F:\DEV\AVG+SRPG\Program\Game.exe`
 
 引擎会通过该路径查找资源文件并进行语法提示:
 
@@ -2948,6 +2959,16 @@ CG/UI不会被销毁
 7.开始编辑
 
 ![OpenWithVSCode](media/image25.png)
+
+#### 设置
+
+##### 命令扩展
+
+插件仅包含了本文档中的指令，若在二次开发中扩展了自己的指令，可以通过编辑设置来指定这些指令的语法提示
+
+##### 脚本生成
+
+通过指定一组按顺序调用的正则表达式，通过替换从原始文本生成基础脚本，如通过编剧的演出提示替换为对应的指令
 
 ### AVG状态阶段
 
