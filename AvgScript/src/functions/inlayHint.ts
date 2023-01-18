@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
+
+import { avgScriptLanguageID } from '../extension';
 import { commandInfoList, InlayHintType, inlayHintMap } from '../lib/dict';
 import { iterateLines, getAllParams, getMapValue, getCommandType } from '../lib/utilities';
 
-export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript', {
+export const inlayHint = vscode.languages.registerInlayHintsProvider(avgScriptLanguageID, {
     provideInlayHints(document: vscode.TextDocument, range: vscode.Range, token: vscode.CancellationToken) {
         let hints: vscode.InlayHint[] = [];
 

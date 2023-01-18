@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 
+import { avgScriptLanguageID } from '../extension';
 import { commandInfoList, ParamType } from '../lib/dict';
 import { regexRep, regexHexColor } from '../lib/regExp';
 import { iterateLines, getAllParams, strIsNum, getMapValue } from '../lib/utilities';
 
-export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
+export const colorProvider = vscode.languages.registerColorProvider(avgScriptLanguageID,
     new (class implements vscode.DocumentColorProvider {
         provideDocumentColors(
             document: vscode.TextDocument, token: vscode.CancellationToken

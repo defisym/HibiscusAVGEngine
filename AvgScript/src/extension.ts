@@ -13,6 +13,7 @@ import { fileDefinition } from './functions/file';
 import { debuggerFactory, debuggerProvider } from './functions/debugger';
 
 export let activeEditor = vscode.window.activeTextEditor;
+export const avgScriptLanguageID = 'AvgScript';
 
 export async function activate(context: vscode.ExtensionContext) {
 	//--------------------

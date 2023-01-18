@@ -1,52 +1,47 @@
 import * as vscode from 'vscode';
 
+import { avgScriptLanguageID } from '../extension';
 import { sharpKeywordList, commandDocList, atKeywordList, settingsParamList, settingsParamDocList } from '../lib/dict';
 import { lineValidForCommandCompletion, getCompletionItemList, getType, FileType, currentLineNotComment, getSubStrings, arrayHasValue } from '../lib/utilities';
 import { fileListInitialized, graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions } from './file';
 import { labelCompletions } from './label';
 
+function completionItemsProvider(document: vscode.TextDocument, position: vscode.Position, src: string[]) {
+    let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+
+    if (line === undefined) {
+        return undefined;
+    }
+
+    if (!lineValidForCommandCompletion(linePrefix!)) {
+        return undefined;
+    }
+
+    return getCompletionItemList(src, commandDocList);
+}
+
 export const sharpCommands = vscode.languages.registerCompletionItemProvider(
-    'AvgScript',
+    avgScriptLanguageID,
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-            let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
-
-            if (line === undefined) {
-                return undefined;
-            }
-
-            if (!lineValidForCommandCompletion(linePrefix!)) {
-                return undefined;
-            }
-
-            return getCompletionItemList(sharpKeywordList, commandDocList);
+            return completionItemsProvider(document, position, sharpKeywordList);
         }
     },
     '#' // triggered whenever a '#' is being typed
 );
 
 export const atCommands = vscode.languages.registerCompletionItemProvider(
-    'AvgScript',
+    avgScriptLanguageID,
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-            let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
-
-            if (line === undefined) {
-                return undefined;
-            }
-
-            if (!lineValidForCommandCompletion(linePrefix!)) {
-                return undefined;
-            }
-
-            return getCompletionItemList(atKeywordList, commandDocList);
+            return completionItemsProvider(document, position, atKeywordList);
         }
     },
     '@' // triggered whenever a '@' is being typed
 );
 
 export const settingsParam = vscode.languages.registerCompletionItemProvider(
-    'AvgScript',
+    avgScriptLanguageID,
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
@@ -76,7 +71,7 @@ export const settingsParam = vscode.languages.registerCompletionItemProvider(
 );
 
 export const langPrefix = vscode.languages.registerCompletionItemProvider(
-    'AvgScript',
+    avgScriptLanguageID,
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             const line = document.lineAt(position).text.trim().toLowerCase();
@@ -94,7 +89,7 @@ export const langPrefix = vscode.languages.registerCompletionItemProvider(
 );
 
 export const fileSuffix = vscode.languages.registerCompletionItemProvider(
-    'AvgScript',
+    avgScriptLanguageID,
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
@@ -146,7 +141,7 @@ export const fileSuffix = vscode.languages.registerCompletionItemProvider(
 );
 
 export const fileName = vscode.languages.registerCompletionItemProvider(
-    'AvgScript',
+    avgScriptLanguageID,
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);

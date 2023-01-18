@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 
+import { avgScriptLanguageID } from '../extension';
 import { commandInfoList, InlayHintType } from '../lib/dict';
 import { regexRep } from '../lib/regExp';
 import { currentLineNotComment, getAllParams, getMapValue, iterateLines } from "../lib/utilities";
@@ -87,7 +88,7 @@ export function getLabelJumpMap(document: vscode.TextDocument) {
     return labelJumpMap;
 }
 
-export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgScript',
+export const labelDefinition = vscode.languages.registerDefinitionProvider(avgScriptLanguageID,
     {
         provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
             let definitions: vscode.Location[] = [];
@@ -165,7 +166,7 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
     });
 
 export const labelReference = vscode.languages.registerReferenceProvider(
-    'AvgScript', {
+    avgScriptLanguageID, {
     provideReferences(document: vscode.TextDocument, position: vscode.Position, context: vscode.ReferenceContext, token: vscode.CancellationToken) {
         let references: vscode.Location[] = [];
 

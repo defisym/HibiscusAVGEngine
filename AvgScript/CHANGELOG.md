@@ -6,6 +6,7 @@
 - debug without config
 - clear diagnostic info when file is closed
 - base path check
+- fix incorrect command completion trigger
 
 ## 20230117
 

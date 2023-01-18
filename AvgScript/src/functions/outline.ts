@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
+
+import { avgScriptLanguageID } from '../extension';
 import { iterateLines } from '../lib/utilities';
 
-export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScript'
+export const outline = vscode.languages.registerDocumentSymbolProvider(avgScriptLanguageID
     , {
         provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken) {
             let symbols: vscode.SymbolInformation[] = [];

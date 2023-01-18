@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
+
+import { avgScriptLanguageID } from '../extension';
 import { currentLineNotComment, iterateLines, getNumberOfParam, getIndexOfDelimiter, getAllParams, getParamAtPosition } from '../lib/utilities';
 
 export const rename = vscode.languages.registerRenameProvider(
-    'AvgScript', {
+    avgScriptLanguageID, {
     provideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string, token: vscode.CancellationToken) {
         const edit = new vscode.WorkspaceEdit();
 

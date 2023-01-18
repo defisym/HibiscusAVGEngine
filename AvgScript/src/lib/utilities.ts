@@ -1,64 +1,12 @@
-import path = require('path');
 import * as vscode from 'vscode';
 
 import { graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions, getFullFileNameByType, fileListHasItem, graphicFXCompletions, getCorrectPathAndType, projectConfig, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, videoPath } from '../functions/file';
 import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, internalKeywordList } from './dict';
 import { regexNumber } from './regExp';
 
+import path = require('path');
+
 const delimiter = ['=', ':'];
-
-declare global {
-    interface Array<T> {
-        empty(): boolean;
-    }
-}
-
-Array.prototype.empty = function () {
-    return this.length === 0;
-};
-
-declare global {
-    interface String {
-        replaceAt(index: number, replacement: string): string;
-        replaceRange(start: number, end: number, replacement: string): string;
-        replaceRanges(ranges: [number, number][], replacement: string): string;
-    }
-}
-
-String.prototype.replaceAt = function (index: number, replacement: string) {
-    return this.substring(0, index) + replacement + this.substring(index + replacement.length);
-};
-
-String.prototype.replaceRange = function (start: number, end: number, replacement: string) {
-    return this.substring(0, start) + replacement + this.substring(end + 1);
-};
-
-String.prototype.replaceRanges = function (ranges: [number, number][], replacement: string) {
-    let ret: string = '';
-    let subRanges: number[] = [];
-
-    subRanges.push(-1);
-
-    for (const [start, end] of ranges) {
-        subRanges.push(start);
-        subRanges.push(end);
-    }
-
-    subRanges.push(-1);
-
-    for (let i = 0; i < subRanges.length / 2; i++) {
-        const start = subRanges[i * 2] + 1;
-        const end = subRanges[i * 2 + 1];
-
-        if (end !== -1) {
-            ret += this.substring(start, end);
-        } else {
-            ret += this.substring(start);
-        }
-    }
-
-    return ret;
-};
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -255,9 +203,23 @@ export function lineIncludeDelimiter(src: string): boolean {
 export function lineValidForCommandCompletion(src: string): boolean {
     let include = lineIncludeDelimiter(src);
     let startWith = (src.startsWith("@") || src.startsWith("#"));
+    let endWith = (src.endsWith("@") || src.endsWith("#"));
 
-    //return (!include) && (!startWith);
-    return (!include);
+    if (include) {
+        return false;
+    }
+
+    if (startWith) {
+        const noPrefix = src.substring(1);
+
+        if (noPrefix.includes("@") || noPrefix.includes("#")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 export function iterateArray<T>(array: T[]) {
@@ -555,7 +517,7 @@ export function fileExists(type: FileType, fileName: string) {
         return false;
     }
 
-   return fileListHasItem(filePath);
+    return fileListHasItem(filePath);
 }
 
 export function matchEntire(src: string, regex: RegExp) {

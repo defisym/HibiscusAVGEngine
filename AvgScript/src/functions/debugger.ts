@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 
+import { avgScriptLanguageID } from '../extension';
 import { commandBasePath } from './command';
 import { execPath, updateBasePath } from './file';
 
@@ -7,7 +8,7 @@ class AvgScriptDebugConfigurationProvider implements vscode.DebugConfigurationPr
     resolveDebugConfiguration(folder: vscode.WorkspaceFolder | undefined
         , config: vscode.DebugConfiguration, token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration> {
         const editor = vscode.window.activeTextEditor;
-        if (editor && editor.document.languageId === 'AvgScript') {
+        if (editor && editor.document.languageId === avgScriptLanguageID) {
             config.name = 'Hibiscus';
             config.type = 'AvgScript';
             config.request = 'launch';
@@ -30,7 +31,7 @@ class AvgScriptDebugAdapterExecutableFactory implements vscode.DebugAdapterDescr
         }
 
         const editor = vscode.window.activeTextEditor;
-        if (editor && editor.document.languageId === 'AvgScript') {
+        if (editor && editor.document.languageId === avgScriptLanguageID) {
             const command = execPath;
             const args = [editor.document.fileName];
 
@@ -46,5 +47,5 @@ class AvgScriptDebugAdapterExecutableFactory implements vscode.DebugAdapterDescr
     }
 }
 
-export const debuggerProvider = vscode.debug.registerDebugConfigurationProvider("AvgScript", new AvgScriptDebugConfigurationProvider());
-export const debuggerFactory = vscode.debug.registerDebugAdapterDescriptorFactory("AvgScript", new AvgScriptDebugAdapterExecutableFactory());
+export const debuggerProvider = vscode.debug.registerDebugConfigurationProvider(avgScriptLanguageID, new AvgScriptDebugConfigurationProvider());
+export const debuggerFactory = vscode.debug.registerDebugAdapterDescriptorFactory(avgScriptLanguageID, new AvgScriptDebugAdapterExecutableFactory());
