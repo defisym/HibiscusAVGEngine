@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { activeEditor, avgScriptLanguageID } from '../extension';
+import { activeEditor } from '../extension';
 import { settingsParamDocList, commandInfoList, internalKeywordList, deprecatedKeywordList, sharpKeywordList, atKeywordList, internalImageID, ParamType, InlayHintType, commandListInitialized } from '../lib/dict';
 import { regexRep, regexNumber, regexHexColor } from '../lib/regExp';
 import { iterateLines, getMapValue, getAllParams, arrayHasValue, matchEntire, getCommandType, fileExists } from '../lib/utilities';
@@ -9,7 +9,7 @@ import { getLabelCompletion } from './label';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
 
-export const diagnosticsCollection = vscode.languages.createDiagnosticCollection(avgScriptLanguageID);
+export const diagnosticsCollection = vscode.languages.createDiagnosticCollection('AvgScript');
 export const nonActiveLanguageDecorator = vscode.window.createTextEditorDecorationType({
     opacity: '0.5',
 });
@@ -19,7 +19,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
         return;
     }
 
-    if (document.languageId !== avgScriptLanguageID) {
+    if (document.languageId !== 'AvgScript') {
         return;
     }
 

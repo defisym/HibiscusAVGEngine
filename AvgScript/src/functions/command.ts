@@ -3,7 +3,7 @@
 import path = require('path');
 import * as vscode from 'vscode';
 
-import { activeEditor, avgScriptLanguageID, } from '../extension';
+import { activeEditor } from '../extension';
 import { ParamInfo, ParamTypeMap, inlayHintMap, commandInfoList, generateList, resetList, InlayHintType } from '../lib/dict';
 import { arrayUniquePush, arrayUniquePushIf, FileType, iterateScripts, sleep } from '../lib/utilities';
 import { assetList_getWebviewContent } from '../webview/assetList';
@@ -469,7 +469,7 @@ export const commandReplaceScript_impl = async () => {
             return;
         }
 
-        vscode.languages.setTextDocumentLanguage(document, avgScriptLanguageID);
+        vscode.languages.setTextDocumentLanguage(document, 'AvgScript');
 
         let count = 0;
         let increase = 100 / regexArray.length;

@@ -12,8 +12,11 @@ import { colorProvider } from './functions/color';
 import { fileDefinition } from './functions/file';
 import { debuggerFactory, debuggerProvider } from './functions/debugger';
 
+// must import to make extensions enabled
+import './extensions/arrayEx';
+import './extensions/stringEx';
+
 export let activeEditor = vscode.window.activeTextEditor;
-export const avgScriptLanguageID = 'AvgScript';
 
 export async function activate(context: vscode.ExtensionContext) {
 	//--------------------

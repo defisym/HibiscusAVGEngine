@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 
-import { avgScriptLanguageID } from '../extension';
 import { sharpKeywordList, commandDocList, atKeywordList, settingsParamList, settingsParamDocList } from '../lib/dict';
 import { lineValidForCommandCompletion, getCompletionItemList, getType, FileType, currentLineNotComment, getSubStrings, arrayHasValue } from '../lib/utilities';
 import { fileListInitialized, graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions } from './file';
@@ -21,7 +20,7 @@ function completionItemsProvider(document: vscode.TextDocument, position: vscode
 }
 
 export const sharpCommands = vscode.languages.registerCompletionItemProvider(
-    avgScriptLanguageID,
+    'AvgScript',
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             return completionItemsProvider(document, position, sharpKeywordList);
@@ -31,7 +30,7 @@ export const sharpCommands = vscode.languages.registerCompletionItemProvider(
 );
 
 export const atCommands = vscode.languages.registerCompletionItemProvider(
-    avgScriptLanguageID,
+    'AvgScript',
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             return completionItemsProvider(document, position, atKeywordList);
@@ -41,7 +40,7 @@ export const atCommands = vscode.languages.registerCompletionItemProvider(
 );
 
 export const settingsParam = vscode.languages.registerCompletionItemProvider(
-    avgScriptLanguageID,
+    'AvgScript',
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
@@ -71,7 +70,7 @@ export const settingsParam = vscode.languages.registerCompletionItemProvider(
 );
 
 export const langPrefix = vscode.languages.registerCompletionItemProvider(
-    avgScriptLanguageID,
+    'AvgScript',
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             const line = document.lineAt(position).text.trim().toLowerCase();
@@ -89,7 +88,7 @@ export const langPrefix = vscode.languages.registerCompletionItemProvider(
 );
 
 export const fileSuffix = vscode.languages.registerCompletionItemProvider(
-    avgScriptLanguageID,
+    'AvgScript',
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
@@ -141,7 +140,7 @@ export const fileSuffix = vscode.languages.registerCompletionItemProvider(
 );
 
 export const fileName = vscode.languages.registerCompletionItemProvider(
-    avgScriptLanguageID,
+    'AvgScript',
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);

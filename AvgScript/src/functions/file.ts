@@ -6,7 +6,6 @@ import { ImageProbe } from '@zerodeps/image-probe';
 
 import { currentLineNotComment, FileType, getBuffer, getParamAtPosition, getUri } from '../lib/utilities';
 import { commandBasePath, confBasePath } from './command';
-import { avgScriptLanguageID } from '../extension';
 
 // file
 // Get full file path in Node.js
@@ -672,7 +671,7 @@ export async function updateFileList(progress: vscode.Progress<{
     fileListInitialized = true;
 }
 
-export const fileDefinition = vscode.languages.registerDefinitionProvider(avgScriptLanguageID,
+export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgScript',
     {
         async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
             let definitions: vscode.Location[] = [];

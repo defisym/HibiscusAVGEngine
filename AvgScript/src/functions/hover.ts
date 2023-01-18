@@ -7,9 +7,8 @@ import {
 import { getLabelComment } from './label';
 import { fileListInitialized } from './file';
 import { filterString, findDelimiter, FORMAT_IGNORE_INCOMPLETE } from '../lib/dialogue';
-import { avgScriptLanguageID } from '../extension';
 
-export const hover = vscode.languages.registerHoverProvider(avgScriptLanguageID, {
+export const hover = vscode.languages.registerHoverProvider('AvgScript', {
     provideHover(document, position, token) {
         let range = document.getWordRangeAtPosition(position);
 
@@ -142,7 +141,7 @@ export const hover = vscode.languages.registerHoverProvider(avgScriptLanguageID,
     }
 });
 
-export const hoverFile = vscode.languages.registerHoverProvider(avgScriptLanguageID, {
+export const hoverFile = vscode.languages.registerHoverProvider('AvgScript', {
     async provideHover(document, position, token) {
         if (!fileListInitialized) {
             return undefined;
