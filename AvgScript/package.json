@@ -169,7 +169,7 @@
             {
                 "category": "AvgScript",
                 "command": "config.AvgScript.basePath",
-                "title": "Base path for the assets files",
+                "title": "Set base path",
                 "icon": "media/AvgScript.png",
                 "shortTitle": "Base Path"
             },
@@ -190,7 +190,7 @@
             {
                 "category": "AvgScript",
                 "command": "config.AvgScript.getAssetsList",
-                "title": "Get assets used in project",
+                "title": "List assets used in project",
                 "icon": "media/AvgScript.png",
                 "shortTitle": "Assets List"
             },
@@ -204,9 +204,9 @@
             {
                 "category": "AvgScript",
                 "command": "config.AvgScript.replaceScript",
-                "title": "Replace raw script to generate basic script",
+                "title": "Generate basic script",
                 "icon": "media/AvgScript.png",
-                "shortTitle": "Replace Script"
+                "shortTitle": "Generate Script"
             }
         ],
         "menus": {
@@ -218,9 +218,70 @@
                 {
                     "command": "config.AvgScript.refreshAssets",
                     "when": "editorLangId == AvgScript"
+                },
+                {
+                    "command": "config.AvgScript.updateCommandExtension",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "command": "config.AvgScript.getAssetsList",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "command": "config.AvgScript.showJumpFlow",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "command": "config.AvgScript.replaceScript",
+                    "when": "editorLangId == AvgScript || editorLangId == plaintext"
+                }
+            ],
+            "editor/context": [
+                {
+                    "submenu":"AvgScript.Menu",
+                    "group": "AvgScript"
+                }
+            ],
+            "AvgScript.Menu": [
+                {
+                    "group": "AvgScript.1_basic",
+                    "command": "config.AvgScript.basePath",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "group": "AvgScript.2_command",
+                    "command": "config.AvgScript.updateCommandExtension",    
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "group": "AvgScript.3_assets",
+                    "command": "config.AvgScript.refreshAssets",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "group": "AvgScript.3_assets",
+                    "command": "config.AvgScript.getAssetsList",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "group": "AvgScript.4_script",
+                    "command": "config.AvgScript.replaceScript",
+                    "when": "editorLangId == AvgScript || editorLangId == plaintext"
+                },
+                {
+                    "group": "AvgScript.4_script",
+                    "command": "config.AvgScript.showJumpFlow",
+                    "when": "editorLangId == AvgScript"
                 }
             ]
-        }
+        },
+        "submenus": [
+            {
+                "id": "AvgScript.Menu",
+                "label": "AvgScript",
+                "icon": "media/AvgScript.png"
+            }
+        ]
     },
     "activationEvents": [
         "onLanguage:AvgScript",
