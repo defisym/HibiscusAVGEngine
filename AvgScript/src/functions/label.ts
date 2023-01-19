@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 
 import { commandInfoList, InlayHintType } from '../lib/dict';
+import { iterateLines } from "../lib/iterateLines";
 import { regexRep } from '../lib/regExp';
-import { currentLineNotComment, getAllParams, getMapValue, iterateLines } from "../lib/utilities";
+import { currentLineNotComment, getAllParams } from "../lib/utilities";
 
 export let labelCompletions: vscode.CompletionItem[] = [];
 export let labelJumpMap: Map<string, number> = new Map();
@@ -15,12 +16,12 @@ export function getLabelPos(input: string) {
 
         let label = labelCompletions[i].label;
         if (typeof label === "string") {
-            if (label.toLowerCase() === input.toLowerCase()) {
+            if (label.iCmp(input)) {
                 return i;
             }
         }
         else {
-            if (label.label.toLowerCase() === input.toLowerCase()) {
+            if (label.label.iCmp(input)) {
                 return i;
             }
         }
@@ -33,12 +34,12 @@ export function getLabelComment(input: string) {
     for (let labelCompletion of labelCompletions) {
         let label = labelCompletion.label;
         if (typeof label === "string") {
-            if (label.toLowerCase() === input.toLowerCase()) {
+            if (label.iCmp(input)) {
                 return label;
             }
         }
         else {
-            if (label.label.toLowerCase() === input.toLowerCase()) {
+            if (label.label.iCmp(input)) {
                 return label.label + "\t" + label.description;
             }
         }
@@ -104,7 +105,7 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
             if (line.startsWith("#")
                 || line.startsWith("@")) {
                 const command = params[0].substring(1);
-                const paramDefinition = getMapValue(command, commandInfoList);
+                const paramDefinition = commandInfoList.getValue(command);
 
                 if (paramDefinition === undefined) {
                     return;
@@ -132,7 +133,7 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
                         let curLabel = curParam;
 
                         labelJumpMap.forEach((line, label) => {
-                            if (curLabel.toLowerCase() === label.toLowerCase()) {
+                            if (curLabel.iCmp(label)) {
                                 let link = new vscode.Location(document.uri
                                     , new vscode.Position(line, 0));
 
@@ -190,7 +191,7 @@ export const labelReference = vscode.languages.registerReferenceProvider(
             if (text.startsWith("#")
                 || text.startsWith("@")) {
                 const command = params[0].substring(1);
-                const paramDefinition = getMapValue(command, commandInfoList);
+                const paramDefinition = commandInfoList.getValue(command);
 
                 if (paramDefinition === undefined) {
                     return;
@@ -215,7 +216,7 @@ export const labelReference = vscode.languages.registerReferenceProvider(
                     }
 
                     if (currentType === InlayHintType.Label) {
-                        if (curParam.toLowerCase() === label.toLowerCase()) {
+                        if (curParam.iCmp(label)) {
                             let link = new vscode.Location(document.uri
                                 , new vscode.Position(lineNumber, 0));
 

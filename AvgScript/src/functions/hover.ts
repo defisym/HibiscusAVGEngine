@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 
-import { getHoverContents, getType, FileType, getParamAtPosition, currentLineNotComment, getFileCompletionByType, getAllParams } from '../lib/utilities';
-import {
-    commandDocList, settingsParamDocList, langDocList, normalTextDoc, dialogueTextElement, narratorTextElement, narratorTextPlain
-} from '../lib/dict';
-import { getLabelComment } from './label';
-import { fileListInitialized } from './file';
 import { filterString, findDelimiter, FORMAT_IGNORE_INCOMPLETE } from '../lib/dialogue';
+import {
+    commandDocList, dialogueTextElement, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
+} from '../lib/dict';
+import { currentLineNotComment, FileType, getAllParams, getFileCompletionByType, getHoverContents, getParamAtPosition, getType } from '../lib/utilities';
+import { fileListInitialized } from './file';
+import { getLabelComment } from './label';
 
 export const hover = vscode.languages.registerHoverProvider('AvgScript', {
     provideHover(document, position, token) {

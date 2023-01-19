@@ -197,7 +197,7 @@ export function getPathType(fileName: string) {
     fileName = fileName.substring(basePath.length + 1);
 
     let compareStart = (toCmp: string, base: string) => {
-        return toCmp.substring(0, base.length).toLowerCase() === base.toLowerCase();
+        return toCmp.substring(0, base.length).iCmp(base);
     };
 
     if (compareStart(fileName, graphicFXRelativePath)) {
@@ -241,7 +241,7 @@ export function getPathType(fileName: string) {
 
 export function getFileListItem(filePath: string) {
     for (let [path, type] of projectFileList) {
-        if (filePath.toLowerCase() === path.substring(0, filePath.length).toLowerCase()) {
+        if (path.substring(0, filePath.length).iCmp(filePath)) {
             return path;
         }
     }

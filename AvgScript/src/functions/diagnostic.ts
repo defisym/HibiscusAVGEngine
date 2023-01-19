@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
-import { settingsParamDocList, commandInfoList, internalKeywordList, deprecatedKeywordList, sharpKeywordList, atKeywordList, internalImageID, ParamType, InlayHintType, commandListInitialized } from '../lib/dict';
-import { regexRep, regexNumber, regexHexColor } from '../lib/regExp';
-import { iterateLines, getMapValue, getAllParams, arrayHasValue, matchEntire, getCommandType, fileExists } from '../lib/utilities';
-import { fileListInitialized, currentLocalCode, currentLocalCodeDisplay } from './file';
+import { atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, InlayHintType, internalImageID, internalKeywordList, ParamType, settingsParamDocList, sharpKeywordList } from '../lib/dict';
+import { regexHexColor, regexRep } from '../lib/regExp';
+import { fileExists, getAllParams, getCommandType } from '../lib/utilities';
+import { iterateLines } from "../lib/iterateLines";
+import { currentLocalCode, currentLocalCodeDisplay, fileListInitialized } from './file';
 import { getLabelCompletion } from './label';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
@@ -65,7 +66,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                     start++;
 
-                    if (getMapValue(cutSettingsParam, settingsParamDocList) === undefined) {
+                    if (settingsParamDocList.getValue(cutSettingsParam) === undefined) {
                         diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, start, lineNumber, start + cutSettingsParamLength)
                             , "Invalid Setting Param: " + cutSettingsParam
                             , vscode.DiagnosticSeverity.Warning));
@@ -135,17 +136,17 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
             const prefix = params[0][0];
             const command = params[0].substring(1);
             const paramNum = params.length - 1;
-            const paramDefinition = getMapValue(command, commandInfoList);
+            const paramDefinition = commandInfoList.getValue(command);
 
             let contentStart: number = lineStart + command.length + 1;
 
-            if (arrayHasValue(command, internalKeywordList)) {
+            if (internalKeywordList.hasValue(command)) {
                 diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, contentStart)
                     , "User Shouldn't Use Internal Command: " + params[0]
                     , vscode.DiagnosticSeverity.Error));
             }
 
-            if (arrayHasValue(command, deprecatedKeywordList)) {
+            if (deprecatedKeywordList.hasValue(command)) {
                 diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, contentStart)
                     , "Deprecated Command: " + params[0]
                     , vscode.DiagnosticSeverity.Warning));
@@ -162,13 +163,13 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
             let imageBehavior;
 
             // check internal ID for @Char
-            if (matchEntire(params[0], /(@Char|@Character)/gi)) {
+            if (params[0].matchEntire(/(@Char|@Character)/gi)) {
                 checkImageID = true;
                 imageBehavior = ImageBehavior.create;
                 checkPos = 2;
             }
 
-            if (matchEntire(params[0], /(@CD|@CharDispose)/gi)) {
+            if (params[0].matchEntire(/(@CD|@CharDispose)/gi)) {
                 checkImageID = true;
                 imageBehavior = ImageBehavior.destroy;
                 checkPos = 1;
@@ -194,8 +195,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                     , vscode.DiagnosticSeverity.Warning));
             }
 
-            if ((prefix === '@' && arrayHasValue(command, sharpKeywordList))
-                || (prefix === '#' && arrayHasValue(command, atKeywordList))) {
+            if ((prefix === '@' && sharpKeywordList.hasValue(command))
+                || (prefix === '#' && atKeywordList.hasValue(command))) {
                 diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineStart + 1)
                     , "Wrong Command Prefix: " + params[0]
                     , vscode.DiagnosticSeverity.Error));
@@ -252,7 +253,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                         break;
                     case ParamType.Number:
-                        if (!matchEntire(curParam, regexNumber)) {
+                        if (!curParam.isNumber()) {
                             diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
                                 , "Invalid Number: " + curParam
                                 , vscode.DiagnosticSeverity.Error));
@@ -271,9 +272,9 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                         break;
                     case ParamType.Boolean:
-                        if (!matchEntire(curParam, regexNumber)
-                            && (curParam.toLowerCase() !== "on"
-                                && curParam.toLowerCase() !== "off")) {
+                        if (!curParam.isNumber()
+                            && (!curParam.iCmp("on")
+                                && !curParam.iCmp("off"))) {
                             diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
                                 , "Invalid Option: " + curParam
                                 , vscode.DiagnosticSeverity.Error));
@@ -281,11 +282,11 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                         break;
                     case ParamType.Volume:
-                        if (!matchEntire(curParam, regexNumber)
-                            || curParam.toLowerCase() !== "BGM".toLowerCase()
-                            || curParam.toLowerCase() !== "BGS".toLowerCase()
-                            || curParam.toLowerCase() !== "SE".toLowerCase()
-                            || curParam.toLowerCase() !== "DUB".toLowerCase()) {
+                        if (!curParam.isNumber()
+                            || !curParam.iCmp("BGM")
+                            || !curParam.iCmp("BGS")
+                            || !curParam.iCmp("SE")
+                            || !curParam.iCmp("DUB")) {
                             diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
                                 , "Invalid Volume: " + curParam
                                 , vscode.DiagnosticSeverity.Error));
@@ -293,8 +294,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                         break;
                     case ParamType.Order:
-                        if (curParam.toLowerCase() !== "Front".toLowerCase()
-                            || curParam.toLowerCase() !== "Back".toLowerCase()
+                        if (!curParam.iCmp("Front")
+                            || !curParam.iCmp("Back")
                             || Number.isNaN(parseInt(curParam))) {
                             diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
                                 , "Invalid Order: " + curParam
@@ -303,8 +304,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                         break;
                     case ParamType.ObjType:
-                        if (curParam.toLowerCase() !== "Pic".toLowerCase()
-                            && curParam.toLowerCase() !== "Str".toLowerCase()) {
+                        if (!curParam.iCmp("Pic")
+                            && !curParam.iCmp("Str")) {
                             diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
                                 , "Invalid Object Type: " + curParam
                                 , vscode.DiagnosticSeverity.Error));
@@ -324,7 +325,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                                     , "Too Few Params"
                                     , vscode.DiagnosticSeverity.Warning));
                             }
-                            if (!matchEntire(curParam, regexNumber)) {
+                            if (!curParam.isNumber()) {
                                 diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
                                     , "Invalid Number: " + curParam
                                     , vscode.DiagnosticSeverity.Error));

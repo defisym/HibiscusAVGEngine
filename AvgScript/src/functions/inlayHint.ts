@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 
-import { commandInfoList, InlayHintType, inlayHintMap } from '../lib/dict';
-import { iterateLines, getAllParams, getMapValue, getCommandType } from '../lib/utilities';
+import { commandInfoList, inlayHintMap, InlayHintType } from '../lib/dict';
+import { iterateLines } from "../lib/iterateLines";
+import { getAllParams, getCommandType } from '../lib/utilities';
 
 export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript', {
     provideInlayHints(document: vscode.TextDocument, range: vscode.Range, token: vscode.CancellationToken) {
@@ -17,8 +18,8 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
                     const params = getAllParams(text);
                     const command = params[0].substring(1);
                     const paramNum = params.length - 1;
-                    const paramDefinition = getMapValue(command, commandInfoList);
-
+                    const paramDefinition = commandInfoList.getValue(command);;
+                    
                     let contentStart: number = lineStart + command.length + 1;
 
                     if (paramDefinition === undefined) {

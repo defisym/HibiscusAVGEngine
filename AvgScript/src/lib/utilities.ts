@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
-import { graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions, getFullFileNameByType, fileListHasItem, graphicFXCompletions, getCorrectPathAndType, projectConfig, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, videoPath } from '../functions/file';
+import { audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListHasItem, getCorrectPathAndType, getFullFileNameByType, graphicCGCompletions, graphicCharactersCompletions, graphicFXCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from '../functions/file';
 import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, internalKeywordList } from './dict';
-import { regexNumber } from './regExp';
+import { iterateLines } from './iterateLines';
 
 import path = require('path');
 
@@ -222,96 +222,8 @@ export function lineValidForCommandCompletion(src: string): boolean {
     return false;
 }
 
-export function iterateArray<T>(array: T[]) {
-    for (let i = 0; i < array.length; i++) {
-        let watch = array[i];
-    }
-}
-
-export function arrayHasValue(item: number, array: number[]): boolean;
-export function arrayHasValue(item: string, array: string[]): boolean;
-export function arrayHasValue(item: string | number, array: (string | number)[]): boolean {
-    for (let i in array) {
-        if (i === "empty") {
-            continue;
-        }
-
-        if (typeof item !== (typeof array[i])) {
-            return false;
-        }
-
-        if (typeof item === "string") {
-            if ((<typeof item>array[i]).toLowerCase() === item.toLowerCase()) {
-                return true;
-            }
-        }
-
-        else if (array[i] === item) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-// always return the element position in array
-export function arrayUniquePush<T>(array: T[], elementToPush: T) {
-    return arrayUniquePushIf(array, elementToPush, (l: T, r: T) => {
-        return l === r;
-    });
-};
-
-export function arrayUniquePushIf<T>(array: T[], elementToPush: T
-    , cmp: (l: T, r: T) => boolean) {
-    let elementPosition = arrayFindIf(array, elementToPush, cmp);
-
-    if (elementPosition === -1) {
-        return array.push(elementToPush) - 1;
-    } else {
-        return elementPosition;
-    }
-
-};
-
-export function arrayFindIf<T>(array: T[], elementToPush: T
-    , cmp: (l: T, r: T) => boolean) {
-    let elementPosition = -1;
-
-    for (let i = 0; i < array.length; i++) {
-        const element = array[i];
-
-        if (cmp(element, elementToPush)) {
-            elementPosition = i;
-
-            break;
-        }
-    }
-
-    return elementPosition;
-};
-
-export function getMapValue<V>(item: string, map: Map<string, V>): V | undefined {
-    let ret: V | undefined = undefined;
-
-    if (map === undefined || item === undefined) {
-        return undefined;
-    }
-
-    map.forEach((value, key) => {
-        if (key === undefined) {
-            return;
-        }
-
-        if (key.toLowerCase() === item.toLowerCase()) {
-            ret = value;
-        }
-    });
-
-    return ret;
-}
-
 export function getCommentList(item: string, commentList: docList): string[] | undefined {
-    return getMapValue<string[]>(item, commentList);
+    return commentList.getValue(item);
 }
 
 export function getCompletionItem(item: string, commentList: docList) {
@@ -343,8 +255,8 @@ export function getCompletionItemList(src: string[], commentList: docList) {
             continue;
         }
 
-        if (arrayHasValue(src[i], deprecatedKeywordList)
-            || arrayHasValue(src[i], internalKeywordList)) {
+        if (deprecatedKeywordList.hasValue(src[i])
+            || internalKeywordList.hasValue(src[i])) {
             completionItem.tags = [vscode.CompletionItemTag.Deprecated];
         }
 
@@ -426,7 +338,7 @@ export function getType(linePrefix: string, getCommand: boolean = false) {
         - (inParam ? 1 : 0);
 
     do {
-        let commandInfo = getMapValue(command, commandInfoList);
+        let commandInfo = commandInfoList.getValue(command);
 
         if (commandInfo === undefined) {
             break;
@@ -520,90 +432,6 @@ export function fileExists(type: FileType, fileName: string) {
     return fileListHasItem(filePath);
 }
 
-export function matchEntire(src: string, regex: RegExp) {
-    let match = src.match(regex);
-
-    if (match === null) {
-        return false;
-    }
-
-    return match[0] === src;
-}
-
-export function strIsNum(src: string) {
-    return matchEntire(src, regexNumber);
-}
-
-// iterateLines(document, (text, lineNumber
-//     , lineStart, lineEnd
-//     , firstLineNotComment) => {
-
-//     });
-
-export function iterateLines(document: vscode.TextDocument
-    , callBack: (text: string, lineNum: number
-        , lineStart: number, lineEnd: number
-        , firstLineNotComment: number) => void) {
-    let inComment: boolean = false;
-
-    let beginRegex = /^#Begin/gi;
-    let endRegex = /^#End/gi;
-    let labelRegex = /^;.*/gi;
-    let keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(.*JMP.*)|(#SkipAnchor|#Ret|#StopFF|#StopFastForward))/gi;
-
-    let commentRegex = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)|((?!\/\*)[^\/\*]*\*\/)/gi;
-
-    // line starts with // ( /*
-    // remove back
-    let commentRegexRepBack = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)/gi;
-    // line starts with ...*/
-    // remove beginning
-    let commentRegexRepFront = /((?!\/\*)[^\/\*]*\*\/)/gi;
-
-    let firstLineNotComment: number | undefined = undefined;
-
-    for (let i = 0; i < document.lineCount; ++i) {
-        const line = document.lineAt(i);
-
-        if (!line.isEmptyOrWhitespace) {
-            const text = line.text.trim();
-            let textRemoveBack = text.replace(commentRegexRepBack, "").trim();
-            let textRemoveFront = text;
-
-            let textNoComment = textRemoveBack;
-
-            // TODO ABC /* */ ACB
-            if (inComment
-                && text.match(commentRegexRepFront)) {
-                inComment = false;
-                textRemoveFront = text.replace(commentRegexRepFront, "").trim();
-                textNoComment = textRemoveBack.replace(commentRegexRepFront, "").trim();
-            }
-
-            if (!inComment
-                && textNoComment.length > 0) {
-                const lineStart: number = line.firstNonWhitespaceCharacterIndex
-                    + text.length - textRemoveFront.length;
-                const lineEnd: number = lineStart + textNoComment.length;
-
-                if (firstLineNotComment === undefined) {
-                    firstLineNotComment = i;
-                }
-
-                callBack(textNoComment, i
-                    , lineStart, lineEnd
-                    , firstLineNotComment);
-            }
-
-            if (!inComment
-                && !text.match(/\*\//gi)
-                && text.match(/\/\*/gi)) {
-                inComment = true;;
-            }
-        }
-    }
-}
-
 export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position): undefined[] | [string, number, string, number, string] {
     const curLine = position.line;
     let curText = "";
@@ -627,82 +455,4 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
     let curLinePrefix: string = curText.substring(0, curPos).trim().toLowerCase();
 
     return [curText.toLowerCase(), curStart, curLinePrefix, curPos, curText];
-}
-
-export async function iterateScripts(
-    newScriptCallback: (script: string, document: vscode.TextDocument) => void
-    , paramCallback: (initScript: string
-        , script: string, lineNumber: number
-        , currentType: InlayHintType, currentParam: string) => void) {
-    // get settings
-    do {
-        await sleep(50);
-    } while (projectConfig === undefined);
-
-    let initSettings: string = projectConfig.System.Initial_AVG;
-    let initScript = initSettings.substring(initSettings.lastIndexOf('\\') + 1);
-
-    // generate ref list
-    let scripts: string[] = [initScript];
-    let scannedScripts: string[] = [];
-
-    let praseScript = async (scripts: string[]) => {
-        let referredScripts: string[] = [];
-
-        for (let script of scripts) {
-            let filePath = scriptPath + '\\' + script;
-
-            if (filePath.substring(filePath.length - 4).toLowerCase() !== '.asc') {
-                filePath += '.asc';
-            }
-
-            let document = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
-
-            newScriptCallback(script, document);
-
-            iterateLines(document, (text, lineNumber
-                , lineStart, lineEnd
-                , firstLineNotComment) => {
-                const params = getAllParams(text);
-                const command = params[0].substring(1);
-
-                let commandInfo = getMapValue(command, commandInfoList);
-
-                if (commandInfo === undefined) {
-                    return;
-                }
-
-                let inlayHintType = commandInfo.inlayHintType;
-
-                if (inlayHintType === undefined) {
-                    return;
-                }
-
-                const itNum = Math.min(inlayHintType.length, params.length - 1);
-
-                for (let i = 0; i < itNum; i++) {
-                    const currentType = inlayHintType[i];
-                    let currentParam = params[i + 1];
-
-                    if (currentType === InlayHintType.Chapter
-                        && !arrayHasValue(currentParam, scannedScripts)) {
-                        scannedScripts.push(currentParam);
-                        referredScripts.push(currentParam);
-                    }
-
-                    paramCallback(initScript
-                        , script, lineNumber
-                        , currentType, currentParam);
-                }
-            });
-        }
-
-        if (referredScripts.length === 0) {
-            return;
-        } else {
-            await praseScript(referredScripts);
-        }
-    };
-
-    await praseScript(scripts);
 }

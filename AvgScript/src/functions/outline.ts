@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { iterateLines } from '../lib/utilities';
+import { iterateLines } from "../lib/iterateLines";
 
 export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScript'
     , {

@@ -1,9 +1,14 @@
+import { comparator } from "./general";
+
 export { };
 
 declare global {
     interface Array<T> {
         empty(): boolean;
         hasValue(item: T): boolean;
+        findIf(cmp: (item: T) => boolean): number;
+        uniquePush(elementToPush: T): number;
+        uniquePushIf(elementToPush: T, cmp: (l: T, r: T) => boolean): number;
     }
 }
 
@@ -12,25 +17,47 @@ Array.prototype.empty = function () {
 };
 
 Array.prototype.hasValue = function <T>(item: T) {
-    for (let i in this) {
-        if (i === "empty") {
-            continue;
-        }
+    let elementPosition = this.findIf((it: T) => {
+        return comparator(it, item);
+    });
 
-        if (typeof item !== (typeof this[i])) {
-            return false;
-        }
+    return elementPosition !== -1;
+};
 
-        if (typeof item === "string") {
-            if ((<typeof item>this[i]).toLowerCase() === item.toLowerCase()) {
-                return true;
-            }
-        }
+// always return the element position in array
+Array.prototype.findIf = function <T>(cmp: (item: T) => boolean) {
+    let elementPosition = -1;
 
-        else if (this[i] === item) {
-            return true;
+    for (let i = 0; i < this.length; i++) {
+        const element = this[i];
+
+        if (cmp(element)) {
+            elementPosition = i;
+
+            break;
         }
     }
 
-    return false;
+    return elementPosition;
+};
+
+// always return the element position in array
+Array.prototype.uniquePushIf = function <T>(elementToPush: T, cmp: (l: T, r: T) => boolean): number {
+    let elementPosition = this.findIf((item: T) => {
+        return cmp(item, elementToPush);
+    });
+
+    if (elementPosition === -1) {
+        return this.push(elementToPush) - 1;
+    } else {
+        return elementPosition;
+    }
+};
+
+// always return the element position in array
+// if type is string, then compare it ignore case
+Array.prototype.uniquePush = function <T>(elementToPush: T): number {
+    return this.uniquePushIf(elementToPush, (l: T, r: T) => {
+        return comparator(l, r);
+    });
 };

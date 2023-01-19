@@ -1,20 +1,19 @@
 import * as vscode from 'vscode';
 
-import { labelDefinition, labelReference } from './functions/label';
+import { colorProvider } from './functions/color';
+import { assetsListPanel, commandBasePath, commandBasePath_impl, commandGetAssetsList, commandGetAssetsList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl } from './functions/command';
+import { atCommands, fileName, fileSuffix, langPrefix, settingsParam, sharpCommands } from './functions/completion';
+import { debuggerFactory, debuggerProvider } from './functions/debugger';
+import { diagnosticsCollection, onUpdate, triggerUpdate } from './functions/diagnostic';
+import { fileDefinition } from './functions/file';
 import { hover, hoverFile } from './functions/hover';
 import { inlayHint } from './functions/inlayHint';
-import { diagnosticsCollection, onUpdate, triggerUpdate } from './functions/diagnostic';
-import { assetsListPanel, commandBasePath, commandBasePath_impl, commandGetAssetsList, commandGetAssetsList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl } from './functions/command';
+import { labelDefinition, labelReference } from './functions/label';
 import { outline } from './functions/outline';
 import { rename } from './functions/rename';
-import { atCommands, fileName, fileSuffix, langPrefix, settingsParam, sharpCommands } from './functions/completion';
-import { colorProvider } from './functions/color';
-import { fileDefinition } from './functions/file';
-import { debuggerFactory, debuggerProvider } from './functions/debugger';
 
 // must import to make extensions enabled
-import './extensions/arrayEx';
-import './extensions/stringEx';
+import './extensions/_include';
 
 export let activeEditor = vscode.window.activeTextEditor;
 

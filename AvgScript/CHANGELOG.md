@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230119
+
+- refactor to prototype extension instead of C style function call
+
 ## 20230118
 
 - update context menu

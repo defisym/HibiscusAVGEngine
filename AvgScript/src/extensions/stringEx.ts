@@ -1,3 +1,5 @@
+import { regexNumber } from "../lib/regExp";
+
 export { };
 
 declare global {
@@ -7,6 +9,11 @@ declare global {
         replaceRanges(ranges: [number, number][], replacement: string): string;
         startsWithStrings(searchString: string[], position?: number): boolean;
         endsWithStrings(searchString: string[], endPosition?: number): boolean;
+
+        matchEntire(regex: string | RegExp): boolean;
+        isNumber(): boolean;
+
+        iCmp(str: string): boolean;
     }
 }
 
@@ -63,4 +70,22 @@ String.prototype.endsWithStrings = function (searchString: string[], endPosition
     }
 
     return result;
+};
+
+String.prototype.matchEntire = function (regex: string | RegExp): boolean {
+    let match = this.match(regex);
+
+    if (match === null) {
+        return false;
+    }
+
+    return match[0] === this;
+};
+
+String.prototype.isNumber = function () {
+    return this.matchEntire(regexNumber);
+};
+
+String.prototype.iCmp = function (str: string) {
+    return this.toLowerCase() === str.toLowerCase();
 };

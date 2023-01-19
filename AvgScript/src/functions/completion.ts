@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { sharpKeywordList, commandDocList, atKeywordList, settingsParamList, settingsParamDocList } from '../lib/dict';
-import { lineValidForCommandCompletion, getCompletionItemList, getType, FileType, currentLineNotComment, getSubStrings, arrayHasValue } from '../lib/utilities';
+import { lineValidForCommandCompletion, getCompletionItemList, getType, FileType, currentLineNotComment, getSubStrings } from '../lib/utilities';
 import { fileListInitialized, graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions } from './file';
 import { labelCompletions } from './label';
 
@@ -58,7 +58,7 @@ export const settingsParam = vscode.languages.registerCompletionItemProvider(
             let paramList: typeof settingsParamList = [];
 
             for (let param of settingsParamList) {
-                if (!arrayHasValue(param, curParams)) {
+                if (!curParams.hasValue(param)) {
                     paramList.push(param);
                 }
             }

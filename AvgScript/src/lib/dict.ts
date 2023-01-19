@@ -3048,8 +3048,8 @@ export function generateList() {
     // settings    
     settingsParamList = [];
 
-    settingsParamDocList.forEach((value: string[], key: string) => {
-        if (key.toLowerCase() !== 'Settings'.toLowerCase()) {
+    settingsParamDocList.forEach((value: string[], key: string) => {        
+        if (!key.iCmp('Settings')) {
             settingsParamList.push(key);
         }
     });

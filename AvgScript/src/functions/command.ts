@@ -4,12 +4,13 @@ import path = require('path');
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
-import { ParamInfo, ParamTypeMap, inlayHintMap, commandInfoList, generateList, resetList, InlayHintType } from '../lib/dict';
-import { arrayUniquePush, arrayUniquePushIf, FileType, iterateScripts, sleep } from '../lib/utilities';
+import { commandInfoList, generateList, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
+import { iterateScripts } from "../lib/iterateScripts";
+import { FileType, sleep } from '../lib/utilities';
 import { assetList_getWebviewContent } from '../webview/assetList';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { refreshFileDiagnostics, updateDiagnostics } from './diagnostic';
-import { basePath, updateFileList, fileListInitialized, updateBasePath, scriptPath, graphicCharactersPath, videoPath, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, graphicCGPath, graphicPatternFadePath, graphicUIPath, getFullFilePath, fileListHasItem } from './file';
+import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, updateBasePath, updateFileList, videoPath } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -232,7 +233,7 @@ export const commandGetAssetsList_impl = async () => {
                     refInfo.refCount++;
 
                     // ref type
-                    arrayUniquePush(refInfo.type, fileType);
+                    refInfo.type.uniquePush(fileType);
 
                     // ref position
                     let posIt = refInfo.refScript.get(script);
@@ -377,8 +378,8 @@ export const commandShowJumpFlow_impl = async () => {
                 };
 
                 let updateNodes = () => {
-                    let targetIndexInArray = arrayUniquePushIf(jumpTable, [target, -1], cmp);
-                    let curIndexInArray = arrayUniquePushIf(jumpTable, [cur, targetIndexInArray], cmp);
+                    let targetIndexInArray = jumpTable.uniquePushIf([target, -1], cmp);
+                    let curIndexInArray = jumpTable.uniquePushIf([cur, targetIndexInArray], cmp);
 
                     jumpTable[curIndexInArray][0] = cur;
                     jumpTable[curIndexInArray][1] = targetIndexInArray;

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
-import { currentLineNotComment, iterateLines, getNumberOfParam, getIndexOfDelimiter, getAllParams, getParamAtPosition } from '../lib/utilities';
+import { iterateLines } from "../lib/iterateLines";
+import { currentLineNotComment, getAllParams, getIndexOfDelimiter, getNumberOfParam, getParamAtPosition } from '../lib/utilities';
 
 export const rename = vscode.languages.registerRenameProvider(
     'AvgScript', {

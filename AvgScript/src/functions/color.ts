@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 
 import { commandInfoList, ParamType } from '../lib/dict';
-import { regexRep, regexHexColor } from '../lib/regExp';
-import { iterateLines, getAllParams, strIsNum, getMapValue } from '../lib/utilities';
+import { iterateLines } from "../lib/iterateLines";
+import { regexHexColor, regexRep } from '../lib/regExp';
+import { getAllParams } from '../lib/utilities';
 
 export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
     new (class implements vscode.DocumentColorProvider {
@@ -46,7 +47,7 @@ export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
                 };
 
                 let handleRGB = (r: string, g: string, b: string, start: number) => {
-                    if (strIsNum(r) && strIsNum(g) && strIsNum(b)) {
+                    if (r.isNumber() && g.isNumber() && b.isNumber()) {
                         let R = parseInt(r, 10);
                         let G = parseInt(g, 10);
                         let B = parseInt(b, 10);
@@ -71,7 +72,7 @@ export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
                 if (text.startsWith("#")
                     || text.startsWith("@")) {
                     const command = params[0].substring(1);
-                    const paramDefinition = getMapValue(command, commandInfoList);
+                    const paramDefinition = commandInfoList.getValue(command);
 
                     if (paramDefinition === undefined) {
                         return;
