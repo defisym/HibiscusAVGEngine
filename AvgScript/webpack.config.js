@@ -8,9 +8,12 @@ const webpack = require('webpack');
 /**@type {import('webpack').Configuration}*/
 const config = {
   performance: {
-    hints: false,
-    maxEntrypointSize: 512000,
-    maxAssetSize: 512000
+    hints: 'warning',
+    maxEntrypointSize: 1024000,
+    maxAssetSize: 1024000
+  },
+  optimization:{
+
   },
 
   target: 'webworker', // vscode extensions run in webworker context for VS Code web 📖 -> https://webpack.js.org/configuration/target/#target
@@ -38,8 +41,8 @@ const config = {
       // Webpack 5 no longer polyfills Node.js core modules automatically.
       // see https://webpack.js.org/configuration/resolve/#resolvefallback
       // for the list of Node.js core module polyfills.
-      "fs": false,   // to fix Can't resolve 'fs'
-                    // and filePath.endsWith is not a function
+      "fs": false,    // to fix Can't resolve 'fs'
+                      // and filePath.endsWith is not a function
       "os":false,
       "path": false ,
       "stream": false ,
