@@ -3,6 +3,7 @@
 ## 20230119
 
 - refactor to prototype extension instead of C style function call
+- check if label valid
 
 ## 20230118
 

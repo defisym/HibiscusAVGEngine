@@ -6,7 +6,7 @@ import { regexHexColor, regexRep } from '../lib/regExp';
 import { fileExists, getAllParams, getCommandType } from '../lib/utilities';
 import { iterateLines } from "../lib/iterateLines";
 import { currentLocalCode, currentLocalCodeDisplay, fileListInitialized } from './file';
-import { getLabelCompletion } from './label';
+import { getLabelCompletion, labelJumpMap } from './label';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
 
@@ -362,6 +362,13 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                         }
 
                         break;
+
+                    case InlayHintType.Label:
+                        if (labelJumpMap.getValue(curParam) === undefined) {
+                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+                                , "Invalid Label: " + curParam
+                                , vscode.DiagnosticSeverity.Error));
+                        }
                 }
 
                 contentStart += curParam.length;
@@ -406,28 +413,27 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 //--------------------
 
 export function refreshFileDiagnostics() {
-    if (activeEditor === undefined) {
-        return;
-    }
-
-    let activeDocument = activeEditor.document;
-
-    updateDiagnostics(activeDocument, true);
+    diagnosticUpdateCore(true);
 }
 
-export function onUpdate() {
+export function diagnosticUpdateCore(checkFile: boolean = false) {
     if (activeEditor === undefined) {
         return;
     }
 
     let activeDocument = activeEditor.document;
 
-    updateDiagnostics(activeDocument, fileListInitialized);
+    // called before update diagnostic to check invalid label
     getLabelCompletion(activeDocument);
+    updateDiagnostics(activeDocument, checkFile);
     updateLanguageDecorations(activeEditor
         , nonActiveLanguageDecorator
         , currentLocalCode
         , currentLocalCodeDisplay);
+}
+
+export function onUpdate() {
+    diagnosticUpdateCore(fileListInitialized);
 }
 
 export function triggerUpdate(throttle = false) {

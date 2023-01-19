@@ -9,7 +9,7 @@ import { iterateScripts } from "../lib/iterateScripts";
 import { FileType, sleep } from '../lib/utilities';
 import { assetList_getWebviewContent } from '../webview/assetList';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
-import { refreshFileDiagnostics, updateDiagnostics } from './diagnostic';
+import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics, updateDiagnostics } from './diagnostic';
 import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, updateBasePath, updateFileList, videoPath } from './file';
 import { getLabelJumpMap } from './label';
 
@@ -146,12 +146,7 @@ export const commandUpdateCommandExtension_impl = async () => {
     generateList();
 
     // update diagnostic
-    if (activeEditor === undefined) {
-        return;
-    }
-
-    let activeDocument = activeEditor.document;
-    updateDiagnostics(activeDocument, fileListInitialized);
+    diagnosticUpdateHandler(fileListInitialized);
 };
 
 export let assetsListPanel: vscode.WebviewPanel;
