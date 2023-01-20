@@ -635,6 +635,15 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.String]
         , inlayHintType: [InlayHintType.DebugMSG]
     }],
+    ["MSGRAW", {
+        prefix: "#"
+        , minParam: 0, maxParam: 0
+        , description: ["\t#MSGRAW"
+            , "内部指令，仅调试模式下可用，于调试输出中输出内部变量，用于回避字符转义"]
+        , type: []
+        , inlayHintType: []
+        , internal: true
+    }],
     ["MSGClear", {
         prefix: "#"
         , minParam: 0, maxParam: 0
@@ -3048,7 +3057,7 @@ export function generateList() {
     // settings    
     settingsParamList = [];
 
-    settingsParamDocList.forEach((value: string[], key: string) => {        
+    settingsParamDocList.forEach((value: string[], key: string) => {
         if (!key.iCmp('Settings')) {
             settingsParamList.push(key);
         }
