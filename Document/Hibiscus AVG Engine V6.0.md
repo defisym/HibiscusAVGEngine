@@ -79,7 +79,7 @@ LanguageDisplayName_RU = русский язык
 
 一个典型的多语言脚本如下所示
 
-```C++
+```AVGScript
 Lang[ZH]姓名:对白
 Lang[EN]Name:Dialogue
 
@@ -92,7 +92,7 @@ Lang[EN]#SV=1:I LOVE YOU
 
 若当前语言设定为`ZH`，引擎获取的脚本为
 
-```C++
+```AVGScript
 Lang[ZH]姓名:对白
 
 Lang[ZH]旁白
@@ -102,7 +102,7 @@ Lang[ZH]#SV=1:我爱你
 
 引擎实际执行的脚本为
 
-```C++
+```AVGScript
 姓名:对白
 
 旁白
@@ -213,14 +213,14 @@ History_Audio_Y=480
 
 示例文本
 
-```C++
+```AVGScript
 (不含引号)
 " Test "
 ```
 
 解析结果
 
-```C++
+```AVGScript
 (不含引号)
 "Test"
 ```
@@ -235,7 +235,7 @@ History_Audio_Y=480
 
 以`;`为开头，且位于注释区块外的行，会被系统作为跳转标签处理，在`JMP`等指令中使用
 
-```C++
+```AVGScript
 ;这是一行被系统作为跳转标签处理的注释
 (这里开始转变为阴雨天气)
 ```
@@ -284,7 +284,7 @@ History_Audio_Y=480
 
 在非VN模式下可以使用桥接符号`&`对旁白文本进行桥接，以实现在文本显示途中追加演出，可配合`#AutoChangePage`等指令实现自动翻页演出
 
-```C++
+```AVGScript
 对话中间插入演出。
 ......
 &这是不换行的演出。
@@ -292,7 +292,7 @@ History_Audio_Y=480
 &&这是换行的演出。
 ```
 
-```C++
+```AVGScript
 对话中间插入演出。这是不换行的演出。
 这是换行的演出。
 ```
@@ -387,10 +387,10 @@ History_Audio_Y=480
 当RGB参数少于四个时，按照如下顺序引用:
 
 ```C++
-R
-R G
-R G B
-A R G B
+// R
+// R G
+// R G B
+// A R G B
 ```
 
 参数为时`!`重置至默认值，参数以`+/-`开头则增/减至当前值
@@ -485,7 +485,7 @@ A R G B
 
 范例代码如下
 
-```C++
+```AVGScript
 @Char=遥_兴奋_3.png:10:0:400
 
 #SV=1:15
@@ -506,7 +506,7 @@ A R G B
 
 替换结果
 
-```C++
+```AVGScript
 我把最后10点行李搬到米奈尔家的时候，天已经黑了很久。
 其实东西并不多，但是我总能在每次到这边之后都再想起来15件应该带来的物品。
 
@@ -751,15 +751,27 @@ namenull.png = 2_1
 
 #### 说明
 
-##### 全局Debug
+##### 设置项
 
-若在`Settings\Settings.ini`中启用了全局Debug模式，则AVG系统的调试模式会自动启用。在全局Debug模式下，引擎会强制检查脚本文件版本，并在版本不匹配时启动预编译。
+若在`Settings\Settings.ini`中启用了全局Debug模式，即`[Debug]`组`Debug`项为`1`，则AVG系统的调试模式会自动启用
 
-```C++
+```ini
 [Debug]
 ;------------调试模式------------
-在这里定义是否显示调试参数
-debug=1
+; 在这里定义是否显示调试参数
+debug = 1
+
+; Invalid File Alert
+Debug_IFA = 0
+
+; 调试模式直接打开存档页面
+Debug_GotoSL = 1
+
+; 快进到StopFF
+Debug_GotoStopFF = 1
+
+; 在这里定义调试重定向章节
+Debug_AVG = Dialogue\_initial.asc
 ```
 
 ##### AVG调试模式
@@ -807,14 +819,14 @@ debug=1
 
 一个典型的配置如下：
 
-```C++
+```ini
 [Debug]
 ;------------调试模式------------
 在这里定义是否显示调试参数
-Debug=1
+Debug = 1
 
 在这里定义调试重定向章节
-Debug_AVG=Chapter_1
+Debug_AVG = Chapter_1
 ```
 
 ##### 拖拽调试
@@ -861,14 +873,82 @@ Debug_AVG=Chapter_1
 
 ![InVSCode](media/image7.png)
 
+#### 快捷键
+
+##### AVG
+
+###### 复制调试信息
+
+`Shift + C`: 将调试信息复制到剪贴板
+
+###### 显示/隐藏调试信息
+
+`Shift + W`: 显示/隐藏调试信息
+
+###### 显示/隐藏边界
+
+`Shift + H`: 头像栏边界
+`Shift + H + Z`: 头像边界
+
+`Shift + N`: 姓名边界
+`Shift + N + Z`: 姓名栏边界
+
+`Shift + D`: 对白边界
+`Shift + D + Z`: 对话框边界
+
+`Shift + B`: 选项边界
+`Shift + G`: 图像对象边界
+`Shift + S`: 字符串对象边界
+
+![Coord](media/Edge.png)
+
+###### 显示/隐藏标尺
+
+`Shift + R`: 标尺
+
+![Coord](media/Coord.png)
+
+##### S/L
+
+###### 强制读取
+
+调试模式下按住`Shift`并点击读取按钮，可以无视存档验证读取存档，但可能会导致非预期的演出问题
+
+###### 刷新
+
+当前存档对应的文件来自于拖拽调试时，调试模式下按住`Ctrl`并点击存档底板，可强制刷新对应的原始文件，成功时会听到读取提示音
+
 ### 设置
 
-| 设置项    | 作用                                         |
-| --------- | -------------------------------------------- |
-| Speed     | 设定对话文字显示速度，单位：毫秒             |
-| Wait      | 设定自动模式下对话显示完成之后切换的间隔     |
-| ShowAll   | 设定文本是否直接显示                         |
-| FFJumpAll | 设定是否跳过已读文本，跳过已读=1，跳过全部=0 |
+```ini
+; Coef & Max 用于将Cursor_Value归一化到0 ~ 100
+; Cursor_Value = (Max - Save_Value) / Coef
+; Save_Value = Max - Cursor_Value * Coef
+
+; 在这里设定对话文字显示速度，单位：毫秒
+Speed = 0
+Speed_Coef = 2
+Speed_Max = 200
+
+; 在这里设定文本是否直接显示
+ShowAll = 0
+
+; 在这里设定是否启用自动模式
+Auto = 1
+
+; 在这里设定自动模式下对话显示完成之后切换的间隔
+Wait = 1000
+Wait_Coef = 40
+Wait_Max = 5000
+
+; 在这里设定是否跳过已读文本
+; 跳过已读 = 0
+; 跳过全部 = 1
+FFJumpAll = 1
+
+; Obsolete_在这里设定是否启用快捷栏
+QuickBar = 1
+```
 
 ## 发行
 
@@ -954,7 +1034,7 @@ Debug_AVG=Chapter_1
 
 指令文件
 
-```C++
+```AvgScript
 @Spe=namenull.png
 @Char=..UInamenull.png:-1:0:-353:132
 @Spe=dianull.png
@@ -1246,7 +1326,7 @@ Debug_AVG=Chapter_1
 
 若不指定Time，则会使用当前设置中的默认翻页延时
 
-```C++
+```AVGScript
     #AutoChangePage=1500
     ……1
     &……2
@@ -1332,7 +1412,7 @@ Debug_AVG=Chapter_1
 
 该指令会被当作跳过终止指令处理。范例再初始化代码如下：
 
-```C++
+```AVGScript
 #SkipAnchor
 
 #NJMP=Init
@@ -1602,7 +1682,7 @@ Debug_AVG=Chapter_1
 
 #### 示例
 
-```C++
+```AVGScript
 #SetSwitchColor=#F0F0F0
 #SetSwitchHoverColor=#0000FF
 #SetSwitchNegativeColor=#00FF00
@@ -2004,7 +2084,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 等价于以下指令组合:
 
-```C++
+```AVGScript
 @OpenVideo=FileName.AVI:StartPos
 @VideoResume
 ```
@@ -2099,11 +2179,11 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 播放一个视频，在播放结束后自动跳转至后续章节/场景的范例导演代码如下：
 
-```C++
+```AVGScript
 #Begin 参考视频播放
 
   /*使用黑色CG作为遮罩实现淡入效果*/
-  #hideUI
+  @hideUI
   @cg=black.png
   #Wait
   @cg=null.png
@@ -2216,14 +2296,14 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 自动捕获不判定类型，捕获的字符串对象ID可用于指定图像对象ID(字符串对象和图像对象的ID相互独立)
 
-```C++
+```AVGScript
 @Char=test block.png:1
 
 //@CrossFade会自动捕获@Char中的对象ID，即1
 @CrossFade=<>
 ```
 
-```C++
+```AVGScript
 @Char=test block.png:1
 @CrossFade=1
 ```
@@ -2316,7 +2396,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 使用强制等待，可在缩放途中叠化图像
 
-```C++
+```AVGScript
 @BackZoom=640:360:640:360:1:0:1
 #wait=1000
 @CGChange=夏.png
@@ -2333,7 +2413,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 消除之前创建的所有叠化效果，会被转译为`@PatternFadeOut`
 
-```C++
+```AVGScript
 @Fade
 #wait=4000
 @DestroyFade
@@ -2489,7 +2569,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ###### 范例代码
 
-```C++
+```AVGScript
 Sepia Toning
 @SepiaToning=0.5:On:500
 @Char=..FXMemory.png:20:0:0:0
@@ -2689,7 +2769,7 @@ CG/UI不会被销毁
 
 该指令会自动转译为
 
-```C++
+```AVGScript
 @StashUIGraphic
 
 @Name=NameNull.png

@@ -689,6 +689,19 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , inlayHintType: [InlayHintType.Force]
         , internal: true
     }],
+    ["HideUI", {
+        prefix: "#"
+        , minParam: 0, maxParam: 0
+        , description: ["无叠化，隐藏菜单与快捷栏，会自动转译`#DisableUI`"]
+        , type: []
+    }],
+    ["ShowUI", {
+        prefix: "#"
+        , minParam: 0, maxParam: 0
+        , description: ["无叠化，重新显示菜单与快捷栏，会自动转译`#EnableUI`"]
+        , type: []
+    }],
+
     ["FNT", {
         prefix: "#"
         , minParam: 0, maxParam: 0
@@ -2949,19 +2962,6 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "移动图片对象，具体参数说明请参见`@MoveObj`一节"]
         , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
-    }],
-
-    ["HideUI", {
-        prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["无叠化，隐藏菜单与快捷栏，会自动转译`#DisableUI`"]
-        , type: []
-    }],
-    ["ShowUI", {
-        prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["无叠化，重新显示菜单与快捷栏，会自动转译`#EnableUI`"]
-        , type: []
     }],
 
     ["Order", {

@@ -45,7 +45,16 @@
             {
                 "language": "AvgScript",
                 "scopeName": "source.avgscript",
-                "path": "./syntaxes/AvgScript.tmLanguage.json"
+                "path": "./syntaxes/AvgScript.tmLanguage.json"           
+            },
+            {
+                "scopeName": "markdown.AvgScript.codeblock",
+                "path": "./syntaxes/AvgScript.markdown.json",
+                "_injectTo": ["text.html.markdown", "meta.embedded.block.AvgScript", "markup.fenced_code.block.markdown"],
+                "injectTo": ["text.html.markdown"],
+                "embeddedLanguages": {
+                    "meta.embedded.block.AvgScript": "AvgScript"
+                }
             }
         ],
         "snippets": [

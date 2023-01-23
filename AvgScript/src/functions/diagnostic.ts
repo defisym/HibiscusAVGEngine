@@ -423,6 +423,10 @@ export function diagnosticUpdateCore(checkFile: boolean = false) {
 
     let activeDocument = activeEditor.document;
 
+    if (activeDocument.languageId !== 'AvgScript') {
+        return;
+    }
+
     // called before update diagnostic to check invalid label
     getLabelCompletion(activeDocument);
     updateDiagnostics(activeDocument, checkFile);
@@ -448,10 +452,17 @@ export function triggerUpdate(throttle = false) {
     }
 }
 
-function updateLanguageDecorations(activeEditor: vscode.TextEditor, decorationType: vscode.TextEditorDecorationType, currentLocalCode: string, currentLocalCodeDisplay: string) {
+function updateLanguageDecorations(activeEditor: vscode.TextEditor
+    , decorationType: vscode.TextEditorDecorationType
+    , currentLocalCode: string
+    , currentLocalCodeDisplay: string) {
     const langReg = new RegExp("Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
     const decoOpt: vscode.DecorationOptions[] = [];
     const document = activeEditor.document;
+
+    if (document.languageId !== 'AvgScript') {
+        return;
+    }
 
     iterateLines(document, (text, lineNumber
         , lineStart, lineEnd

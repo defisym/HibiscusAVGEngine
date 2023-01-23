@@ -1,5 +1,11 @@
 # Change Log
 
+## 20230123
+
+- add grammar injector for markdown
+- fix incorrect lang prefix decorations for non-AvgScript
+- add missing highlight & fix incorrect highlight / doc
+
 ## 20230119
 
 - refactor to prototype extension instead of C style function call
