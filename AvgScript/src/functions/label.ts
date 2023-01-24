@@ -52,6 +52,10 @@ export function getLabelCompletion(document: vscode.TextDocument) {
     labelCompletions = [];
     labelJumpMap.clear();
 
+    if (document.languageId !== 'AvgScript') {
+        return;
+    }
+
     iterateLines(document, (text, lineNumber
         , lineStart, lineEnd
         , firstLineNotComment) => {

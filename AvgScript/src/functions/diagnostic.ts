@@ -21,6 +21,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
     }
 
     if (document.languageId !== 'AvgScript') {
+        diagnosticsCollection.clear();
+
         return;
     }
 
@@ -422,10 +424,6 @@ export function diagnosticUpdateCore(checkFile: boolean = false) {
     }
 
     let activeDocument = activeEditor.document;
-
-    if (activeDocument.languageId !== 'AvgScript') {
-        return;
-    }
 
     // called before update diagnostic to check invalid label
     getLabelCompletion(activeDocument);

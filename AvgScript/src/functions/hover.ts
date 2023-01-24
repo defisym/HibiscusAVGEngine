@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { filterString, findDelimiter, FORMAT_IGNORE_INCOMPLETE } from '../lib/dialogue';
+import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import {
     commandDocList, dialogueTextElement, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
 } from '../lib/dict';
@@ -37,55 +37,8 @@ export const hover = vscode.languages.registerHoverProvider('AvgScript', {
         }
 
         // normal text
-        if (!line.startsWith('@') && !line.startsWith('#')) {
-            let bDialogue = false;
-            let bNoNamePart = false;
-
-            const delimiterPos = findDelimiter(line);
-
-            if (delimiterPos !== -1 && !line.startsWith('$')) {
-                bDialogue = true;
-            }
-
-            bNoNamePart = delimiterPos === -1;
-
-            // name
-            const nameRegex = /(.*)(\[([^\[\]]+)\])/gi;
-            let namePart = lineRaw!.substring(0, delimiterPos);
-
-            if (namePart.startsWith('$')) {
-                namePart = namePart.substring(1);
-            }
-
-            let array = [...filterString(namePart, FORMAT_IGNORE_INCOMPLETE).matchAll(nameRegex)];
-            namePart = filterString(namePart, FORMAT_IGNORE_INCOMPLETE);
-
-            const matched = array.length !== 0;
-
-            const name = matched ? array[0][1] : namePart;
-            const dubHint = matched ? array[0][1] : namePart;
-            const headHint = matched ? array[0][3] : dubHint;
-
-            // dialogue
-            enum AppendType {
-                none = 0,
-                sameLine = 1,
-                nextLine = 2,
-            }
-
-            let appendType = AppendType.none;
-            let dialoguePart = lineRaw!.substring(delimiterPos + 1);
-
-            if (dialoguePart[0] === '&') {
-                if (dialoguePart[1] === '&') {
-                    appendType = AppendType.nextLine;
-                } else {
-                    appendType = AppendType.sameLine;
-                }
-            }
-
-            dialoguePart = dialoguePart.substring(appendType);
-            dialoguePart = filterString(dialoguePart, FORMAT_IGNORE_INCOMPLETE);
+        if (currentLineDialogue(line)) {
+            const dialogueStruct = parseDialogue(line, lineRaw!);
 
             // script
             let curLine = `### 当前行(无格式)为{$Type}
@@ -93,14 +46,14 @@ export const hover = vscode.languages.registerHoverProvider('AvgScript', {
             {$Element}
             `;
 
-            const typeText = bDialogue ? '对白' : '旁白';
-            const appendTypeText = appendType !== AppendType.none
-                ? (appendType === AppendType.sameLine ? '同行桥接' : '换行桥接')
+            const typeText = dialogueStruct.m_bDialogue ? '对白' : '旁白';
+            const appendTypeText = dialogueStruct.m_appendType !== AppendType.none
+                ? (dialogueStruct.m_appendType === AppendType.sameLine ? '同行桥接' : '换行桥接')
                 : typeText;
 
-            let elementText = bDialogue
+            let elementText = dialogueStruct.m_bDialogue
                 ? dialogueTextElement
-                : bNoNamePart
+                : dialogueStruct.m_bNoNamePart
                     ? narratorTextPlain
                     : narratorTextElement;
 
@@ -110,10 +63,10 @@ export const hover = vscode.languages.registerHoverProvider('AvgScript', {
                     : str;
             };
 
-            elementText = elementText.replace('{$Name}', outPutText(name));
-            elementText = elementText.replace('{$HeadHint}', outPutText(headHint));
-            elementText = elementText.replace('{$DubHint}', outPutText(dubHint));
-            elementText = elementText.replace('{$Dialogue}', dialoguePart);
+            elementText = elementText.replace('{$Name}', outPutText(dialogueStruct.m_name));
+            elementText = elementText.replace('{$HeadHint}', outPutText(dialogueStruct.m_headHint));
+            elementText = elementText.replace('{$DubHint}', outPutText(dialogueStruct.m_dubHint));
+            elementText = elementText.replace('{$Dialogue}', dialogueStruct.m_dialoguePart);
 
             curLine = curLine.replace('{$Type}', appendTypeText);
             curLine = curLine.replace('{$Element}', elementText);

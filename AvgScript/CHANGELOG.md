@@ -1,5 +1,13 @@
 # Change Log
 
+## 20230124
+
+- snippets for `if-else`
+- append dialogue line
+- fix diagnostic won't clear when file is closed
+- show format hint
+- add default short key
+
 ## 20230123
 
 - add grammar injector for markdown

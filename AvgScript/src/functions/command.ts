@@ -4,10 +4,12 @@ import path = require('path');
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
+import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import { commandInfoList, generateList, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
 import { iterateScripts } from "../lib/iterateScripts";
-import { FileType, sleep } from '../lib/utilities';
+import { currentLineNotComment, FileType, sleep } from '../lib/utilities';
 import { assetList_getWebviewContent } from '../webview/assetList';
+import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics, updateDiagnostics } from './diagnostic';
 import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, updateBasePath, updateFileList, videoPath } from './file';
@@ -25,6 +27,9 @@ export const commandUpdateCommandExtension: string = "config.AvgScript.updateCom
 export const commandGetAssetsList: string = "config.AvgScript.getAssetsList";
 export const commandShowJumpFlow: string = "config.AvgScript.showJumpFlow";
 export const commandReplaceScript: string = "config.AvgScript.replaceScript";
+
+export const commandAppendDialogue: string = "config.AvgScript.appendDialogue";
+export const commandShowDialogueFormatHint: string = "config.AvgScript.showDialogueFormatHint";
 
 export const commandBasePath_impl = async () => {
     // 1) Getting the value
@@ -511,4 +516,77 @@ export const commandReplaceScript_impl = async () => {
 
         return;
     });
+};
+
+export const commandAppendDialogue_impl = async () => {
+    if (!activeEditor) {
+        return undefined;
+    }
+
+    let document = activeEditor.document;
+
+    if (!document) {
+        return undefined;
+    }
+
+    const cursor = activeEditor.selection.active;
+    const documentLineAt = document.lineAt(cursor.line);
+    const documentLineLength = documentLineAt.text.length;
+
+    let [line, lineStart, linePrefix, curPos, lineRaw] = currentLineNotComment(document, cursor);
+
+    if (line === undefined) {
+        return undefined;
+    }
+
+    const spaceLength = documentLineLength - lineRaw!.length;
+    let indentString: string = "";
+
+    for (let i = 0; i < spaceLength; i++) {
+        indentString += " ";
+    }
+
+    // normal text
+    if (currentLineDialogue(line)) {
+        const dialogueStruct = parseDialogue(line, lineRaw!);
+
+        const curLineNew = lineRaw!.substring(0, linePrefix!.length);
+        let nextLine = lineRaw!.substring(linePrefix!.length);
+
+        nextLine = "$" + dialogueStruct.m_namePartRaw + ":&" + nextLine;
+
+        const editOptions = { undoStopBefore: false, undoStopAfter: false };
+        await activeEditor.edit((editBuilder: vscode.TextEditorEdit) => {
+            editBuilder.replace(new vscode.Range(cursor.line, 0
+                , cursor.line, documentLineLength)
+                , indentString + curLineNew);
+            editBuilder.insert(new vscode.Position(cursor.line + 1, 0), indentString + nextLine);
+        }, editOptions);
+
+        return;
+    }
+
+    vscode.window.showInformationMessage('Current line is not dialogue');
+    return undefined;
+};
+
+export let formatHintPanel: vscode.WebviewPanel;
+export const commandShowDialogueFormatHint_impl = async () => {
+    if (formatHintPanel !== undefined) {
+        formatHintPanel.dispose();
+    }
+
+    formatHintPanel = vscode.window.createWebviewPanel(
+        'FormatHint', // Identifies the type of the webview. Used internally
+        'Format Hint', // Title of the panel displayed to the user
+        vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
+        {
+            enableScripts: true
+            , enableForms: true
+            , enableCommandUris: true
+            , localResourceRoots: [vscode.Uri.file(basePath)]
+        } // Webview options. More on these later.
+    );
+
+    formatHintPanel.webview.html = formatHint_getFormatControlContent();
 };

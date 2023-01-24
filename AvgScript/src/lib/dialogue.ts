@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 export const FORMAT_IGNORE_UNKNOWN = 0b00000001;
 export const FORMAT_IGNORE_INCOMPLETE = 0b00000010;
 
@@ -151,3 +152,96 @@ export function paddingString(str: string) {
 export function findDelimiter(str: string) {
     return paddingString(str).lastIndexOf(':');
 };
+
+export function currentLineDialogue(line: string) {
+    return !line.startsWith('@') && !line.startsWith('#') && !line.startsWith(';');
+}
+
+// dialogue
+export enum AppendType {
+    none = 0,
+    sameLine = 1,
+    nextLine = 2,
+}
+
+export interface DialogueStruct {
+    m_bDialogue: boolean;
+    m_bNoNamePart: boolean;
+    m_appendType: AppendType;
+    m_bMatch: boolean;
+
+    m_name: string;
+    m_headHint: string;
+    m_dubHint: string;
+
+    m_namePart: string;
+    m_namePartRaw: string;
+    m_dialoguePart: string;
+    m_dialoguePartRaw: string;
+}
+
+export function parseDialogue(line: string, lineRaw: string): DialogueStruct {
+    let bDialogue = false;
+    let bNoNamePart = false;
+
+    const delimiterPos = findDelimiter(line);
+
+    if (delimiterPos !== -1 && !line.startsWith('$')) {
+        bDialogue = true;
+    }
+
+    bNoNamePart = delimiterPos === -1;
+
+    // name
+    const nameRegex = /(.*)(\[([^\[\]]+)\])/gi;
+    let namePart = lineRaw!.substring(0, delimiterPos);
+
+    if (namePart.startsWith('$')) {
+        namePart = namePart.substring(1);
+    }
+
+    const namePartRaw = namePart;
+    namePart = filterString(namePart, FORMAT_IGNORE_INCOMPLETE);
+
+    let array = [...namePart.matchAll(nameRegex)];
+
+    const matched = array.length !== 0;
+
+    const name = matched ? array[0][1] : namePart;
+    const dubHint = matched ? array[0][1] : namePart;
+    const headHint = matched ? array[0][3] : dubHint;
+
+    let appendType = AppendType.none;
+    let dialoguePart = lineRaw!.substring(delimiterPos + 1);
+
+    if (dialoguePart[0] === '&') {
+        if (dialoguePart[1] === '&') {
+            appendType = AppendType.nextLine;
+        } else {
+            appendType = AppendType.sameLine;
+        }
+    }
+
+    dialoguePart = dialoguePart.substring(appendType);
+
+    const dialoguePartRaw = dialoguePart;
+    dialoguePart = filterString(dialoguePartRaw, FORMAT_IGNORE_INCOMPLETE);
+
+    const dialogueStruct: DialogueStruct = {
+        m_bDialogue: bDialogue,
+        m_bNoNamePart: bNoNamePart,
+        m_appendType: appendType,
+        m_bMatch: matched,
+
+        m_name: name,
+        m_headHint: headHint,
+        m_dubHint: dubHint,
+
+        m_namePart: namePart,
+        m_namePartRaw: namePartRaw,
+        m_dialoguePart: dialoguePart,
+        m_dialoguePartRaw: dialoguePartRaw
+    };
+
+    return dialogueStruct;
+}

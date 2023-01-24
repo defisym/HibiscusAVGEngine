@@ -15,7 +15,7 @@
     },
     "categories": [
         "Programming Languages",
-        "Debuggers",        
+        "Debuggers",
         "Snippets",
         "Linters",
         "Themes"
@@ -24,6 +24,18 @@
         "sukumo28.wav-preview"
     ],
     "contributes": {
+        "keybindings":[
+            {
+                "command": "config.AvgScript.replaceScript",
+                "key": "Ctrl+Shift+Alt+R",
+                "when": "editorLangId == AvgScript"
+            },
+            {
+                "command": "config.AvgScript.appendDialogue",
+                "key": "Ctrl+Shift+Alt+A",
+                "when": "editorLangId == AvgScript"
+            }
+        ],
         "languages": [
             {
                 "id": "AvgScript",
@@ -45,13 +57,19 @@
             {
                 "language": "AvgScript",
                 "scopeName": "source.avgscript",
-                "path": "./syntaxes/AvgScript.tmLanguage.json"           
+                "path": "./syntaxes/AvgScript.tmLanguage.json"
             },
             {
                 "scopeName": "markdown.AvgScript.codeblock",
                 "path": "./syntaxes/AvgScript.markdown.json",
-                "_injectTo": ["text.html.markdown", "meta.embedded.block.AvgScript", "markup.fenced_code.block.markdown"],
-                "injectTo": ["text.html.markdown"],
+                "_injectTo": [
+                    "text.html.markdown",
+                    "meta.embedded.block.AvgScript",
+                    "markup.fenced_code.block.markdown"
+                ],
+                "injectTo": [
+                    "text.html.markdown"
+                ],
                 "embeddedLanguages": {
                     "meta.embedded.block.AvgScript": "AvgScript"
                 }
@@ -150,24 +168,24 @@
                             }
                         }
                     },
-                    "conf.AvgScript.replaceScript":{
-                        "type":"array",
+                    "conf.AvgScript.replaceScript": {
+                        "type": "array",
                         "order": 2,
-                        "description":"Regex used to replace script",
+                        "description": "Regex used to replace script",
                         "items": {
                             "required": [
                                 "regex",
                                 "repStr"
                             ],
-                            "type":"object",
+                            "type": "object",
                             "additionalProperties": false,
                             "properties": {
-                                "regex":{
-                                    "type":"string",
+                                "regex": {
+                                    "type": "string",
                                     "description": "Regex used to replace script"
                                 },
-                                "repStr":{
-                                    "type":"string",
+                                "repStr": {
+                                    "type": "string",
                                     "description": "string to replace"
                                 }
                             }
@@ -218,6 +236,20 @@
                 "title": "Generate basic script",
                 "icon": "media/AvgScript.png",
                 "shortTitle": "Generate Script"
+            },
+            {
+                "category": "AvgScript",
+                "command": "config.AvgScript.appendDialogue",
+                "title": "Append Dialogue",
+                "icon": "media/AvgScript.png",
+                "shortTitle": "Append Dialogue"
+            },
+            {
+                "category": "AvgScript",
+                "command": "config.AvgScript.showDialogueFormatHint",
+                "title": "Show Dialogue Format Hint",
+                "icon": "media/AvgScript.png",
+                "shortTitle": "Format Hint"
             }
         ],
         "menus": {
@@ -245,11 +277,19 @@
                 {
                     "command": "config.AvgScript.replaceScript",
                     "when": "editorLangId == AvgScript || editorLangId == plaintext"
+                },
+                {
+                    "command": "config.AvgScript.appendDialogue",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "command": "config.AvgScript.showDialogueFormatHint",
+                    "when": "editorLangId == AvgScript"
                 }
             ],
             "editor/context": [
                 {
-                    "submenu":"AvgScript.Menu",
+                    "submenu": "AvgScript.Menu",
                     "group": "AvgScript"
                 }
             ],
@@ -261,7 +301,7 @@
                 },
                 {
                     "group": "AvgScript.2_command",
-                    "command": "config.AvgScript.updateCommandExtension",    
+                    "command": "config.AvgScript.updateCommandExtension",
                     "when": "editorLangId == AvgScript"
                 },
                 {
@@ -272,6 +312,16 @@
                 {
                     "group": "AvgScript.3_assets",
                     "command": "config.AvgScript.getAssetsList",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "group": "AvgScript.4_script",
+                    "command": "config.AvgScript.showDialogueFormatHint",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "group": "AvgScript.4_script",
+                    "command": "config.AvgScript.appendDialogue",
                     "when": "editorLangId == AvgScript"
                 },
                 {
@@ -299,7 +349,7 @@
                 "label": "AvgScript Debugger",
                 "languages": [
                     "AvgScript"
-                ]               
+                ]
             }
         ]
     },
@@ -311,7 +361,9 @@
         "onCommand:config.AvgScript.updateCommandExtension",
         "onCommand:config.AvgScript.getAssetsList",
         "onCommand:config.AvgScript.showJumpFlow",
-        "onCommand:config.AvgScript.replaceScript"
+        "onCommand:config.AvgScript.replaceScript",
+        "onCommand:config.AvgScript.appendDialogue",
+        "onCommand:config.AvgScript.showDialogueFormatHint"
     ],
     "scripts": {
         "vscode:prepublish": "npm run package",
@@ -327,36 +379,38 @@
     },
     "devDependencies": {
         "@types/glob": "^7.1.4",
+        "@types/marked": "^4.0.8",
         "@types/mocha": "^9.0.0",
         "@types/node": "14.x",
         "@types/vscode": "^1.67.0",
         "@typescript-eslint/eslint-plugin": "^5.1.0",
         "@typescript-eslint/parser": "^5.1.0",
         "@vscode/test-electron": "^1.6.2",
+        "@zerodeps/image-probe": "^0.2.0",
         "esbuild": "^0.14.39",
         "eslint": "^8.1.0",
-        "glob": "^7.1.7",
-        "mocha": "^9.1.3",
-        "japanese": "^1.1.0",
-        "pinyin-pro": "^3.10.0",
-        "ini": "^3.0.0",
-        "@zerodeps/image-probe": "^0.2.0",
-        "music-metadata": "^7.12.3",
         "ffprobe": "^1.1.2",
         "ffprobe-static": "^3.0.0",
+        "glob": "^7.1.7",
+        "ini": "^3.0.0",
+        "japanese": "^1.1.0",
+        "mocha": "^9.1.3",
+        "music-metadata": "^7.12.3",
+        "pinyin-pro": "^3.10.0",
         "ts-loader": "^9.3.0",
         "typescript": "^4.4.4",
         "webpack": "^5.72.1",
         "webpack-cli": "^4.9.2"
     },
     "dependencies": {
-        "japanese": "^1.1.0",
-        "pinyin-pro": "^3.10.0",
-        "ini": "^3.0.0",
         "@zerodeps/image-probe": "^0.2.0",
-        "music-metadata": "^7.12.3",
         "ffprobe": "^1.1.2",
         "ffprobe-static": "^3.0.0",
-        "path":"^0.12.7"
+        "ini": "^3.0.0",
+        "japanese": "^1.1.0",
+        "marked": "^4.2.12",
+        "music-metadata": "^7.12.3",
+        "path": "^0.12.7",
+        "pinyin-pro": "^3.10.0"
     }
 }

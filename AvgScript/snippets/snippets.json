@@ -18,15 +18,15 @@
 
   // basic
   "Snippet: Block": {
-  "prefix": "Snippet: Block",
-  "body": [
-    "#Begin $1",
-    "\t$2",    
-    "#End"
-  ],
-  "description": "Block"
+    "prefix": "Snippet: Block",
+    "body": [
+      "#Begin $1",
+      "\t$2",
+      "#End"
+    ],
+    "description": "Block"
   },
-  
+
   // script template
   "Snippet: Basic Template": {
     "prefix": "Snippet: Basic",
@@ -125,19 +125,21 @@
       "#SkipAnchor",
       "",
       "#NJMP=$1",
+      "// if start, CMP -> true",
       "#FNT",
       "",
       "@CharAllDispose",
       "@TransitionSpeed=10",
+      "// re-init block",
       "$2",
       "",
       "#FNTO",
       "",
-      ";$1"
+      ";${1:label}",
+      "// if end"
     ],
     "description": "Re-init after JMP"
   },
-
   "Snippet: One Line Dialogue Size Change": {
     "prefix": "Snippet: Size",
     "body": [
@@ -165,7 +167,6 @@
     ],
     "description": "Scene Transition"
   },
-
   "Snippet: Flash": {
     "prefix": "Snippet: Flash",
     "body": [
@@ -176,7 +177,6 @@
     ],
     "description": "Flash"
   },
-
   "Snippet: Create Sepia": {
     "prefix": "Snippet: Create Sepia",
     "body": [
@@ -204,6 +204,42 @@
       "@DestroyFade"
     ],
     "description": "Dispose Sepia"
+  },
+
+  // Syntax sugar 
+  "Snippet: If": {
+    "prefix": "Snippet: If",
+    "body": [
+      "// if-else name: $1",
+      "#CMPGeneral=$2:$3",
+      "// if start, CMP -> true",
+      "#JNE=${1:label}",
+      "// if content",
+      "",
+      ";${1:label}_End",
+      "// if end"
+    ],
+    "description": "If clause"
+  },
+  "Snippet: If-Else": {
+    "prefix": "Snippet: If-Else",
+    "body": [
+      "// if-else name: $1",
+      "#CMPGeneral=$2:$3",
+      "// if start, CMP -> true",
+      "#JNE=${1:label}",
+      "// if content",
+      "",
+      "#Jmp=${1:label}_End",
+      "// if end",
+      "// else start",
+      ";${1:label}",
+      "// else content",
+      "",
+      ";${1:label}_End",
+      "// else end"
+    ],
+    "description": "If clause"
   }
   
   // template
