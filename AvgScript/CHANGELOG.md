@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230127
+
+- bundle full document in extension
+
 ## 20230124
 
 - snippets for `if-else`

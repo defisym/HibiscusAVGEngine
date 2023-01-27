@@ -30,6 +30,7 @@ export const commandReplaceScript: string = "config.AvgScript.replaceScript";
 
 export const commandAppendDialogue: string = "config.AvgScript.appendDialogue";
 export const commandShowDialogueFormatHint: string = "config.AvgScript.showDialogueFormatHint";
+export const commandShowHibiscusDocument: string = "config.AvgScript.showHibiscusDocument";
 
 export const commandBasePath_impl = async () => {
     // 1) Getting the value
@@ -589,4 +590,21 @@ export const commandShowDialogueFormatHint_impl = async () => {
     );
 
     formatHintPanel.webview.html = formatHint_getFormatControlContent();
+};
+
+export const commandShowHibiscusDocument_impl = async () => {
+    const ext = vscode.extensions.getExtension("defisym.avgscript");
+    const extPath = ext!.extensionPath;
+
+    const fileName = path.resolve(extPath + "/document/Hibiscus AVG Engine V6.0.md");
+    const uri = vscode.Uri.file(fileName);
+
+    // show raw
+    // const helpDoc = await vscode.workspace.openTextDocument(uri);
+    // const helpEditor = await vscode.window.showTextDocument(helpDoc, { preview: false });
+
+    // show preview
+    await vscode.commands.executeCommand("markdown.showPreviewToSide", uri);
+
+    return;
 };

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { colorProvider } from './functions/color';
-import { assetsListPanel, commandAppendDialogue, commandAppendDialogue_impl, commandBasePath, commandBasePath_impl, commandGetAssetsList, commandGetAssetsList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl } from './functions/command';
+import { assetsListPanel, commandAppendDialogue, commandAppendDialogue_impl, commandBasePath, commandBasePath_impl, commandGetAssetsList, commandGetAssetsList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl, commandShowHibiscusDocument, commandShowHibiscusDocument_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl } from './functions/command';
 import { atCommands, fileName, fileSuffix, langPrefix, settingsParam, sharpCommands } from './functions/completion';
 import { debuggerFactory, debuggerProvider } from './functions/debugger';
 import { diagnosticsCollection, onUpdate, triggerUpdate } from './functions/diagnostic';
@@ -40,6 +40,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand(commandAppendDialogue, commandAppendDialogue_impl);
 	vscode.commands.registerCommand(commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl);
+	vscode.commands.registerCommand(commandShowHibiscusDocument, commandShowHibiscusDocument_impl);
 
 	//--------------------
 	// Init Command

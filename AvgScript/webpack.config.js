@@ -5,6 +5,9 @@
 const path = require('path');
 const webpack = require('webpack');
 
+const copyWebpackPlugin = require('copy-webpack-plugin');
+// const imageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+
 /**@type {import('webpack').Configuration}*/
 const config = {
   performance: {
@@ -12,8 +15,22 @@ const config = {
     maxEntrypointSize: 1024000,
     maxAssetSize: 1024000
   },
-  optimization:{
-
+  optimization: {
+    // minimizer: [
+    //   new imageMinimizerPlugin({
+    //     minimizer: {
+    //       implementation: imageMinimizerPlugin.imageminMinify,
+    //       options: {
+    //         // Lossless optimization with custom option
+    //         // Feel free to experiment with options for better result for you
+    //         plugins: [
+    //           ["jpegtran", { progressive: true }],
+    //           ["optipng", { optimizationLevel: 5 }],
+    //         ],
+    //       },
+    //     },
+    //   }),
+    // ],
   },
 
   target: 'webworker', // vscode extensions run in webworker context for VS Code web 📖 -> https://webpack.js.org/configuration/target/#target
@@ -42,10 +59,10 @@ const config = {
       // see https://webpack.js.org/configuration/resolve/#resolvefallback
       // for the list of Node.js core module polyfills.
       "fs": false,    // to fix Can't resolve 'fs'
-                      // and filePath.endsWith is not a function
-      "os":false,
-      "path": false ,
-      "stream": false ,
+      // and filePath.endsWith is not a function
+      "os": false,
+      "path": false,
+      "stream": false,
       // eslint-disable-next-line @typescript-eslint/naming-convention
       "child_process": false
     }
@@ -60,8 +77,26 @@ const config = {
             loader: 'ts-loader'
           }
         ]
-      }
+      },
+      // {
+      //   test: /\.(jpe?g|png)$/i,
+      //   type: "asset",
+      // },
     ]
-  }
+  },
+  plugins: [
+    new copyWebpackPlugin({
+      patterns: [
+        {
+          from: "./../document/media",
+          to: "./../document/media"
+        },
+        {
+          from: "./../document/Hibiscus AVG Engine V6.0.md",
+          to: "./../document/Hibiscus AVG Engine V6.0.md"
+        }
+      ]
+    }),
+  ]
 };
 module.exports = config;

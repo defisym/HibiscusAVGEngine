@@ -24,7 +24,7 @@
         "sukumo28.wav-preview"
     ],
     "contributes": {
-        "keybindings":[
+        "keybindings": [
             {
                 "command": "config.AvgScript.replaceScript",
                 "key": "Ctrl+Shift+Alt+R",
@@ -33,6 +33,16 @@
             {
                 "command": "config.AvgScript.appendDialogue",
                 "key": "Ctrl+Shift+Alt+A",
+                "when": "editorLangId == AvgScript"
+            },
+            {
+                "command": "config.AvgScript.showDialogueFormatHint",
+                "key": "Ctrl+Shift+Alt+F",
+                "when": "editorLangId == AvgScript"
+            },
+            {
+                "command": "config.AvgScript.showHibiscusDocument",
+                "key": "Ctrl+Shift+Alt+D",
                 "when": "editorLangId == AvgScript"
             }
         ],
@@ -250,6 +260,13 @@
                 "title": "Show Dialogue Format Hint",
                 "icon": "media/AvgScript.png",
                 "shortTitle": "Format Hint"
+            },
+            {
+                "category": "AvgScript",
+                "command": "config.AvgScript.showHibiscusDocument",
+                "title": "Show Hibiscus Document",
+                "icon": "media/AvgScript.png",
+                "shortTitle": "Document"
             }
         ],
         "menus": {
@@ -285,6 +302,10 @@
                 {
                     "command": "config.AvgScript.showDialogueFormatHint",
                     "when": "editorLangId == AvgScript"
+                },
+                {
+                    "command": "config.AvgScript.showHibiscusDocument",
+                    "when": "editorLangId == AvgScript"
                 }
             ],
             "editor/context": [
@@ -315,22 +336,27 @@
                     "when": "editorLangId == AvgScript"
                 },
                 {
-                    "group": "AvgScript.4_script",
+                    "group": "AvgScript.4_document",
                     "command": "config.AvgScript.showDialogueFormatHint",
                     "when": "editorLangId == AvgScript"
                 },
                 {
-                    "group": "AvgScript.4_script",
+                    "group": "AvgScript.4_document",
+                    "command": "config.AvgScript.showHibiscusDocument",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "group": "AvgScript.5_script",
                     "command": "config.AvgScript.appendDialogue",
                     "when": "editorLangId == AvgScript"
                 },
                 {
-                    "group": "AvgScript.4_script",
+                    "group": "AvgScript.5_script",
                     "command": "config.AvgScript.replaceScript",
                     "when": "editorLangId == AvgScript || editorLangId == plaintext"
                 },
                 {
-                    "group": "AvgScript.4_script",
+                    "group": "AvgScript.5_script",
                     "command": "config.AvgScript.showJumpFlow",
                     "when": "editorLangId == AvgScript"
                 }
@@ -387,6 +413,7 @@
         "@typescript-eslint/parser": "^5.1.0",
         "@vscode/test-electron": "^1.6.2",
         "@zerodeps/image-probe": "^0.2.0",
+        "copy-webpack-plugin": "^11.0.0",
         "esbuild": "^0.14.39",
         "eslint": "^8.1.0",
         "ffprobe": "^1.1.2",
