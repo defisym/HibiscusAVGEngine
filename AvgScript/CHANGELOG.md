@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230131
+
+- remove document files first before copying
+
 ## 20230127
 
 - bundle full document in extension

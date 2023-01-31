@@ -6,6 +6,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 const copyWebpackPlugin = require('copy-webpack-plugin');
+const removeWebpackPlugin = require('remove-files-webpack-plugin');
 // const imageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 /**@type {import('webpack').Configuration}*/
@@ -97,6 +98,18 @@ const config = {
         }
       ]
     }),
+    new removeWebpackPlugin({
+      /**
+       * Before compilation permanently removes
+       * entire `./dist` folder.
+       */
+      before: {
+          include: [
+              './dist',
+              './document',
+          ]
+      }
+  })
   ]
 };
 module.exports = config;

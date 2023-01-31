@@ -19,7 +19,13 @@ Hibiscus AVG Engine AvgScript Support for VS Code
 ## Extension Settings
 
 - `conf.AvgScript.basePath`
-  - *Base path to find the settings & assets of the engine*
+  - *Absolute path of main program*
+
+- `conf.AvgScript.commandExtension`
+  - *Command extension*
+
+- `conf.AvgScript.replaceScript`
+  - *Regex used to replace script*
 
 ## Known Issues
 
