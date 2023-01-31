@@ -3,6 +3,7 @@
 ## 20230131
 
 - remove document files first before copying
+- fix append dialogue indent & new line issue
 
 ## 20230127
 

@@ -531,8 +531,8 @@ export const commandAppendDialogue_impl = async () => {
     }
 
     const cursor = activeEditor.selection.active;
-    const documentLineAt = document.lineAt(cursor.line);
-    const documentLineLength = documentLineAt.text.length;
+    const documentLineAt = document.lineAt(cursor.line).text;
+    const documentLineLength = documentLineAt.length;
 
     let [line, lineStart, linePrefix, curPos, lineRaw] = currentLineNotComment(document, cursor);
 
@@ -541,11 +541,7 @@ export const commandAppendDialogue_impl = async () => {
     }
 
     const spaceLength = documentLineLength - lineRaw!.length;
-    let indentString: string = "";
-
-    for (let i = 0; i < spaceLength; i++) {
-        indentString += " ";
-    }
+    let indentString = documentLineAt.substring(0, spaceLength);
 
     // normal text
     if (currentLineDialogue(line)) {
@@ -554,7 +550,7 @@ export const commandAppendDialogue_impl = async () => {
         const curLineNew = lineRaw!.substring(0, linePrefix!.length);
         let nextLine = lineRaw!.substring(linePrefix!.length);
 
-        nextLine = "$" + dialogueStruct.m_namePartRaw + ":&" + nextLine;
+        nextLine = "$" + dialogueStruct.m_namePartRaw + ":&" + nextLine + '\r\n';
 
         const editOptions = { undoStopBefore: false, undoStopAfter: false };
         await activeEditor.edit((editBuilder: vscode.TextEditorEdit) => {
