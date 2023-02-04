@@ -4,7 +4,7 @@ import * as mm from 'music-metadata';
 import { pinyin } from 'pinyin-pro';
 import { ImageProbe } from '@zerodeps/image-probe';
 
-import { currentLineNotComment, FileType, getBuffer, getParamAtPosition, getUri } from '../lib/utilities';
+import { currentLineNotComment, FileType, getBuffer, getParamAtPosition, getUri, sleep } from '../lib/utilities';
 import { commandBasePath, confBasePath } from './command';
 
 // file
@@ -15,6 +15,17 @@ import path = require("path");
 
 // state
 export let fileListInitialized = false;
+
+export async function waitForFileListInit() {
+    // wait for file refresh
+    if (!fileListInitialized) {
+        vscode.window.showInformationMessage('Waiting for file scanning complete');
+    }
+
+    do {
+        await sleep(50);
+    } while (!fileListInitialized);
+}
 
 // settings
 export let currentLocalCode: string;

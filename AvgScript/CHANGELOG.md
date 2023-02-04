@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230204
+
+- fix diagnostics don't keep when switch docs
+
 ## 20230131
 
 - remove document files first before copying

@@ -12,7 +12,7 @@ import { assetList_getWebviewContent } from '../webview/assetList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics, updateDiagnostics } from './diagnostic';
-import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, updateBasePath, updateFileList, videoPath } from './file';
+import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -166,14 +166,7 @@ export interface RefInfo {
 };
 
 export const commandGetAssetsList_impl = async () => {
-    // wait for file refresh
-    if (!fileListInitialized) {
-        vscode.window.showInformationMessage('Waiting for file scanning complete');
-    }
-
-    do {
-        await sleep(50);
-    } while (!fileListInitialized);
+    await waitForFileListInit();
 
     vscode.window.withProgress({
         // location: vscode.ProgressLocation.Notification,
@@ -322,14 +315,7 @@ export interface NodeInfo {
 
 // TODO not finished yet
 export const commandShowJumpFlow_impl = async () => {
-    // wait for file refresh
-    if (!fileListInitialized) {
-        vscode.window.showInformationMessage('Waiting for file scanning complete');
-    }
-
-    do {
-        await sleep(50);
-    } while (!fileListInitialized);
+    await waitForFileListInit();
 
     vscode.window.withProgress({
         // location: vscode.ProgressLocation.Notification,

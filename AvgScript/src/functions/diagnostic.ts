@@ -21,7 +21,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
     }
 
     if (document.languageId !== 'AvgScript') {
-        diagnosticsCollection.clear();
+        diagnosticsCollection.delete(document.uri);
 
         return;
     }
@@ -408,7 +408,6 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
             , vscode.DiagnosticSeverity.Error));
     }
 
-    diagnosticsCollection.clear();
     diagnosticsCollection.set(document.uri, diagnostics);
 }
 

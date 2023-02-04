@@ -128,9 +128,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidCloseTextDocument(document => {
-		if (activeEditor && document === activeEditor.document) {
-			triggerUpdate(true);
-		}
+		diagnosticsCollection.delete(document.uri);
+
+		// if (activeEditor && document === activeEditor.document) {
+		// 	triggerUpdate(true);
+		// }
 	}, null, context.subscriptions);
 }
 
