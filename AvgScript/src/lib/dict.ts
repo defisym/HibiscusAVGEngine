@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import * as vscode from 'vscode';
+import { sleep } from './utilities';
+
+
 export let sharpKeywordList: string[] = [];
 export let atKeywordList: string[] = [];
 export let keywordList: string[] = [];
@@ -494,10 +498,18 @@ export interface ParamInfo {
     description: string[];
     type: ParamType[];
     inlayHintType?: number[];
+
+    // diagnostic
     internal?: boolean;
     deprecated?: boolean;
     VNModeOnly?: boolean;
     NonVNModeOnly?: boolean;
+
+    // formatting
+    indentIn?: boolean;
+    indentOut?: boolean;
+    emptyLineBefore?: boolean;
+    emptyLineAfter?: boolean;
 }
 
 // base list
@@ -513,12 +525,14 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , minParam: 0, maxParam: 0
         , description: ["代码块开始/结束标志，允许你在编辑器中将代码段折叠，在引擎内部无任何效果"]
         , type: []
+        , indentIn: true
     }],
     ["End", {
         prefix: "#"
         , minParam: 0, maxParam: 0
         , description: ["代码块开始/结束标志，允许你在编辑器中将代码段折叠，在引擎内部无任何效果"]
         , type: []
+        , indentOut: true
     }],
 
     // keywords_system
@@ -3012,6 +3026,17 @@ export let commandInfoList = new Map<string, ParamInfo>();
 
 // state
 export let commandListInitialized = false;
+
+export async function waitForCommandListInit() {
+    if (!commandListInitialized) {
+        vscode.window.showInformationMessage('Waiting for command list update complete');
+    }
+
+    do {
+        await sleep(50);
+    } while (!commandListInitialized);
+}
+
 
 export function resetList() {
     commandInfoList = commandInfoBaseList;

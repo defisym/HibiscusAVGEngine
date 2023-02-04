@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { iterateLines } from "../lib/iterateLines";
+import { beginRegex, endRegex } from '../lib/regExp';
 
 export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScript'
     , {
@@ -12,9 +13,8 @@ export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScrip
 
             let inComment: boolean = false;
 
-            const beginRegex = /^#Begin/gi;
-            const endRegex = /^#End/gi;
             const labelRegex = /^;.*/gi;
+            //TODO use dict instead of regex
             const keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(.*JMP.*)|(#SkipAnchor|#Ret|#StopFF|#StopFastForward))/gi;
 
             iterateLines(document, (text, lineNumber

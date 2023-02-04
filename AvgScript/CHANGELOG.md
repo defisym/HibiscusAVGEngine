@@ -3,6 +3,7 @@
 ## 20230204
 
 - fix diagnostics don't keep when switch docs
+- indent formatting
 
 ## 20230131
 

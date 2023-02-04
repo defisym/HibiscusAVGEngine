@@ -14,6 +14,7 @@ import { rename } from './functions/rename';
 
 // must import to make extensions enabled
 import './extensions/_include';
+import { formatting } from './functions/formatting';
 
 export let activeEditor = vscode.window.activeTextEditor;
 
@@ -58,6 +59,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		, langPrefix
 		, fileSuffix
 		, fileName);
+
+		
+	//--------------------
+	// Formatting
+	//--------------------
+
+	context.subscriptions.push(formatting);
 
 	//--------------------
 	// Inlay Hint

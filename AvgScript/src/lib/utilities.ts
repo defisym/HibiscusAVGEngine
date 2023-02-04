@@ -5,6 +5,7 @@ import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, interna
 import { iterateLines } from './iterateLines';
 
 import path = require('path');
+import { beginRegex, endRegex } from './regExp';
 
 const delimiter = ['=', ':'];
 
@@ -140,6 +141,12 @@ export function getSubStrings(src: string, delimiters: string[]) {
 }
 
 export function getAllParams(src: string) {
+    if ((src.match(beginRegex) !== null) || (src.match(endRegex) !== null)) {
+        let appendDelimiter = delimiter.concat([' ']);
+
+        return getSubStrings(src,appendDelimiter);
+    }
+
     return getSubStrings(src, delimiter);
 }
 
@@ -432,7 +439,8 @@ export function fileExists(type: FileType, fileName: string) {
     return fileListHasItem(filePath);
 }
 
-export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position): undefined[] | [string, number, string, number, string] {
+export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position)
+    : undefined[] | [string, number, string, number, string] {
     const curLine = position.line;
     let curText = "";
     let curStart = 0;

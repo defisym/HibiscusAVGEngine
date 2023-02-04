@@ -8,6 +8,7 @@ Hibiscus AVG Engine AvgScript Support for VS Code
 - Inlay Hints
 - Diagnostics
 - Completion
+- Formatting
 - Snippets
 - Hover
 - Color

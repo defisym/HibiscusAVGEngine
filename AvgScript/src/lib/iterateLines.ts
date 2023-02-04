@@ -1,14 +1,21 @@
 import * as vscode from 'vscode';
 
-// iterateLines(document, (text, lineNumber
-//     , lineStart, lineEnd
-//     , firstLineNotComment) => {
-//     });
+export interface LineInfo {
+    lineIsComment: boolean,
 
-export function iterateLines(document: vscode.TextDocument,
-    callBack: (text: string, lineNum: number,
-        lineStart: number, lineEnd: number,
-        firstLineNotComment: number) => void) {
+    originText: string
+    textNoComment: string,
+
+    lineNum: number,
+
+    lineStart: number,
+    lineEnd: number,
+
+    firstLineNotComment: number | undefined
+}
+
+export function iterateLinesWithComment(document: vscode.TextDocument,
+    callBack: (lineInfo: LineInfo) => void) {
     let inComment: boolean = false;
 
     let beginRegex = /^#Begin/gi;
@@ -47,18 +54,31 @@ export function iterateLines(document: vscode.TextDocument,
 
             if (!inComment
                 && textNoComment.length > 0) {
-                const lineStart: number = line.firstNonWhitespaceCharacterIndex
-                    + text.length - textRemoveFront.length;
-                const lineEnd: number = lineStart + textNoComment.length;
 
                 if (firstLineNotComment === undefined) {
                     firstLineNotComment = i;
                 }
-
-                callBack(textNoComment, i,
-                    lineStart, lineEnd,
-                    firstLineNotComment);
             }
+
+            const lineStart: number = line.firstNonWhitespaceCharacterIndex
+                + text.length - textRemoveFront.length;
+            const lineEnd: number = lineStart + textNoComment.length;
+
+            callBack(
+                {
+                    lineIsComment: inComment,
+
+                    originText: line.text,
+                    textNoComment: textNoComment,
+
+                    lineNum: i,
+
+                    lineStart: lineStart,
+                    lineEnd: lineEnd,
+
+                    firstLineNotComment: firstLineNotComment
+                }
+            );
 
             if (!inComment
                 && !text.match(/\*\//gi)
@@ -67,4 +87,34 @@ export function iterateLines(document: vscode.TextDocument,
             }
         }
     }
+}
+
+// iterateLines(document, (text, lineNumber
+//     , lineStart, lineEnd
+//     , firstLineNotComment) => {
+//     });
+
+export function iterateLines(document: vscode.TextDocument,
+    callBack: (text: string, lineNum: number,
+        lineStart: number, lineEnd: number,
+        firstLineNotComment: number) => void) {
+    iterateLinesWithComment(document, (info: LineInfo) => {
+        let { lineIsComment,
+
+            originText,
+            textNoComment,
+
+            lineNum,
+
+            lineStart,
+            lineEnd,
+
+            firstLineNotComment } = info;
+
+        if (!lineIsComment) {
+            callBack(textNoComment, lineNum,
+                lineStart, lineEnd,
+                firstLineNotComment!);
+        }
+    });
 }
