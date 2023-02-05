@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import { currentLineDialogue } from '../lib/dialogue';
 import { commandInfoList, commandListInitialized, waitForCommandListInit } from '../lib/dict';
 import { iterateLinesWithComment, LineInfo } from '../lib/iterateLines';
-import { getAllParams } from '../lib/utilities';
+import { getAllParams, parseCommand } from '../lib/utilities';
+import { confFormatRules_emptyLineAfterDialogue, confFormatRules_emptyLineBeforeComment, confFormatRules_emptyLineCommand, confFormatRules_removeEmptyLines } from './command';
 
 class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
     /**
@@ -22,6 +23,11 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
             vscode.window.showInformationMessage('Waiting for command list update complete');
         }
 
+        let emptyLineAfterDialogue = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_emptyLineAfterDialogue, true);
+        let emptyLineBeforeComment = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_emptyLineBeforeComment, true);
+        let emptyLineCommand = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_emptyLineCommand, true);
+        let removeEmptyLines = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_removeEmptyLines, true);
+
         let result: vscode.TextEdit[] = [];
 
         // rules: #Begin +1, #End -1
@@ -37,52 +43,126 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
             return indentStr + text;
         };
 
-        iterateLinesWithComment(document, (info: LineInfo) => {
-            let { lineIsComment,
+        let newLine: boolean = false;
+        let previousLineInfo: LineInfo | undefined = undefined;
+        let previousAddedNewLine: boolean = false;
 
-                originText,
-                textNoComment,
+        let formatPreviousLineValid = () => {
+            return previousLineInfo !== undefined;
+        };
 
-                lineNum,
+        let formatPreviousLineNotComment = () => {
+            return formatPreviousLineValid() && !previousLineInfo!.lineIsComment;
+        };
 
-                lineStart,
-                lineEnd,
+        let formatPreviousLineDialogue = () => {
+            return formatPreviousLineNotComment() && currentLineDialogue(previousLineInfo!.textNoComment);
+        };
 
-                firstLineNotComment } = info;
+        iterateLinesWithComment(document
+            , (info: LineInfo) => {
+                let {
+                    emptyLine,
 
-            if (!lineIsComment) {
-                if (currentLineDialogue(textNoComment)) {
+                    lineIsComment,
+
+                    originText,
+                    textNoComment,
+
+                    lineNum,
+
+                    lineStart,
+                    lineEnd,
+
+                    firstLineNotComment } = info;
+
+                let formatIndent = () => {
                     result.push(new vscode.TextEdit(new vscode.Range(lineNum, 0
                         , lineNum, originText.length)
                         , indentLine(originText.trim(), indentLevel)));
+                };
+
+                let formatNewLine = (after: boolean = true) => {
+                    result.push(vscode.TextEdit.insert(new vscode.Position(lineNum + (after ? 0 : -1), 0)
+                        , '\r\n'));
+                    previousAddedNewLine = true;
+                };
+
+                if (emptyLine) {
+                    if (removeEmptyLines
+                        && formatPreviousLineNotComment()
+                        && info.emptyLine
+                        && previousLineInfo!.emptyLine
+                        && !previousAddedNewLine) {
+                        previousAddedNewLine = false;
+                        result.push(vscode.TextEdit.delete(new vscode.Range(lineNum, 0
+                            , lineNum + 1, 0)));
+                    }
+                } else {
+                    if (!lineIsComment) {
+                        if (currentLineDialogue(textNoComment)) {
+                            formatIndent();
+                        }
+                        else {
+                            const newLineForDia = emptyLineAfterDialogue && formatPreviousLineDialogue();
+
+                            if (newLineForDia) {
+                                formatNewLine();
+                            }
+
+                            const { params, command, paramInfo } = parseCommand(textNoComment);
+
+                            if (paramInfo === undefined) {
+                                return;
+                            }
+
+                            if (paramInfo.indentOut) {
+                                indentLevel--;
+                            }
+
+                            if (emptyLineCommand) {
+                                let newLineAfter: boolean = false;
+
+                                if (!formatPreviousLineDialogue()
+                                    && !previousLineInfo!.emptyLine) {
+                                    const { params, command, paramInfo } = parseCommand(previousLineInfo!.textNoComment);
+
+                                    if (paramInfo !== undefined) {
+                                        if (paramInfo.emptyLineAfter) {
+                                            newLineAfter = true;
+                                            formatNewLine(true);
+                                        }
+                                    }
+                                }
+                                if (!newLineAfter
+                                    && !newLineForDia
+                                    && !previousLineInfo!.emptyLine) {
+                                    if (paramInfo.emptyLineBefore) {
+                                        formatNewLine(true);
+                                    }
+                                }
+                            }
+
+                            formatIndent();
+
+                            if (paramInfo.indentIn) {
+                                indentLevel++;
+                            }
+                        }
+                    } else {
+                        if (emptyLineBeforeComment
+                            && formatPreviousLineNotComment()
+                            && !previousLineInfo!.emptyLine) {
+                            formatNewLine();
+                        }
+
+                        formatIndent();
+                    }
                 }
-                else {
-                    const params = getAllParams(textNoComment);
-                    const command = params[0].substring(1);
 
-                    let w = commandInfoList;
+                previousLineInfo = info;
 
-                    const paramInfo = commandInfoList.getValue(command);
-
-                    if (paramInfo === undefined) {
-                        return;
-                    }
-
-                    if (paramInfo.indentOut) {
-                        indentLevel--;
-                    }
-
-                    result.push(new vscode.TextEdit(new vscode.Range(lineNum, 0
-                        , lineNum, originText.length)
-                        , indentLine(originText.trim(), indentLevel)));
-
-                    if (paramInfo.indentIn) {
-                        indentLevel++;
-                    }
-                }
-            }
-
-        });
+            });
 
         return result;
     }

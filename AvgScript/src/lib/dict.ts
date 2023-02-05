@@ -526,6 +526,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , description: ["代码块开始/结束标志，允许你在编辑器中将代码段折叠，在引擎内部无任何效果"]
         , type: []
         , indentIn: true
+        , emptyLineBefore: true
+        , emptyLineAfter: true
     }],
     ["End", {
         prefix: "#"
@@ -533,6 +535,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , description: ["代码块开始/结束标志，允许你在编辑器中将代码段折叠，在引擎内部无任何效果"]
         , type: []
         , indentOut: true
+        , emptyLineBefore: true
+        , emptyLineAfter: true
     }],
 
     // keywords_system

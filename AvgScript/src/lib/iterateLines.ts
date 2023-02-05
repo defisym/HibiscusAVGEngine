@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 
 export interface LineInfo {
+    emptyLine: boolean,
+
     lineIsComment: boolean,
 
     originText: string
@@ -15,7 +17,7 @@ export interface LineInfo {
 }
 
 export function iterateLinesWithComment(document: vscode.TextDocument,
-    callBack: (lineInfo: LineInfo) => void) {
+    lineCallBack: (lineInfo: LineInfo) => void) {
     let inComment: boolean = false;
 
     let beginRegex = /^#Begin/gi;
@@ -31,6 +33,8 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
     // line starts with ...*/
     // remove beginning
     let commentRegexRepFront = /((?!\/\*)[^\/\*]*\*\/)/gi;
+    // block //
+    let commentRegexEntire = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)\*\//gi;
 
     let firstLineNotComment: number | undefined = undefined;
 
@@ -38,7 +42,8 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
         const line = document.lineAt(i);
 
         if (!line.isEmptyOrWhitespace) {
-            const text = line.text.trim();
+            const text = line.text.replace(commentRegexEntire, "").trim();
+
             let textRemoveBack = text.replace(commentRegexRepBack, "").trim();
             let textRemoveFront = text;
 
@@ -64,9 +69,11 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
                 + text.length - textRemoveFront.length;
             const lineEnd: number = lineStart + textNoComment.length;
 
-            callBack(
+            lineCallBack(
                 {
-                    lineIsComment: inComment,
+                    emptyLine: false,
+
+                    lineIsComment: inComment || textNoComment.empty(),
 
                     originText: line.text,
                     textNoComment: textNoComment,
@@ -85,6 +92,24 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
                 && text.match(/\/\*/gi)) {
                 inComment = true;;
             }
+        } else {
+            lineCallBack(
+                {
+                    emptyLine: true,
+
+                    lineIsComment: false,
+
+                    originText: line.text,
+                    textNoComment: '',
+
+                    lineNum: i,
+
+                    lineStart: 0,
+                    lineEnd: line.text.length,
+
+                    firstLineNotComment: firstLineNotComment
+                }
+            );
         }
     }
 }

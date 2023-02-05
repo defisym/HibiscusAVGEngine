@@ -98,5 +98,6 @@
             "regex": "(赛里斯):",
             "repStr": "$1[<PF7>]"
         },
-    ]
+    ],
+    "conf.AvgScript.formatRules.removeEmptyLines": true
 }

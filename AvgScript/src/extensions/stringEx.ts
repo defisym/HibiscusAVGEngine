@@ -12,6 +12,7 @@ declare global {
 
         matchEntire(regex: string | RegExp): boolean;
         isNumber(): boolean;
+        empty(): boolean;
 
         iCmp(str: string): boolean;
     }
@@ -84,6 +85,10 @@ String.prototype.matchEntire = function (regex: string | RegExp): boolean {
 
 String.prototype.isNumber = function () {
     return this.matchEntire(regexNumber);
+};
+
+String.prototype.empty = function () {
+    return this.trim().length === 0;
 };
 
 String.prototype.iCmp = function (str: string) {

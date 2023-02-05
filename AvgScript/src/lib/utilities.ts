@@ -144,7 +144,7 @@ export function getAllParams(src: string) {
     if ((src.match(beginRegex) !== null) || (src.match(endRegex) !== null)) {
         let appendDelimiter = delimiter.concat([' ']);
 
-        return getSubStrings(src,appendDelimiter);
+        return getSubStrings(src, appendDelimiter);
     }
 
     return getSubStrings(src, delimiter);
@@ -463,4 +463,13 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
     let curLinePrefix: string = curText.substring(0, curPos).trim().toLowerCase();
 
     return [curText.toLowerCase(), curStart, curLinePrefix, curPos, curText];
+}
+
+export function parseCommand(line: string) {
+    const params = getAllParams(line);
+    const command = params[0].substring(1);
+
+    const paramInfo = commandInfoList.getValue(command);
+
+    return { params, command, paramInfo };
 }

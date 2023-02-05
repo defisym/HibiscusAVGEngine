@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230205
+
+- empty line formatting
+
 ## 20230204
 
 - fix diagnostics don't keep when switch docs

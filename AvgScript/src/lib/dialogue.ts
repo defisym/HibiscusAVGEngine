@@ -154,7 +154,9 @@ export function findDelimiter(str: string) {
 };
 
 export function currentLineDialogue(line: string) {
-    return !line.startsWith('@') && !line.startsWith('#') && !line.startsWith(';');
+    return !line.empty()
+        && !line.startsWith('@') && !line.startsWith('#')
+        && !line.startsWith(';');
 }
 
 // dialogue
