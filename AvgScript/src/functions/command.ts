@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
-import { commandInfoList, generateList, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
+import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
 import { iterateLinesWithComment, LineInfo } from '../lib/iterateLines';
 import { iterateScripts } from "../lib/iterateScripts";
 import { currentLineNotComment, FileType, sleep } from '../lib/utilities';
@@ -23,8 +23,10 @@ export const confReplaceScript: string = "conf.AvgScript.replaceScript";
 
 export const confFormatRules_emptyLineAfterDialogue: string = "conf.AvgScript.formatRules.emptyLineAfterDialogue";
 export const confFormatRules_emptyLineBeforeComment: string = "conf.AvgScript.formatRules.emptyLineBeforeComment";
+export const confFormatRules_emptyLineLabel: string = "conf.AvgScript.formatRules.emptyLineLabel";
 export const confFormatRules_emptyLineCommand: string = "conf.AvgScript.formatRules.emptyLineCommand";
 export const confFormatRules_removeEmptyLines: string = "conf.AvgScript.formatRules.removeEmptyLines";
+export const confFormatRules_formatEmptyLines: string = "conf.AvgScript.formatRules.formatEmptyLines";
 
 // command
 export const commandBasePath: string = "config.AvgScript.basePath";
@@ -37,8 +39,6 @@ export const commandReplaceScript: string = "config.AvgScript.replaceScript";
 export const commandAppendDialogue: string = "config.AvgScript.appendDialogue";
 export const commandShowDialogueFormatHint: string = "config.AvgScript.showDialogueFormatHint";
 export const commandShowHibiscusDocument: string = "config.AvgScript.showHibiscusDocument";
-
-export const commandRemoveEmptyLines: string = "config.AvgScript.removeEmptyLines";
 
 export const commandBasePath_impl = async () => {
     // 1) Getting the value
@@ -108,6 +108,59 @@ export const commandUpdateCommandExtension_impl = async () => {
             inlayHint: string[],
         }
 
+        let copyToInfo = (commandExtItem: CommandExt) => {
+            let paramInfo: ParamInfo = GetDefaultParamInfo();
+
+            // copy content
+            paramInfo.prefix = commandExtItem.prefix;
+            paramInfo.minParam = commandExtItem.minParam;
+            paramInfo.maxParam = commandExtItem.maxParam;
+            paramInfo.description = commandExtItem.description;
+
+            // outline
+            paramInfo.outlineKeyword = commandExtItem.outlineKeyword;
+
+            // diagnostic
+            paramInfo.internal = commandExtItem.internal;
+            paramInfo.deprecated = commandExtItem.deprecated;
+            paramInfo.VNModeOnly = commandExtItem.VNModeOnly;
+            paramInfo.NonVNModeOnly = commandExtItem.NonVNModeOnly;
+
+            // formatting
+            paramInfo.indentIn = commandExtItem.indentIn;
+            paramInfo.indentOut = commandExtItem.indentOut;
+            paramInfo.emptyLineBefore = commandExtItem.emptyLineBefore;
+            paramInfo.emptyLineAfter = commandExtItem.emptyLineAfter;
+
+            // processing
+            paramInfo.minParam = Math.max(0, commandExtItem.minParam);
+            paramInfo.maxParam = Math.max(paramInfo.minParam, commandExtItem.maxParam);
+
+            // convert to index
+            let paramType = commandExtItem.paramType;
+
+            for (let type of paramType) {
+                const paramType = ParamTypeMap.get(type);
+                if (paramType !== undefined) {
+                    paramInfo.type.push(paramType);
+                }
+            }
+
+            // convert to index
+            let inlayHints = commandExtItem.inlayHint;
+
+            if (inlayHints !== undefined) {
+                paramInfo.inlayHintType = [];
+                for (let hints of inlayHints) {
+                    let pos = inlayHintMap.size;
+                    inlayHintMap.set(pos, hints);
+                    paramInfo.inlayHintType?.push(pos);
+                }
+            }
+
+            return paramInfo;
+        };
+
         let commandExt = vscode.workspace.getConfiguration().get<CommandExt[]>(confCommandExt);
 
         if (commandExt === undefined) {
@@ -116,37 +169,7 @@ export const commandUpdateCommandExtension_impl = async () => {
 
         let insertCommandExt = (commandExtItem: CommandExt) => {
             let command = commandExtItem.command;
-
-            // let paramInfo: ParamInfo = {
-            //     prefix: commandExtItem.prefix
-            //     , minParam: 0, maxParam: 0
-            //     , description: commandExtItem.description
-            //     , type: []
-            //     , inlayHintType: []
-            // };
-
-            let paramInfo: ParamInfo = commandExtItem;
-
-            paramInfo.minParam = Math.max(0, commandExtItem.minParam);
-            paramInfo.maxParam = Math.max(paramInfo.minParam, commandExtItem.maxParam);
-
-            // convert to index
-            let paramType = commandExtItem.paramType;
-
-            for (let type of paramType) {
-                paramInfo.type.push(ParamTypeMap.get(type)!);
-            }
-
-            // convert to index
-            let inlayHints = commandExtItem.inlayHint;
-
-            if (inlayHints !== undefined) {
-                for (let hints of inlayHints) {
-                    let pos = inlayHintMap.size;
-                    inlayHintMap.set(pos, hints);
-                    paramInfo.inlayHintType?.push(pos);
-                }
-            }
+            let paramInfo = copyToInfo(commandExtItem);
 
             commandInfoList.set(command, paramInfo);
         };
@@ -597,35 +620,6 @@ export const commandShowHibiscusDocument_impl = async () => {
 
     // show preview
     await vscode.commands.executeCommand("markdown.showPreviewToSide", uri);
-
-    return;
-};
-
-export const commandRemoveEmptyLines_impl = async () => {
-    if (activeEditor === undefined) {
-        return;
-    }
-
-    const editOptions = { undoStopBefore: false, undoStopAfter: false };
-
-    let promiseList: Promise<void>[] = [];
-
-    iterateLinesWithComment(activeEditor.document
-        , (info: LineInfo) => {
-            if (info.emptyLine) {
-                promiseList.push(new Promise(async (resolve, reject) => {
-                    await activeEditor!.edit((editBuilder: vscode.TextEditorEdit) => {
-                        editBuilder.delete(new vscode.Range(info.lineNum, 0
-                            , info.lineNum + 1, 0));
-                    }, editOptions);
-                }));
-            }
-        });
-
-    await Promise.all(promiseList);
-
-    // show preview
-    await vscode.commands.executeCommand("editor.action.formatDocument");
 
     return;
 };

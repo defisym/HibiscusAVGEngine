@@ -175,6 +175,10 @@
                                         "type": "string"
                                     }
                                 },
+                                "outlineKeyword": {
+                                    "type": "boolean",
+                                    "description": "outline keyword"
+                                },
                                 "internal": {
                                     "type": "boolean",
                                     "description": "Internal command"
@@ -245,6 +249,12 @@
                         "description": "insert empty line before comment",
                         "default": true
                     },
+                    "conf.AvgScript.formatRules.emptyLineLabel": {
+                        "type": "boolean",
+                        "order": 3,
+                        "description": "insert empty line around labels",
+                        "default": true
+                    },
                     "conf.AvgScript.formatRules.emptyLineCommand": {
                         "type": "boolean",
                         "order": 3,
@@ -254,8 +264,14 @@
                     "conf.AvgScript.formatRules.removeEmptyLines": {
                         "type": "boolean",
                         "order": 3,
-                        "description": "remove empty lines",
-                        "default": false
+                        "description": "remove two or more consecutive empty lines",
+                        "default": true
+                    },
+                    "conf.AvgScript.formatRules.formatEmptyLines": {
+                        "type": "boolean",
+                        "order": 3,
+                        "description": "delete blank characters in empty lines",
+                        "default": true
                     }
                 }
             }

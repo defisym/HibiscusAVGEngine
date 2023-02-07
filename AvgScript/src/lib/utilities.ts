@@ -465,11 +465,20 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
     return [curText.toLowerCase(), curStart, curLinePrefix, curPos, curText];
 }
 
+// usage
+// const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoComment);
+
+// if (paramInfo === undefined) {
+//     return;
+// }
+
 export function parseCommand(line: string) {
     const params = getAllParams(line);
-    const command = params[0].substring(1);
+
+    const commandWithPrefix = params[0];
+    const command = commandWithPrefix.substring(1);
 
     const paramInfo = commandInfoList.getValue(command);
 
-    return { params, command, paramInfo };
+    return { params, commandWithPrefix, command, paramInfo };
 }

@@ -499,6 +499,9 @@ export interface ParamInfo {
     type: ParamType[];
     inlayHintType?: number[];
 
+    // outline
+    outlineKeyword?: boolean;
+
     // diagnostic
     internal?: boolean;
     deprecated?: boolean;
@@ -511,6 +514,33 @@ export interface ParamInfo {
     emptyLineBefore?: boolean;
     emptyLineAfter?: boolean;
 }
+
+// default
+export function GetDefaultParamInfo(): ParamInfo {
+    return {
+        prefix: '',
+        minParam: 0,
+        maxParam: 0,
+        description: [],
+        type: [],
+        inlayHintType: undefined,
+
+        // outline
+        outlineKeyword: undefined,
+
+        // diagnostic
+        internal: undefined,
+        deprecated: undefined,
+        VNModeOnly: undefined,
+        NonVNModeOnly: undefined,
+
+        // formatting
+        indentIn: undefined,
+        indentOut: undefined,
+        emptyLineBefore: undefined,
+        emptyLineAfter: undefined,
+    };
+};
 
 // base list
 export let commandInfoBaseList = new Map<string, ParamInfo>([
@@ -676,6 +706,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "默认仅调试模式下可用，`IgnoreDebug`为`1`时在通常模式下也可用"]
         , type: [ParamType.ZeroOne]
         , inlayHintType: [InlayHintType.IgnoreDebug]
+        , outlineKeyword: true
+        , emptyLineBefore: true
     }],
     ["StopFastForward", {
         prefix: "#"
@@ -685,6 +717,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "默认仅调试模式下可用，`IgnoreDebug`为`1`时在通常模式下也可用"]
         , type: [ParamType.ZeroOne]
         , inlayHintType: [InlayHintType.IgnoreDebug]
+        , outlineKeyword: true
     }],
     ["DisableUI", {
         prefix: "#"
@@ -760,6 +793,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.WaitTime]
         , internal: true
+        , emptyLineAfter: true
     }],
     ["W", {
         prefix: "#"
@@ -771,6 +805,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.WaitTime]
+        , emptyLineAfter: true
     }],
     ["Wait", {
         prefix: "#"
@@ -782,6 +817,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.WaitTime]
+        , emptyLineAfter: true
     }],
 
     ["FW", {
@@ -794,6 +830,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.WaitTime]
+        , emptyLineAfter: true
     }],
     ["ForceWait", {
         prefix: "#"
@@ -805,6 +842,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.WaitTime]
+        , emptyLineAfter: true
     }],
     ["AutoChangePage", {
         prefix: "#"
@@ -818,6 +856,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "文本会先显示`……1`，等待1500毫秒，然后追加显示`&……2`，随后通常处理"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.DelayTime]
+        , emptyLineBefore: true
     }],
     ["TextDisplaySpeed", {
         prefix: "#"
@@ -836,6 +875,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "置跳转标志位为1，跳转标志位在解析到文本后重置为0"]
         , type: [ParamType.String]
         , inlayHintType: [InlayHintType.Label]
+        , outlineKeyword: true
+        , emptyLineAfter: true
     }],
     ["NJMP", {
         prefix: "#"
@@ -845,6 +886,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "若非跳转至此(跳转标志位等于0)，则跳转到指定的标签位，用于跳转后的再初始化"]
         , type: [ParamType.String]
         , inlayHintType: [InlayHintType.Label]
+        , outlineKeyword: true
+        , emptyLineAfter: true
     }],
     ["Call", {
         prefix: "#"
@@ -853,12 +896,16 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "使用`#Call=Label`指令调用位于`Label`处的代码段。该代码段必须位于`#EOF`之前，且必须以`#Ret`结尾"]
         , type: [ParamType.String]
         , inlayHintType: [InlayHintType.Label]
+        , outlineKeyword: true
+        , emptyLineAfter: true
     }],
     ["Ret", {
         prefix: "#"
         , minParam: 0, maxParam: 0
         , description: ["返回当前`Label`代码段的调用位点"]
         , type: []
+        , outlineKeyword: true
+        , emptyLineAfter: true
     }],
     ["FJMP", {
         prefix: "#"
@@ -868,6 +915,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "跨场景跳转，跳转到场景`TargetFrame`，仅接受数字参数"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.Frame]
+        , outlineKeyword: true
     }],
     ["JmpFra", {
         prefix: "#"
@@ -877,6 +925,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "跨场景跳转，跳转到场景`TargetFrame`，仅接受数字参数"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.Frame]
+        , outlineKeyword: true
     }],
 
     ["CJMP", {
@@ -887,6 +936,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "跨章节跳转，更新`CurrentChapter`，跳转到章节`Chapter`"]
         , type: [ParamType.File]
         , inlayHintType: [InlayHintType.Chapter]
+        , outlineKeyword: true
     }],
     ["JmpCha", {
         prefix: "#"
@@ -896,6 +946,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "跨章节跳转，更新`CurrentChapter`，跳转到章节`Chapter`"]
         , type: [ParamType.File]
         , inlayHintType: [InlayHintType.Chapter]
+        , outlineKeyword: true
     }],
 
     ["SJMP", {
@@ -904,6 +955,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , description: ["跳转到下一个跳转指令并重启扫描，内部指令，用于跳过文本功能"
             , "置跳转标志位为1，跳转标志位在解析到文本后重置为0"]
         , type: []
+        , outlineKeyword: true
+        , emptyLineAfter: true
     }],
     ["SkipJmp", {
         prefix: "#"
@@ -912,6 +965,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "置跳转标志位为1，跳转标志位在解析到文本后重置为0"]
         , type: []
         , internal: true
+        , outlineKeyword: true
+        , emptyLineAfter: true
     }],
     ["SkipAnchor", {
         prefix: "#"
@@ -926,6 +981,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "\t#FNTO"
             , "\t;Init"]
         , type: []
+        , outlineKeyword: true
+        , emptyLineAfter: true
     }],
 
     ["SetSwitchColor", {
@@ -978,6 +1035,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "同时转义为`#Wait`来执行该指令前的其他带叠化指令的演出"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.SwitchNum]
+        , outlineKeyword: true
+        , emptyLineBefore: true
     }],
     ["Switch", {
         prefix: "#"
@@ -1348,6 +1407,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]
         , type: [ParamType.Number, ParamType.Any]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
+        , outlineKeyword: true
     }],
     ["CMPV", {
         prefix: "#"
@@ -2171,7 +2231,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         prefix: "@"
         , minParam: 1, maxParam: 3
         , description: ["\t@BackZoomReset=Speed:Instant:ForceWait"
-            , "按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:Speed:Instant:ForceWait`在真实坐标模式下执行"]
+            , "按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:Speed:Instant:ForceWait`，在真实坐标模式下执行"]
         , type: [ParamType.Number, ParamType.ZeroOne, ParamType.ZeroOne]
         , inlayHintType: [InlayHintType.Speed, InlayHintType.Instant, InlayHintType.CrossState]
     }],

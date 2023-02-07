@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { currentLineDialogue } from '../lib/dialogue';
+import { currentLineDialogue, currentLineLabel } from '../lib/dialogue';
 import { commandInfoList, commandListInitialized, waitForCommandListInit } from '../lib/dict';
 import { iterateLinesWithComment, LineInfo } from '../lib/iterateLines';
 import { getAllParams, parseCommand } from '../lib/utilities';
-import { confFormatRules_emptyLineAfterDialogue, confFormatRules_emptyLineBeforeComment, confFormatRules_emptyLineCommand, confFormatRules_removeEmptyLines } from './command';
+import { confFormatRules_emptyLineAfterDialogue, confFormatRules_emptyLineBeforeComment, confFormatRules_emptyLineCommand, confFormatRules_emptyLineLabel, confFormatRules_formatEmptyLines, confFormatRules_removeEmptyLines } from './command';
 
 class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
     /**
@@ -25,8 +25,10 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
 
         let emptyLineAfterDialogue = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_emptyLineAfterDialogue, true);
         let emptyLineBeforeComment = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_emptyLineBeforeComment, true);
+        let emptyLineLabel = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_emptyLineLabel, true);
         let emptyLineCommand = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_emptyLineCommand, true);
         let removeEmptyLines = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_removeEmptyLines, true);
+        let formatEmptyLines = vscode.workspace.getConfiguration().get<boolean>(confFormatRules_formatEmptyLines, true);
 
         let result: vscode.TextEdit[] = [];
 
@@ -44,8 +46,15 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
         };
 
         let newLine: boolean = false;
+        let newLineForDia: boolean = false;
+
         let previousLineInfo: LineInfo | undefined = undefined;
         let previousAddedNewLine: boolean = false;
+
+        let resetFlags = () => {
+            newLineForDia = false;
+            previousAddedNewLine = false;
+        };
 
         let formatPreviousLineValid = () => {
             return previousLineInfo !== undefined;
@@ -56,7 +65,7 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
         };
 
         let formatPreviousLineDialogue = () => {
-            return formatPreviousLineNotComment() && currentLineDialogue(previousLineInfo!.textNoComment);
+            return formatPreviousLineNotComment() && !previousLineInfo!.emptyLine && currentLineDialogue(previousLineInfo!.textNoComment);
         };
 
         iterateLinesWithComment(document
@@ -88,64 +97,82 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
                     previousAddedNewLine = true;
                 };
 
+                let formatRemoveLine = (entireLine: boolean = true) => {
+                    const range = entireLine
+                        ? new vscode.Range(lineNum, 0
+                            , lineNum + 1, 0)
+                        : new vscode.Range(lineNum, 0
+                            , lineNum, originText.length);
+
+                    result.push(vscode.TextEdit.delete(range));
+                };
+
+                let formatEmptyLine = () => {
+                    if (emptyLineCommand && formatPreviousLineValid()) {
+                        let newLineAfter: boolean = false;
+
+                        if (!formatPreviousLineDialogue()
+                            && !previousLineInfo!.emptyLine) {
+                            const previousTextNoComment = previousLineInfo!.textNoComment;
+                            const { params, commandWithPrefix, command, paramInfo } = parseCommand(previousTextNoComment);
+
+                            if ((paramInfo !== undefined && paramInfo.emptyLineAfter)
+                                || (emptyLineLabel && currentLineLabel(previousTextNoComment))) {
+                                newLineAfter = true;
+                                formatNewLine(true);
+                            }
+                        }
+                        if (!newLineAfter
+                            && !newLineForDia
+                            && !previousLineInfo!.emptyLine) {
+                            const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoComment);
+
+
+                            if ((paramInfo && paramInfo.emptyLineBefore)
+                                || (emptyLineLabel && currentLineLabel(textNoComment))) {
+                                formatNewLine(true);
+                            }
+                        }
+                    }
+                };
+
                 if (emptyLine) {
                     if (removeEmptyLines
                         && formatPreviousLineNotComment()
                         && info.emptyLine
                         && previousLineInfo!.emptyLine
                         && !previousAddedNewLine) {
-                        previousAddedNewLine = false;
-                        result.push(vscode.TextEdit.delete(new vscode.Range(lineNum, 0
-                            , lineNum + 1, 0)));
+                        formatRemoveLine();
+                    } else if (formatEmptyLines && originText.length !== 0) {
+                        formatRemoveLine(false);
                     }
+
+                    resetFlags();
                 } else {
+                    resetFlags();
+
                     if (!lineIsComment) {
                         if (currentLineDialogue(textNoComment)) {
+                            formatEmptyLine();
                             formatIndent();
                         }
                         else {
-                            const newLineForDia = emptyLineAfterDialogue && formatPreviousLineDialogue();
+                            newLineForDia = emptyLineAfterDialogue && formatPreviousLineDialogue();
 
                             if (newLineForDia) {
                                 formatNewLine();
                             }
 
-                            const { params, command, paramInfo } = parseCommand(textNoComment);
+                            const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoComment);
 
-                            if (paramInfo === undefined) {
-                                return;
-                            }
-
-                            if (paramInfo.indentOut) {
+                            if (paramInfo && paramInfo.indentOut) {
                                 indentLevel--;
                             }
 
-                            if (emptyLineCommand) {
-                                let newLineAfter: boolean = false;
-
-                                if (!formatPreviousLineDialogue()
-                                    && !previousLineInfo!.emptyLine) {
-                                    const { params, command, paramInfo } = parseCommand(previousLineInfo!.textNoComment);
-
-                                    if (paramInfo !== undefined) {
-                                        if (paramInfo.emptyLineAfter) {
-                                            newLineAfter = true;
-                                            formatNewLine(true);
-                                        }
-                                    }
-                                }
-                                if (!newLineAfter
-                                    && !newLineForDia
-                                    && !previousLineInfo!.emptyLine) {
-                                    if (paramInfo.emptyLineBefore) {
-                                        formatNewLine(true);
-                                    }
-                                }
-                            }
-
+                            formatEmptyLine();
                             formatIndent();
 
-                            if (paramInfo.indentIn) {
+                            if (paramInfo && paramInfo.indentIn) {
                                 indentLevel++;
                             }
                         }

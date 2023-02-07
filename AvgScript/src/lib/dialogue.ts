@@ -153,6 +153,10 @@ export function findDelimiter(str: string) {
     return paddingString(str).lastIndexOf(':');
 };
 
+export function currentLineLabel(line: string) {
+    return line.startsWith(';');
+}
+
 export function currentLineDialogue(line: string) {
     return !line.empty()
         && !line.startsWith('@') && !line.startsWith('#')

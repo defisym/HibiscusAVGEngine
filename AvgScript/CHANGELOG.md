@@ -1,5 +1,16 @@
 # Change Log
 
+## 20230207
+
+- format: add empty line before & after according to command prop / for labels
+- format: remove two or more consecutive empty lines
+- format: delete blank characters in empty lines
+
+## 20230206
+
+- fix `commandUpdateCommandExtension_impl` doesn't work due to interface key undefined
+- use dict defined keyword for outline
+
 ## 20230205
 
 - empty line formatting
