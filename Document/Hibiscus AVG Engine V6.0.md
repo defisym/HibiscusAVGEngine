@@ -2386,7 +2386,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ###### `@BackZoomReset=Speed:Instant:ForceWait`
 
-按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:Speed:Instant:ForceWait`在真实坐标模式下执行
+按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:Speed:Instant:ForceWait`，在真实坐标模式下执行
 
 ###### `@BackZoom=X:Y:width:height:Speed:Instant:ForceWait`
 
