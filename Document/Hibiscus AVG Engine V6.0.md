@@ -452,15 +452,24 @@ History_Audio_Y=480
 
 #### 基本
 
-引擎默认启用自动语音序列，即根据音频指针`NowTalking`值自动播放对应章节的语音文件。
-
-由于音频指针会根据对白进度自动更新，请在使用跳转指令后重新指定指针位置。
+引擎默认启用自动语音序列，即根据音频指针`NowTalking`值自动播放对应章节的语音文件。音频指针从零开始，根据对白进度自动更新，请在使用跳转指令后重新指定指针位置。
 
 #### 语音提示
 
 姓名部分会被视为语音提示，引擎会根据剩余部分查找设置中的音量定义，来实现不同角色的不同音量。若该行的姓名部分以`$`开头，该行作为旁白处理。
 
 `$<%DOL>Name:Dialogue`的语音提示为`<%DOL>Name`，经转义后为`$Name`，引擎会查找`Settings.ini`中`Audio`一节的`dub_$Name`项的值，作为播放该行语音时的音量
+
+#### 处理流程
+
+1. 若启动了自动语音序列，则更新`语音文件名`为`DubSequePrefix_NowTalking`
+2. 根据语音提示更新音量
+3. 计算路径`%AppPath% + data\Audio\dubs\Language_LocalCode\DubChapter\语音文件名`
+4. 根据路径，寻找合法文件
+5. 若文件不合法，则使用语言Fallback再次寻找，即根据路径`%AppPath% + data\Audio\dubs\Language_LocalCodeFallback\DubChapter\语音文件名`再次查找
+6. 若仍不合法或音量为零，则终止播放
+
+其中`Language_LocalCode`和`Language_LocalCodeFallback`为设置中指定的语言ID，`DubChapter`默认为当前章节名，即`dialogue\chapterFileName`。若`DubSequePrefix`为空，则`语音文件名`为`NowTalking`，无下划线
 
 ### 正则替换
 
@@ -2003,45 +2012,53 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 #### 语音指令
 
-##### 语音序列
-
-引擎会根据当前`NowTalking`与`CurrentChapter`值，匹配`Audio\CurrentChapter`文件夹下的语音文件，并依次序进行播放。
-
-- 音频指针会根据对白进度自动更新，请在使用跳转指令后重新指定指针位置
-
-- 默认匹配`.OGG`作为语音文件
-
 ##### `@NTK=NowTalking`
 
 同义指令
 
 - `@NTKChange=NowTalking`
-  - 变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件`NowTalking.OGG`
-- `NowTalking`默认从0开始
-- 变更后会自动启用语音序列
+
+变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件
+
+`NowTalking`默认从0开始
+
+使用该指令会自动启用语音序列
 
 ##### `@Dub=filename.mp3`
 
 同义指令
 
 - `@DubPlay=filename.mp3`
-  - 更新语音内容，该语音会在显示下一句文本时播放
-- 使用该指令会自动禁用语音序列
-- 该指令所播放的音频文件类型由用户指定
+
+更新语音内容，该语音会在显示下一句文本时播放
+
+使用该指令会自动禁用语音序列
+
+##### `@DubChapter=ChapterName`
+
+更新`DubChapter`，默认为当前章节名
+
+在调试外部文件时，可以使用该指令调用正确的语音文件
 
 ##### `@DubSeque`
 
 启用语音序列，默认启用
 
-- 变更`NowTalking`后会自动启用语音序列
-- 使用`DubPlay`指令后会自动禁用语音序列
+`@NowTalking`指令会自动启用语音序列
+`@DubPlay`指令会自动禁用语音序列
 
 ##### `@DubSequeOff`
 
 禁用语音序列，默认启用
 
-- 变更`NowTalking`后会自动启用语音序列
-- 使用`DubPlay`指令后会自动禁用语音序列
+`@NowTalking`指令会自动启用语音序列
+`@DubPlay`指令会自动禁用语音序列
+
+##### `@DubSequePrefix=Prefix`
+
+更新`DubSequePrefix`，将会更新`语音文件名`为`DubSequePrefix_NowTalking`
+
+若`DubSequePrefix`为空，则`语音文件名`为`NowTalking`，无下划线
 
 ### 视频指令
 

@@ -401,6 +401,8 @@ export enum InlayHintType {
     IgnoreDebug,
     ShadowMode,
     LoopTransition,
+    DubSequePrefix,
+    DubChapterName,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -489,6 +491,8 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.IgnoreDebug, "忽略仅调试可用"],
     [InlayHintType.ShadowMode, "阴影模式"],
     [InlayHintType.LoopTransition, "循环时叠化"],
+    [InlayHintType.DubSequePrefix, "语音序列前缀"],
+    [InlayHintType.DubChapterName, "语音章节名"],
 ]);
 
 export interface ParamInfo {
@@ -2002,14 +2006,32 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "使用`DubPlay`指令后会自动禁用语音序列"]
         , type: []
     }],
+    ["DubSequePrefix", {
+        prefix: "@"
+        , minParam: 1, maxParam: 1
+        , description: ["\t@DubSequePrefix=Prefix"
+            , "更新`DubSequePrefix`，将会更新`语音文件名`为`DubSequePrefix_NowTalking`"
+            , "若`DubSequePrefix`为空，则`语音文件名`为`NowTalking`，无下划线"]
+        , type: [ParamType.String]
+        , inlayHintType: [InlayHintType.DubSequePrefix]
+    }],
+    ["DubChapter", {
+        prefix: "@"
+        , minParam: 1, maxParam: 1
+        , description: ["\t@DubChapter=ChapterName"
+            , "更新`DubChapter`，默认为当前章节名"
+            , "在调试外部文件时，可以使用该指令调用正确的语音文件"]
+        , type: [ParamType.String]
+        , inlayHintType: [InlayHintType.DubChapterName]
+    }],
     ["Ntk", {
         prefix: "@"
         , minParam: 1, maxParam: 1
         , description: ["\t@NTK=NowTalking"
             , "\t@NTKChange=NowTalking"
-            , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件`NowTalking.OGG`"
+            , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件"
             , "`NowTalking`默认从0开始"
-            , "变更后会自动启用语音序列"]
+            , "使用该指令会自动启用语音序列"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.NowTalking]
     }],
@@ -2018,9 +2040,9 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , minParam: 1, maxParam: 1
         , description: ["\t@NTK=NowTalking"
             , "\t@NTKChange=NowTalking"
-            , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件`NowTalking.OGG`"
+            , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件"
             , "`NowTalking`默认从0开始"
-            , "变更后会自动启用语音序列"]
+            , "使用该指令会自动启用语音序列"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.NowTalking]
     }],
