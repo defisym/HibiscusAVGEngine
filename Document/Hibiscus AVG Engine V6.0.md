@@ -2012,27 +2012,21 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 #### 语音指令
 
-##### `@NTK=NowTalking`
+##### `@NTK=NowTalking:KeepSeq`
 
 同义指令
 
-- `@NTKChange=NowTalking`
+- `@NTKChange=NowTalking:KeepSeq`
 
-变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件
+变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列
 
-`NowTalking`默认从0开始
-
-使用该指令会自动启用语音序列
-
-##### `@Dub=filename.mp3`
+##### `@Dub=FileName:KeepSeq:KeepNTK`
 
 同义指令
 
-- `@DubPlay=filename.mp3`
+- `@DubPlay=FileName:KeepSeq:KeepNTK`
 
-更新语音内容，该语音会在显示下一句文本时播放
-
-使用该指令会自动禁用语音序列
+更新语音内容，该语音会在显示下一句文本时播放。`KeepSeq`为真时，不会自动禁用语音序列，`KeepNTK`为真时，不会递增指针
 
 ##### `@DubChapter=ChapterName`
 

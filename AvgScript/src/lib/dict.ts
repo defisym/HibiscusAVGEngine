@@ -403,6 +403,8 @@ export enum InlayHintType {
     LoopTransition,
     DubSequePrefix,
     DubChapterName,
+    KeepSeq,
+    KeepNTK,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -493,6 +495,8 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.LoopTransition, "循环时叠化"],
     [InlayHintType.DubSequePrefix, "语音序列前缀"],
     [InlayHintType.DubChapterName, "语音章节名"],
+    [InlayHintType.KeepSeq, "保持序列状态"],
+    [InlayHintType.KeepNTK, "保持语音指针"],
 ]);
 
 export interface ParamInfo {
@@ -1971,23 +1975,21 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
 
     ["Dub", {
         prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@Dub=filename.mp3"
-            , "\t@DubPlay=filename.mp3"
-            , "更新语音内容，该语音会在显示下一句文本时播放，使用该指令会自动禁用语音序列"
-            , "该指令所播放的音频文件类型由用户指定"]
-        , type: [ParamType.File]
-        , inlayHintType: [InlayHintType.DubFileName]
+        , minParam: 1, maxParam: 3
+        , description: ["\t@Dub=FileName:KeepSeq:KeepNTK"
+            , "\t@DubPlay=FileName:KeepSeq:KeepNTK"
+            , "更新语音内容，该语音会在显示下一句文本时播放。`KeepSeq`为真时，不会自动禁用语音序列，`KeepNTK`为真时，不会递增指针"]
+        , type: [ParamType.String, ParamType.Boolean, ParamType.Boolean]
+        , inlayHintType: [InlayHintType.DubFileName, InlayHintType.KeepSeq, InlayHintType.KeepNTK]
     }],
     ["DubPlay", {
         prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@Dub=filename.mp3"
-            , "\t@DubPlay=filename.mp3"
-            , "更新语音内容，该语音会在显示下一句文本时播放，使用该指令会自动禁用语音序列"
-            , "该指令所播放的音频文件类型由用户指定"]
-        , type: [ParamType.File]
-        , inlayHintType: [InlayHintType.DubFileName]
+        , minParam: 1, maxParam: 3
+        , description: ["\t@Dub=FileName:KeepSeq:KeepNTK"
+            , "\t@DubPlay=FileName:KeepSeq:KeepNTK"
+            , "更新语音内容，该语音会在显示下一句文本时播放。`KeepSeq`为真时，不会自动禁用语音序列，`KeepNTK`为真时，不会递增指针"]
+        , type: [ParamType.String, ParamType.Boolean, ParamType.Boolean]
+        , inlayHintType: [InlayHintType.DubFileName, InlayHintType.KeepSeq, InlayHintType.KeepNTK]
     }],
 
     ["DubSeque", {
@@ -2026,25 +2028,21 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
     }],
     ["Ntk", {
         prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@NTK=NowTalking"
-            , "\t@NTKChange=NowTalking"
-            , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件"
-            , "`NowTalking`默认从0开始"
-            , "使用该指令会自动启用语音序列"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.NowTalking]
+        , minParam: 1, maxParam: 2
+        , description: ["\t@NTK=NowTalking:KeepSeq"
+            , "\t@NTKChange=NowTalking:KeepSeq"
+            , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列"]
+        , type: [ParamType.Number, ParamType.Boolean]
+        , inlayHintType: [InlayHintType.NowTalking, InlayHintType.KeepSeq]
     }],
     ["NtkChange", {
         prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@NTK=NowTalking"
-            , "\t@NTKChange=NowTalking"
-            , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件"
-            , "`NowTalking`默认从0开始"
-            , "使用该指令会自动启用语音序列"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.NowTalking]
+        , minParam: 1, maxParam: 2
+        , description: ["\t@NTK=NowTalking:KeepSeq"
+            , "\t@NTKChange=NowTalking:KeepSeq"
+            , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列"]
+        , type: [ParamType.Number, ParamType.Boolean]
+        , inlayHintType: [InlayHintType.NowTalking, InlayHintType.KeepSeq]
     }],
 
     ["PV", {
