@@ -180,6 +180,7 @@ export interface DialogueStruct {
     m_headHint: string;
     m_dubHint: string;
 
+    m_namePartEmpty:boolean
     m_namePart: string;
     m_namePartRaw: string;
     m_dialoguePart: string;
@@ -243,6 +244,7 @@ export function parseDialogue(line: string, lineRaw: string): DialogueStruct {
         m_headHint: headHint,
         m_dubHint: dubHint,
 
+        m_namePartEmpty:namePartRaw.empty(),
         m_namePart: namePart,
         m_namePartRaw: namePartRaw,
         m_dialoguePart: dialoguePart,

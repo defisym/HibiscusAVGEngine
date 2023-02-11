@@ -85,31 +85,35 @@ const config = {
       // },
     ]
   },
-  plugins: [
-    new copyWebpackPlugin({
-      patterns: [
-        {
-          from: "./../document/media",
-          to: "./../document/media"
-        },
-        {
-          from: "./../document/Hibiscus AVG Engine V6.0.md",
-          to: "./../document/Hibiscus AVG Engine V6.0.md"
-        }
-      ]
-    }),
-    new removeWebpackPlugin({
-      /**
-       * Before compilation permanently removes
-       * entire `./dist` folder.
-       */
-      before: {
-          include: [
-              './dist',
-              './document',
-          ]
-      }
-  })
-  ]
+  // https://stackoverflow.com/questions/56222368/webpack-config-how-to-change-plugins-depending-on-environment
+  plugins: []
 };
+
+if (process.env.NODE_ENV === 'production') {
+  config.plugins?.push(new copyWebpackPlugin({
+    patterns: [
+      {
+        from: "./../document/media",
+        to: "./../document/media"
+      },
+      {
+        from: "./../document/Hibiscus AVG Engine V6.0.md",
+        to: "./../document/Hibiscus AVG Engine V6.0.md"
+      }
+    ]
+  }));
+  config.plugins?.push(new removeWebpackPlugin({
+    /**
+     * Before compilation permanently removes
+     * entire `./dist` folder.
+     */
+    before: {
+      include: [
+        './dist',
+        './document',
+      ]
+    }
+  }));
+}
+
 module.exports = config;

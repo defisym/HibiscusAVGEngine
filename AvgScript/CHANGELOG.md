@@ -1,5 +1,10 @@
 # Change Log
 
+## 20230211
+
+- config webpack for development
+- fix unnecessary prefix if appending a narration
+
 ## 20230207
 
 - format: add empty line before & after according to command prop / for labels

@@ -569,7 +569,10 @@ export const commandAppendDialogue_impl = async () => {
         const curLineNew = lineRaw!.substring(0, linePrefix!.length);
         let nextLine = lineRaw!.substring(linePrefix!.length);
 
-        nextLine = "$" + dialogueStruct.m_namePartRaw + ":&" + nextLine + '\r\n';
+        nextLine = (!dialogueStruct.m_namePartEmpty
+            ? "$" + dialogueStruct.m_namePartRaw + ":"
+            : "")
+            + "&" + nextLine + '\r\n';
 
         const editOptions = { undoStopBefore: false, undoStopAfter: false };
         await activeEditor.edit((editBuilder: vscode.TextEditorEdit) => {

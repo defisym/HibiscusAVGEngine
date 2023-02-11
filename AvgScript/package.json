@@ -8,7 +8,8 @@
     "homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
     "icon_comment": "ignore this warning as using webpack",
     "icon": "media/AvgScript.png",
-    "main_comment": "./out/extension.js during debug and ./dist/extension.js when releasing",
+    "main_comment_1": "./out/extension.js faster, debugging -> Run Extension",
+    "main_comment_2": "./dist/extension.js slower, releasing -> Run WebPack",
     "main": "./dist/extension.js",
     "engines": {
         "vscode": "^1.67.0"

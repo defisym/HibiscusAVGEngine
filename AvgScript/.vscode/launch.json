@@ -5,7 +5,8 @@
 {
 	"version": "0.2.0",
     "configurations": [
-        {
+		// only run host
+		{
             "name": "Grammar",
             "type": "extensionHost",
             "request": "launch",
@@ -14,6 +15,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}"
             ]
         },
+		// compile, faster
         {
 			"name": "Run Extension",
 			"type": "extensionHost",
@@ -25,19 +27,20 @@
 				"${workspaceFolder}/out/**/*.js"
 			],
 			"preLaunchTask": "${defaultBuildTask}"
+		},
+		// webpack, slower
+		{
+			"name": "Run WebPack",
+			"type": "extensionHost",
+			"request": "launch",
+            "runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}",
+			],
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"preLaunchTask": "npm: webpack"
 		}
-		// {
-		// 	"name": "Extension Tests",
-		// 	"type": "extensionHost",
-		// 	"request": "launch",
-		// 	"args": [
-		// 		"--extensionDevelopmentPath=${workspaceFolder}",
-		// 		"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
-		// 	],
-		// 	"outFiles": [
-		// 		"${workspaceFolder}/out/test/**/*.js"
-		// 	],
-		// 	"preLaunchTask": "${defaultBuildTask}"
-		// }
     ]
 }
