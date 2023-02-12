@@ -414,11 +414,11 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                             const x = parseInt(params[1]);
                             const y = parseInt(params[2]);
 
-                            outOfScreen = outOfScreen || x - width / 2 < 0;
-                            outOfScreen = outOfScreen || x + width / 2 > projWidth / 2;
+                            outOfScreen = outOfScreen || (x - width / 2) < (-1 * projWidth / 2);
+                            outOfScreen = outOfScreen || (x + width / 2) > (projWidth / 2);
 
-                            outOfScreen = outOfScreen || y - width / 2 < 0;
-                            outOfScreen = outOfScreen || y + width / 2 > projHeight;
+                            outOfScreen = outOfScreen || (y - height / 2) < (0);
+                            outOfScreen = outOfScreen || (y + height / 2) > (projHeight);
 
                             if (outOfScreen) {
                                 diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart - 1 - params[1].length - 1 - params[2].length

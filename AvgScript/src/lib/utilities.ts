@@ -488,7 +488,7 @@ export interface ImageSize {
     height: number,
 }
 
-export function imageStretched(originSize: ImageSize, targetSize: ImageSize, tolerance: number = 0.01) {
+export function imageStretched(originSize: ImageSize, targetSize: ImageSize, tolerance: number = 0.1) {
     let sizeValidity = (size: ImageSize) => {
         let valueValidity = (num: number) => {
             const result = num !== 0 && num !== Infinity;
