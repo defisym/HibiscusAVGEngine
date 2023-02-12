@@ -4,7 +4,7 @@ import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue'
 import {
     commandDocList, dialogueTextElement, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
 } from '../lib/dict';
-import { currentLineNotComment, FileType, getAllParams, getFileCompletionByType, getHoverContents, getParamAtPosition, getType } from '../lib/utilities';
+import { FileType, currentLineNotComment, getAllParams, getFileCompletionByType, getHoverContents, getParamAtPosition, getType } from '../lib/utilities';
 import { fileListInitialized } from './file';
 import { getLabelComment } from './label';
 

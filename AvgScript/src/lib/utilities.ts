@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 
 import { audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListHasItem, getCorrectPathAndType, getFullFileNameByType, graphicCGCompletions, graphicCharactersCompletions, graphicFXCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from '../functions/file';
-import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, internalKeywordList } from './dict';
+import { InlayHintType, commandInfoList, deprecatedKeywordList, docList, internalKeywordList } from './dict';
 import { iterateLines } from './iterateLines';
+import { beginRegex, endRegex } from './regExp';
 
 import path = require('path');
-import { beginRegex, endRegex } from './regExp';
 
 const delimiter = ['=', ':'];
 

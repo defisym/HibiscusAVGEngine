@@ -4,6 +4,7 @@
 
 - check stretch ratio
 - check `BackZoom` area out of screen
+- fix `colorProvider` doesn't work for RGB style
 
 ## 20230211
 

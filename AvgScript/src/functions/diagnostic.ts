@@ -2,12 +2,11 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, InlayHintType, internalImageID, internalKeywordList, ParamType, settingsParamDocList, sharpKeywordList } from '../lib/dict';
-import { regexHexColor, regexRep } from '../lib/regExp';
-import { fileExists, FileType, getAllParams, getBuffer, getCommandType, imageStretched } from '../lib/utilities';
 import { iterateLines } from "../lib/iterateLines";
-import { CompletionType, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfo, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
+import { regexHexColor, regexRep } from '../lib/regExp';
+import { fileExists, FileType, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
+import { currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
-import { ImageProbe } from '@zerodeps/image-probe';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
 
@@ -316,7 +315,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                         break;
                     case ParamType.Color:
-                        if (curParam.matchAll(regexHexColor)) {
+                        if (curParam.matchEntire(regexHexColor)) {
                             if (j !== params.length - 1) {
                                 diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, lineEnd)
                                     , "Too Many Params"

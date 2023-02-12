@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { currentLineDialogue, currentLineLabel } from '../lib/dialogue';
-import { commandInfoList, commandListInitialized, waitForCommandListInit } from '../lib/dict';
-import { iterateLinesWithComment, LineInfo } from '../lib/iterateLines';
-import { getAllParams, parseCommand } from '../lib/utilities';
+import { commandListInitialized } from '../lib/dict';
+import { LineInfo, iterateLinesWithComment } from '../lib/iterateLines';
+import { parseCommand } from '../lib/utilities';
 import { confFormatRules_emptyLineAfterDialogue, confFormatRules_emptyLineBeforeComment, confFormatRules_emptyLineCommand, confFormatRules_emptyLineLabel, confFormatRules_formatEmptyLines, confFormatRules_removeEmptyLines } from './command';
 
 class DocumentFormatter implements vscode.DocumentFormattingEditProvider {

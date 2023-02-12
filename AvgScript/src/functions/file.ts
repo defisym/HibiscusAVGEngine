@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
+import { ImageProbe } from '@zerodeps/image-probe';
 import * as mm from 'music-metadata';
 import { pinyin } from 'pinyin-pro';
-import { ImageProbe } from '@zerodeps/image-probe';
 
 import { currentLineNotComment, FileType, getBuffer, getParamAtPosition, getUri, sleep } from '../lib/utilities';
 import { commandBasePath, confBasePath } from './command';

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { projectConfig, scriptPath } from '../functions/file';
-import { commandInfoList, InlayHintType } from './dict';
+import { InlayHintType, commandInfoList } from './dict';
 import { iterateLines } from './iterateLines';
 import { getAllParams, sleep } from './utilities';
 

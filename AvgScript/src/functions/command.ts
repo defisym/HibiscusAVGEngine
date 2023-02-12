@@ -5,14 +5,13 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
-import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
-import { iterateLinesWithComment, LineInfo } from '../lib/iterateLines';
+import { GetDefaultParamInfo, InlayHintType, ParamInfo, ParamTypeMap, commandInfoList, generateList, inlayHintMap, resetList } from '../lib/dict';
 import { iterateScripts } from "../lib/iterateScripts";
-import { currentLineNotComment, FileType, sleep } from '../lib/utilities';
+import { FileType, currentLineNotComment } from '../lib/utilities';
 import { assetList_getWebviewContent } from '../webview/assetList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
-import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics, updateDiagnostics } from './diagnostic';
+import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
 import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 

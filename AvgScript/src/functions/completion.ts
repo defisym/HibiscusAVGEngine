@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
-import { sharpKeywordList, commandDocList, atKeywordList, settingsParamList, settingsParamDocList } from '../lib/dict';
-import { lineValidForCommandCompletion, getCompletionItemList, getType, FileType, currentLineNotComment, getSubStrings } from '../lib/utilities';
-import { fileListInitialized, graphicCharactersCompletions, graphicUICompletions, graphicCGCompletions, graphicPatternFadeCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, videoCompletions, scriptCompletions } from './file';
+import { atKeywordList, commandDocList, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
+import { FileType, currentLineNotComment, getCompletionItemList, getSubStrings, getType, lineValidForCommandCompletion } from '../lib/utilities';
+import { audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { labelCompletions } from './label';
 
 function completionItemsProvider(document: vscode.TextDocument, position: vscode.Position, src: string[]) {

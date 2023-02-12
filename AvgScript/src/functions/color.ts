@@ -60,10 +60,9 @@ export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
                 };
 
                 let handle = (paramStart: number, start: number) => {
-                    if (paramNum === paramStart) {
+                    if (params[paramStart].match(regexHexColor)) {
                         handleHex(params[paramStart], start);
-                    }
-                    if (paramNum === paramStart) {
+                    } else {
                         handleRGB(params[paramStart], params[paramStart + 1], params[paramStart + 2], start);
                     }
                 };
@@ -120,7 +119,7 @@ export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
             const colB = Math.round(color.blue * 255);
 
             let colorLabel: string = "";
-            if (text.substring(text.length - 8).matchAll(regexHexColor)) {
+            if (text.substring(text.length - 8).match(regexHexColor)) {
                 let toHex = (color: number) => {
                     let hex = color.toString(16);
                     return hex.length === 1 ? "0" + hex : hex;
