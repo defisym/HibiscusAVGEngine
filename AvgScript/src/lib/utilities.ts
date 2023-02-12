@@ -482,3 +482,31 @@ export function parseCommand(line: string) {
 
     return { params, commandWithPrefix, command, paramInfo };
 }
+
+export interface ImageSize {
+    width: number,
+    height: number,
+}
+
+export function imageStretched(originSize: ImageSize, targetSize: ImageSize, tolerance: number = 0.01) {
+    let sizeValidity = (size: ImageSize) => {
+        let valueValidity = (num: number) => {
+            const result = num !== 0 && num !== Infinity;
+
+            return num !== 0 && num !== Infinity;
+        };
+
+        return valueValidity(size.width) && valueValidity(size.height);
+    };
+
+    if (!sizeValidity(originSize) || !sizeValidity(targetSize)) {
+        return false;
+    }
+
+    const originRatio = originSize.width / originSize.height;
+    const targetRatio = targetSize.width / targetSize.height;
+
+    const diff = originRatio - targetRatio;
+
+    return Math.abs(diff) > tolerance;
+}

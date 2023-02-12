@@ -23,7 +23,6 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
     let beginRegex = /^#Begin/gi;
     let endRegex = /^#End/gi;
     let labelRegex = /^;.*/gi;
-    let keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(.*JMP.*)|(#SkipAnchor|#Ret|#StopFF|#StopFastForward))/gi;
 
     let commentRegex = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)|((?!\/\*)[^\/\*]*\*\/)/gi;
 

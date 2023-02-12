@@ -120,7 +120,7 @@ export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
             const colB = Math.round(color.blue * 255);
 
             let colorLabel: string = "";
-            if (text.substring(text.length - 8).match(regexHexColor)) {
+            if (text.substring(text.length - 8).matchAll(regexHexColor)) {
                 let toHex = (color: number) => {
                     let hex = color.toString(16);
                     return hex.length === 1 ? "0" + hex : hex;

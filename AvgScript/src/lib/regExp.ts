@@ -4,3 +4,4 @@ export const regexRep = /\<.*\>/gi;
 
 export const beginRegex = /^#Begin/gi;
 export const endRegex = /^#End/gi;
+export const keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(.*JMP.*)|(#SkipAnchor|#Ret|#StopFF|#StopFastForward))/gi;

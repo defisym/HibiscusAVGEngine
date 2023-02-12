@@ -3,10 +3,11 @@ import * as vscode from 'vscode';
 import { activeEditor } from '../extension';
 import { atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, InlayHintType, internalImageID, internalKeywordList, ParamType, settingsParamDocList, sharpKeywordList } from '../lib/dict';
 import { regexHexColor, regexRep } from '../lib/regExp';
-import { fileExists, getAllParams, getCommandType } from '../lib/utilities';
+import { fileExists, FileType, getAllParams, getBuffer, getCommandType, imageStretched } from '../lib/utilities';
 import { iterateLines } from "../lib/iterateLines";
-import { currentLocalCode, currentLocalCodeDisplay, fileListInitialized } from './file';
+import { CompletionType, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfo, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
+import { ImageProbe } from '@zerodeps/image-probe';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
 
@@ -56,7 +57,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
         if (text.startsWith("#")
             || text.startsWith("@")) {
 
-            if (text.match(/#Settings/gi)) {
+            if (text.matchStart(/#Settings/gi)) {
                 let start = text.indexOf('=');
                 let params = text.substring(start + 1).split('|');
 
@@ -102,24 +103,24 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                 return;
             }
 
-            if (text.match(/#EOF/gi)) {
+            if (text.matchStart(/#EOF/gi)) {
                 EOF = true;
 
                 return;
             }
 
-            if (text.match(/(#CJMP|#JMPCha|#FJMP|#JMPFra)/gi)) {
+            if (text.matchStart(/(#CJMP|#JMPCha|#FJMP|#JMPFra)/gi)) {
                 nextJMP = true;
             }
 
-            if (text.match(/#Begin/gi)) {
+            if (text.matchStart(/#Begin/gi)) {
                 blockCount++;
                 blockPos.push(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd));
 
                 return;
             }
 
-            if (text.match(/#End/gi)) {
+            if (text.matchStart(/#End/gi)) {
                 if (blockCount === 0) {
                     diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
                         , "End Without Begin"
@@ -315,7 +316,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                         break;
                     case ParamType.Color:
-                        if (curParam.match(regexHexColor)) {
+                        if (curParam.matchAll(regexHexColor)) {
                             if (j !== params.length - 1) {
                                 diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, lineEnd)
                                     , "Too Many Params"
@@ -353,7 +354,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                 }
 
                 switch (currentHintType) {
-                    case InlayHintType.Alpha:
+                    case InlayHintType.Alpha: {
                         let curParamVal = parseInt(curParam);
 
                         if (curParamVal < 0
@@ -364,13 +365,109 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                         }
 
                         break;
+                    }
 
-                    case InlayHintType.Label:
+                    case InlayHintType.Label: {
                         if (labelJumpMap.getValue(curParam) === undefined) {
                             diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
                                 , "Invalid Label: " + curParam
                                 , vscode.DiagnosticSeverity.Error));
                         }
+
+                        break;
+                    }
+
+                    case InlayHintType.Width: {
+                        // if cur is width, then next must be height
+                        const nextParam = params[j + 1];
+
+                        // don't have ignorable width & height
+                        if (command.matchEntire('BackZoom')) {
+                            if (nextParam === undefined) {
+                                break;
+                            }
+
+                            if (projectConfig === undefined) {
+                                break;
+                            }
+
+                            const width = parseInt(curParam);
+                            const height = parseInt(nextParam);
+
+                            const projWidth = projectConfig.Display.RenderResolutionX;
+                            const projHeight = projectConfig.Display.RenderResolutionY;
+
+                            if (imageStretched({
+                                width: projWidth,
+                                height: projHeight,
+                            }, {
+                                width: width,
+                                height: height,
+                            })) {
+                                diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart
+                                    , lineNumber, contentStart + curParam.length + 1 + nextParam.length)
+                                    , "BackZoom Ratio doesn't match Resolution Ratio"
+                                    , vscode.DiagnosticSeverity.Warning));
+                            }
+
+                            let outOfScreen = false;
+
+                            const x = parseInt(params[1]);
+                            const y = parseInt(params[2]);
+
+                            outOfScreen = outOfScreen || x - width / 2 < 0;
+                            outOfScreen = outOfScreen || x + width / 2 > projWidth / 2;
+
+                            outOfScreen = outOfScreen || y - width / 2 < 0;
+                            outOfScreen = outOfScreen || y + width / 2 > projHeight;
+
+                            if (outOfScreen) {
+                                diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart - 1 - params[1].length - 1 - params[2].length
+                                    , lineNumber, contentStart + curParam.length + 1 + nextParam.length)
+                                    , "BackZoom has area out of screen"
+                                    , vscode.DiagnosticSeverity.Warning));
+                            }
+                        }
+
+                        if (!checkFile) {
+                            break;
+                        }
+
+                        const filePath = getFullFileNameByType(FileType.characters, params[1]);
+
+                        if (filePath === undefined) {
+                            break;
+                        }
+
+                        const data = getFileInfoInternal(filePath);
+
+                        if (data === undefined) {
+                            break;
+                        }
+
+                        const width = parseInt(curParam);
+                        const height = nextParam === undefined
+                            ? data.height
+                            : parseInt(nextParam);
+
+                        if (imageStretched({
+                            width: data.width,
+                            height: data.height,
+                        }, {
+                            width: width,
+                            height: height,
+                        })) {
+                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart
+                                , lineNumber, contentStart + curParam.length + (nextParam === undefined
+                                    ? 0
+                                    : 1 + nextParam.length))
+                                , "Stretched Ratio doesn't match Image Ratio"
+                                , vscode.DiagnosticSeverity.Warning));
+                        }
+
+                        break;
+                    }
+
                 }
 
                 contentStart += curParam.length;
@@ -409,6 +506,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
     }
 
     diagnosticsCollection.set(document.uri, diagnostics);
+
+    return;
 }
 
 //--------------------
@@ -464,7 +563,7 @@ function updateLanguageDecorations(activeEditor: vscode.TextEditor
     iterateLines(document, (text, lineNumber
         , lineStart, lineEnd
         , firstLineNotComment) => {
-        if (text.match(langReg)) {
+        if (text.matchStart(langReg)) {
             const decoration = { range: new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd), hoverMessage: "非当前语言: " + currentLocalCodeDisplay + currentLocalCode };
 
             decoOpt.push(decoration);

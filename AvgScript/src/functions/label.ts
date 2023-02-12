@@ -59,7 +59,7 @@ export function getLabelCompletion(document: vscode.TextDocument) {
     iterateLines(document, (text, lineNumber
         , lineStart, lineEnd
         , firstLineNotComment) => {
-        if (text.match(/(;.*)/gi)) {
+        if (text.matchStart(/(;.*)/gi)) {
             let label = text.substring(text.indexOf(";") + 1);
             let item: vscode.CompletionItem = new vscode.CompletionItem({
                 label: label
@@ -83,7 +83,7 @@ export function getLabelJumpMap(document: vscode.TextDocument) {
     iterateLines(document, (text, lineNumber
         , lineStart, lineEnd
         , firstLineNotComment) => {
-        if (text.match(/(;.*)/gi)) {
+        if (text.matchStart(/(;.*)/gi)) {
             let label = text.substring(text.indexOf(";") + 1);
             labelJumpMap.set(label, lineNumber);
         }

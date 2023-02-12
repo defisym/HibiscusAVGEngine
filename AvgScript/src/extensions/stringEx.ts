@@ -10,7 +10,9 @@ declare global {
         startsWithStrings(searchString: string[], position?: number): boolean;
         endsWithStrings(searchString: string[], endPosition?: number): boolean;
 
+        matchStart(regex: string | RegExp): boolean;
         matchEntire(regex: string | RegExp): boolean;
+
         isNumber(): boolean;
         empty(): boolean;
 
@@ -71,6 +73,18 @@ String.prototype.endsWithStrings = function (searchString: string[], endPosition
     }
 
     return result;
+};
+
+String.prototype.matchStart = function (regex: string | RegExp): boolean {
+    let match = this.match(regex);
+
+    if (match === null) {
+        return false;
+    }
+
+    const matchLength = match[0].length;
+
+    return match[0] === this.substring(0, matchLength);
 };
 
 String.prototype.matchEntire = function (regex: string | RegExp): boolean {

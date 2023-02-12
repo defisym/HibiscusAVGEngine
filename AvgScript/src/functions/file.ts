@@ -38,6 +38,8 @@ export enum CompletionType { image, audio, video, script };
 //file List
 export let projectFileList: [string, vscode.FileType][] = [];
 
+export let projectFileInfoList = new Map<string, any>([]);
+
 // paths
 export let basePath: string;
 export let execPath: string;
@@ -266,6 +268,10 @@ export function fileListHasItem(filePath: string) {
     return fullPath !== undefined;
 }
 
+export function getFileInfoInternal(filePath: string) {
+    return projectFileInfoList.getValue(filePath);
+}
+
 export async function getFileInfo(filePath: string, type: CompletionType) {
     let getDuration = (duration: number) => {
         let minutes = Math.floor(duration / 60);
@@ -285,9 +291,13 @@ export async function getFileInfo(filePath: string, type: CompletionType) {
                     throw new Error("ImageProbe.fromBuffer() failed");
                 }
 
+                projectFileInfoList.set(filePath, data);
+
                 return "Width: `" + data.width.toString() + "` Height: `" + data.height.toString() + "`";
             case CompletionType.audio:
                 const metadata = await mm.parseBuffer(await getBuffer(filePath));
+
+                projectFileInfoList.set(filePath, metadata);
 
                 return "`" + (metadata.format.sampleRate! / 1000).toFixed(1) + "KHz`\t"
                     + "`" + (metadata.format.bitrate! / 1000).toFixed() + "kbps`\t"
@@ -297,6 +307,8 @@ export async function getFileInfo(filePath: string, type: CompletionType) {
                 const ffprobeStatic = require('ffprobe-static');
 
                 let info = (await ffprobe(filePath, { path: ffprobeStatic.path })).streams[0];
+
+                projectFileInfoList.set(filePath, info);
 
                 return "Width: `" + info.width.toString() + "` Height: `" + info.height.toString() + "`\t"
                     + getDuration(info.duration!);

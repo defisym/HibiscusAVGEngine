@@ -1,5 +1,10 @@
 # Change Log
 
+## 20230212
+
+- check stretch ratio
+- check `BackZoom` area out of screen
+
 ## 20230211
 
 - config webpack for development
