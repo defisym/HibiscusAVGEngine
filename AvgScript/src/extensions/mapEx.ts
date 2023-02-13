@@ -6,6 +6,7 @@ export { };
 declare global {
     interface Map<K, V> {
         getValue(item: K): V | undefined;
+        keyToArray(): K[];
     }
 }
 
@@ -35,5 +36,19 @@ Map.prototype.getValue = function <K, V>(item: K): V | undefined {
 
     }
 
+    return ret;
+};
+
+Map.prototype.keyToArray = function <K, V>(): K[] {
+    let ret: K[] = [];
+    
+    this.forEach((value, key) => {
+        if (key === undefined) {
+            return;
+        }
+
+        ret.push(key);
+    });
+    
     return ret;
 };

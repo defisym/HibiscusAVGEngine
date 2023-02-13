@@ -17,6 +17,7 @@ import './extensions/_include';
 import { formatting } from './functions/formatting';
 
 export let activeEditor = vscode.window.activeTextEditor;
+export const outputChannel = vscode.window.createOutputChannel('AvgScript');
 
 export async function activate(context: vscode.ExtensionContext) {
 	//--------------------

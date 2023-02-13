@@ -3,7 +3,7 @@
 import path = require('path');
 import * as vscode from 'vscode';
 
-import { activeEditor } from '../extension';
+import { activeEditor, outputChannel } from '../extension';
 import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import { GetDefaultParamInfo, InlayHintType, ParamInfo, ParamTypeMap, commandInfoList, generateList, inlayHintMap, resetList } from '../lib/dict';
 import { iterateScripts } from "../lib/iterateScripts";
@@ -12,7 +12,7 @@ import { assetList_getWebviewContent } from '../webview/assetList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
-import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -227,6 +227,7 @@ export const commandGetAssetsList_impl = async () => {
         progress.report({ increment: 80, message: "Parsing scripts..." });
 
         let assets = new Map<string, RefInfo>();
+        let unusedFileList = projectFileInfoList.keyToArray();
 
         await iterateScripts(
             (script: string, document: vscode.TextDocument) => { },
@@ -236,6 +237,8 @@ export const commandGetAssetsList_impl = async () => {
                 let UpdateAssets = (fileName: string, fileType: FileType) => {
                     let fullName = getFullFilePath(fileName);
                     fileName = fullName !== undefined ? fullName : fileName;
+
+                    unusedFileList.remove(fileName);
 
                     let refInfo = assets.get(fileName);
 
@@ -327,7 +330,18 @@ export const commandGetAssetsList_impl = async () => {
 
         // And set its HTML content
         progress.report({ increment: 10, message: "Generating webview..." });
-        assetsListPanel.webview.html = assetList_getWebviewContent(assets);
+        assetsListPanel.webview.html = assetList_getWebviewContent(assets, unusedFileList);
+
+        outputChannel.clear();
+        outputChannel.show();
+
+        outputChannel.appendLine('Unused file:');
+
+        unusedFileList.sort();
+
+        for (let file of unusedFileList) {
+            outputChannel.appendLine(file);
+        }
 
         // done
         progress.report({ increment: 0, message: "Done" });

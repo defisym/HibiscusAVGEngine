@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230213
+
+- show unused files
+
 ## 20230212
 
 - check stretch ratio

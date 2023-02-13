@@ -396,6 +396,10 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                             const projWidth = projectConfig.Display.RenderResolutionX;
                             const projHeight = projectConfig.Display.RenderResolutionY;
 
+                            if (projWidth === undefined || projHeight === undefined) {
+                                break;
+                            }
+
                             if (imageStretched({
                                 width: projWidth,
                                 height: projHeight,

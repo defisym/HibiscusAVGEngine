@@ -4,7 +4,7 @@ import { RefInfo } from "../functions/command";
 import { nonePreview } from "../functions/file";
 import { FileType, fileTypeMap } from "../lib/utilities";
 
-export function assetList_getWebviewContent(assets: Map<string, RefInfo>) {
+export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unusedFileList: string[]) {
     const pageTemplate = `<!DOCTYPE html>
                         <html lang="en">
                         
