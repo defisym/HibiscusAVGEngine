@@ -159,7 +159,7 @@ rem Build Content
 
 @echo UpdateHash
 
-for /f "usebackq" %%a in (`%Encrypter_CLI% -f "F:\DEV\Mobius\SteamWorks\_Content\MOBIUS BAND\Mobius.exe" --hash`) do (
+for /f "usebackq" %%a in (`%Encrypter_CLI% -f "%ContentPath%\%AppName%.exe" --hash`) do (
 	Set Hash=%%a
 )
 
