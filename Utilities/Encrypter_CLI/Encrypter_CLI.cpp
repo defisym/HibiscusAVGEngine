@@ -1,5 +1,6 @@
 ﻿#define NOMINMAX
 
+#include <format>
 #include <iostream>
 
 #include "CLI11.hpp"
@@ -13,9 +14,11 @@ enum class Operation {
 	Hash,
 };
 
-// -f "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道.png" - o "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E.png" - e - k 12345678ABCDEFGH
-// -f "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E.png" - o "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E_D.png" - e - k 12345678ABCDEFGH
+// -f "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道.png" -o "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E.png" -e -k 12345678ABCDEFGH
+// -f "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E.png" -o "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E_D.png" -e -k 12345678ABCDEFGH
 // -f "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道.png" --hash
+
+// -f "F:\DEV\Mobius\SteamWorks\_Content\MOBIUS BAND\data\dialogue\__Old\0104_第一章_日常•妹妹.asc" -e -k 12345678ABCDEFGH
 
 int main(int argc, char** argv) {
 	CLI::App app;
@@ -104,12 +107,21 @@ int main(int argc, char** argv) {
 			: Encrypt.Decrypt();
 
 		if (!ret) {
-			std::cout << "operation failed" << std::endl;
+			std::cout << std::format("{} operation failed, file {}\n"
+				, encrypt
+					? "encrypt"
+					: "decrypt"
+				, inFilePath);
 
 			exit(-1);
 		}
 
 		Encrypt.SaveFile(wOutFilePath.c_str());
+		std::cout << std::format("{} operation success, file {}\n"
+			, encrypt
+				? "encrypt"
+				: "decrypt"
+			, inFilePath);
 	};
 
 	switch (operation) {
@@ -126,7 +138,7 @@ int main(int argc, char** argv) {
 		auto hash = Encrypt.GetHash();
 
 		if (!hash) {
-			std::cout << "operation failed" << std::endl;
+			std::cout << std::format("hash operation failed, file {}\n", inFilePath);
 
 			exit(-1);
 		}
