@@ -162,9 +162,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\OpenFusionExamples\Extensions\_DeLib\Encryption.cpp" />
-    <ClCompile Include="Encrypter_CLI.cpp" />
+    <ClCompile Include="Settings_CLI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\OpenFusionExamples\Extensions\Fini\SimpleIni.h" />
     <ClInclude Include="..\..\..\OpenFusionExamples\Extensions\_3rdLib\CLI11.hpp" />
     <ClInclude Include="..\..\..\OpenFusionExamples\Extensions\_DeLib\Encryption.h" />
   </ItemGroup>
