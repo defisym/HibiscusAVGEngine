@@ -20,6 +20,10 @@ Documents of Hibiscus AVG Engine
 
 Localization
 
+## Scripts
+
+test scripts
+
 ## Utilities
 
 ### ContentGenerator
@@ -34,6 +38,14 @@ Check the effect of easing params directly
 
 A encrypt tool based on Windows`CNG`(`Cryptography Next Generation`), `AES` algorithm, used to encrypt/decrypt assets
 
+### Encrypter_CLI
+
+based on [Encrypter](https://github.com/defisym/OpenFusionExamples/tree/master/Extensions/Encrypter), works exactly the same as [Encrypter GUI](https://github.com/defisym/HibiscusAVGEngine/tree/main/Utilities/Encrypter), but make it possible to integrate into batch files, like [ContentGenerator](https://github.com/defisym/HibiscusAVGEngine/tree/main/Utilities/ContentGenerator)
+
+### PatternFadeViewer
+
+quick preview texture's pattern fade effect
+
 ### RGBDefiner
 
 Check the effect of RGB params in `#DefineRGB` directly
@@ -41,3 +53,7 @@ Check the effect of RGB params in `#DefineRGB` directly
 ### ScriptConverter
 
 Convert word format to script format
+
+### Settings_CLI
+
+edit ini files by cli, make it possible to integrate into batch files, like [ContentGenerator](https://github.com/defisym/HibiscusAVGEngine/tree/main/Utilities/ContentGenerator)
