@@ -2991,7 +2991,7 @@ CG/UI不会被销毁
 
 #### ContentGenerator
 
-用于生成Steam创建生成版本所需Content的批处理
+用于创建Steam生成版本所需Content的批处理
 
 #### Easing
 
@@ -3003,6 +3003,23 @@ CG/UI不会被销毁
 
 ![Encrypter](media/Encrypter.png)
 
+#### Encrypter_CLI
+
+基于Encrypter的CLI版本，用于将加密整合至批处理，如`ContentGenerator`
+
+| 命令              | 类别   | 说明                             |
+| ----------------- | ------ | -------------------------------- |
+| -f, --fileName    | option | 需要处理的文件                   |
+| -o, --outFileName | option | 输出文件名，未指定则覆盖原始文件 |
+| -k, --key         | option | 用于加密/解密的Key               |
+| -e, --encrypt     | flag   | 加密文件                         |
+| -d, --decrypt     | flag   | 解密文件                         |
+| --hash            | flag   | 计算文件哈希                     |
+
+#### PattenFadeViewer
+
+快速查看不同纹理的PatternFade效果
+
 #### RGBDefiner
 
 用于直观的指定不同CG下立绘的RGB参数
@@ -3010,6 +3027,19 @@ CG/UI不会被销毁
 #### ScriptConverter
 
 用于转换剧本到导演代码的宏
+
+#### Settings_CLI
+
+使用命令行编辑ini文件，用于批处理，如`ContentGenerator`
+
+| 命令              | 类别   | 说明                             |
+| ----------------- | ------ | -------------------------------- |
+| -f, --fileName    | option | 需要处理的文件                   |
+| -o, --outFileName | option | 输出文件名，未指定则覆盖原始文件 |
+| -s, --section     | option | 节                               |
+| -i, --item        | option | 项                               |
+| -v, --value       | option | 值                               |
+| -u, --unicode     | flag   | 文件为Unicode                    |
 
 ### VSCode
 
