@@ -979,7 +979,9 @@ QuickBar = 1
    3. `localization`
       1. `localization\Localization.dat`
    4. `data`
-      1. `data\Assets\Movies\*.*`
+      1. `data\Assets\`
+         1. `data\Assets\Movies\*.*`
+         2. `data\Assets\Fonts\*.*`
       2. `data\dialogue\*.*`
       3. `data\Graphics`
          1. `data\Graphics\FX\*.*`
