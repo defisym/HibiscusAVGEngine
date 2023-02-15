@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230216
+
+- list character lines
+
 ## 20230213
 
 - show unused files

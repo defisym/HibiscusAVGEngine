@@ -5,10 +5,25 @@ import { InlayHintType, commandInfoList } from './dict';
 import { iterateLines } from './iterateLines';
 import { getAllParams, sleep } from './utilities';
 
+// await iterateScripts((script: string, document: vscode.TextDocument) => { },
+//     (initScript: string,
+//         script: string,
+//         line: string, lineNumber: number,
+//         lineStart: number, lineEnd: number,
+//         firstLineNotComment: number) => { },
+//     (initScript: string,
+//         script: string, lineNumber: number, line: string,
+//         currentType: InlayHintType, currentParam: string) => { });
+
 export async function iterateScripts(
     newScriptCallback: (script: string, document: vscode.TextDocument) => void,
+    lineCallBack: (initScript: string,
+        script: string,
+        line: string, lineNumber: number,
+        lineStart: number, lineEnd: number,
+        firstLineNotComment: number) => void,
     paramCallback: (initScript: string,
-        script: string, lineNumber: number,
+        script: string, lineNumber: number, line: string,
         currentType: InlayHintType, currentParam: string) => void) {
     // get settings
     do {
@@ -39,6 +54,12 @@ export async function iterateScripts(
             iterateLines(document, (text, lineNumber,
                 lineStart, lineEnd,
                 firstLineNotComment) => {
+                lineCallBack(initScript,
+                    script,
+                    text, lineNumber,
+                    lineStart, lineEnd,
+                    firstLineNotComment);
+
                 const params = getAllParams(text);
                 const command = params[0].substring(1);
 
@@ -67,7 +88,7 @@ export async function iterateScripts(
                     }
 
                     paramCallback(initScript,
-                        script, lineNumber,
+                        script, lineNumber, text,
                         currentType, currentParam);
                 }
             });

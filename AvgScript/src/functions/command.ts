@@ -4,7 +4,7 @@ import path = require('path');
 import * as vscode from 'vscode';
 
 import { activeEditor, outputChannel } from '../extension';
-import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
+import { DialogueStruct, currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import { GetDefaultParamInfo, InlayHintType, ParamInfo, ParamTypeMap, commandInfoList, generateList, inlayHintMap, resetList } from '../lib/dict';
 import { iterateScripts } from "../lib/iterateScripts";
 import { FileType, currentLineNotComment } from '../lib/utilities';
@@ -12,8 +12,12 @@ import { assetList_getWebviewContent } from '../webview/assetList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
-import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
+import { iterateParams } from '../lib/iterateParams';
+import { iterateAllLines } from '../lib/iterateLines';
+import { dubList_getWebviewContent, narrator } from '../webview/dubList';
+import { handleOnClickLink } from '../webview/_onClickLink';
 
 // config
 export const confBasePath: string = "conf.AvgScript.basePath";
@@ -38,6 +42,8 @@ export const commandReplaceScript: string = "config.AvgScript.replaceScript";
 export const commandAppendDialogue: string = "config.AvgScript.appendDialogue";
 export const commandShowDialogueFormatHint: string = "config.AvgScript.showDialogueFormatHint";
 export const commandShowHibiscusDocument: string = "config.AvgScript.showHibiscusDocument";
+
+export const commandGetDubList: string = "config.AvgScript.getDubList";
 
 export const commandBasePath_impl = async () => {
     // 1) Getting the value
@@ -229,7 +235,7 @@ export const commandGetAssetsList_impl = async () => {
         let assets = new Map<string, RefInfo>();
         let unusedFileList = projectFileInfoList.keyToArray();
 
-        await iterateScripts(
+        await iterateParams(
             (script: string, document: vscode.TextDocument) => { },
             (initScript: string
                 , script: string, lineNumber: number
@@ -393,7 +399,7 @@ export const commandShowJumpFlow_impl = async () => {
         let jumpTable: [NodeInfo, number][] = [];
         let curLabelJumpMap: Map<string, number>;
 
-        await iterateScripts(
+        await iterateParams(
             (script: string, document: vscode.TextDocument) => {
                 curLabelJumpMap = getLabelJumpMap(document);
             },
@@ -638,4 +644,111 @@ export const commandShowHibiscusDocument_impl = async () => {
     await vscode.commands.executeCommand("markdown.showPreviewToSide", uri);
 
     return;
+};
+
+export let dubListPanel: vscode.WebviewPanel;
+export interface DubInfo {
+    dialogueStruct: DialogueStruct;
+    script: string;
+    line: number;
+
+    uri: vscode.Uri;
+    webUri: vscode.Uri;
+};
+
+export const commandGetDubList_impl = async () => {
+    vscode.window.withProgress({
+        // location: vscode.ProgressLocation.Notification,
+        location: vscode.ProgressLocation.Window,
+        title: "Generating assets list...\t",
+        cancellable: false
+    }, async (progress, token) => {
+        // close old ones
+        progress.report({ increment: 0, message: "Closing tab..." });
+
+        if (dubListPanel !== undefined) {
+            dubListPanel.dispose();
+        }
+
+        dubListPanel = vscode.window.createWebviewPanel(
+            'DubList', // Identifies the type of the webview. Used internally
+            'Dub List', // Title of the panel displayed to the user
+            vscode.ViewColumn.Active, // Editor column to show the new webview panel in.
+            {
+                enableScripts: true
+                , enableForms: true
+                , enableCommandUris: true
+                , localResourceRoots: [vscode.Uri.file(basePath)]
+            } // Webview options. More on these later.
+        );
+
+        // generate ref list
+        progress.report({ increment: 80, message: "Parsing scripts..." });
+
+        let dubMap = new Map<string, DubInfo[]>();
+
+        await iterateScripts(
+            (script: string, document: vscode.TextDocument) => { },
+            (initScript: string,
+                script: string,
+                line: string, lineNumber: number,
+                lineStart: number, lineEnd: number,
+                firstLineNotComment: number) => {
+                if (!currentLineDialogue(line)) {
+                    return;
+                }
+
+                const dialogueStruct = parseDialogue(line.toLocaleLowerCase(), line);
+                let name = dialogueStruct.m_namePart;
+
+                if (name.empty()) {
+                    name = narrator;
+                }
+
+                let dubInfo = dubMap.get(name);
+
+                if (dubInfo === undefined) {
+                    dubMap.set(name, []);
+                    dubInfo = dubMap.get(name);
+                }
+
+                if (dubInfo === undefined) {
+                    return;
+                }
+
+                let fileName = getFullFileNameByType(FileType.script, script);
+
+                if (fileName === undefined) {
+                    return;
+                }
+
+                dubInfo.push({
+                    dialogueStruct: dialogueStruct,
+                    script: script,
+                    line: lineNumber,
+
+                    uri: vscode.Uri.file(fileName),
+                    webUri: dubListPanel.webview.asWebviewUri(vscode.Uri.file(fileName)),
+                });
+            },
+            (initScript: string
+                , script: string, lineNumber: number, line: string
+                , currentType: InlayHintType, currentParam: string) => { });
+
+        // update display
+        progress.report({ increment: 10, message: "Creating scripts..." });
+
+        // And set its HTML content
+        progress.report({ increment: 10, message: "Generating webview..." });
+        dubListPanel.webview.html = dubList_getWebviewContent(dubMap);
+
+        dubListPanel.webview.onDidReceiveMessage(async (message: any) => {
+            handleOnClickLink(message);
+        });
+
+        // done
+        progress.report({ increment: 0, message: "Done" });
+
+        return;
+    });
 };

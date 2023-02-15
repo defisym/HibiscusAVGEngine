@@ -340,6 +340,13 @@
                 "title": "Show Hibiscus Document",
                 "icon": "media/AvgScript.png",
                 "shortTitle": "Document"
+            },
+            {
+                "category": "AvgScript",
+                "command": "config.AvgScript.getDubList",
+                "title": "List lines of characters",
+                "icon": "media/AvgScript.png",
+                "shortTitle": "Dub List"
             }
         ],
         "menus": {
@@ -379,6 +386,10 @@
                 {
                     "command": "config.AvgScript.showHibiscusDocument",
                     "when": "editorLangId == AvgScript"
+                },
+                {
+                    "command": "config.AvgScript.getDubList",
+                    "when": "editorLangId == AvgScript"
                 }
             ],
             "editor/context": [
@@ -406,6 +417,11 @@
                 {
                     "group": "AvgScript.3_assets",
                     "command": "config.AvgScript.getAssetsList",
+                    "when": "editorLangId == AvgScript"
+                },
+                {
+                    "group": "AvgScript.3_assets",
+                    "command": "config.AvgScript.getDubList",
                     "when": "editorLangId == AvgScript"
                 },
                 {

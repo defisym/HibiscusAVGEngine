@@ -1,4 +1,7 @@
 import * as vscode from 'vscode';
+import { iterateScripts } from './iterateScripts';
+import { InlayHintType } from './dict';
+import { callbackify } from 'util';
 
 export interface LineInfo {
     emptyLine: boolean,
@@ -142,3 +145,21 @@ export function iterateLines(document: vscode.TextDocument,
         }
     });
 }
+
+export async function iterateAllLines(callBack: (text: string, lineNum: number,
+    lineStart: number, lineEnd: number,
+    firstLineNotComment: number) => void) {
+    await iterateScripts((script: string, document: vscode.TextDocument) => { },
+        (initScript: string,
+            script: string,
+            line: string, lineNumber: number,
+            lineStart: number, lineEnd: number,
+            firstLineNotComment: number) => {
+            callBack(line, lineNumber,
+                lineStart, lineEnd,
+                firstLineNotComment);
+        },
+        (initScript: string,
+            script: string, lineNumber: number, line: string,
+            currentType: InlayHintType, currentParam: string) => { });
+};
