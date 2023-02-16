@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230217
+
+- quick jump for list character lines & asset list
+
 ## 20230216
 
 - list character lines

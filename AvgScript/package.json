@@ -311,7 +311,8 @@
                 "command": "config.AvgScript.showJumpFlow",
                 "title": "Show the jump flow in project",
                 "icon": "media/AvgScript.png",
-                "shortTitle": "Jump Flow"
+                "shortTitle": "Jump Flow",
+                "enablement": "false"
             },
             {
                 "category": "AvgScript",

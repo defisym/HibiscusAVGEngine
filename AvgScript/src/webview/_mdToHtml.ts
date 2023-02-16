@@ -21,3 +21,7 @@ export function markDown_getMarkDownLevel(level: number = 1) {
 export function markDown_getLink(text: string, link: string) {
     return '[' + text + ']' + '(' + link + ')';
 }
+
+export function markDown_linkEscape(text: string) {
+    return text.replace(/[\:,\s]+/gi, '-').replace(/[\\[\]<>`]+/gi, '');
+}

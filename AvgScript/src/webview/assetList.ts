@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import * as vscode from 'vscode';
+
 import { RefInfo } from "../functions/command";
-import { nonePreview } from "../functions/file";
+import { getFullFileNameByType, nonePreview } from "../functions/file";
 import { FileType, fileTypeMap } from "../lib/utilities";
+import { html_getHyperLink } from "./_hyperLink";
+import { onClickLinkScript } from "./_onClickLink";
 
 export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unusedFileList: string[]) {
     const pageTemplate = `<!DOCTYPE html>
@@ -16,9 +20,9 @@ export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unused
                         
                         <body>
                         {$BODY}
-                        </body>
-                        
-                        </html>`;
+                        </body>`
+        + onClickLinkScript
+        + `</html>`;
 
 
     const tableTemplate = `<!-- <h4>Script: </h4> -->
@@ -52,8 +56,11 @@ export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unused
 
         let fileName = value.fileExist
             ? key
-            // ? `<a href="` + value.webUri + `">` + key + `</a>`
-            : `<font color="red"><b>` + key + `</b></font>`;
+            :
+            // `<a href="` + value.webUri + `">` +
+            `<font color="red"><b>` + key + `</b></font>`
+            // + `</a>`
+            ;
 
         line = line.replace('{$FileName}', fileName);
 
@@ -109,10 +116,26 @@ export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unused
         let usedAt = '';
 
         value.refScript.forEach((lineNumbers: number[], script: string) => {
-            usedAt += 'File: ' + script + ', line: ';
+
+            let scriptFileName = getFullFileNameByType(FileType.script, script);
+            const scriptUri = scriptFileName === undefined
+                ? undefined
+                : vscode.Uri.file(scriptFileName).toString();
+
+            usedAt += 'File: '
+                + (scriptUri === undefined
+                    ? script
+                    : html_getHyperLink(script, scriptUri.toString()))
+                + ', line: ';
 
             for (let lineNumber of lineNumbers) {
-                usedAt += (lineNumber + 1).toString() + ', ';
+                // usedAt += (lineNumber + 1).toString() + ', ';
+                const lineNumberString = (lineNumber + 1).toString();
+                usedAt += (scriptUri === undefined
+                    ? lineNumberString
+                    : html_getHyperLink(lineNumberString
+                        , scriptUri.toString() + '#' + lineNumber.toString()))
+                    + ', ';
             }
 
             usedAt = usedAt.substring(0, usedAt.length - 2);

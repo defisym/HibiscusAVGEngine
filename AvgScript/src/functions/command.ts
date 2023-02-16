@@ -220,7 +220,7 @@ export const commandGetAssetsList_impl = async () => {
         assetsListPanel = vscode.window.createWebviewPanel(
             'AssetList', // Identifies the type of the webview. Used internally
             'Asset List', // Title of the panel displayed to the user
-            vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
+            vscode.ViewColumn.Active, // Editor column to show the new webview panel in.
             {
                 enableScripts: true
                 , enableForms: true
@@ -338,6 +338,11 @@ export const commandGetAssetsList_impl = async () => {
         progress.report({ increment: 10, message: "Generating webview..." });
         assetsListPanel.webview.html = assetList_getWebviewContent(assets, unusedFileList);
 
+        assetsListPanel.webview.onDidReceiveMessage(async (message: any) => {
+            assetsListPanel.reveal();
+            handleOnClickLink(message);
+        });
+
         outputChannel.clear();
         outputChannel.show();
 
@@ -383,7 +388,7 @@ export const commandShowJumpFlow_impl = async () => {
         jumpFlowPanel = vscode.window.createWebviewPanel(
             'JumpFlow', // Identifies the type of the webview. Used internally
             'Jump Flow', // Title of the panel displayed to the user
-            vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
+            vscode.ViewColumn.Active, // Editor column to show the new webview panel in.
             {
                 enableScripts: true
                 , enableForms: true
@@ -657,6 +662,8 @@ export interface DubInfo {
 };
 
 export const commandGetDubList_impl = async () => {
+    await waitForFileListInit();
+
     vscode.window.withProgress({
         // location: vscode.ProgressLocation.Notification,
         location: vscode.ProgressLocation.Window,
@@ -743,6 +750,7 @@ export const commandGetDubList_impl = async () => {
         dubListPanel.webview.html = dubList_getWebviewContent(dubMap);
 
         dubListPanel.webview.onDidReceiveMessage(async (message: any) => {
+            dubListPanel.reveal();
             handleOnClickLink(message);
         });
 
