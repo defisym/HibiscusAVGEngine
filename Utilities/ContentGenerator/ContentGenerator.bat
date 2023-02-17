@@ -165,7 +165,7 @@ rem Build Content
 @REM %SteamCMDPath% +login %SteamUser% %SteamPassword% %SteamGuard% +run_app_build %ScriptPath% +quit
 @REM %SteamCMDPath% +login %SteamUser% %SteamPassword% %SteamGuard% +drm_wrap %APPID% "%curPath%\%AppName%.exe" "%ContentPath%\%AppName%.exe" drmtoolp 0 +run_app_build %ScriptPath% +quit
 
-@echo Login & DRM...
+@echo Login + DRM...
 @REM %SteamCMDPath% +login %SteamUser% %SteamPassword% %SteamGuard% 
 %SteamCMDPath% +login %SteamUser% %SteamPassword% +drm_wrap %APPID% "%ContentPath%\%AppName%.exe" "%ContentPath%\%AppName%.exe" drmtoolp 0 +quit
 
@@ -189,7 +189,7 @@ for /f "usebackq" %%a in (`%Encrypter_CLI% -f "%ContentPath%\%AppName%.exe" --ha
 
 @REM @Pause
 
-@echo Login & Building New Content...
+@echo Login + Building New Content...
 @REM %SteamCMDPath% +run_app_build %ScriptPath% +quit
 %SteamCMDPath% +login %SteamUser% %SteamPassword% +run_app_build %ScriptPath% +quit
 
