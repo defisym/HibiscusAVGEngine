@@ -74,7 +74,7 @@ for /r "%ContentPath%" %%F in (*.001) do (
 	del "%%F" /f /s /q	
 )
 
-rmdir /s /q "%ContentPath%\data\Assets\_MFAs\"
+rmdir /s /q "%ContentPath%\data\_MFAs\"
 
 for /r "%ContentPath%\data\Assets\__Movies" %%F in (*.*) do (
 	del "%%F" /f /s /q	
