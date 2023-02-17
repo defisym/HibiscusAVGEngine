@@ -2,9 +2,13 @@
 
 ## 20230217
 
-- quick jump for list character lines & asset list
+- keep webview panel context & enable find widget
 
 ## 20230216
+
+- quick jump for list character lines & asset list
+
+## 20230215
 
 - list character lines
 

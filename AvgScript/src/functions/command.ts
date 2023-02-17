@@ -18,6 +18,7 @@ import { iterateParams } from '../lib/iterateParams';
 import { iterateAllLines } from '../lib/iterateLines';
 import { dubList_getWebviewContent, narrator } from '../webview/dubList';
 import { handleOnClickLink } from '../webview/_onClickLink';
+import { createWebviewPanel } from '../webview/_create';
 
 // config
 export const confBasePath: string = "conf.AvgScript.basePath";
@@ -217,17 +218,7 @@ export const commandGetAssetsList_impl = async () => {
             assetsListPanel.dispose();
         }
 
-        assetsListPanel = vscode.window.createWebviewPanel(
-            'AssetList', // Identifies the type of the webview. Used internally
-            'Asset List', // Title of the panel displayed to the user
-            vscode.ViewColumn.Active, // Editor column to show the new webview panel in.
-            {
-                enableScripts: true
-                , enableForms: true
-                , enableCommandUris: true
-                , localResourceRoots: [vscode.Uri.file(basePath)]
-            } // Webview options. More on these later.
-        );
+        assetsListPanel = createWebviewPanel('AssetList', 'Asset List', vscode.ViewColumn.Active);
 
         // generate ref list
         progress.report({ increment: 80, message: "Parsing scripts..." });
@@ -385,17 +376,7 @@ export const commandShowJumpFlow_impl = async () => {
             jumpFlowPanel.dispose();
         }
 
-        jumpFlowPanel = vscode.window.createWebviewPanel(
-            'JumpFlow', // Identifies the type of the webview. Used internally
-            'Jump Flow', // Title of the panel displayed to the user
-            vscode.ViewColumn.Active, // Editor column to show the new webview panel in.
-            {
-                enableScripts: true
-                , enableForms: true
-                , enableCommandUris: true
-                , localResourceRoots: [vscode.Uri.file(basePath)]
-            } // Webview options. More on these later.
-        );
+        jumpFlowPanel = createWebviewPanel('JumpFlow', 'Jump Flow', vscode.ViewColumn.Active);
 
         // generate jump flow
         progress.report({ increment: 80, message: "Parsing scripts..." });
@@ -619,17 +600,7 @@ export const commandShowDialogueFormatHint_impl = async () => {
         formatHintPanel.dispose();
     }
 
-    formatHintPanel = vscode.window.createWebviewPanel(
-        'FormatHint', // Identifies the type of the webview. Used internally
-        'Format Hint', // Title of the panel displayed to the user
-        vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
-        {
-            enableScripts: true
-            , enableForms: true
-            , enableCommandUris: true
-            , localResourceRoots: [vscode.Uri.file(basePath)]
-        } // Webview options. More on these later.
-    );
+    formatHintPanel = createWebviewPanel('FormatHint', 'Format Hint', vscode.ViewColumn.Beside);
 
     formatHintPanel.webview.html = formatHint_getFormatControlContent();
 };
@@ -677,17 +648,7 @@ export const commandGetDubList_impl = async () => {
             dubListPanel.dispose();
         }
 
-        dubListPanel = vscode.window.createWebviewPanel(
-            'DubList', // Identifies the type of the webview. Used internally
-            'Dub List', // Title of the panel displayed to the user
-            vscode.ViewColumn.Active, // Editor column to show the new webview panel in.
-            {
-                enableScripts: true
-                , enableForms: true
-                , enableCommandUris: true
-                , localResourceRoots: [vscode.Uri.file(basePath)]
-            } // Webview options. More on these later.
-        );
+        dubListPanel = createWebviewPanel('DubList', 'Dub List', vscode.ViewColumn.Active);
 
         // generate ref list
         progress.report({ increment: 80, message: "Parsing scripts..." });

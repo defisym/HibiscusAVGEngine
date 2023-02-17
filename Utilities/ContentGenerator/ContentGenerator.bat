@@ -33,12 +33,16 @@ rmdir /s /q "%ContentPath%\%AppName%_Text\"
 rem Update Content
 xcopy "%curPath%\data\*.*" "%ContentPath%\data\" /s /e
 xcopy "%curPath%\savings\_Sys\*.*" "%ContentPath%\savings\_Sys\" /s /e
+
 echo f | xcopy "%curPath%\settings\settings_Template.ini" "%ContentPath%\settings\settings.ini" /s /e
 echo f | xcopy "%curPath%\settings\settings_Template.ini" "%ContentPath%\settings\settings_Template.ini" /s /e
+echo f | xcopy "%curPath%\settings\settings_Dynamic.ini" "%ContentPath%\settings\settings_Dynamic.ini" /s /e
+
 echo f | xcopy "%curPath%\savings\_Global\_GlobalProgress_Template" "%ContentPath%\savings\_Global\_GlobalProgress" /s /e
 echo f | xcopy "%curPath%\savings\_Global\Appreciation_Definition_Template" "%ContentPath%\savings\_Global\Appreciation_Definition" /s /e
 echo f | xcopy "%curPath%\savings\_Global\Appreciation_Progress_Template" "%ContentPath%\savings\_Global\Appreciation_Progress" /s /e
 echo f | xcopy "%curPath%\savings\_Global\Data_Template.sav" "%ContentPath%\savings\_Global\Data_Template.sav" /s /e
+
 xcopy "%curPath%\Modules\*.*" "%ContentPath%\Modules\" /s /e
 xcopy "%curPath%\localization\*.*" "%ContentPath%\localization\" /s /e
 
@@ -186,6 +190,7 @@ for /f "usebackq" %%a in (`%Encrypter_CLI% -f "%ContentPath%\%AppName%.exe" --ha
 
 %Encrypter_CLI% -f "%ContentPath%\settings\settings.ini" --encrypt --key %Encrypter_Key%
 %Encrypter_CLI% -f "%ContentPath%\settings\settings_Template.ini" --encrypt --key %Encrypter_Key%
+%Encrypter_CLI% -f "%ContentPath%\settings\settings_Dynamic.ini" --encrypt --key %Encrypter_Key%
 
 @REM @Pause
 
