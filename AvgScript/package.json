@@ -180,6 +180,10 @@
                                     "type": "boolean",
                                     "description": "outline keyword"
                                 },
+                                "treatAsOneParam": {
+                                    "type": "boolean",
+                                    "description": "Treat as one param"
+                                },
                                 "internal": {
                                     "type": "boolean",
                                     "description": "Internal command"

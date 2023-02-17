@@ -212,10 +212,14 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
             const paramNumMin = paramDefinition.minParam;
             const paramNumMax = paramDefinition.maxParam;
 
+            const treatAsOneParam = paramDefinition.treatAsOneParam === undefined
+                ? false
+                : paramDefinition.treatAsOneParam;
+
             let curLinePrefix = params[0];
 
             for (let j = 1; j < params.length; j++) {
-                if (j > paramNumMax) {
+                if (!treatAsOneParam && j > paramNumMax) {
                     diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, lineEnd)
                         , "Too Many Params"
                         , vscode.DiagnosticSeverity.Warning));

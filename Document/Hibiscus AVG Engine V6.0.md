@@ -1008,6 +1008,10 @@ QuickBar = 1
 - 禁用所有按钮
 - 隐藏UI
 
+#### `#Eval=CommandToEval`
+
+执行`CommandToEval`
+
 #### `#EOF`
 
 文件尾标志，普通模式下解析到该指令即返回报错信息`脚本文件结尾必须为有效跳转`，`Lite`模式下则为执行完成标记
@@ -2166,6 +2170,10 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 设定当前视频循环播放，若`LoopTransition = 1`，则会在循环结束时叠化至视频开头，适用于视频本身非无缝循环的场合
 
+##### `@VideoFinish=CommandToExecute`
+
+在视频播放结束后调用`#Eval=CommandToExecute`以执行特定命令
+
 ##### `@SVP=StartPos`
 
 同义指令
@@ -2173,6 +2181,12 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 - `@SetVideoPos=StartPos`
 
 设置视频位置
+
+##### `@IgnoreStaticVideo=On/Off`
+
+忽略设置中的`StaticVideo`
+
+不影响使用替换表达式获取设置中`StaticVideo`的值
 
 ##### `@VideoCache=FilePath`
 
@@ -2713,6 +2727,12 @@ CG/UI不会被销毁
 若目标角度设定为360度，旋转0圈，将持续旋转
 
 该指令不可与立绘叠化同时使用
+
+##### `@CharBlur=ID:Radius`
+
+为角色创建模糊效果
+
+会在库中缓存访问文件名为`RelativePath_Blur_Radius`的文件
 
 ##### `@SetAutoArrange=On/Off`
 

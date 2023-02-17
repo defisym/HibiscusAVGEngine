@@ -405,6 +405,8 @@ export enum InlayHintType {
     DubChapterName,
     KeepSeq,
     KeepNTK,
+    CommandToEval,
+    BlurRadius,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -497,6 +499,8 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.DubChapterName, "语音章节名"],
     [InlayHintType.KeepSeq, "保持序列状态"],
     [InlayHintType.KeepNTK, "保持语音指针"],
+    [InlayHintType.CommandToEval, "执行指令"],
+    [InlayHintType.BlurRadius, "模糊半径"],
 ]);
 
 export interface ParamInfo {
@@ -511,6 +515,7 @@ export interface ParamInfo {
     outlineKeyword?: boolean;
 
     // diagnostic
+    treatAsOneParam?: boolean;
     internal?: boolean;
     deprecated?: boolean;
     VNModeOnly?: boolean;
@@ -537,6 +542,7 @@ export function GetDefaultParamInfo(): ParamInfo {
         outlineKeyword: undefined,
 
         // diagnostic
+        treatAsOneParam:undefined,
         internal: undefined,
         deprecated: undefined,
         VNModeOnly: undefined,
@@ -785,6 +791,16 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , minParam: 0, maxParam: 0
         , description: ["关闭强制无叠化"]
         , type: []
+    }],
+
+    ["Eval", {
+        prefix: "#"
+        , minParam: 1, maxParam: 1
+        , description: ["\t#Eval=CommandToEval"
+            , "执行`CommandToEval"]
+        , type: [ParamType.String]
+        , inlayHintType: [InlayHintType.CommandToEval]
+        ,treatAsOneParam:true
     }],
 
     ["EOF", {
@@ -2170,6 +2186,15 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.ZeroOne]
         , inlayHintType: [InlayHintType.LoopTransition]
     }],
+    ["VideoFinish", {
+        prefix: "@"
+        , minParam: 1, maxParam: 1
+        , description: ["\t@VideoFinish=CommandToExecute"
+            , "在视频播放结束后调用`#Eval=CommandToExecute`以执行特定命令"]
+        , type: [ParamType.String]
+        , inlayHintType: [InlayHintType.CommandToEval]
+        ,treatAsOneParam:true
+    }],
     ["SVP", {
         prefix: "@"
         , minParam: 1, maxParam: 1
@@ -2187,6 +2212,15 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "设置视频位置"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.StartPoint]
+    }],
+    ["IgnoreStaticVideo", {
+        prefix: "@"
+        , minParam: 0, maxParam: 1
+        , description: ["\t@IgnoreStaticVideo=On/Off"
+            , "忽略设置中的`StaticVideo`"
+            , "不影响使用替换表达式获取设置中`StaticVideo`的值"]
+        , type: [ParamType.Boolean]
+        , inlayHintType: [InlayHintType.Boolean]
     }],
     ["VideoCache", {
         prefix: "@"
@@ -2999,6 +3033,16 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam
             , InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam
             , InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam]
+    }],
+
+    ["CharBlur", {
+        prefix: "@"
+        , minParam: 2, maxParam: 2
+        , description: ["\t@CharBlur=ID:Radius"
+            , "为角色创建模糊效果"
+            , "会在库中缓存访问文件名为`RelativePath_Blur_Radius`的文件"]
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.ID, InlayHintType.BlurRadius]
     }],
 
     ["SetAutoArrange", {
