@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230218
+
+- extra info for inlayHint
+
 ## 20230217
 
 - keep webview panel context & enable find widget

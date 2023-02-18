@@ -7,6 +7,7 @@ import { regexHexColor, regexRep } from '../lib/regExp';
 import { fileExists, FileType, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
 import { currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
+import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
 
@@ -475,6 +476,17 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                         break;
                     }
 
+                }
+
+                if (currentHintType !== undefined) {
+                    const extraInlayHintInfo = getExtraInlayHintInfo(currentHintType, curParam);
+
+                    if (extraInlayHintInfo !== undefined 
+                        && extraInlayHintInfo === extraInlayHintInfoInvalid) {
+                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+                            , "Invalid Param"
+                            , vscode.DiagnosticSeverity.Error));
+                    }
                 }
 
                 contentStart += curParam.length;
