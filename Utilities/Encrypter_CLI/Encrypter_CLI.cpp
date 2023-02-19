@@ -14,9 +14,9 @@ enum class Operation {
 	Hash,
 };
 
-// -f "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道.png" -o "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E.png" -e -k 12345678ABCDEFGH
-// -f "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E.png" -o "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E_D.png" -e -k 12345678ABCDEFGH
-// -f "F:\DEV\HibisucsAVGEngine\Utilities\Encrypter_CLI\Debug\街道.png" --hash
+// -f "F:\DEV\HibiscusAVGEngine\Utilities\Encrypter_CLI\Debug\街道.png" -o "F:\DEV\HibiscusAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E.png" -e -k 12345678ABCDEFGH
+// -f "F:\DEV\HibiscusAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E.png" -o "F:\DEV\HibiscusAVGEngine\Utilities\Encrypter_CLI\Debug\街道_E_D.png" -d -k 12345678ABCDEFGH
+// -f "F:\DEV\HibiscusAVGEngine\Utilities\Encrypter_CLI\Debug\街道.png" --hash
 
 // -f "F:\DEV\Mobius\SteamWorks\_Content\MOBIUS BAND\data\dialogue\__Old\0104_第一章_日常•妹妹.asc" -e -k 12345678ABCDEFGH
 
@@ -28,7 +28,9 @@ int main(int argc, char** argv) {
 	std::string inFilePath = "";
 	std::string outFilePath = "";
 	std::string key = "";
+
 	bool operationFlags[3] = { false };
+	bool bLocal = false;
 
 	Operation operation = Operation::Encrypt;
 	
@@ -100,11 +102,20 @@ int main(int argc, char** argv) {
 			: ConvertStrToWStr(outFilePath);
 
 		Encrypt.GenerateKey(wKey.c_str());
-		Encrypt.OpenFile(wFilePath.c_str());
 
-		auto ret = encrypt
-			? Encrypt.Encrypt()
-			: Encrypt.Decrypt();
+//#define Use_DecryDirecetly
+
+#ifdef Use_DecryDirecetly
+		auto ret =
+			encrypt
+			? Encrypt.EncryptFileDirectly(wFilePath.c_str())
+			: Encrypt.DecryptFileDirectly(wFilePath.c_str());
+#else
+		auto ret =
+			encrypt
+			? Encrypt.EncryptFile(wFilePath.c_str())
+			: Encrypt.DecryptFile(wFilePath.c_str());
+#endif 
 
 		if (!ret) {
 			std::cout << std::format("{} operation failed, file {}\n"
