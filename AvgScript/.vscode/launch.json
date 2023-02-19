@@ -4,19 +4,19 @@
 // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 {
 	"version": "0.2.0",
-    "configurations": [
+	"configurations": [
 		// only run host
 		{
-            "name": "Grammar",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}"
-            ]
-        },
+			"name": "Grammar",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			]
+		},
 		// compile, faster
-        {
+		{
 			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
@@ -33,7 +33,7 @@
 			"name": "Run WebPack",
 			"type": "extensionHost",
 			"request": "launch",
-            "runtimeExecutable": "${execPath}",
+			"runtimeExecutable": "${execPath}",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
 			],
@@ -41,6 +41,13 @@
 				"${workspaceFolder}/dist/**/*.js"
 			],
 			"preLaunchTask": "npm: webpack"
+		},
+		// https://stackoverflow.com/questions/41396922/how-to-debug-webpack-config-js-file
+		{
+			"name": "WebPack Config",
+			"type": "node",
+			"request": "attach",
+			"port": 5858
 		}
-    ]
+	]
 }

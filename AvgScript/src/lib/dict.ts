@@ -143,7 +143,7 @@ export const normalTextDoc = `
 
 ### 文本
 
-可使用\`/n\`作为换行的转义字符
+可使用\`/n\`或\`\\n\`作为换行的转义字符
 
 支持格式控制
 
@@ -542,7 +542,7 @@ export function GetDefaultParamInfo(): ParamInfo {
         outlineKeyword: undefined,
 
         // diagnostic
-        treatAsOneParam:undefined,
+        treatAsOneParam: undefined,
         internal: undefined,
         deprecated: undefined,
         VNModeOnly: undefined,
@@ -800,7 +800,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "执行`CommandToEval"]
         , type: [ParamType.String]
         , inlayHintType: [InlayHintType.CommandToEval]
-        ,treatAsOneParam:true
+        , treatAsOneParam: true
     }],
 
     ["EOF", {
@@ -2193,7 +2193,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "在视频播放结束后调用`#Eval=CommandToExecute`以执行特定命令"]
         , type: [ParamType.String]
         , inlayHintType: [InlayHintType.CommandToEval]
-        ,treatAsOneParam:true
+        , treatAsOneParam: true
     }],
     ["SVP", {
         prefix: "@"

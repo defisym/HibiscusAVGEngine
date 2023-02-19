@@ -486,7 +486,7 @@
         "onCommand:config.AvgScript.showDialogueFormatHint"
     ],
     "scripts": {
-        "vscode:prepublish": "npm run package",
+        "vscode:prepublish": "set NODE_ENV=production&&npm run package",
         "webpack": "webpack --mode development",
         "webpack-dev": "webpack --mode development --watch",
         "package": "webpack --mode production --devtool hidden-source-map",
