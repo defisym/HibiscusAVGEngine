@@ -30,7 +30,9 @@ int main(int argc, char** argv) {
 	std::string key = "";
 
 	bool operationFlags[3] = { false };
-	bool bLocal = false;
+	
+	DWORD bufSz = BUFFER_SIZE;
+	bool bTime = false;
 
 	Operation operation = Operation::Encrypt;
 	
@@ -42,6 +44,8 @@ int main(int argc, char** argv) {
 			->ignore_case();
 		app.add_option("-k, --key", key)
 			->ignore_case();
+		app.add_option("--bufferSize", bufSz)
+			->ignore_case();
 
 		app.add_flag("-e, --encrypt", operationFlags[0])
 			->ignore_case();
@@ -50,6 +54,8 @@ int main(int argc, char** argv) {
 		// -h is used as help
 		app.add_flag("--hash", operationFlags[2])
 			->ignore_case();
+		//app.add_flag("--Time",bTime)
+		//	->ignore_case();
 	}
 	catch (const CLI::ConstructionError& e) {
 		std::cout << e.get_name() << std::endl;
@@ -103,9 +109,11 @@ int main(int argc, char** argv) {
 
 		Encrypt.GenerateKey(wKey.c_str());
 
-//#define Use_DecryDirecetly
+//#define USE_PROCESS_DIRECTLY
 
-#ifdef Use_DecryDirecetly
+#ifdef USE_PROCESS_DIRECTLY
+		Encrypt.SetBufferSize(bufSz);
+				
 		auto ret =
 			encrypt
 			? Encrypt.EncryptFileDirectly(wFilePath.c_str())
