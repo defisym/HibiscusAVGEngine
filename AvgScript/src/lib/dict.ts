@@ -2,6 +2,8 @@
 
 import * as vscode from 'vscode';
 import { sleep } from './utilities';
+import { easing_inlayHintAddition_funcName, easing_inlayHintAddition_modeName } from './easing';
+import { align_objectType, align_objectTypeMap } from './align';
 
 
 export let sharpKeywordList: string[] = [];
@@ -407,6 +409,9 @@ export enum InlayHintType {
     KeepNTK,
     CommandToEval,
     BlurRadius,
+    Align,
+    SpaceType,
+    Space,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -501,15 +506,21 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.KeepNTK, "保持语音指针"],
     [InlayHintType.CommandToEval, "执行指令"],
     [InlayHintType.BlurRadius, "模糊半径"],
+    [InlayHintType.Align, "对齐方式"],
+    [InlayHintType.SpaceType, "间距类型"],
+    [InlayHintType.Space, "间距"],
 ]);
 
 export interface ParamInfo {
+    // basic
     prefix: string;
     minParam: number;
     maxParam: number;
     description: string[];
     type: ParamType[];
+    required?: (string[] | undefined)[];
     inlayHintType?: number[];
+    inlayHintAddition?: (Map<string, string> | undefined)[];
 
     // outline
     outlineKeyword?: boolean;
@@ -531,12 +542,15 @@ export interface ParamInfo {
 // default
 export function GetDefaultParamInfo(): ParamInfo {
     return {
+        // basic
         prefix: '',
         minParam: 0,
         maxParam: 0,
         description: [],
         type: [],
+        required: undefined,
         inlayHintType: undefined,
+        inlayHintAddition: undefined,
 
         // outline
         outlineKeyword: undefined,
@@ -557,7 +571,7 @@ export function GetDefaultParamInfo(): ParamInfo {
 };
 
 // base list
-export let commandInfoBaseList = new Map<string, ParamInfo>([
+export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
     //----------
     // Sharp
     //----------
@@ -628,15 +642,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.XOffset, InlayHintType.YOffset]
     }],
-    ["SetGlobalOffset", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#SGO=XOffset:YOffset"
-            , "\t#SetGlobalOffset=XOffset:YOffset"
-            , "设定演出对象的全局偏移量，特效、UI与字符串对象不受影响"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.XOffset, InlayHintType.YOffset]
-    }],
+    ["SetGlobalOffset", undefined],
     ["TransitionSpeed", {
         prefix: "#"
         , minParam: 1, maxParam: 1
@@ -723,16 +729,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , outlineKeyword: true
         , emptyLineBefore: true
     }],
-    ["StopFastForward", {
-        prefix: "#"
-        , minParam: 0, maxParam: 1
-        , description: ["\t#StopFF=IgnoreDebug"
-            , "解析至该语句后，快进将会在下一句文本处停止"
-            , "默认仅调试模式下可用，`IgnoreDebug`为`1`时在通常模式下也可用"]
-        , type: [ParamType.ZeroOne]
-        , inlayHintType: [InlayHintType.IgnoreDebug]
-        , outlineKeyword: true
-    }],
+    ["StopFastForward", undefined],
     ["DisableUI", {
         prefix: "#"
         , minParam: 0, maxParam: 0
@@ -773,12 +770,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , description: ["强制无叠化，强制无叠化状态在解析到文本后重置为关闭"]
         , type: []
     }],
-    ["ForceNoTransition", {
-        prefix: "#"
-        , minParam: 0, maxParam: 0
-        , description: ["强制无叠化，强制无叠化状态在解析到文本后重置为关闭"]
-        , type: []
-    }],
+    ["ForceNoTransition", undefined],
 
     ["FNTO", {
         prefix: "#"
@@ -786,12 +778,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , description: ["关闭强制无叠化"]
         , type: []
     }],
-    ["ForceNoTransitionOff", {
-        prefix: "#"
-        , minParam: 0, maxParam: 0
-        , description: ["关闭强制无叠化"]
-        , type: []
-    }],
+    ["ForceNoTransitionOff", undefined],
 
     ["Eval", {
         prefix: "#"
@@ -831,18 +818,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , inlayHintType: [InlayHintType.WaitTime]
         , emptyLineAfter: true
     }],
-    ["Wait", {
-        prefix: "#"
-        , minParam: 0, maxParam: 1
-        , description: ["\t#W=2000"
-            , "\t#Wait=2000"
-            , "等待指令:等待时间"
-            , "等待指令只对**交叠淡化**有效"
-            , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.WaitTime]
-        , emptyLineAfter: true
-    }],
+    ["Wait", undefined],
 
     ["FW", {
         prefix: "#"
@@ -856,18 +832,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , inlayHintType: [InlayHintType.WaitTime]
         , emptyLineAfter: true
     }],
-    ["ForceWait", {
-        prefix: "#"
-        , minParam: 0, maxParam: 1
-        , description: ["\t#FW=2000"
-            , "\t#ForceWait=2000"
-            , "强制等待指令:等待时间"
-            , "强制等待指令对**移动旋转、BGM淡出淡出**等有效"
-            , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.WaitTime]
-        , emptyLineAfter: true
-    }],
+    ["ForceWait", undefined],
     ["AutoChangePage", {
         prefix: "#"
         , minParam: 0, maxParam: 1
@@ -941,16 +906,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , inlayHintType: [InlayHintType.Frame]
         , outlineKeyword: true
     }],
-    ["JmpFra", {
-        prefix: "#"
-        , minParam: 1, maxParam: 1
-        , description: ["\t#FJMP=TargetFrame"
-            , "\t#JmpFra=TargetFrame"
-            , "跨场景跳转，跳转到场景`TargetFrame`，仅接受数字参数"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.Frame]
-        , outlineKeyword: true
-    }],
+    ["JmpFra", undefined],
 
     ["CJMP", {
         prefix: "#"
@@ -962,16 +918,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , inlayHintType: [InlayHintType.Chapter]
         , outlineKeyword: true
     }],
-    ["JmpCha", {
-        prefix: "#"
-        , minParam: 1, maxParam: 1
-        , description: ["\t#CJMP=Chapter"
-            , "\t#JmpCha=Chapter"
-            , "跨章节跳转，更新`CurrentChapter`，跳转到章节`Chapter`"]
-        , type: [ParamType.File]
-        , inlayHintType: [InlayHintType.Chapter]
-        , outlineKeyword: true
-    }],
+    ["JmpCha", undefined],
 
     ["SJMP", {
         prefix: "#"
@@ -982,16 +929,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , outlineKeyword: true
         , emptyLineAfter: true
     }],
-    ["SkipJmp", {
-        prefix: "#"
-        , minParam: 0, maxParam: 0
-        , description: ["跳转到下一个跳转指令并重启扫描，内部指令，用于跳过文本功能"
-            , "置跳转标志位为1，跳转标志位在解析到文本后重置为0"]
-        , type: []
-        , internal: true
-        , outlineKeyword: true
-        , emptyLineAfter: true
-    }],
+    ["SkipJmp", undefined],
+
     ["SkipAnchor", {
         prefix: "#"
         , minParam: 0, maxParam: 0
@@ -1180,15 +1119,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
     }],
-    ["SetValue", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#SV=ValueID:Value"
-            , "\t#SetValue=ValueID:Value"
-            , "令`ValueID`=`Value`，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则为数值赋值，否则为字符串赋值"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
-    }],
+    ["SetValue", undefined],
     ["SVV", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1200,39 +1131,9 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
     }],
-    ["SetValueValue", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#SVV=ValueIDA:ValueIDB"
-            , "\t#SetValueValue=ValueIDA:ValueIDB"
-            , "\t#SVAB=ValueIDA:ValueIDB"
-            , "\t#SetValueAB=ValueIDA:ValueIDB"
-            , "`ValueIDA`=`ValueIDB`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
-    ["SVAB", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#SVV=ValueIDA:ValueIDB"
-            , "\t#SetValueValue=ValueIDA:ValueIDB"
-            , "\t#SVAB=ValueIDA:ValueIDB"
-            , "\t#SetValueAB=ValueIDA:ValueIDB"
-            , "`ValueIDA`=`ValueIDB`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
-    ["SetValueAB", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#SVV=ValueIDA:ValueIDB"
-            , "\t#SetValueValue=ValueIDA:ValueIDB"
-            , "\t#SVAB=ValueIDA:ValueIDB"
-            , "\t#SetValueAB=ValueIDA:ValueIDB"
-            , "`ValueIDA`=`ValueIDB`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
+    ["SetValueValue", undefined],
+    ["SVAB", undefined],
+    ["SetValueAB", undefined],
     ["SSS", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1244,39 +1145,9 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
     }],
-    ["SetStringString", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#SSS=ValueIDA:ValueIDB"
-            , "\t#SetStringString=ValueIDA:ValueIDB"
-            , "\t#SSAB=ValueIDA:ValueIDB"
-            , "\t#SetStringAB=ValueIDA:ValueIDB"
-            , "`ValueIDA`=`ValueIDB`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
-    ["SSAB", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#SSS=ValueIDA:ValueIDB"
-            , "\t#SetStringString=ValueIDA:ValueIDB"
-            , "\t#SSAB=ValueIDA:ValueIDB"
-            , "\t#SetStringAB=ValueIDA:ValueIDB"
-            , "`ValueIDA`=`ValueIDB`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
-    ["SetStringAB", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#SSS=ValueIDA:ValueIDB"
-            , "\t#SetStringString=ValueIDA:ValueIDB"
-            , "\t#SSAB=ValueIDA:ValueIDB"
-            , "\t#SetStringAB=ValueIDA:ValueIDB"
-            , "`ValueIDA`=`ValueIDB`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
+    ["SetStringString", undefined],
+    ["SSAB", undefined],
+    ["SetStringAB", undefined],
     ["VA", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1286,15 +1157,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
     }],
-    ["ValueAdd", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#VA=ValueID:Value"
-            , "\t#ValueAdd=ValueID:Value"
-            , "`ValueID`=`ValueID`+`Value`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
-    }],
+    ["ValueAdd", undefined],
     ["VAV", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1304,15 +1167,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
     }],
-    ["ValueAddValue", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#VA=ValueID:Value"
-            , "\t#ValueAdd=ValueID:Value"
-            , "`ValueID`=`ValueID`+`Value`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
+    ["ValueAddValue", undefined],
     ["VS", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1322,15 +1177,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
     }],
-    ["ValueSub", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#VS=ValueID"
-            , "\t#ValueSub=ValueID:Value"
-            , "`ValueID`=`ValueID`-`Value`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
-    }],
+    ["ValueSub", undefined],
     ["VSV", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1340,15 +1187,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
     }],
-    ["ValueSubValue", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#VS=ValueID"
-            , "\t#ValueSub=ValueID:Value"
-            , "`ValueID`=`ValueID`-`Value`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
+    ["ValueSubValue", undefined],
     ["VM", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1358,15 +1197,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
     }],
-    ["ValueMul", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#VM=ValueID"
-            , "\t#ValueMul=ValueID:Value"
-            , "`ValueID`=`ValueID`*`Value`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
-    }],
+    ["ValueMul", undefined],
     ["VMV", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1376,15 +1207,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
     }],
-    ["ValueMulValue", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#VMV=ValueIDA:ValueIDB"
-            , "\t#ValueMulValue=ValueIDA:ValueIDB"
-            , "`ValueIDA`=`ValueIDA`*`ValueIDB`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
+    ["ValueMulValue", undefined],
     ["VD", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1394,15 +1217,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
     }],
-    ["ValueDiv", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#VD=ValueID"
-            , "\t#ValueDiv=ValueID:Value"
-            , "`ValueID`=`ValueID`/`Value`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
-    }],
+    ["ValueDiv", undefined],
     ["VDV", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1412,15 +1227,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
     }],
-    ["ValueDivValue", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#VDV=ValueIDA:ValueIDB"
-            , "\t#ValueDivValue=ValueIDA:ValueIDB"
-            , "`ValueIDA`=`ValueIDA`/`ValueIDB`"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
+    ["ValueDivValue", undefined],
 
     ["CMP", {
         prefix: "#"
@@ -1433,26 +1240,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
         , outlineKeyword: true
     }],
-    ["CMPV", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#CMP=ValueID:Value"
-            , "\t#CMPV=ValueID:Value"
-            , "\t#CMPValue=ValueID:Value"
-            , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]
-        , type: [ParamType.Number, ParamType.Any]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
-    }],
-    ["CMPValue", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#CMP=ValueID:Value"
-            , "\t#CMPV=ValueID:Value"
-            , "\t#CMPValue=ValueID:Value"
-            , "比较`ValueID`与`Value`的大小，若`Value`为数值(匹配`\+[0-9]+(.[0-9]+)?\|-[0-9]+(.[0-9]+)?\|[0-9]+(.[0-9]+)?`)，则与数值比较，否则与字符串比较"]
-        , type: [ParamType.Number, ParamType.Any]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.Value]
-    }],
+    ["CMPV", undefined],
+    ["CMPValue", undefined],
     ["CMPGeneral", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1473,54 +1262,10 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
     }],
-    ["CMPVAB", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#CMPAB=ValueIDA:ValueIDB"
-            , "\t#CMPVAB=ValueIDA:ValueIDB"
-            , "\t#CMPValueAB=ValueIDA:ValueIDB"
-            , "\t#CMPVV=ValueIDA:ValueIDB"
-            , "\t#CMPValueValue=ValueIDA:ValueIDB"
-            , "比较`ValueIDA`与`ValueIDB`的大小"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
-    ["CMPValueAB", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#CMPAB=ValueIDA:ValueIDB"
-            , "\t#CMPVAB=ValueIDA:ValueIDB"
-            , "\t#CMPValueAB=ValueIDA:ValueIDB"
-            , "\t#CMPVV=ValueIDA:ValueIDB"
-            , "\t#CMPValueValue=ValueIDA:ValueIDB"
-            , "比较`ValueIDA`与`ValueIDB`的大小"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
-    ["CMPVV", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#CMPAB=ValueIDA:ValueIDB"
-            , "\t#CMPVAB=ValueIDA:ValueIDB"
-            , "\t#CMPValueAB=ValueIDA:ValueIDB"
-            , "\t#CMPVV=ValueIDA:ValueIDB"
-            , "\t#CMPValueValue=ValueIDA:ValueIDB"
-            , "比较`ValueIDA`与`ValueIDB`的大小"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
-    ["CMPValueValue", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#CMPAB=ValueIDA:ValueIDB"
-            , "\t#CMPVAB=ValueIDA:ValueIDB"
-            , "\t#CMPValueAB=ValueIDA:ValueIDB"
-            , "\t#CMPVV=ValueIDA:ValueIDB"
-            , "\t#CMPValueValue=ValueIDA:ValueIDB"
-            , "比较`ValueIDA`与`ValueIDB`的大小"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
+    ["CMPVAB", undefined],
+    ["CMPValueAB", undefined],
+    ["CMPVV", undefined],
+    ["CMPValueValue", undefined],
     ["CMPSAB", {
         prefix: "#"
         , minParam: 2, maxParam: 2
@@ -1532,39 +1277,9 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
     }],
-    ["CMPStringAB", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#CMPSAB=ValueIDA:ValueIDB"
-            , "\t#CMPStringAB=ValueIDA:ValueIDB"
-            , "\t#CMPSS=ValueIDA:ValueIDB"
-            , "\t#CMPStringString=ValueIDA:ValueIDB"
-            , "比较`ValueIDA`与`ValueIDB`的大小"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
-    ["CMPSS", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#CMPSAB=ValueIDA:ValueIDB"
-            , "\t#CMPStringAB=ValueIDA:ValueIDB"
-            , "\t#CMPSS=ValueIDA:ValueIDB"
-            , "\t#CMPStringString=ValueIDA:ValueIDB"
-            , "比较`ValueIDA`与`ValueIDB`的大小"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
-    ["CMPStringString", {
-        prefix: "#"
-        , minParam: 2, maxParam: 2
-        , description: ["\t#CMPSAB=ValueIDA:ValueIDB"
-            , "\t#CMPStringAB=ValueIDA:ValueIDB"
-            , "\t#CMPSS=ValueIDA:ValueIDB"
-            , "\t#CMPStringString=ValueIDA:ValueIDB"
-            , "比较`ValueIDA`与`ValueIDB`的大小"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ValueID, InlayHintType.ValueID]
-    }],
+    ["CMPStringAB", undefined],
+    ["CMPSS", undefined],
+    ["CMPStringString", undefined],
 
     ["JE", {
         prefix: "#"
@@ -1600,6 +1315,64 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
     }],
 
     // keywords_dialogue
+
+    ["TextSpace", {
+        prefix: "#"
+        , minParam: 3, maxParam: 4
+        , description: ["\tTextSpace=SpaceType:Space:Type:ID"
+            , "设置行/列间距"
+            , "`Type`为`Str`时，要求`ID`参数，作用于该`ID`对应的字符串对象"]
+        , type: [ParamType.String, ParamType.Number, ParamType.String, ParamType.Number]
+        , required: [
+            [
+                "Row",
+                "Col"
+            ],
+            undefined,
+            align_objectType,
+            undefined]
+        , inlayHintType: [InlayHintType.SpaceType, InlayHintType.Space, InlayHintType.Type, InlayHintType.ID]
+        , inlayHintAddition: [
+            new Map<string, string>([
+                ["Row", "行间距"],
+                ["Col", "列间距"]
+            ]),
+            undefined,
+            align_objectTypeMap,
+            undefined]
+    }],
+
+    ["TextAlign", {
+        prefix: "#"
+        , minParam: 2, maxParam: 3
+        , description: ["\t#TextAlign=Align:Type:ID"
+            , "设定对齐方式"
+            , "`Type`为`Str`时，要求`ID`参数，作用于该`ID`对应的字符串对象"]
+        , type: [ParamType.String, ParamType.String, ParamType.Number]
+        , required: [
+            [
+                "Left",
+                "Center",
+                "Right",
+                "Top",
+                "VCenter",
+                "Bottom",
+            ],
+            align_objectType,
+            undefined]
+        , inlayHintType: [InlayHintType.Align, InlayHintType.Type, InlayHintType.ID]
+        , inlayHintAddition: [
+            new Map<string, string>([
+                ["Left", "左对齐"],
+                ["Center", "水平居中"],
+                ["Right", "右对齐"],
+                ["Top", "顶端对齐"],
+                ["VCenter", "垂直居中"],
+                ["Bottom", "底端对齐"]
+            ]),
+            align_objectTypeMap,
+            undefined]
+    }],
 
     ["DiaColor", {
         prefix: "#"
@@ -1760,15 +1533,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File]
         , inlayHintType: [InlayHintType.DiaFileName]
     }],
-    ["DiaChange", {
-        prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@Dia=filename.png"
-            , "\t@DiaChange=filename.png"
-            , "切换对话框，解析到文本后进行，调用指令`@DiaTrans`"]
-        , type: [ParamType.File]
-        , inlayHintType: [InlayHintType.DiaFileName]
-    }],
+    ["DiaChange", undefined],
     ["DiaTrans", {
         prefix: "@"
         , minParam: 0, maxParam: 1
@@ -1789,16 +1554,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , inlayHintType: [InlayHintType.NameFileName]
         , NonVNModeOnly: true
     }],
-    ["NameChange", {
-        prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@Name=filename.png"
-            , "\t@NameChange=filename.png"
-            , "切换姓名栏，解析到文本后进行，调用指令`@NameTrans`"]
-        , type: [ParamType.File]
-        , inlayHintType: [InlayHintType.NameFileName]
-        , NonVNModeOnly: true
-    }],
+    ["NameChange", undefined],
     ["NameTrans", {
         prefix: "@"
         , minParam: 0, maxParam: 1
@@ -1846,17 +1602,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.String, ParamType.Number]
         , inlayHintType: [InlayHintType.AudioFileName, InlayHintType.Volume, InlayHintType.Channel]
     }],
-    ["Play", {
-        prefix: "@"
-        , minParam: 3, maxParam: 3
-        , description: ["\t@P=filename.mp3:volume:channel"
-            , "\t@Play=filename.mp3:volume:channel"
-            , "在指定的频道内以指定的音量播放一次`Audio`文件夹下指定的音频文件"
-            , "其中`volume`可以直接接受`BGM`、`BGS`、`SE`、`DUB`作为参数来返回对应通道的音量"
-            , "系统默认占用`1~5`号通道，用户可以安全使用的为`6~48`号通道"]
-        , type: [ParamType.File, ParamType.String, ParamType.Number]
-        , inlayHintType: [InlayHintType.AudioFileName, InlayHintType.Volume, InlayHintType.Channel]
-    }],
+    ["Play", undefined],
 
     ["Stop", {
         prefix: "@"
@@ -1887,17 +1633,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.BGMFileName, InlayHintType.FadeSpeed, InlayHintType.StartPoint, InlayHintType.EndPoint]
     }],
-    ["BgmLoop", {
-        prefix: "@"
-        , minParam: 1, maxParam: 4
-        , description: ["\t@Bgm=filename.MP3:fadeSpeed:StartPoint:endpoint"
-            , "\t@BgmLoop=filename.MP3:fadeSpeed:StartPoint:endpoint"
-            , "定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待"
-            , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"
-            , "循环起始点/循环终止点参数设定为零，引擎会进行整曲循环"]
-        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.BGMFileName, InlayHintType.FadeSpeed, InlayHintType.StartPoint, InlayHintType.EndPoint]
-    }],
+    ["BgmLoop", undefined],
 
     ["BgmPre", {
         prefix: "@"
@@ -1910,17 +1646,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.BGMFileName, InlayHintType.FadeSpeed, InlayHintType.StartPoint, InlayHintType.EndPoint, InlayHintType.PreludePoint]
     }],
-    ["BgmPreludeLoop", {
-        prefix: "@"
-        , minParam: 1, maxParam: 5
-        , description: ["\t@BgmPre=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
-            , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
-            , "定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放"
-            , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"
-            , "循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致"]
-        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.BGMFileName, InlayHintType.FadeSpeed, InlayHintType.StartPoint, InlayHintType.EndPoint, InlayHintType.PreludePoint]
-    }],
+    ["BgmPreludeLoop", undefined],
 
     ["BgmPause", {
         prefix: "@"
@@ -1955,16 +1681,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.Number]
         , inlayHintType: [InlayHintType.BGSFileName, InlayHintType.FadeSpeed]
     }],
-    ["BgsLoop", {
-        prefix: "@"
-        , minParam: 1, maxParam: 2
-        , description: ["\t@Bgs=filename.MP3:fadeSpeed"
-            , "\t@BgsLoop=filename.MP3:fadeSpeed"
-            , "定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环"
-            , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"]
-        , type: [ParamType.File, ParamType.Number]
-        , inlayHintType: [InlayHintType.BGSFileName, InlayHintType.FadeSpeed]
-    }],
+    ["BgsLoop", undefined],
 
     ["BgsPause", {
         prefix: "@"
@@ -1998,15 +1715,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.String, ParamType.Boolean, ParamType.Boolean]
         , inlayHintType: [InlayHintType.DubFileName, InlayHintType.KeepSeq, InlayHintType.KeepNTK]
     }],
-    ["DubPlay", {
-        prefix: "@"
-        , minParam: 1, maxParam: 3
-        , description: ["\t@Dub=FileName:KeepSeq:KeepNTK"
-            , "\t@DubPlay=FileName:KeepSeq:KeepNTK"
-            , "更新语音内容，该语音会在显示下一句文本时播放。`KeepSeq`为真时，不会自动禁用语音序列，`KeepNTK`为真时，不会递增指针"]
-        , type: [ParamType.String, ParamType.Boolean, ParamType.Boolean]
-        , inlayHintType: [InlayHintType.DubFileName, InlayHintType.KeepSeq, InlayHintType.KeepNTK]
-    }],
+    ["DubPlay", undefined],
 
     ["DubSeque", {
         prefix: "@"
@@ -2051,15 +1760,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Boolean]
         , inlayHintType: [InlayHintType.NowTalking, InlayHintType.KeepSeq]
     }],
-    ["NtkChange", {
-        prefix: "@"
-        , minParam: 1, maxParam: 2
-        , description: ["\t@NTK=NowTalking:KeepSeq"
-            , "\t@NTKChange=NowTalking:KeepSeq"
-            , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列"]
-        , type: [ParamType.Number, ParamType.Boolean]
-        , inlayHintType: [InlayHintType.NowTalking, InlayHintType.KeepSeq]
-    }],
+    ["NtkChange", undefined],
 
     ["PV", {
         prefix: "@"
@@ -2072,17 +1773,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.Number]
         , inlayHintType: [InlayHintType.VideoFileName, InlayHintType.StartPoint]
     }],
-    ["PlayVideo", {
-        prefix: "@"
-        , minParam: 1, maxParam: 2
-        , description: ["\t@PV=FileName.AVI:StartPos"
-            , "\t@PlayVideo=FileName.AVI:StartPos"
-            , "最基本的也是最简单的指令，从`StartPos`开始播放`FileName.AVI`，单位毫秒，等价于以下指令组合"
-            , "\t@OpenVideo=FileName.AVI:StartPos"
-            , "\t@VideoResume"]
-        , type: [ParamType.File, ParamType.Number]
-        , inlayHintType: [InlayHintType.VideoFileName, InlayHintType.StartPoint]
-    }],
+    ["PlayVideo", undefined],
     ["ChangeVideo", {
         prefix: "@"
         , minParam: 1, maxParam: 1
@@ -2106,28 +1797,14 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.Number]
         , inlayHintType: [InlayHintType.VideoFileName, InlayHintType.StartPoint]
     }],
-    ["OpenVideo", {
-        prefix: "@"
-        , minParam: 1, maxParam: 2
-        , description: ["\t@OV=FileName.AVI:StartPos"
-            , "\t@OpenVideo=FileName.AVI:StartPos"
-            , "打开视频至`StartPos`，但并不播放，需要播放时请使用`@VideoResume`"
-            , "若已经打开了视频，会抓取旧视频的当前帧作为CG进行过渡，否则则抓取新视频的首帧作为CG进行过渡"]
-        , type: [ParamType.File, ParamType.Number]
-        , inlayHintType: [InlayHintType.VideoFileName, InlayHintType.StartPoint]
-    }],
+    ["OpenVideo", undefined],
     ["CV", {
         prefix: "@"
         , minParam: 0, maxParam: 0
         , description: ["抓取当前帧作为CG，并关闭视频"]
         , type: []
     }],
-    ["CloseVideo", {
-        prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["抓取当前帧作为CG，并关闭视频"]
-        , type: []
-    }],
+    ["CloseVideo", undefined],
     ["CloseVideo_Core", {
         prefix: "@"
         , minParam: 0, maxParam: 0
@@ -2141,36 +1818,21 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , description: ["继续播放视频"]
         , type: []
     }],
-    ["VideoResume", {
-        prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["继续播放视频"]
-        , type: []
-    }],
+    ["VideoResume", undefined],
     ["VP", {
         prefix: "@"
         , minParam: 0, maxParam: 0
         , description: ["暂停视频"]
         , type: []
     }],
-    ["VideoPause", {
-        prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["暂停视频"]
-        , type: []
-    }],
+    ["VideoPause", undefined],
     ["VW", {
         prefix: "@"
         , minParam: 0, maxParam: 0
         , description: ["当前视频播放结束后才会进入下一阶段"]
         , type: []
     }],
-    ["VideoWait", {
-        prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["当前视频播放结束后才会进入下一阶段"]
-        , type: []
-    }],
+    ["VideoWait", undefined],
     ["VL", {
         prefix: "@"
         , minParam: 0, maxParam: 0
@@ -2178,14 +1840,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "设定当前视频循环播放，若`LoopTransition = 1`，则会在循环结束时叠化至视频开头，适用于视频本身非无缝循环的场合"]
         , type: []
     }],
-    ["VideoLoop", {
-        prefix: "@"
-        , minParam: 0, maxParam: 1
-        , description: ["\t@VideoLoop=LoopTransition"
-            , "设定当前视频循环播放，若`LoopTransition = 1`，则会在循环结束时叠化至视频开头，适用于视频本身非无缝循环的场合"]
-        , type: [ParamType.ZeroOne]
-        , inlayHintType: [InlayHintType.LoopTransition]
-    }],
+    ["VideoLoop", undefined],
     ["VideoFinish", {
         prefix: "@"
         , minParam: 1, maxParam: 1
@@ -2204,15 +1859,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.StartPoint]
     }],
-    ["SetVideoPos", {
-        prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@SVP=StartPos"
-            , "\t@SetVideoPos=StartPos"
-            , "设置视频位置"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.StartPoint]
-    }],
+    ["SetVideoPos", undefined],
     ["IgnoreStaticVideo", {
         prefix: "@"
         , minParam: 0, maxParam: 1
@@ -2371,15 +2018,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.ZeroOne]
         , inlayHintType: [InlayHintType.PatternFadeFileName, InlayHintType.Orderable]
     }],
-    ["PatternFade", {
-        prefix: "@"
-        , minParam: 1, maxParam: 2
-        , description: ["\t@PF=PicName:Orderable"
-            , "\t@PatternFade=PicName:Orderable"
-            , "创建`Pattern`过渡元件，使用`pattern fade`读取`PicName`图像叠化进入"]
-        , type: [ParamType.File, ParamType.ZeroOne]
-        , inlayHintType: [InlayHintType.PatternFadeFileName, InlayHintType.Orderable]
-    }],
+    ["PatternFade", undefined],
     ["PFO", {
         prefix: "@"
         , minParam: 1, maxParam: 2
@@ -2390,16 +2029,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.ZeroOne]
         , inlayHintType: [InlayHintType.PatternFadeFileName, InlayHintType.Orderable]
     }],
-    ["PatternFadeOut", {
-        prefix: "@"
-        , minParam: 1, maxParam: 2
-        , description: ["\t@PFO=PicName"
-            , "\t@PatternFadeOut=PicName:Orderable"
-            , "使用`PatternFade`读取`PicName`图像叠化退出使用`PatternFade`创建的对象，具有`Orderable`属性的对象可参与排序"
-            , "该指令运行结束后会自动销毁该Pattern过渡元件"]
-        , type: [ParamType.File, ParamType.ZeroOne]
-        , inlayHintType: [InlayHintType.PatternFadeFileName, InlayHintType.Orderable]
-    }],
+    ["PatternFadeOut", undefined],
 
     ["Rain", {
         prefix: "@"
@@ -2458,15 +2088,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.ID]
     }],
-    ["KeepResolution", {
-        prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@KeepRes=ID"
-            , "\t@KeepResolution=ID"
-            , "该ID对应的对象会在叠化时保持当前设定的分辨率"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.ID]
-    }],
+    ["KeepResolution", undefined],
 
     ["KeepResOff", {
         prefix: "@"
@@ -2477,15 +2099,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.ID]
     }],
-    ["KeepResolutionOff", {
-        prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@KeepResOff=ID"
-            , "\t@KeepResolutionOff=ID"
-            , "该ID对应的对象会在叠化时重设分辨率为新图像的分辨率"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.ID]
-    }],
+    ["KeepResolutionOff", undefined],
 
     ["Sepia", {
         prefix: "@"
@@ -2496,15 +2110,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Boolean, ParamType.Number]
         , inlayHintType: [InlayHintType.Strength, InlayHintType.Boolean, InlayHintType.Period]
     }],
-    ["SepiaToning", {
-        prefix: "@"
-        , minParam: 0, maxParam: 3
-        , description: ["\t@Sepia=Strength:NoiseMotion:Period"
-            , "\t@SepiaToning=Strength:NoiseMotion:Period"
-            , "创建强度为`Strength`的`Sepia Toning`对象，对象默认ID为`-5`。其中`Strength`应为一个`[0,1]`的浮点数，默认值为`0.5`，`NoiseMotion`参数控制噪声运动的开启与关闭，当设定为`1`或`On`的时候会启用噪声运动，运动周期为`Period`，单位毫秒，默认值为`-1`，即每帧更新。已经创建了`Sepia Toning`对象后调用该指令，该指令无效"]
-        , type: [ParamType.Number, ParamType.Boolean, ParamType.Number]
-        , inlayHintType: [InlayHintType.Strength, InlayHintType.Boolean, InlayHintType.Period]
-    }],
+    ["SepiaToning", undefined],
     ["ChangeSepiaStrength", {
         prefix: "@"
         , minParam: 1, maxParam: 1
@@ -2561,57 +2167,9 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.String, ParamType.Number, ParamType.ZeroOne, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.String, InlayHintType.ID, InlayHintType.TypeEffect, InlayHintType.Alpha, InlayHintType.X, InlayHintType.Y, InlayHintType.Size, InlayHintType.Font, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
     }],
-    ["String", {
-        prefix: "@"
-        , minParam: 2, maxParam: 11
-        , description: ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "创建字符串，字符串ID与图像ID相互独立"
-            , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
-            , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]
-        , type: [ParamType.String, ParamType.Number, ParamType.ZeroOne, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.String, InlayHintType.ID, InlayHintType.TypeEffect, InlayHintType.Alpha, InlayHintType.X, InlayHintType.Y, InlayHintType.Size, InlayHintType.Font, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
-    }],
-    ["CreateStr", {
-        prefix: "@"
-        , minParam: 2, maxParam: 11
-        , description: ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "创建字符串，字符串ID与图像ID相互独立"
-            , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
-            , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]
-        , type: [ParamType.String, ParamType.Number, ParamType.ZeroOne, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.String, InlayHintType.ID, InlayHintType.TypeEffect, InlayHintType.Alpha, InlayHintType.X, InlayHintType.Y, InlayHintType.Size, InlayHintType.Font, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
-    }],
-    ["CreateString", {
-        prefix: "@"
-        , minParam: 2, maxParam: 11
-        , description: ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@String=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateStr=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
-            , "\t@CreateString=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
-            , "创建字符串，字符串ID与图像ID相互独立"
-            , "除输入完整参数外，字符串参数还允许通过单独指令修改。在字符串创建的解析循环中进行的修改会作用于创建叠化，其余场合使用指令修改参数是否进行叠化请参考具体指令说明"
-            , "默认参数：字符串对象宽600，字符串对象高60；默认不透明度`0`；默认底部居中；默认字号`22`；默认字体`黑体`；默认颜色：黑色文字`RGB=(0,0,0)`，白色勾边`RGB=(255,255,255)`"]
-        , type: [ParamType.String, ParamType.Number, ParamType.ZeroOne, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.String, ParamType.Color, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.String, InlayHintType.ID, InlayHintType.TypeEffect, InlayHintType.Alpha, InlayHintType.X, InlayHintType.Y, InlayHintType.Size, InlayHintType.Font, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
-    }],
+    ["String", undefined],
+    ["CreateStr", undefined],
+    ["CreateString", undefined],
 
     ["StrS", {
         prefix: "@"
@@ -2622,15 +2180,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Size]
     }],
-    ["StrSize", {
-        prefix: "@"
-        , minParam: 2, maxParam: 2
-        , description: ["\t@StrS=ID:Size"
-            , "\t@StrSize=ID:Size"
-            , "无叠化，更改字符串字号"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ID, InlayHintType.Size]
-    }],
+    ["StrSize", undefined],
     ["StrF", {
         prefix: "@"
         , minParam: 2, maxParam: 2
@@ -2640,15 +2190,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.String]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Font]
     }],
-    ["StrFont", {
-        prefix: "@"
-        , minParam: 2, maxParam: 2
-        , description: ["\t@StrF=ID:Font"
-            , "\t@StrFont=ID:Font"
-            , "无叠化，更改字符串字体"]
-        , type: [ParamType.Number, ParamType.String]
-        , inlayHintType: [InlayHintType.ID, InlayHintType.Font]
-    }],
+    ["StrFont", undefined],
     ["StrA", {
         prefix: "@"
         , minParam: 2, maxParam: 2
@@ -2658,15 +2200,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Alpha]
     }],
-    ["StrAlpha", {
-        prefix: "@"
-        , minParam: 2, maxParam: 2
-        , description: ["\t@StrA=ID:120"
-            , "\t@StrAlpha=ID:120"
-            , "切换对象到指定的不透明度"]
-        , type: [ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ID, InlayHintType.Alpha]
-    }],
+    ["StrAlpha", undefined],
 
     ["StrC", {
         prefix: "@"
@@ -2679,17 +2213,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
     }],
-    ["StrColor", {
-        prefix: "@"
-        , minParam: 2, maxParam: 4
-        , description: ["\t@StrC=ID:R:G:B"
-            , "\t@StrC=ID:#FFFFFF"
-            , "\t@StrColor=ID:R:G:B"
-            , "\t@StrColor=ID:#FFFFFF"
-            , "无叠化，更改字符串颜色"]
-        , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ID, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
-    }],
+    ["StrColor", undefined],
 
     ["MS", {
         prefix: "@"
@@ -2699,16 +2223,17 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "移动字符串对象，具体参数说明请参见`@MoveObj`一节，坐标受`@StrCenter`参数影响"]
         , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
+        , inlayHintAddition: [
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_modeName,
+        ]
     }],
-    ["MoveStr", {
-        prefix: "@"
-        , minParam: 3, maxParam: 7
-        , description: ["\t@MS=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
-            , "\t@MoveStr=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
-            , "移动字符串对象，具体参数说明请参见`@MoveObj`一节，坐标受`@StrCenter`参数影响"]
-        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ID, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
-    }],
+    ["MoveStr", undefined],
     ["DestroyStr", {
         prefix: "@"
         , minParam: 1, maxParam: 1
@@ -2718,15 +2243,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.ID]
     }],
-    ["DestroyString", {
-        prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@DestroyStr=ID"
-            , "\t@DestroyString=ID"
-            , "销毁字符串"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.ID]
-    }],
+    ["DestroyString", undefined],
 
     ["DestroyAllStr", {
         prefix: "@"
@@ -2734,12 +2251,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , description: ["销毁全部字符串对象"]
         , type: []
     }],
-    ["DestroyAllString", {
-        prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["销毁全部字符串对象"]
-        , type: []
-    }],
+    ["DestroyAllString", undefined],
 
     ["Spe", {
         prefix: "@"
@@ -2760,18 +2272,18 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "内部指令，`@MoveChar`与@`MoveStr`会被引擎转译为该指令执行"]
         , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.FixedValue, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
+        , inlayHintAddition: [
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_modeName,
+        ]
         , internal: true
     }],
-    ["MoveObj", {
-        prefix: "@"
-        , minParam: 3, maxParam: 7
-        , description: ["\t@MO=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
-            , "\t@MoveObj=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
-            , "内部指令，`@MoveChar`与@`MoveStr`会被引擎转译为该指令执行"]
-        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.FixedValue, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
-        , internal: true
-    }],
+    ["MoveObj", undefined],
 
     ["CG", {
         prefix: "@"
@@ -2783,16 +2295,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File]
         , inlayHintType: [InlayHintType.CGFileName]
     }],
-    ["CGChange", {
-        prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@CG=filename.png"
-            , "\t@CGChange=filename.png"
-            , "切换CG，叠化阶段进行"
-            , "由于视频指令会在特定时刻更新CG，故该指令会在视频打开时调用`@CloseVideo_Core`关闭视频，避免两者冲突"]
-        , type: [ParamType.File]
-        , inlayHintType: [InlayHintType.CGFileName]
-    }],
+    ["CGChange", undefined],
 
     ["CPF", {
         prefix: "@"
@@ -2803,15 +2306,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.File, ParamType.Number]
         , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
     }],
-    ["CPatternFade", {
-        prefix: "@"
-        , minParam: 3, maxParam: 3
-        , description: ["\t@CPF=PicName:PatternName:ID"
-            , "\t@CPatternFade=PicName:PatternName:ID"
-            , "读取贴图，前景背景同时叠化"]
-        , type: [ParamType.File, ParamType.File, ParamType.Number]
-        , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
-    }],
+    ["CPatternFade", undefined],
     ["CPFI", {
         prefix: "@"
         , minParam: 3, maxParam: 3
@@ -2821,15 +2316,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.File, ParamType.Number]
         , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
     }],
-    ["CPatternFadeIn", {
-        prefix: "@"
-        , minParam: 3, maxParam: 3
-        , description: ["\t@CPFI=PicName:PatternName:ID"
-            , "\t@CPatternFadeIn=PicName:PatternName:ID"
-            , "读取贴图，叠化至前景图像"]
-        , type: [ParamType.File, ParamType.File, ParamType.Number]
-        , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
-    }],
+    ["CPatternFadeIn", undefined],
     ["CPFO", {
         prefix: "@"
         , minParam: 3, maxParam: 3
@@ -2839,15 +2326,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.File, ParamType.Number]
         , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
     }],
-    ["CPatternFadeOut", {
-        prefix: "@"
-        , minParam: 3, maxParam: 3
-        , description: ["\t@CPFO=PicName:PatternName:ID"
-            , "\t@CPatternFadeOut=PicName:PatternName:ID"
-            , "读取贴图，叠化至背景图像"]
-        , type: [ParamType.File, ParamType.File, ParamType.Number]
-        , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
-    }],
+    ["CPatternFadeOut", undefined],
     ["CGPFI", {
         prefix: "@"
         , minParam: 2, maxParam: 2
@@ -2857,15 +2336,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.File]
         , inlayHintType: [InlayHintType.CGFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
     }],
-    ["CGPatternFadeIn", {
-        prefix: "@"
-        , minParam: 2, maxParam: 2
-        , description: ["\t@CGPFI=PicName:PatternName"
-            , "\t@CGPatternFadeIn=PicName:PatternName"
-            , "转译指令，读取贴图，CG叠化至前景图像"]
-        , type: [ParamType.File, ParamType.File]
-        , inlayHintType: [InlayHintType.CGFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
-    }],
+    ["CGPatternFadeIn", undefined],
 
     ["CGPFO", {
         prefix: "@"
@@ -2876,15 +2347,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.File]
         , inlayHintType: [InlayHintType.CGFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
     }],
-    ["CGPatternFadeOut", {
-        prefix: "@"
-        , minParam: 2, maxParam: 2
-        , description: ["\t@CGPFO=PicName:PatternName"
-            , "\t@CGPatternFadeOut=PicName:PatternName"
-            , "转译指令，读取贴图，CG叠化至背景图像"]
-        , type: [ParamType.File, ParamType.File]
-        , inlayHintType: [InlayHintType.CGFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
-    }],
+    ["CGPatternFadeOut", undefined],
 
     ["CharPF", {
         prefix: "@"
@@ -2895,15 +2358,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.File, ParamType.Number]
         , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
     }],
-    ["CharPatternFade", {
-        prefix: "@"
-        , minParam: 3, maxParam: 3
-        , description: ["\t@CharPF=PicName:PatternName:ID"
-            , "\t@CharPatternFade=PicName:PatternName:ID"
-            , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]
-        , type: [ParamType.File, ParamType.File, ParamType.Number]
-        , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
-    }],
+    ["CharPatternFade", undefined],
 
     ["Char", {
         prefix: "@"
@@ -2914,15 +2369,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.ID, InlayHintType.Alpha, InlayHintType.X, InlayHintType.Y, InlayHintType.Width, InlayHintType.Height]
     }],
-    ["Character", {
-        prefix: "@"
-        , minParam: 2, maxParam: 6
-        , description: ["\t@Char=filename.png:ID:Alpha:X:Y:Width:Height"
-            , "\t@Character=filename.png:ID:Alpha:X:Y:Width:Height"
-            , "该指令用于创建图像：留空文件后缀名时，会默认图片格式为PNG；不透明度范围为0~255；文件名支持使用../返回上级路径；坐标系以画面中央底部为原点；坐标以图像中央底部为热点；长宽默认为图片原始尺寸，使用+/-指定增量时，会以原始尺寸为基础进行计算"]
-        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.ID, InlayHintType.Alpha, InlayHintType.X, InlayHintType.Y, InlayHintType.Width, InlayHintType.Height]
-    }],
+    ["Character", undefined],
 
     ["CC", {
         prefix: "@"
@@ -2935,17 +2382,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.ID, InlayHintType.Alpha, InlayHintType.Width, InlayHintType.Height]
     }],
-    ["CharChange", {
-        prefix: "@"
-        , minParam: 2, maxParam: 5
-        , description: ["\t@CC=filename:ID:alpha:width:height"
-            , "\t@CharChange=filename:ID:alpha:width:height"
-            , "该指令用于切换为其他角色或动作：留空文件后缀名时，会默认图片格式为PNG；不透明度范围为0~255，该指令会重置`@CharAlpha`设定的不透明度；文件名支持使用../返回上级路径"
-            , "交错模式：通常来说，切换角色时应启用交错模式，更改长宽比时，会自动切换为交错模式"
-            , "长宽：默认为新图片原始尺寸，使用+/-指定增量时，会以原始尺寸为基础进行计算"]
-        , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.ID, InlayHintType.Alpha, InlayHintType.Width, InlayHintType.Height]
-    }],
+    ["CharChange", undefined],
 
     ["CA", {
         prefix: "@"
@@ -2956,15 +2393,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number, ParamType.Number,]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Alpha]
     }],
-    ["CharAlpha", {
-        prefix: "@"
-        , minParam: 2, maxParam: 2
-        , description: ["\t@CA=ID:Alpha"
-            , "\t@CharAlpha=ID:Alpha"
-            , "切换对象到指定的不透明度"]
-        , type: [ParamType.Number, ParamType.Number,]
-        , inlayHintType: [InlayHintType.ID, InlayHintType.Alpha]
-    }],
+    ["CharAlpha", undefined],
     ["HideChar", {
         prefix: "@"
         , minParam: 1, maxParam: 1
@@ -3063,15 +2492,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.ID,]
     }],
-    ["CharDispose", {
-        prefix: "@"
-        , minParam: 1, maxParam: 1
-        , description: ["\t@CD=ID"
-            , "\t@CharDispose=ID"
-            , "销毁并释放该ID对应的图像对象的本体和遮罩，会转译为`@CharAlpha:ID:255`并启用`Destroy`Flag"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.ID,]
-    }],
+    ["CharDispose", undefined],
 
     ["CAD", {
         prefix: "@"
@@ -3080,13 +2501,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "CG/UI不会被销毁"]
         , type: []
     }],
-    ["CharAllDispose", {
-        prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["销毁全部的图像对象，并释放其对应的本体和遮罩"
-            , "CG/UI不会被销毁"]
-        , type: []
-    }],
+    ["CharAllDispose", undefined],
     ["MC", {
         prefix: "@"
         , minParam: 3, maxParam: 7
@@ -3095,16 +2510,17 @@ export let commandInfoBaseList = new Map<string, ParamInfo>([
             , "移动图片对象，具体参数说明请参见`@MoveObj`一节"]
         , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
+        , inlayHintAddition: [
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_modeName,
+        ]
     }],
-    ["MoveChar", {
-        prefix: "@"
-        , minParam: 3, maxParam: 7
-        , description: ["\t@MC=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
-            , "\t@MoveChar=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
-            , "移动图片对象，具体参数说明请参见`@MoveObj`一节"]
-        , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ID, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
-    }],
+    ["MoveChar", undefined],
 
     ["Order", {
         prefix: "@"
@@ -3165,9 +2581,23 @@ export async function waitForCommandListInit() {
     } while (!commandListInitialized);
 }
 
-
 export function resetList() {
-    commandInfoList = commandInfoBaseList;
+    commandInfoList.clear();
+
+    let previousInfo: ParamInfo | undefined = undefined;
+
+    commandInfoBaseList.forEach((value: ParamInfo | undefined, key: string) => {
+        if (value === undefined) {
+            if (previousInfo !== undefined) {
+                commandInfoList.set(key, previousInfo);
+            }
+
+            return;
+        }
+
+        previousInfo = value;
+        commandInfoList.set(key, value);
+    });
 }
 export function generateList() {
     // reset

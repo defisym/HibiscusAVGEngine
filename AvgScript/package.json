@@ -169,11 +169,45 @@
                                         ]
                                     }
                                 },
+                                "required": {
+                                    "type": "array",
+                                    "description": "required",
+                                    "items": {
+                                        "type": "array",
+                                        "description": "available items",                                        
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
                                 "inlayHint": {
                                     "type": "array",
                                     "description": "Inlay hint type of each param",
                                     "items": {
                                         "type": "string"
+                                    }
+                                },
+                                "inlayHintAdd": {
+                                    "type": "array",
+                                    "description": "inlay hint addition",
+                                    "items": {
+                                        "type": "array",
+                                        "description": "available items",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "key",
+                                                "value"
+                                            ],
+                                            "properties": {
+                                                "key": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
                                     }
                                 },
                                 "outlineKeyword": {

@@ -103,6 +103,11 @@ export const commandUpdateCommandExtension_impl = async () => {
 
     // add ext
     do {
+        interface InlayHintAdd {
+            key: string,
+            value: string,
+        }
+
         interface CommandExt extends ParamInfo {
             // basic
             command: string,
@@ -112,6 +117,7 @@ export const commandUpdateCommandExtension_impl = async () => {
 
             // inlayHint
             inlayHint: string[],
+            inlayHintAdd: InlayHintAdd[][],
         }
 
         let copyToInfo = (commandExtItem: CommandExt) => {
@@ -122,6 +128,7 @@ export const commandUpdateCommandExtension_impl = async () => {
             paramInfo.minParam = commandExtItem.minParam;
             paramInfo.maxParam = commandExtItem.maxParam;
             paramInfo.description = commandExtItem.description;
+            paramInfo.required = commandExtItem.required;
 
             // outline
             paramInfo.outlineKeyword = commandExtItem.outlineKeyword;
@@ -160,7 +167,24 @@ export const commandUpdateCommandExtension_impl = async () => {
                 for (let hints of inlayHints) {
                     let pos = inlayHintMap.size;
                     inlayHintMap.set(pos, hints);
-                    paramInfo.inlayHintType?.push(pos);
+                    paramInfo.inlayHintType.push(pos);
+                }
+            }
+
+            // inlay addition
+            let inlayHintAdds = commandExtItem.inlayHintAdd;
+
+            if (inlayHintAdds !== undefined) {
+                paramInfo.inlayHintAddition = [];
+
+                for (let adds of inlayHintAdds) {
+                    let map = new Map<string, string>([]);
+
+                    for (let add of adds) {
+                        map.set(add.key, add.value);
+                    }
+
+                    paramInfo.inlayHintAddition.push(map);
                 }
             }
 

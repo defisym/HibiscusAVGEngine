@@ -1,5 +1,11 @@
 # Change Log
 
+## 20230220
+
+- inlay hint addition
+- undefined to copy previous command info
+- check if param is required value
+
 ## 20230218
 
 - extra info for inlayHint

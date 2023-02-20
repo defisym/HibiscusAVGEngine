@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { atKeywordList, commandDocList, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
-import { FileType, currentLineNotComment, getCompletionItemList, getSubStrings, getType, lineValidForCommandCompletion } from '../lib/utilities';
+import { FileType, currentLineNotComment, getCompletionItemList, getSubStrings, getType, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
 import { audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { labelCompletions } from './label';
 
@@ -195,3 +195,25 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
     },
     '=', ':'
 );
+
+//TODO hint required
+// export const required = vscode.languages.registerCompletionItemProvider(
+//     'AvgScript',
+//     {
+//         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+//             let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+
+//             if (line === undefined) {
+//                 return undefined;
+//             }
+
+//             const { params, commandWithPrefix, command, paramInfo } = parseCommand(line);
+
+//             if (paramInfo === undefined) {
+//                 return;
+//             }
+
+//         }
+//     },
+//     '=', ':'
+// );

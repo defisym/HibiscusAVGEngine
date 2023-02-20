@@ -478,14 +478,15 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                 }
 
-                if (currentHintType !== undefined) {
-                    const extraInlayHintInfo = getExtraInlayHintInfo(currentHintType, curParam);
+                if (paramDefinition.required !== undefined) {
+                    const curRequired = paramDefinition.required[j - 1];
 
-                    if (extraInlayHintInfo !== undefined 
-                        && extraInlayHintInfo === extraInlayHintInfoInvalid) {
-                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
-                            , "Invalid Param"
-                            , vscode.DiagnosticSeverity.Error));
+                    if (curRequired !== undefined && !curRequired.empty()) {
+                        if (!curRequired.includes(curParam)) {
+                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+                                , "Unexpected Param"
+                                , vscode.DiagnosticSeverity.Error));
+                        }
                     }
                 }
 

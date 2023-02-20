@@ -1125,6 +1125,46 @@ QuickBar = 1
 
 定义立绘的色调RGB值为`R:G:B/#FFFFFF`，无叠化更新所有立绘对象(非特殊非特效对象)的RGB参数。该指令通常用于根据背景光照情况调整立绘色调，可使用附带的`RGBDefiner`工具来直观的调整该参数。
 
+### 文本
+
+#### `#TextAlign=Align:Type:ID`
+
+设定对齐方式
+
+`Type`为`Str`时，要求`ID`参数，作用于该`ID`对应的字符串对象
+
+#### Align
+
+- Left
+- Center
+- Right
+- Top
+- VCenter
+- Bottom
+
+#### Type
+
+- Name
+- Dia
+- Str
+
+#### `#TextSpace=SpaceType:Space:Type:ID`
+
+设置行/列间距
+
+`Type`为`Str`时，要求`ID`参数，作用于该`ID`对应的字符串对象
+
+#### SpaceType
+
+- Row
+- Col
+
+#### Type
+
+- Name
+- Dia
+- Str
+
 ### 对白 / 姓名
 
 #### `#DiaColor=R:G:B` / `#DiaColor=#FFFFFF`

@@ -52,7 +52,16 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
 
                         contentStart++;
 
-                        const extraInlayHintInfo = getExtraInlayHintInfo(currentInlayHintType, curParam);
+
+                        let extraInlayHintInfo = undefined;
+
+                        if (paramDefinition.inlayHintAddition !== undefined) {
+                            const curAddition = paramDefinition.inlayHintAddition[j - 1];
+
+                            if (curAddition !== undefined) {
+                                extraInlayHintInfo = getExtraInlayHintInfo(curAddition, curParam);
+                            }
+                        }
 
                         if (currentInlayHint !== undefined) {
                             let hint = new vscode.InlayHint(new vscode.Position(lineNumber, contentStart)
@@ -78,21 +87,29 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
 
 export const extraInlayHintInfoInvalid = 'Invalid';
 
-export function getExtraInlayHintInfo(type: InlayHintType, param: string) {
-    switch (type) {
-        case InlayHintType.Easing_FuncA:
-        case InlayHintType.Easing_FuncB: {
-            const type = parseInt(param);
+export function getExtraInlayHintInfo(additionHint: Map<string, string>, param: string) {
+    const ret = additionHint.getValue(param);
 
-            return easing_getFuncName(type);
-        }
-        case InlayHintType.Mode: {
-            const type = parseInt(param);
-
-            return easing_getModeName(type);
-        }
-
-        default:
-            return undefined;
-    }
+    return ret === undefined
+        ? extraInlayHintInfoInvalid
+        : ret;
 }
+
+// export function getExtraInlayHintInfo(type: InlayHintType, param: string) {
+//     switch (type) {
+//         case InlayHintType.Easing_FuncA:
+//         case InlayHintType.Easing_FuncB: {
+//             const type = parseInt(param);
+
+//             return easing_getFuncName(type);
+//         }
+//         case InlayHintType.Mode: {
+//             const type = parseInt(param);
+
+//             return easing_getModeName(type);
+//         }
+
+//         default:
+//             return undefined;
+//     }
+// }

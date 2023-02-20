@@ -2,6 +2,20 @@
 
 import { extraInlayHintInfoInvalid } from "../functions/inlayHint";
 
+export const easing_inlayHintAddition_funcName = new Map<string, string>([
+    ["0", "Linear"],
+    ["1", "Quadratic"],
+    ["2", "Cubic"],
+    ["3", "Quart"],
+    ["4", "Quint"],
+    ["5", "Sine"],
+    ["6", "Exponential"],
+    ["7", "Circular"],
+    ["8", "Back"],
+    ["9", "Elastic"],
+    ["10", "Bounce"]
+]);
+
 export function easing_getFuncName(id: number) {
     switch (id) {
         case 0:
@@ -30,6 +44,13 @@ export function easing_getFuncName(id: number) {
             return extraInlayHintInfoInvalid;
     }
 }
+
+export const easing_inlayHintAddition_modeName = new Map<string, string>([
+    ["0", "Ease-In"],
+    ["1", "Ease-Out"],
+    ["2", "Ease-In-Out"],
+    ["3", "Ease-Out-In"]
+]);
 
 export function easing_getModeName(id: number) {
     switch (id) {
