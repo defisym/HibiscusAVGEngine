@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import { iterateScripts } from './iterateScripts';
 import { InlayHintType } from './dict';
-import { callbackify } from 'util';
+import { iterateScripts } from './iterateScripts';
 
 export interface LineInfo {
     emptyLine: boolean,

@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230221
+
+- update dict
+
 ## 20230220
 
 - inlay hint addition

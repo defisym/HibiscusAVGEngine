@@ -326,7 +326,7 @@ export const fileTypeMap = new Map<number, string>([
     [FileType.label, "标签"],
 ]);
 
-export function getType(linePrefix: string, getCommand: boolean = false) {
+export function getType(linePrefix: string) {
     const params = getAllParams(linePrefix);
     const prefix = params[0][0];
     const command = params[0].substring(1);
@@ -405,7 +405,7 @@ export function getType(linePrefix: string, getCommand: boolean = false) {
 }
 
 export function getCommandType(command: string) {
-    return getType(command, false);
+    return getType(command);
 }
 
 export function getFilePath(linePrefix: string, fileName: string) {

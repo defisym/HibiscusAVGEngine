@@ -7,7 +7,6 @@ import { regexHexColor, regexRep } from '../lib/regExp';
 import { fileExists, FileType, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
 import { currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
-import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
 
@@ -311,12 +310,12 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                         break;
                     case ParamType.ObjType:
-                        if (!curParam.iCmp("Pic")
-                            && !curParam.iCmp("Str")) {
-                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
-                                , "Invalid Object Type: " + curParam
-                                , vscode.DiagnosticSeverity.Error));
-                        }
+                        // if (!curParam.iCmp("Pic")
+                        //     && !curParam.iCmp("Str")) {
+                        //     diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+                        //         , "Invalid Object Type: " + curParam
+                        //         , vscode.DiagnosticSeverity.Error));
+                        // }
 
                         break;
                     case ParamType.Color:

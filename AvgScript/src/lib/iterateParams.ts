@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
-import { InlayHintType, commandInfoList } from './dict';
-import { iterateLines } from './iterateLines';
+import { InlayHintType } from './dict';
 import { iterateScripts } from './iterateScripts';
-import { getAllParams } from './utilities';
 
 export async function iterateParams(
     newScriptCallback: (script: string, document: vscode.TextDocument) => void,

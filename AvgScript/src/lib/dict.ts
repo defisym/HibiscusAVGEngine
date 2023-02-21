@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import * as vscode from 'vscode';
-import { sleep } from './utilities';
-import { easing_inlayHintAddition_funcName, easing_inlayHintAddition_modeName } from './easing';
 import { align_objectType, align_objectTypeMap } from './align';
+import { easing_inlayHintAddition_funcName, easing_inlayHintAddition_funcNameMap, easing_inlayHintAddition_modeName, easing_inlayHintAddition_modeNameMap } from './easing';
+import { object_objectType, object_objectTypeMap } from './objectType';
+import { sleep } from './utilities';
 
 
 export let sharpKeywordList: string[] = [];
@@ -659,7 +660,17 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "更改对象叠化速度，默认为`10`，参数设定为`default`可重置默认值"
             , "该值不为零时，会在叠化阶段覆盖全局叠化速度，并在叠化阶段结束后重置为零"]
         , type: [ParamType.Number, ParamType.ObjType, ParamType.Number]
+        , required: [
+            undefined,
+            object_objectType,
+            undefined
+        ]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Type, InlayHintType.TransitionSpeed]
+        , inlayHintAddition: [
+            undefined,
+            object_objectTypeMap,
+            undefined
+        ]
     }],
     ["ForceTransition", {
         prefix: "#"
@@ -2222,15 +2233,24 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "\t@MoveStr=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
             , "移动字符串对象，具体参数说明请参见`@MoveObj`一节，坐标受`@StrCenter`参数影响"]
         , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , required: [
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_modeName
+        ]
         , inlayHintType: [InlayHintType.ID, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
         , inlayHintAddition: [
             undefined,
             undefined,
             undefined,
             undefined,
-            easing_inlayHintAddition_funcName,
-            easing_inlayHintAddition_funcName,
-            easing_inlayHintAddition_modeName,
+            easing_inlayHintAddition_funcNameMap,
+            easing_inlayHintAddition_funcNameMap,
+            easing_inlayHintAddition_modeNameMap,
         ]
     }],
     ["MoveStr", undefined],
@@ -2271,15 +2291,24 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "\t@MoveObj=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
             , "内部指令，`@MoveChar`与@`MoveStr`会被引擎转译为该指令执行"]
         , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , required: [
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_modeName
+        ]
         , inlayHintType: [InlayHintType.FixedValue, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
         , inlayHintAddition: [
             undefined,
             undefined,
             undefined,
             undefined,
-            easing_inlayHintAddition_funcName,
-            easing_inlayHintAddition_funcName,
-            easing_inlayHintAddition_modeName,
+            easing_inlayHintAddition_funcNameMap,
+            easing_inlayHintAddition_funcNameMap,
+            easing_inlayHintAddition_modeNameMap,
         ]
         , internal: true
     }],
@@ -2509,15 +2538,24 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "\t@MoveChar=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
             , "移动图片对象，具体参数说明请参见`@MoveObj`一节"]
         , type: [ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
+        , required: [
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_funcName,
+            easing_inlayHintAddition_modeName
+        ]
         , inlayHintType: [InlayHintType.ID, InlayHintType.X, InlayHintType.Y, InlayHintType.Time, InlayHintType.Easing_FuncA, InlayHintType.Easing_FuncB, InlayHintType.Mode]
         , inlayHintAddition: [
             undefined,
             undefined,
             undefined,
             undefined,
-            easing_inlayHintAddition_funcName,
-            easing_inlayHintAddition_funcName,
-            easing_inlayHintAddition_modeName,
+            easing_inlayHintAddition_funcNameMap,
+            easing_inlayHintAddition_funcNameMap,
+            easing_inlayHintAddition_modeNameMap,
         ]
     }],
     ["MoveChar", undefined],
@@ -2529,7 +2567,17 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "无叠化，调整ID指定对象的层级，通过`Type`指定不同的对象类型"
             , "`Type`为`Pic`则移动`ID`对应的图像对象，`Type`为`Str`则移动`ID`对应的字符串对象"]
         , type: [ParamType.Number, ParamType.Order, ParamType.ObjType]
+        , required: [
+            undefined,
+            undefined,
+            object_objectType
+        ]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Order, InlayHintType.Type]
+        , inlayHintAddition: [
+            undefined,
+            undefined,
+            object_objectTypeMap
+        ]
     }],
     ["Front", {
         prefix: "@"
@@ -2537,7 +2585,15 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@Front=ID:Type"
             , "无叠化，将`ID`指定的`Type`对象移至顶层"]
         , type: [ParamType.Number, ParamType.ObjType]
+        , required: [
+            undefined,
+            object_objectType
+        ]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Type]
+        , inlayHintAddition: [
+            undefined,
+            object_objectTypeMap
+        ]
     }],
     ["Back", {
         prefix: "@"
@@ -2545,7 +2601,15 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@Back=ID:Type"
             , "无叠化，将`ID`指定的`Type`对象移至底层"]
         , type: [ParamType.Number, ParamType.ObjType]
+        , required: [
+            undefined,
+            object_objectType
+        ]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Type]
+        , inlayHintAddition: [
+            undefined,
+            object_objectTypeMap
+        ]
     }],
     ["Forward", {
         prefix: "@"
@@ -2553,7 +2617,17 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@Forward=ID:Type:Num"
             , "无叠化，将`ID`指定的`Type`对象上移`Num`层，参数留空默认上移一层"]
         , type: [ParamType.Number, ParamType.ObjType, ParamType.Number]
+        , required: [
+            undefined,
+            object_objectType,
+            undefined
+        ]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Type, InlayHintType.Num]
+        , inlayHintAddition: [
+            undefined,
+            object_objectTypeMap,
+            undefined
+        ]
     }],
     ["Backward", {
         prefix: "@"
@@ -2561,7 +2635,17 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@Backward=ID:Type:Num"
             , "无叠化，将`ID`指定的`Type`对象下移`Num`层，参数留空默认下移一层"]
         , type: [ParamType.Number, ParamType.ObjType, ParamType.Number]
+        , required: [
+            undefined,
+            object_objectType,
+            undefined
+        ]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Type, InlayHintType.Num]
+        , inlayHintAddition: [
+            undefined,
+            object_objectTypeMap,
+            undefined
+        ]
     }],
 ]);
 

@@ -6,19 +6,18 @@ import * as vscode from 'vscode';
 import { activeEditor, outputChannel } from '../extension';
 import { DialogueStruct, currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import { GetDefaultParamInfo, InlayHintType, ParamInfo, ParamTypeMap, commandInfoList, generateList, inlayHintMap, resetList } from '../lib/dict';
+import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
 import { FileType, currentLineNotComment } from '../lib/utilities';
+import { createWebviewPanel } from '../webview/_create';
+import { handleOnClickLink } from '../webview/_onClickLink';
 import { assetList_getWebviewContent } from '../webview/assetList';
+import { dubList_getWebviewContent, narrator } from '../webview/dubList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
-import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, basePath, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
-import { iterateParams } from '../lib/iterateParams';
-import { iterateAllLines } from '../lib/iterateLines';
-import { dubList_getWebviewContent, narrator } from '../webview/dubList';
-import { handleOnClickLink } from '../webview/_onClickLink';
-import { createWebviewPanel } from '../webview/_create';
 
 // config
 export const confBasePath: string = "conf.AvgScript.basePath";
