@@ -242,10 +242,16 @@ export const required = vscode.languages.registerCompletionItemProvider(
 
             let ret: vscode.CompletionItem[] = [];
 
+            let curID = 65535;
+
             for (let reqItem of curRequire) {
+                curID++;
+
                 let item: vscode.CompletionItem =
                     new vscode.CompletionItem({ label: reqItem }
                         , vscode.CompletionItemKind.Keyword);
+
+                item.sortText = curID.toString();
 
                 if (paramInfo.inlayHintAddition !== undefined) {
                     const curAddition = paramInfo.inlayHintAddition[params.length - 1];
