@@ -1846,10 +1846,12 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
     ["VideoWait", undefined],
     ["VL", {
         prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["\t@VideoLoop=LoopTransition"
+        , minParam: 0, maxParam: 1
+        , description: ["\t@VL=LoopTransition"
+            , "\t@VideoLoop=LoopTransition"
             , "设定当前视频循环播放，若`LoopTransition = 1`，则会在循环结束时叠化至视频开头，适用于视频本身非无缝循环的场合"]
-        , type: []
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [InlayHintType.LoopTransition]
     }],
     ["VideoLoop", undefined],
     ["VideoFinish", {
