@@ -136,7 +136,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			triggerUpdate(true);
 		}
 	}, null, context.subscriptions);
-
 	vscode.workspace.onDidCloseTextDocument(document => {
 		diagnosticsCollection.delete(document.uri);
 
@@ -144,6 +143,16 @@ export async function activate(context: vscode.ExtensionContext) {
 		// 	triggerUpdate(true);
 		// }
 	}, null, context.subscriptions);
+
+	vscode.workspace.onDidCreateFiles(event => {
+		vscode.commands.executeCommand(commandRefreshAssets);
+	});
+	vscode.workspace.onDidDeleteFiles(event => {
+		vscode.commands.executeCommand(commandRefreshAssets);
+	});
+	vscode.workspace.onDidRenameFiles(event => {
+		vscode.commands.executeCommand(commandRefreshAssets);
+	});
 }
 
 export function deactivate() {

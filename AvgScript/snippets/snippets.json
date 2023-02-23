@@ -240,8 +240,30 @@
       "// else end"
     ],
     "description": "If clause"
+  },
+
+  // OP
+  "Snippet: Video Opening": {
+  "prefix": "Snippet: Video Opening",
+  "body": [
+    "#HideUI",
+    "@TextFadeOut",
+    "@IgnoreStaticVideo=On",
+    "@PlayVideo=$1.mp4",
+    "// @VideoFinish=#JmpCha=1",
+    "@VideoFinish=#JmpFra=$2",
+    "",
+    "[Color = #00FFFFFF]invisible[/Color]",
+    "",
+    "// #JmpCha=1",
+    "#JmpFra=$2",
+    "",
+    "#EOF"
+  ],
+  "description": "Video Opening"
   }
-  
+
+
   // template
   // "Snippet: Name": {
   // "prefix": "Snippet: Name",

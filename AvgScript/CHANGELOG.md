@@ -1,5 +1,10 @@
 # Change Log
 
+## 20230223
+
+- opening video snippet
+- trigger asset update when create/delete/rename files
+
 ## 20230221
 
 - update dict

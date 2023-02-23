@@ -13,6 +13,18 @@ import { commandBasePath, confBasePath } from './command';
 // https://nodejs.org/api/path.html#pathresolvepaths
 import path = require("path");
 
+// import fs = require('fs');
+
+// export function watchBasePath() {
+//     fs.watch(basePath,
+//         {
+//             recursive: true
+//         },
+//         (eventType, filename) => {
+//             vscode.commands.executeCommand(commandRefreshAssets);   
+//         });
+// }
+
 // state
 export let fileListInitialized = false;
 
@@ -451,6 +463,8 @@ export async function updateBasePath(newPath: string | undefined = undefined, bP
     // update
     basePath = calcBasePath;
     execPath = newPath;
+
+    // watchBasePath();
 
     return true;
 }
