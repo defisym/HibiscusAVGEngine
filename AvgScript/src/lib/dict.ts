@@ -1624,7 +1624,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , inlayHintType: [InlayHintType.Channel]
     }],
 
-    ["Se", {
+    ["SE", {
         prefix: "@"
         , minParam: 1, maxParam: 1
         , description: ["\t@SE=filename.MP3"

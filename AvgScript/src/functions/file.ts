@@ -6,24 +6,13 @@ import { pinyin } from 'pinyin-pro';
 
 import { currentLineNotComment, FileType, getBuffer, getParamAtPosition, getUri, sleep } from '../lib/utilities';
 import { commandBasePath, confBasePath } from './command';
+import { updateWatcher } from './watcher';
 
 // file
 // Get full file path in Node.js
 // https://stackoverflow.com/questions/31317007/get-full-file-path-in-node-js
 // https://nodejs.org/api/path.html#pathresolvepaths
 import path = require("path");
-
-// import fs = require('fs');
-
-// export function watchBasePath() {
-//     fs.watch(basePath,
-//         {
-//             recursive: true
-//         },
-//         (eventType, filename) => {
-//             vscode.commands.executeCommand(commandRefreshAssets);   
-//         });
-// }
 
 // state
 export let fileListInitialized = false;
@@ -464,7 +453,7 @@ export async function updateBasePath(newPath: string | undefined = undefined, bP
     basePath = calcBasePath;
     execPath = newPath;
 
-    // watchBasePath();
+    updateWatcher();
 
     return true;
 }
