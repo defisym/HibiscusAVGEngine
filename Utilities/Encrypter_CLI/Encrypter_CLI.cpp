@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
 
 		Encrypt.GenerateKey(wKey.c_str());
 
-//#define USE_PROCESS_DIRECTLY
+#define USE_PROCESS_DIRECTLY
 
 #ifdef USE_PROCESS_DIRECTLY
 		Encrypt.SetBufferSize(bufSz);
