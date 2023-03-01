@@ -1,54 +1,58 @@
 import * as vscode from 'vscode';
-import { commandRefreshAssets } from './command';
+import { commandRefreshAssets, confAutoUpdate } from './command';
+import { basePath } from './file';
 
-// let watcherInitialized = false;
-// let watcher = updateWatcherCore();
+let oldBasePath = '';
 
-export function updateWatcher() {
-    // watcher = updateWatcherCore();
+function getAutoUpdateState() {
+    return vscode.workspace.getConfiguration().get<boolean>(confAutoUpdate, true);
 }
 
-// function updateWatcherCore() {
-//     if (watcherInitialized) {
-//         watcher.dispose();
-//     }
+function watcherAction(){
+    if (!getAutoUpdateState()) {
+        return;
+    }
 
-//     if (basePath !== undefined) {
-//         let u = vscode.Uri.file(basePath);
-//         let p = new vscode.RelativePattern(vscode.Uri.file(basePath), '**/{*, *.*}');
+    vscode.commands.executeCommand(commandRefreshAssets);
+}
 
-//         let w = basePath;
-//     }
+export function updateWatcher() {
+    if (!getAutoUpdateState()) {
+        return;
+    }
 
-//     const ret = basePath === undefined
-//         ? vscode.workspace.createFileSystemWatcher('**'
-//             , false, false, false)
-//         : vscode.workspace.createFileSystemWatcher(
-//             new vscode.RelativePattern(vscode.Uri.file(basePath), '**')
-//             , false, false, false
-//         );
+    if (basePath === undefined) {
+        return;
+    }
 
-//     watcherInitialized = true;
+    if (oldBasePath.iCmp(basePath)) {
+        return;
+    }
 
-//     return ret;
-// }
+    oldBasePath = basePath;
 
-// watcher.onDidChange(uri => {
-//     vscode.commands.executeCommand(commandRefreshAssets);
-// });
-// watcher.onDidCreate(uri => {
-//     vscode.commands.executeCommand(commandRefreshAssets);
-// });
-// watcher.onDidDelete(uri => {
-//     vscode.commands.executeCommand(commandRefreshAssets);
-// });
+    let watcher = vscode.workspace.createFileSystemWatcher(
+        new vscode.RelativePattern(vscode.Uri.file(basePath), '**/*.*')
+        , false, false, false
+    );
+
+    watcher.onDidChange(uri => {
+        watcherAction();
+    });
+    watcher.onDidCreate(uri => {
+        watcherAction();
+    });
+    watcher.onDidDelete(uri => {
+        watcherAction();
+    });
+}
 
 vscode.workspace.onDidCreateFiles(event => {
-    vscode.commands.executeCommand(commandRefreshAssets);
+    watcherAction();
 });
 vscode.workspace.onDidDeleteFiles(event => {
-    vscode.commands.executeCommand(commandRefreshAssets);
+    watcherAction();
 });
 vscode.workspace.onDidRenameFiles(event => {
-    vscode.commands.executeCommand(commandRefreshAssets);
+    watcherAction();
 });

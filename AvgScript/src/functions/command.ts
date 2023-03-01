@@ -21,6 +21,8 @@ import { getLabelJumpMap } from './label';
 
 // config
 export const confBasePath: string = "conf.AvgScript.basePath";
+export const confAutoUpdate: string = "conf.AvgScript.autoUpdate";
+
 export const confCommandExt: string = "conf.AvgScript.commandExtension";
 export const confReplaceScript: string = "conf.AvgScript.replaceScript";
 
