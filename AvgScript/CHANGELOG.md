@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230301
+
+- watcher for base path
+
 ## 20230223
 
 - opening video snippet

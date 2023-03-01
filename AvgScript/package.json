@@ -110,6 +110,12 @@
                         "order": 0,
                         "description": "Absolute path of main program"
                     },
+                    "conf.AvgScript.autoUpdate": {
+                        "type": "boolean",
+                        "order": 0,
+                        "description": "Auto update file list if files in basePath have changed",
+                        "default": "true"
+                    },
                     "conf.AvgScript.commandExtension": {
                         "type": "array",
                         "order": 1,
@@ -174,7 +180,7 @@
                                     "description": "required",
                                     "items": {
                                         "type": "array",
-                                        "description": "available items",                                        
+                                        "description": "available items",
                                         "items": {
                                             "type": "string"
                                         }
