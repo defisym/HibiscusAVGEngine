@@ -6,7 +6,10 @@ Hibiscus AVG Engine V6.0
 
 ## Games made with Hibiscus
 
-- [EndlessShinyBlues](https://store.steampowered.com/app/1315620/) 2020.12.1
+| Title                                                            | Release Date |
+| ---------------------------------------------------------------- | ------------ |
+| [MOBIUS BAND*](https://store.steampowered.com/app/2123380/)      | ETA 2023     |
+| [EndlessShinyBlues](https://store.steampowered.com/app/1315620/) | 2020.12.1    |
 
 ## AvgScript
 
