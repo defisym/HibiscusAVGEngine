@@ -982,6 +982,7 @@ QuickBar = 1
       1. `data\Assets\`
          1. `data\Assets\Movies\*.*`
          2. `data\Assets\Fonts\*.*`
+      2. `data\audio\*.*`
       2. `data\dialogue\*.*`
       3. `data\Graphics`
          1. `data\Graphics\FX\*.*`
@@ -1957,9 +1958,20 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 | SE   | 音效     |
 | Dubs | 语音     |
 
+#### 音频通道
+
+音频通道分独占与混合两类，其中独占通道一次只能播放一个音频，播放新的音频会终止旧音频的播放，用于BGM等不允许混合的类别。混合通道允许播放复数个音频，如音效
+
+| 类别 | 说明     | 通道ID | 通道类别 |
+| ---- | -------- | ------ | -------- |
+| BGM  | 背景音乐 | 0      | 独占     |
+| BGS  | 背景声音 | 1      | 独占     |
+| Dubs | 语音     | 2      | 独占     |
+| SE   | 音效     | 0      | 混合     |
+
 #### 通用音频指令
 
-##### `@P=filename.mp3:volume:channel`
+##### `@P=filename.mp3:volume:channel:channelType:FadeIn`
 
 同义指令
 
@@ -1969,18 +1981,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 其中`volume`可以直接接受`BGM`、`BGS`、`SE`、`DUB`作为参数来返回对应通道的音量
 
-系统默认占用`1~5`号通道，用户可以安全使用的为`6~48`号通道
-
-| 类别 | 说明     | 通道占用       |
-| ---- | -------- | -------------- |
-| Dubs | 语音     | 占用1号通道    |
-| BGM  | 背景音乐 | 占用2号通道    |
-| BGS  | 背景声音 | 占用4号通道    |
-| SE   | 音效     | 占用3、5号通道 |
-
-使用例：`@play=dubs\dubTest.ogg:100:DUB`
-
-##### `@Stop=channel`
+##### `@Stop=channel:channelType:FadeOut`
 
 停止特定通道的音频播放
 

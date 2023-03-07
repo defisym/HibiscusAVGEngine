@@ -2,6 +2,7 @@
 
 import * as vscode from 'vscode';
 import { align_objectType, align_objectTypeMap } from './align';
+import { audio_inlayHintAddition_ChannelTypeMap } from './audio';
 import { easing_inlayHintAddition_funcName, easing_inlayHintAddition_funcNameMap, easing_inlayHintAddition_modeName, easing_inlayHintAddition_modeNameMap } from './easing';
 import { object_objectType, object_objectTypeMap } from './objectType';
 import { sleep } from './utilities';
@@ -413,6 +414,8 @@ export enum InlayHintType {
     Align,
     SpaceType,
     Space,
+    ChannelType,
+    FadeTime,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -510,6 +513,8 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.Align, "对齐方式"],
     [InlayHintType.SpaceType, "间距类型"],
     [InlayHintType.Space, "间距"],
+    [InlayHintType.ChannelType, "通道类型"],
+    [InlayHintType.FadeTime, "过渡时间"],
 ]);
 
 export interface ParamInfo {
@@ -1605,23 +1610,34 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
     ["P", {
         prefix: "@"
         , minParam: 3, maxParam: 3
-        , description: ["\t@P=filename.mp3:volume:channel"
-            , "\t@Play=filename.mp3:volume:channel"
+        , description: ["\t@P=filename.mp3:volume:channel:channelType:FadeIn"
+            , "\t@Play=filename.mp3:volume:channel:channelType:FadeIn"
             , "在指定的频道内以指定的音量播放一次`Audio`文件夹下指定的音频文件"
-            , "其中`volume`可以直接接受`BGM`、`BGS`、`SE`、`DUB`作为参数来返回对应通道的音量"
-            , "系统默认占用`1~5`号通道，用户可以安全使用的为`6~48`号通道"]
-        , type: [ParamType.File, ParamType.String, ParamType.Number]
-        , inlayHintType: [InlayHintType.AudioFileName, InlayHintType.Volume, InlayHintType.Channel]
+            , "其中`volume`可以直接接受`BGM`、`BGS`、`SE`、`DUB`作为参数来返回对应通道的音量"]
+        , type: [ParamType.File, ParamType.String, ParamType.Number, ParamType.ZeroOne, ParamType.Number]
+        , inlayHintType: [InlayHintType.AudioFileName, InlayHintType.Volume, InlayHintType.Channel, InlayHintType.ChannelType, InlayHintType.FadeTime]
+        , inlayHintAddition: [
+            undefined,
+            undefined,
+            undefined,
+            audio_inlayHintAddition_ChannelTypeMap,
+            undefined,
+        ]
     }],
     ["Play", undefined],
 
     ["Stop", {
         prefix: "@"
         , minParam: 1, maxParam: 1
-        , description: ["\t@Stop=channel"
+        , description: ["\t@Stop=channel:channelType:FadeOut"
             , "停止特定通道的音频播放"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.Channel]
+        , type: [ParamType.Number, ParamType.ZeroOne, ParamType.Number]
+        , inlayHintType: [InlayHintType.Channel, InlayHintType.ChannelType, InlayHintType.FadeTime]
+        , inlayHintAddition: [
+            undefined,
+            undefined,
+            audio_inlayHintAddition_ChannelTypeMap,
+        ]
     }],
 
     ["SE", {

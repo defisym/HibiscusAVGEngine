@@ -139,6 +139,10 @@ for /r "%ContentPath%\data\Assets" %%F in (*.*) do (
 	%Encrypter_CLI% -f %%F --encrypt --key %Encrypter_Key%
 )
 
+for /r "%ContentPath%\data\audio" %%F in (*.*) do (
+	%Encrypter_CLI% -f %%F --encrypt --key %Encrypter_Key%
+)
+
 for /r "%ContentPath%\data\dialogue" %%F in (*.*) do (
 	%Encrypter_CLI% -f %%F --encrypt --key %Encrypter_Key%
 )
