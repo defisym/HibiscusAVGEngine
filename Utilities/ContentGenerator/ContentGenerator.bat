@@ -136,23 +136,23 @@ rmdir /s /q "%ContentPath%\Mobius_Text\"
 
 @echo Encrypt Files...
 for /r "%ContentPath%\data\Assets" %%F in (*.*) do (
-	%Encrypter_CLI% -f %%F --encrypt --key %Encrypter_Key%
+	%Encrypter_CLI% -f "%%F" --encrypt --key %Encrypter_Key%
 )
 
 for /r "%ContentPath%\data\audio" %%F in (*.*) do (
-	%Encrypter_CLI% -f %%F --encrypt --key %Encrypter_Key%
+	%Encrypter_CLI% -f "%%F" --encrypt --key %Encrypter_Key%
 )
 
 for /r "%ContentPath%\data\dialogue" %%F in (*.*) do (
-	%Encrypter_CLI% -f %%F --encrypt --key %Encrypter_Key%
+	%Encrypter_CLI% -f "%%F" --encrypt --key %Encrypter_Key%
 )
 
 for /r "%ContentPath%\data\Graphics" %%F in (*.*) do (
-	%Encrypter_CLI% -f %%F --encrypt --key %Encrypter_Key%
+	%Encrypter_CLI% -f "%%F" --encrypt --key %Encrypter_Key%
 )
 
 for /r "%ContentPath%\savings\_Global" %%F in (*.*) do (
-	%Encrypter_CLI% -f %%F --encrypt --key %Encrypter_Key%
+	%Encrypter_CLI% -f "%%F" --encrypt --key %Encrypter_Key%
 )
 
 for /r "%ContentPath%\savings\_Sys" %%F in (*.*) do (
