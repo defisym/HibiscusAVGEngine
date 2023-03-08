@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListHasItem, getCorrectPathAndType, getFullFileNameByType, graphicCGCompletions, graphicCharactersCompletions, graphicFXCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from '../functions/file';
-import { InlayHintType, commandInfoList, deprecatedKeywordList, docList, internalKeywordList } from './dict';
+import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, internalKeywordList } from './dict';
 import { iterateLines } from './iterateLines';
 import { beginRegex, endRegex } from './regExp';
 
@@ -297,6 +297,7 @@ export enum FileType {
     cg,
     patternFade,
 
+    audio,
     bgm,
     bgs,
     dubs,
@@ -378,6 +379,8 @@ export function getType(linePrefix: string) {
                 return FileType.cg;
             case InlayHintType.PatternFadeFileName:
                 return FileType.patternFade;
+            case InlayHintType.AudioFileName:
+                return FileType.audio;
             case InlayHintType.BGMFileName:
                 return FileType.bgm;
             case InlayHintType.BGSFileName:

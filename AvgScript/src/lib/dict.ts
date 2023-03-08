@@ -469,7 +469,7 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.Font, "字体"],
     [InlayHintType.OutlinePixel, "描边像素数"],
     [InlayHintType.Volume, "音量"],
-    [InlayHintType.Channel, "声道"],
+    [InlayHintType.Channel, "音频通道"],
     [InlayHintType.FadeSpeed, "淡入淡出速度"],
     [InlayHintType.StartPoint, "开始点"],
     [InlayHintType.EndPoint, "结束点"],
@@ -1609,7 +1609,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
     ["P", {
         prefix: "@"
-        , minParam: 3, maxParam: 3
+        , minParam: 3, maxParam: 5
         , description: ["\t@P=filename.mp3:volume:channel:channelType:FadeIn"
             , "\t@Play=filename.mp3:volume:channel:channelType:FadeIn"
             , "在指定的频道内以指定的音量播放一次`Audio`文件夹下指定的音频文件"

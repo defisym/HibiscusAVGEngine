@@ -146,6 +146,8 @@ export function getBasePathByType(type: FileType) {
         case FileType.patternFade:
             return graphicPatternFadePath;
 
+        case FileType.audio:
+            return audio;
         case FileType.bgm:
             return audioBgmPath;
         case FileType.bgs:
