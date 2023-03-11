@@ -59,15 +59,21 @@ export const settingsParamDocList = new Map<string, string[]>([
         , "其中不同参数使用`|`进行分割"]],
 
     ["LangSwitchAble", ["该脚本支持切换语言后读取"]],
+
     ["VN", ["启用Visual Novel模式"]],
     ["VNMode", ["启用Visual Novel模式"]],
     ["Lite", ["启用Lite模式，该模式下部分功能会被禁用"]],
     ["LiteMode", ["启用Lite模式，该模式下部分功能会被禁用"]],
+
     ["UnSkipAble", ["该脚本无法使用跳过按钮/快捷键跳过"
         , "若需要中途启用，可使用`#SkipAble`指令"]],
+
     ["NoHistory", ["禁用历史记录功能"]],
     ["NoHistoryJump", ["禁用历史记录跳转功能"]],
     ["ResetHistory", ["开始对话时重置历史记录"]],
+
+    ["SeparateDubID", ["对不同角色使用不同的语音ID"]],
+
     ["LoadOnCall", ["在第一次使用时读取并缓存"]],
     ["LoadAtStart", ["在读取脚本时即读取该场景中使用的所有图像素材并缓存"]],
     ["LoadAll", ["加载图像文件夹中的所有图像素材并缓存"]],

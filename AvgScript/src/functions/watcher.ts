@@ -36,9 +36,10 @@ export function updateWatcher() {
         , false, false, false
     );
 
-    watcher.onDidChange(uri => {
-        watcherAction();
-    });
+    // rename -> create + delete
+    // watcher.onDidChange(uri => {
+    //     watcherAction();
+    // });
     watcher.onDidCreate(uri => {
         watcherAction();
     });

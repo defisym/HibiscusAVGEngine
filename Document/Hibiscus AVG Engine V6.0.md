@@ -454,6 +454,8 @@ History_Audio_Y=480
 
 引擎默认启用自动语音序列，即根据音频指针`NowTalking`值自动播放对应章节的语音文件。音频指针从零开始，根据对白进度自动更新，请在使用跳转指令后重新指定指针位置。
 
+若设置项中启用了`SeparateDubID`，则不同角色的音频指针相互独立，且对应的语音文件名会增加语音提示作为前缀，如`丽丽娅_15`
+
 #### 语音提示
 
 姓名部分会被视为语音提示，引擎会根据剩余部分查找设置中的音量定义，来实现不同角色的不同音量。若该行的姓名部分以`$`开头，该行作为旁白处理。
@@ -470,6 +472,12 @@ History_Audio_Y=480
 6. 若仍不合法或音量为零，则终止播放
 
 其中`Language_LocalCode`和`Language_LocalCodeFallback`为设置中指定的语言ID，`DubChapter`默认为当前章节名，即`dialogue\chapterFileName`。若`DubSequePrefix`为空，则`语音文件名`为`NowTalking`，无下划线
+
+#### 调试信息
+
+左上角会显示当前语音前缀，语音章节，语音文件名与播放文件名
+
+![DubDebug](media/DubDebug.png)
 
 ### 正则替换
 
@@ -665,6 +673,9 @@ namenull.png = 2_1
   - 禁用历史记录跳转功能
 - `ResetHistory`
   - 开始对话时重置历史记录
+
+- `SeparateDubID`
+  - 对不同角色使用不同的语音ID
 
 - 缓存控制
   - `LoadOnCall`

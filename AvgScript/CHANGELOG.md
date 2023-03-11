@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230311
+
+- don't watch content change
+
 ## 20230301
 
 - watcher for base path
