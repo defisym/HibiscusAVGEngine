@@ -18,7 +18,7 @@ for i in range(12, 18):
     mkdir(localPath)
 
     for index in range(length):
-        outName = localPath + '/' + str(index) + '.ogg'
+        outName = localPath + '/' + str(silence) + '_' + str(index) + '.ogg'
         print(outName)
 
         dubs[index].export(outName, format='ogg')
