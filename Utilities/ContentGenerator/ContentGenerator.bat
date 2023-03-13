@@ -135,6 +135,9 @@ for /r "%ContentPath%\Mobius_Text" %%F in (*.*) do (
 rmdir /s /q "%ContentPath%\Mobius_Text\"
 
 @echo Encrypt Files...
+
+%Encrypter_CLI% -f "%ContentPath%\settings\settings_Dynamic.ini" --encrypt --key %Encrypter_Key%
+
 for /r "%ContentPath%\data\Assets" %%F in (*.*) do (
 	%Encrypter_CLI% -f "%%F" --encrypt --key %Encrypter_Key%
 )
@@ -187,14 +190,26 @@ for /f "usebackq" %%a in (`%Encrypter_CLI% -f "%ContentPath%\%AppName%.exe" --ha
 	Set Hash=%%a
 )
 
+@echo ExeHash
 @echo %Hash%
 
 %Settings_CLI% -f "%ContentPath%\settings\settings.ini" --unicode --section System --item ExeHash --value %Hash%
 %Settings_CLI% -f "%ContentPath%\settings\settings_Template.ini" --unicode --section System --item ExeHash --value %Hash%
 
+for /f "usebackq" %%a in (`%Encrypter_CLI% -f "%ContentPath%\%AppName%.dat" --hash`) do (
+	Set Hash=%%a
+)
+
+@echo DatHash
+@echo %Hash%
+
+%Settings_CLI% -f "%ContentPath%\settings\settings.ini" --unicode --section System --item DatHash --value %Hash%
+%Settings_CLI% -f "%ContentPath%\settings\settings_Template.ini" --unicode --section System --item DatHash --value %Hash%
+
+@echo Encrypt Settings
+
 %Encrypter_CLI% -f "%ContentPath%\settings\settings.ini" --encrypt --key %Encrypter_Key%
 %Encrypter_CLI% -f "%ContentPath%\settings\settings_Template.ini" --encrypt --key %Encrypter_Key%
-%Encrypter_CLI% -f "%ContentPath%\settings\settings_Dynamic.ini" --encrypt --key %Encrypter_Key%
 
 @REM @Pause
 
