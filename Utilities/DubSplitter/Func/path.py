@@ -1,4 +1,10 @@
 import os
+import sys
+
+
+# https://cloud.tencent.com/developer/article/1566632
+def script_path(file):
+    return os.path.split(file)[0]
 
 
 def process_path(path):
