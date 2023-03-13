@@ -2,6 +2,8 @@
 
 an easy tool to split dubs based on given silence
 
+![Screenshot](Screenshot.png)
+
 | Command           | type   | Info                                                                          |
 |-------------------|--------|-------------------------------------------------------------------------------|
 | -f, --fileName    | option | file to process                                                               |
