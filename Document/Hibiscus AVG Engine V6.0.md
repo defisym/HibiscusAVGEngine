@@ -2082,7 +2082,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 变更角色`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列
 
-未启用`SeparateDubID`时该指令依旧有效，但向未记录过登场角色的变更不会被保存
+未启用`SeparateDubID`时，该指令依旧有效，但向未记录过登场角色的变更不会被保存。为下一行文本中的首次登场角色使用该指令是安全的
 
 ##### `@Dub=FileName:KeepSeq:KeepNTK`
 

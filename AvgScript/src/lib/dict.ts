@@ -1792,8 +1792,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@NTK=NowTalking:KeepSeq"
             , "\t@NTKChange=NowTalking:KeepSeq"
             , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列"]
-        , type: [ParamType.String, ParamType.Number, ParamType.Boolean]
-        , inlayHintType: [InlayHintType.CharName, InlayHintType.NowTalking, InlayHintType.KeepSeq]
+        , type: [ParamType.Number, ParamType.Boolean]
+        , inlayHintType: [InlayHintType.NowTalking, InlayHintType.KeepSeq]
     }],
     ["NtkChange", undefined],
 
@@ -1801,9 +1801,10 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         prefix: "@"
         , minParam: 2, maxParam: 3
         , description: ["\t@SeparateNTKChange=CharName:NowTalking:KeepSeq"
-            , "变更角色`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列"]
-        , type: [ParamType.Number, ParamType.Boolean]
-        , inlayHintType: [InlayHintType.NowTalking, InlayHintType.KeepSeq]
+            , "变更角色`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列"
+            , "未启用`SeparateDubID`时，该指令依旧有效，但向未记录过登场角色的变更不会被保存。为下一行文本中的首次登场角色使用该指令是安全的"]
+        , type: [ParamType.String, ParamType.Number, ParamType.Boolean]
+        , inlayHintType: [InlayHintType.CharName, InlayHintType.NowTalking, InlayHintType.KeepSeq]
     }],
 
     ["PV", {
