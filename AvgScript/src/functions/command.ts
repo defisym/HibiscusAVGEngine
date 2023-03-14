@@ -4,17 +4,17 @@ import path = require('path');
 import * as vscode from 'vscode';
 
 import { activeEditor, outputChannel } from '../extension';
-import { DialogueStruct, currentLineDialogue, parseDialogue } from '../lib/dialogue';
-import { GetDefaultParamInfo, InlayHintType, ParamInfo, ParamTypeMap, commandInfoList, generateList, inlayHintMap, resetList } from '../lib/dict';
+import { currentLineDialogue, DialogueStruct, parseDialogue } from '../lib/dialogue';
+import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
 import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
-import { FileType, currentLineNotComment } from '../lib/utilities';
-import { createWebviewPanel } from '../webview/_create';
-import { handleOnClickLink } from '../webview/_onClickLink';
+import { currentLineNotComment, FileType } from '../lib/utilities';
 import { assetList_getWebviewContent } from '../webview/assetList';
 import { dubList_getWebviewContent, narrator } from '../webview/dubList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
+import { createWebviewPanel } from '../webview/_create';
+import { handleOnClickLink } from '../webview/_onClickLink';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
 import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
@@ -692,7 +692,10 @@ export const commandGetDubList_impl = async () => {
                 }
 
                 const dialogueStruct = parseDialogue(line.toLocaleLowerCase(), line);
-                let name = dialogueStruct.m_namePart;
+                
+                // depend on display name
+                // let name = dialogueStruct.m_namePart;
+                let name = dialogueStruct.m_name;
 
                 if (name.empty()) {
                     name = narrator;

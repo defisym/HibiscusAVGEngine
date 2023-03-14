@@ -1,5 +1,12 @@
 # Change Log
 
+## 20230314
+
+- iterate scripts now take invalid script into account
+- goto error line if error occurs when iterating scripts
+- list dub lines now show the index
+- tweak list dub for separate dub ID
+
 ## 20230311
 
 - don't watch content change

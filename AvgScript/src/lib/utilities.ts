@@ -513,3 +513,33 @@ export function imageStretched(originSize: ImageSize, targetSize: ImageSize, tol
 
     return Math.abs(diff) > tolerance;
 }
+
+export async function jumpToDocument(uri: vscode.Uri, line: number) {
+    if (Number.isNaN(line)) {
+        const editor = await vscode.window.showTextDocument(uri
+            , {
+                viewColumn: vscode.ViewColumn.Beside
+            });
+        editor.revealRange(new vscode.Range(0, 0, 0, 0)
+            , vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+    }
+
+    const doc = await vscode.workspace.openTextDocument(uri);
+    const text = doc.lineAt(line).text;
+
+    const range = new vscode.Range(line, 0
+        , line, text.length);
+    const selection = new vscode.Selection(line, 0
+        , line, text.length);
+
+    const editor = await vscode.window.showTextDocument(uri, {
+        viewColumn: vscode.ViewColumn.Beside,
+        // viewColumn: vscode.window.activeTextEditor === undefined || vscode.window.activeTextEditor.viewColumn === undefined
+        //     ? vscode.ViewColumn.Beside
+        //     : vscode.window.activeTextEditor.viewColumn + 1,
+        selection: selection,
+    });
+
+    editor.revealRange(range
+        , vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+}

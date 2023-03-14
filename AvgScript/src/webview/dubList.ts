@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import { DubInfo } from "../functions/command";
-import { markDown_getLink, markDown_getMarkDownLevel, markDown_linkEscape, markDown_newLine, markdownParser } from "./_mdToHtml";
+import { markdownParser, markDown_getLink, markDown_getMarkDownLevel, markDown_linkEscape, markDown_newLine } from "./_mdToHtml";
 import { onClickLinkScript } from "./_onClickLink";
 
 export const narrator = '旁白';
@@ -38,45 +38,81 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
     let charListCount = 0;
     const charListTitleLink = markDown_linkEscape(charListTitle);
 
+    let curScript = '';
+
     dubMap.forEach((value: DubInfo[], key: string) => {
-        const templateInfo = value[0];
+        let checkInternal = (info: DubInfo) => {
+            let name = key !== narrator
+                ? info.dialogueStruct.m_name
+                : narrator;
+            let internalName = key !== narrator
+                ? info.dialogueStruct.m_namePartRaw
+                : narrator;
+
+            // console.log(name, internalName);
+
+            // if (internalName !== name) {
+            //     console.log("diff");
+            // }
+
+            return (internalName !== name
+                ? 'internal name: ' + '\`' + internalName + '\`' + ' '
+                : '');
+        };
 
         let wordCount = 0;
         let diaContent = '';
 
+        let infoIndex = 0;
+
         for (const info of value) {
+            if (curScript !== info.script) {
+                curScript = info.script;
+                infoIndex = 0;
+
+                diaContent += markDown_getMarkDownLevel(3)
+                    + 'Script ' + curScript;
+                diaContent += markDown_newLine;
+            }
+
             const dia = info.dialogueStruct.m_dialoguePart;
             wordCount += dia.length;
 
-            // diaContent += dia;
-            // diaContent += markDown_getLink(dia
-            //     , info.uri + '#' + info.line.toString());
+
+            let internal = checkInternal(info);
+
+            diaContent += internal !== ''
+                ? markDown_getMarkDownLevel(3) + internal
+                : '';
+            diaContent += markDown_newLine;
+
             diaContent += markDown_getLink('↪'
                 , info.uri + '#' + info.line.toString())
                 + ' '
+                + infoIndex.toString().padStart(Math.max(4, value.length.toString().length), '0')
+                + ' '
                 + dia;
             diaContent += markDown_newLine;
+
+            infoIndex++;
         }
+
+        const templateInfo = value[0];
 
         let name = key !== narrator
             ? templateInfo.dialogueStruct.m_name
             : narrator;
-        let internalName = key !== narrator
-            ? templateInfo.dialogueStruct.m_namePartRaw
-            : narrator;
+        // let internalName = key !== narrator
+        //     ? templateInfo.dialogueStruct.m_namePartRaw
+        //     : narrator;
 
         let charTitle = name + ': '
-            + (internalName !== name
-                ? 'internal name: ' + '\`' + internalName + '\`' + ', '
-                : '')
+            // + checkInternal(templateInfo)
             + value.length.toString() + ' lines'
             + ', '
             + wordCount.toString() + ' words';
 
         const charTitleLink = markDown_linkEscape('↩ ' + charTitle);
-
-        // charList += markDown_getLink(name, '#' + charTitleLink.toLowerCase())
-        //     + markDown_newLine;
 
         charList += markDown_getLink(name, '#' + charTitleLink.toLowerCase());
         charListCount++;

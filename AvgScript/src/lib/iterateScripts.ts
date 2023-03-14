@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 
 import { projectConfig, scriptPath } from '../functions/file';
-import { InlayHintType, commandInfoList } from './dict';
+import { commandInfoList, InlayHintType } from './dict';
 import { iterateLines } from './iterateLines';
-import { getAllParams, sleep } from './utilities';
+import { getAllParams, jumpToDocument, sleep } from './utilities';
 
 // await iterateScripts((script: string, document: vscode.TextDocument) => { },
 //     (initScript: string,
@@ -34,20 +34,54 @@ export async function iterateScripts(
     let initScript = initSettings.substring(initSettings.lastIndexOf('\\') + 1);
 
     // generate ref list
-    let scripts: string[] = [initScript];
+    interface ReferScript {
+        script: string,
+        line: number,
+    }
+
+    let scripts: [string, ReferScript][] = [[initScript, { script: "Settings", line: -1 }]];
     let scannedScripts: string[] = [];
 
-    let praseScript = async (scripts: string[]) => {
-        let referredScripts: string[] = [];
+    let praseScript = async (scripts: [string, ReferScript][]) => {
+        let referredScripts: [string, ReferScript][] = [];
 
-        for (let script of scripts) {
+        let getScriptFullPath = (script: string) => {
             let filePath = scriptPath + '\\' + script;
 
             if (!filePath.substring(filePath.length - 4).iCmp('.asc')) {
                 filePath += '.asc';
             }
 
-            let document = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
+            return filePath;
+        };
+
+        for (let [script, referScript] of scripts) {
+            let filePath = getScriptFullPath(script);
+
+            let document: vscode.TextDocument | undefined = undefined;
+
+            try {
+                document = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
+            } catch (err) {
+
+                vscode.window.showErrorMessage(referScript.script
+                    + ' referred invalid script ' + script
+                    + ' at line ' + referScript.line,
+                    "Goto").then(async (value) => {
+                        if (value === undefined) {
+                            return;
+                        }
+
+                        await jumpToDocument(vscode.Uri.file(getScriptFullPath(referScript.script)), referScript.line);
+                    });
+
+                console.log(filePath);
+                console.log(err);
+            }
+
+            if (document === undefined) {
+                continue;
+            }
 
             newScriptCallback(script, document);
 
@@ -84,7 +118,7 @@ export async function iterateScripts(
                     if (currentType === InlayHintType.Chapter
                         && !scannedScripts.hasValue(currentParam)) {
                         scannedScripts.push(currentParam);
-                        referredScripts.push(currentParam);
+                        referredScripts.push([currentParam, { script: script, line: lineNumber }]);
                     }
 
                     paramCallback(initScript,
