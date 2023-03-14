@@ -6,6 +6,8 @@
 - goto error line if error occurs when iterating scripts
 - list dub lines now show the index
 - tweak list dub for separate dub ID
+- fix chapter title didn't display in some cases in dub lists due to incorrect variable life cycle
+- hide internal name if no internal name change
 
 ## 20230311
 

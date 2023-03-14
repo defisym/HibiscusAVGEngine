@@ -38,8 +38,6 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
     let charListCount = 0;
     const charListTitleLink = markDown_linkEscape(charListTitle);
 
-    let curScript = '';
-
     dubMap.forEach((value: DubInfo[], key: string) => {
         let checkInternal = (info: DubInfo) => {
             let name = key !== narrator
@@ -60,10 +58,30 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
                 : '');
         };
 
+        let oldInternal: undefined | string = undefined;
+        let bInternalChanged = false;
+
+        for (const info of value) {
+            let internalName = key !== narrator
+                ? info.dialogueStruct.m_namePartRaw
+                : narrator;
+
+            if (oldInternal === undefined) {
+                oldInternal = internalName;
+            }
+
+            if (oldInternal !== internalName) {
+                bInternalChanged = true;
+
+                break;
+            }
+        }
+
         let wordCount = 0;
         let diaContent = '';
 
         let infoIndex = 0;
+        let curScript = '';
 
         for (const info of value) {
             if (curScript !== info.script) {
@@ -78,13 +96,14 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
             const dia = info.dialogueStruct.m_dialoguePart;
             wordCount += dia.length;
 
+            if (bInternalChanged) {
+                let internal = checkInternal(info);
 
-            let internal = checkInternal(info);
-
-            diaContent += internal !== ''
-                ? markDown_getMarkDownLevel(3) + internal
-                : '';
-            diaContent += markDown_newLine;
+                diaContent += internal !== ''
+                    ? markDown_getMarkDownLevel(3) + internal
+                    : '';
+                diaContent += markDown_newLine;
+            }
 
             diaContent += markDown_getLink('↪'
                 , info.uri + '#' + info.line.toString())
