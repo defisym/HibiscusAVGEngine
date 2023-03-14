@@ -422,6 +422,7 @@ export enum InlayHintType {
     Space,
     ChannelType,
     FadeTime,
+    CharName,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -480,7 +481,7 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.StartPoint, "开始点"],
     [InlayHintType.EndPoint, "结束点"],
     [InlayHintType.PreludePoint, "前奏点"],
-    [InlayHintType.NowTalking, "当前对话"],
+    [InlayHintType.NowTalking, "语音指针"],
     [InlayHintType.Num, "个数"],
     [InlayHintType.Easing_FuncA, "缓动函数A"],
     [InlayHintType.Easing_FuncB, "缓动函数B"],
@@ -521,6 +522,7 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.Space, "间距"],
     [InlayHintType.ChannelType, "通道类型"],
     [InlayHintType.FadeTime, "过渡时间"],
+    [InlayHintType.CharName, "角色姓名"],
 ]);
 
 export interface ParamInfo {
@@ -1790,10 +1792,19 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@NTK=NowTalking:KeepSeq"
             , "\t@NTKChange=NowTalking:KeepSeq"
             , "变更`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列"]
+        , type: [ParamType.String, ParamType.Number, ParamType.Boolean]
+        , inlayHintType: [InlayHintType.CharName, InlayHintType.NowTalking, InlayHintType.KeepSeq]
+    }],
+    ["NtkChange", undefined],
+
+    ["SeparateNTKChange", {
+        prefix: "@"
+        , minParam: 2, maxParam: 3
+        , description: ["\t@SeparateNTKChange=CharName:NowTalking:KeepSeq"
+            , "变更角色`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列"]
         , type: [ParamType.Number, ParamType.Boolean]
         , inlayHintType: [InlayHintType.NowTalking, InlayHintType.KeepSeq]
     }],
-    ["NtkChange", undefined],
 
     ["PV", {
         prefix: "@"
