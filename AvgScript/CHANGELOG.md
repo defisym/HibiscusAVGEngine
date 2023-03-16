@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230316
+
+- chapter jump for dub lists
+
 ## 20230314
 
 - iterate scripts now take invalid script into account

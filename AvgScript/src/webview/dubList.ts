@@ -28,6 +28,7 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
         + 'Dub List'
         + markDown_newLine;
 
+    // char title
     const charListTitle = 'Character List';
     let charList = markDown_getMarkDownLevel(2)
         + charListTitle
@@ -36,6 +37,7 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
     const charListAppend = ',\t\t\t\t\t\t\t\t';
     const charListWidth = 8;
     let charListCount = 0;
+
     const charListTitleLink = markDown_linkEscape(charListTitle);
 
     dubMap.forEach((value: DubInfo[], key: string) => {
@@ -83,14 +85,50 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
         let infoIndex = 0;
         let curScript = '';
 
+        // chapter title
+        const chapterListTitle = 'Chapter List';
+        let chapterList = markDown_getMarkDownLevel(3)
+            + chapterListTitle
+            + markDown_newLine;
+
+        const chapterListAppend = ',\t\t\t\t\t\t\t\t';
+        const chapterListWidth = 5;
+        let chapterListCount = 0;
+
+        const chapterListTitleLink = markDown_linkEscape(chapterListTitle);
+
+        let chapterContent = '';
+
         for (const info of value) {
             if (curScript !== info.script) {
                 curScript = info.script;
                 infoIndex = 0;
 
-                diaContent += markDown_getMarkDownLevel(3)
-                    + 'Script ' + curScript;
-                diaContent += markDown_newLine;
+                // update chapter title link
+                const curScriptCrop = curScript.substring(curScript.length - 4).iCmp('.asc')
+                    ? curScript.substring(0, curScript.length - 4)
+                    : curScript;
+
+                let chapterTitle = 'Script ' + curScriptCrop;
+
+                const chapterLink = markDown_linkEscape('↩ ' + chapterTitle);
+                chapterList += markDown_getLink(curScriptCrop, '#' + chapterLink.toLowerCase());
+                chapterListCount++;
+
+                if (chapterListCount >= chapterListWidth) {
+                    chapterList += markDown_newLine;
+                    chapterListCount = 0;
+                } else {
+                    chapterList += chapterListAppend;
+                }
+
+                chapterTitle = markDown_getLink('↩', '#' + chapterListTitleLink.toLowerCase())
+                    + ' '
+                    + chapterTitle;
+
+                chapterContent += markDown_getMarkDownLevel(3)
+                    + chapterTitle;
+                chapterContent += markDown_newLine;
             }
 
             const dia = info.dialogueStruct.m_dialoguePart;
@@ -99,22 +137,26 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
             if (bInternalChanged) {
                 let internal = checkInternal(info);
 
-                diaContent += internal !== ''
+                chapterContent += internal !== ''
                     ? markDown_getMarkDownLevel(3) + internal
                     : '';
-                diaContent += markDown_newLine;
+                chapterContent += markDown_newLine;
             }
 
-            diaContent += markDown_getLink('↪'
+            chapterContent += markDown_getLink('↪'
                 , info.uri + '#' + info.line.toString())
                 + ' '
                 + infoIndex.toString().padStart(Math.max(4, value.length.toString().length), '0')
                 + ' '
                 + dia;
-            diaContent += markDown_newLine;
+            chapterContent += markDown_newLine;
 
             infoIndex++;
         }
+
+        diaContent += chapterList.substring(0, chapterList.length - chapterListAppend.length)
+            + markDown_newLine
+            + chapterContent;
 
         const templateInfo = value[0];
 
@@ -125,6 +167,7 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
         //     ? templateInfo.dialogueStruct.m_namePartRaw
         //     : narrator;
 
+        // update char title link
         let charTitle = name + ': '
             // + checkInternal(templateInfo)
             + value.length.toString() + ' lines'
