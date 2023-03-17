@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
-import { ParamType, atKeywordList, commandDocList, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
-import { FileType, currentLineNotComment, getCompletionItemList, getSubStrings, getType, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
+import { atKeywordList, commandDocList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
+import { currentLineNotComment, FileType, getCompletionItemList, getSubStrings, getType, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
 import { audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCompletions } from './label';

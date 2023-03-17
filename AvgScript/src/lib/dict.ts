@@ -363,9 +363,6 @@ export enum InlayHintType {
     StatName,
     StatAdd,
     ContentName,
-    ChapterName,
-    GraphicName,
-    AudioName,
     Page,
     Pos,
     CaptureID,
@@ -463,9 +460,6 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.StatName, "统计名称"],
     [InlayHintType.StatAdd, "统计增量"],
     [InlayHintType.ContentName, "内容名称"],
-    [InlayHintType.ChapterName, "章节名称"],
-    [InlayHintType.GraphicName, "图像名称"],
-    [InlayHintType.AudioName, "音频名称"],
     [InlayHintType.Page, "页面"],
     [InlayHintType.Pos, "位置"],
     [InlayHintType.CaptureID, "捕获ID"],
@@ -1067,8 +1061,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t#UnlockAppreciation_Chapter=ChapterName:Page:Pos"
             , "于场景回想中解锁位于`Page`页第`Pos`个指向`ChapterName`的鉴赏"
             , "含转译指令在内，解析到`#JMPFra`或`#JMPCha`指令后，会自动执行留空`Page`与`Pos`参数的指令"]
-        , type: [ParamType.String, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.ChapterName, InlayHintType.Page, InlayHintType.Pos]
+        , type: [ParamType.File, ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.Chapter, InlayHintType.Page, InlayHintType.Pos]
     }],
     ["UnlockAppreciation_Graphic", {
         prefix: "#"
@@ -1077,8 +1071,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "于场景回想中解锁位于`Page`页第`Pos`个指向`GraphicName`的鉴赏。`ChapterName`应为`Characters`的相对路径，CG文件夹下的文件的完整`ChapterName`为`..CG\Graphic.png`"
             , "该指令会自动忽略非CG文件夹下的文件，同时会根据`Appreciation_Definition`中`Graphic_SeparateBG`的启用情况，根据`Appreciation_CGToBGList`决定当前文件是否作为背景进行鉴赏映射处理"
             , "含转译指令在内，解析到`@Char`或`@CharChange`指令后，会自动执行留空`Page`与`Pos`参数的指令"]
-        , type: [ParamType.String, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.GraphicName, InlayHintType.Page, InlayHintType.Pos]
+        , type: [ParamType.File, ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.CGFileName, InlayHintType.Page, InlayHintType.Pos]
     }],
     ["UnlockAppreciation_Audio", {
         prefix: "#"
@@ -1086,8 +1080,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t#UnlockAppreciation_Audio=AudioName:Page:Pos"
             , "于场景回想中解锁位于`Page`页第`Pos`个指向`AudioName`的鉴赏"
             , "含转译指令在内，解析到`@BGM`或`@BGMPre`指令后，会自动执行留空`Page`与`Pos`参数的指令"]
-        , type: [ParamType.String, ParamType.Number, ParamType.Number]
-        , inlayHintType: [InlayHintType.AudioName, InlayHintType.Page, InlayHintType.Pos]
+        , type: [ParamType.File, ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.BGMFileName, InlayHintType.Page, InlayHintType.Pos]
     }],
     ["UnlockAppreciation_Video", {
         prefix: "#"
@@ -1095,7 +1089,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t#UnlockAppreciation_Video=VideoName:Page:Pos"
             , "于场景回想中解锁位于`Page`页第`Pos`个指向`VideoName`的鉴赏"
             , "含转译指令在内，解析到`@PlayVideo`、`@OpenVideo`或`@ChangeVideo`指令后，会自动执行留空`Page`与`Pos`参数的指令"]
-        , type: [ParamType.String, ParamType.Number, ParamType.Number]
+        , type: [ParamType.File, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.VideoFileName, InlayHintType.Page, InlayHintType.Pos]
     }],
     ["VNMode_Newline", {
