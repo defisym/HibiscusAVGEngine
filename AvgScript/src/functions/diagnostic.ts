@@ -4,6 +4,7 @@ import { activeEditor } from '../extension';
 import { atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, InlayHintType, internalImageID, internalKeywordList, ParamType, settingsParamDocList, sharpKeywordList } from '../lib/dict';
 import { iterateLines } from "../lib/iterateLines";
 import { regexHexColor, regexRep } from '../lib/regExp';
+import { parseSettings, ScriptSettings } from '../lib/settings';
 import { fileExists, FileType, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
 import { currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
@@ -31,7 +32,9 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
     let blockCount: number = 0;
     let blockPos: vscode.Range[] = [];
 
-    let settings = false;
+    let settings: ScriptSettings;
+
+    let settingsParsed = false;
     let liteMode = false;
     let bVNMode = false;
 
@@ -83,21 +86,25 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                         , vscode.DiagnosticSeverity.Error));
                 }
 
-                if (!settings && text.match(/Lite/gi)) {
-                    liteMode = true;
+                if (!settingsParsed) {
+                    settings = parseSettings(text)!;
+
+                    if (settings.LiteMode) {
+                        liteMode = true;
+                    }
+
+                    if (settings.VNMode) {
+                        bVNMode = true;
+                    }
                 }
 
-                if (!settings && text.match(/VN/gi)) {
-                    bVNMode = true;
-                }
-
-                if (settings) {
+                if (settingsParsed) {
                     diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd)
                         , "Duplicated Setting"
                         , vscode.DiagnosticSeverity.Error));
                 }
 
-                settings = true;
+                settingsParsed = true;
 
                 return;
             }

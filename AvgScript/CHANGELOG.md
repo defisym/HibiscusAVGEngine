@@ -1,5 +1,12 @@
 # Change Log
 
+## 20230318
+
+- code lens
+- code lens dub operations
+- fix chapter jump in dub list
+- fix watcher update duplicate
+
 ## 20230316
 
 - chapter jump for dub lists

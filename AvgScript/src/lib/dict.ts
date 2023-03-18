@@ -74,6 +74,8 @@ export const settingsParamDocList = new Map<string, string[]>([
 
     ["SeparateDubID", ["对不同角色使用不同的语音ID"]],
 
+    ["NoSideEffect", ["断言脚本的跳转无副作用"]],
+
     ["LoadOnCall", ["在第一次使用时读取并缓存"]],
     ["LoadAtStart", ["在读取脚本时即读取该场景中使用的所有图像素材并缓存"]],
     ["LoadAll", ["加载图像文件夹中的所有图像素材并缓存"]],
@@ -808,6 +810,18 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , treatAsOneParam: true
     }],
 
+    ["SideEffect", {
+        prefix: "#"
+        , minParam: 0, maxParam: 0
+        , description: ["当声明脚本无副作用时，断言此行下方的行具有副作用"]
+        , type: []
+    }],
+    ["NoSideEffect", {
+        prefix: "#"
+        , minParam: 0, maxParam: 0
+        , description: ["当声明脚本无副作用时，断言此行下方的行不具有副作用"]
+        , type: []
+    }],
     ["EOF", {
         prefix: "#"
         , minParam: 0, maxParam: 0

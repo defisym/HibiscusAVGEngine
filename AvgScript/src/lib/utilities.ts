@@ -543,3 +543,25 @@ export async function jumpToDocument(uri: vscode.Uri, line: number) {
     editor.revealRange(range
         , vscode.TextEditorRevealType.InCenterIfOutsideViewport);
 }
+
+export function parseBoolean(param: string): boolean {
+    if (param.iCmp('On')) {
+        return true;
+    }
+
+    if (param.iCmp('Off')) {
+        return false;
+    }
+
+    return parseInt(param) !== 0;
+}
+
+export function scriptEndWithExt(curScript: string) {
+    return curScript.substring(curScript.length - 4).iCmp('.asc');
+}
+
+export function cropScript(curScript: string) {
+    return scriptEndWithExt(curScript)
+        ? curScript.substring(0, curScript.length - 4)
+        : curScript;
+}

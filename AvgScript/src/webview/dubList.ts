@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import { DubInfo } from "../functions/command";
+import { cropScript } from "../lib/utilities";
 import { markdownParser, markDown_getLink, markDown_getMarkDownLevel, markDown_linkEscape, markDown_newLine } from "./_mdToHtml";
 import { onClickLinkScript } from "./_onClickLink";
 
@@ -85,8 +86,17 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
         let infoIndex = 0;
         let curScript = '';
 
+        const templateInfo = value[0];
+
+        const name = key !== narrator
+            ? templateInfo.dialogueStruct.m_name
+            : narrator;
+        // const internalName = key !== narrator
+        //     ? templateInfo.dialogueStruct.m_namePartRaw
+        //     : narrator;
+
         // chapter title
-        const chapterListTitle = 'Chapter List';
+        const chapterListTitle = 'Chapter List' + ' ' + name;;
         let chapterList = markDown_getMarkDownLevel(3)
             + chapterListTitle
             + markDown_newLine;
@@ -105,11 +115,9 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
                 infoIndex = 0;
 
                 // update chapter title link
-                const curScriptCrop = curScript.substring(curScript.length - 4).iCmp('.asc')
-                    ? curScript.substring(0, curScript.length - 4)
-                    : curScript;
+                const curScriptCrop = cropScript(curScript);
 
-                let chapterTitle = 'Script ' + curScriptCrop;
+                let chapterTitle = 'Script ' + curScriptCrop + ' ' + name;
 
                 const chapterLink = markDown_linkEscape('↩ ' + chapterTitle);
                 chapterList += markDown_getLink(curScriptCrop, '#' + chapterLink.toLowerCase());
@@ -157,15 +165,6 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
         diaContent += chapterList.substring(0, chapterList.length - chapterListAppend.length)
             + markDown_newLine
             + chapterContent;
-
-        const templateInfo = value[0];
-
-        let name = key !== narrator
-            ? templateInfo.dialogueStruct.m_name
-            : narrator;
-        // let internalName = key !== narrator
-        //     ? templateInfo.dialogueStruct.m_namePartRaw
-        //     : narrator;
 
         // update char title link
         let charTitle = name + ': '

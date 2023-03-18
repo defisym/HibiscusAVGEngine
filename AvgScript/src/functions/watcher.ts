@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { commandRefreshAssets, confAutoUpdate } from './command';
-import { basePath } from './file';
+import { basePath, fileListInitialized } from './file';
 
 let oldBasePath = '';
 
@@ -10,6 +10,10 @@ function getAutoUpdateState() {
 
 function watcherAction(){
     if (!getAutoUpdateState()) {
+        return;
+    }
+
+    if(!fileListInitialized){
         return;
     }
 

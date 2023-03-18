@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { projectConfig, scriptPath } from '../functions/file';
 import { commandInfoList, InlayHintType } from './dict';
 import { iterateLines } from './iterateLines';
-import { getAllParams, jumpToDocument, sleep } from './utilities';
+import { getAllParams, jumpToDocument, scriptEndWithExt, sleep } from './utilities';
 
 // await iterateScripts((script: string, document: vscode.TextDocument) => { },
 //     (initScript: string,
@@ -48,7 +48,7 @@ export async function iterateScripts(
         let getScriptFullPath = (script: string) => {
             let filePath = scriptPath + '\\' + script;
 
-            if (!filePath.substring(filePath.length - 4).iCmp('.asc')) {
+            if (!scriptEndWithExt(filePath)) {
                 filePath += '.asc';
             }
 

@@ -15,8 +15,9 @@ import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { createWebviewPanel } from '../webview/_create';
 import { handleOnClickLink } from '../webview/_onClickLink';
+import { codelensProviderClass } from './codeLens';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
-import { audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { audio, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -46,6 +47,8 @@ export const commandShowDialogueFormatHint: string = "config.AvgScript.showDialo
 export const commandShowHibiscusDocument: string = "config.AvgScript.showHibiscusDocument";
 
 export const commandGetDubList: string = "config.AvgScript.getDubList";
+
+export const commandUpdateDub: string = "config.AvgScript.updateDub";
 
 export const commandBasePath_impl = async () => {
     // 1) Getting the value
@@ -692,7 +695,7 @@ export const commandGetDubList_impl = async () => {
                 }
 
                 const dialogueStruct = parseDialogue(line.toLocaleLowerCase(), line);
-                
+
                 // depend on display name
                 // let name = dialogueStruct.m_namePart;
                 let name = dialogueStruct.m_name;
@@ -748,4 +751,35 @@ export const commandGetDubList_impl = async () => {
 
         return;
     });
+};
+
+let previousUri: vscode.Uri | undefined = undefined;
+
+export const commandUpdateDub_impl = async (targetFile: string) => {
+    let options: vscode.OpenDialogOptions = {
+        openLabel: '更新',
+        canSelectMany: false,
+        title: '更新语音',
+    };
+
+    if (previousUri !== undefined) {
+        options.defaultUri = previousUri;
+    }
+
+    let file = await vscode.window.showOpenDialog(options);
+
+    if (file === undefined) {
+        return;
+    }
+
+    const src = file[0].path;
+    const target = audio + "dubs\\" + currentLocalCode + "\\" + targetFile + '.ogg';
+
+    previousUri = vscode.Uri.file(path.dirname(src));
+
+    vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
+
+    codelensProviderClass.refresh();
+
+    return;
 };
