@@ -3,12 +3,17 @@ import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue'
 import { DubParser } from '../lib/dubs';
 import { iterateLines } from '../lib/iterateLines';
 import { getSettings } from '../lib/settings';
-import { cropScript } from '../lib/utilities';
+import { cropScript, sleep } from '../lib/utilities';
 import { narrator } from '../webview/dubList';
 import { commandUpdateDub } from './command';
 import { basePath, fileListInitialized } from './file';
 
+// const refresher = setInterval(() => {
+//     codeLensProviderClass.refresh();
+// }, 500);
+
 export class CodelensProvider implements vscode.CodeLensProvider {
+    private bUpdating = false;
     private bFirstRun = true;
     private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
     public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
@@ -19,12 +24,17 @@ export class CodelensProvider implements vscode.CodeLensProvider {
         });
     }
 
-    public refresh() {
+    public async refresh() {
+        while(this.bUpdating) {
+            await sleep(50);
+        }
+
         this._onDidChangeCodeLenses.fire();
     }
 
     public provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
         let codeLenses: vscode.CodeLens[] = [];
+        this.bUpdating = true;
 
         const settings = getSettings(document);
         const bSettingsSideEffect = settings && settings.NoSideEffect;
@@ -138,7 +148,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                         let codeLensPlayDub = new vscode.CodeLens(range);
 
                         do {
-                            if (this.bFirstRun && !fileListInitialized) {
+                            if (!fileListInitialized && this.bFirstRun) {
                                 codeLensPlayDub.command = {
                                     title: "播放语音 🔊: 更新文件中...",
                                     command: "",
@@ -171,6 +181,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
             dubState.afterPlay();
         });
 
+        this.bUpdating = false;
         this.bFirstRun = false;
 
         return codeLenses;

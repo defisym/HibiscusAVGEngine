@@ -554,8 +554,6 @@ export async function updateFileList(progress: vscode.Progress<{
         , audioBgmFileList, audioBgsFileList, audioDubsFileList, audioSEFileList
         , videoFileList, scriptFileList);
 
-    codeLensProviderClass.refresh();
-
     let generateCompletionList = async (fileList: [string, vscode.FileType][]
         , completions: vscode.CompletionItem[]
         , basePath: string = ""
@@ -701,6 +699,8 @@ export async function updateFileList(progress: vscode.Progress<{
     progress.report({ increment: 0, message: "Done" });
 
     fileListInitialized = true;
+
+    await codeLensProviderClass.refresh();
 }
 
 export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgScript',

@@ -779,7 +779,7 @@ export const commandUpdateDub_impl = async (targetFile: string) => {
 
     vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
 
-    codeLensProviderClass.refresh();
+    await codeLensProviderClass.refresh();
 
     return;
 };
