@@ -49,6 +49,7 @@ export const commandShowHibiscusDocument: string = "config.AvgScript.showHibiscu
 export const commandGetDubList: string = "config.AvgScript.getDubList";
 
 export const commandUpdateDub: string = "config.AvgScript.updateDub";
+export const commandDeleteDub: string = "config.AvgScript.deleteDub";
 
 export const commandBasePath_impl = async () => {
     // 1) Getting the value
@@ -778,6 +779,16 @@ export const commandUpdateDub_impl = async (targetFile: string) => {
     previousUri = vscode.Uri.file(path.dirname(src));
 
     vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
+
+    await codeLensProviderClass.refresh();
+
+    return;
+};
+
+export const commandDeleteDub_impl = async (targetFile: string) => {
+    const target = targetFile;
+
+    vscode.workspace.fs.delete(vscode.Uri.file(target), { recursive: false, useTrash: true });
 
     await codeLensProviderClass.refresh();
 

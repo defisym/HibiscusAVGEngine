@@ -5,7 +5,7 @@ import { iterateLines } from '../lib/iterateLines';
 import { getSettings } from '../lib/settings';
 import { cropScript, sleep } from '../lib/utilities';
 import { narrator } from '../webview/dubList';
-import { commandUpdateDub } from './command';
+import { commandDeleteDub, commandUpdateDub } from './command';
 import { basePath, fileListInitialized } from './file';
 
 // const refresher = setInterval(() => {
@@ -25,7 +25,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
     }
 
     public async refresh() {
-        while(this.bUpdating) {
+        while (this.bUpdating) {
             await sleep(50);
         }
 
@@ -119,6 +119,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                         : (appendTypeText !== ''
                             ? appendTypeText
                             : typeText),
+                    tooltip: "当前行的信息",
                     command: "",
                 };
 
@@ -133,11 +134,12 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                         let codeLensDubFileName = new vscode.CodeLens(range);
 
                         codeLensDubFileName.command = {
-                            title: "对应语音文件: "
+                            title: "对应语音文件名: "
                                 + (dubState.dubChapter.iCmp(curChapter)
                                     ? ''
                                     : dubState.dubChapter + '\\')
                                 + dubState.fileName,
+                            tooltip: "点击指定当前行对应的语音文件，将拷贝选定文件至对应路径，并重命名为对应语音文件名",
                             command: commandUpdateDub,
                             arguments: [dubState.dubChapter + '\\' + dubState.fileName]
                         };
@@ -145,35 +147,58 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                         codeLenses.push(codeLensDubFileName);
 
                         // preview
-                        let codeLensPlayDub = new vscode.CodeLens(range);
-
                         do {
                             if (!fileListInitialized && this.bFirstRun) {
+                                let codeLensPlayDub = new vscode.CodeLens(range);
+
                                 codeLensPlayDub.command = {
                                     title: "播放语音 🔊: 更新文件中...",
+                                    tooltip: "等待文件列表刷新",
                                     command: "",
                                 };
+
+                                codeLenses.push(codeLensPlayDub);
 
                                 break;
                             }
 
                             if (fileName === undefined) {
+                                let codeLensPlayDub = new vscode.CodeLens(range);
+
                                 codeLensPlayDub.command = {
                                     title: "播放语音 🔊: 无语音文件",
+                                    tooltip: "当前行无对应的语音文件",
                                     command: "",
                                 };
+
+                                codeLenses.push(codeLensPlayDub);
 
                                 break;
                             }
 
+                            let codeLensPlayDub = new vscode.CodeLens(range);
+
                             codeLensPlayDub.command = {
                                 title: "播放语音 🔊",
+                                tooltip: "点击播放当前行对应的语音文件",
                                 command: "vscode.open",
                                 arguments: [vscode.Uri.file(fileName), vscode.ViewColumn.Beside]
                             };
-                        } while (0);
 
-                        codeLenses.push(codeLensPlayDub);
+                            codeLenses.push(codeLensPlayDub);
+
+                            let codeLensDeleteDub = new vscode.CodeLens(range);
+
+                            codeLensDeleteDub.command = {
+                                title: "删除语音 🗑️",
+                                tooltip: "点击删除当前行对应的语音文件",
+                                command: commandDeleteDub,
+                                arguments: [fileName]
+                            };
+
+                            codeLenses.push(codeLensDeleteDub);
+
+                        } while (0);
                     } while (0);
                 }
             }
