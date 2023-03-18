@@ -59,8 +59,9 @@ const config = {
       // Webpack 5 no longer polyfills Node.js core modules automatically.
       // see https://webpack.js.org/configuration/resolve/#resolvefallback
       // for the list of Node.js core module polyfills.
-      "fs": false,    // to fix Can't resolve 'fs'
-      // and filePath.endsWith is not a function
+
+      // to fix Can't resolve 'fs' and filePath.endsWith is not a function
+      "fs": false,    
       "os": false,
       "path": false,
       "stream": false,

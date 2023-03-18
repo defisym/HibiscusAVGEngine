@@ -6,9 +6,10 @@ import { getSettings } from '../lib/settings';
 import { cropScript } from '../lib/utilities';
 import { narrator } from '../webview/dubList';
 import { commandUpdateDub } from './command';
-import { basePath } from './file';
+import { basePath, fileListInitialized } from './file';
 
 export class CodelensProvider implements vscode.CodeLensProvider {
+    private bFirstRun = true;
     private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
     public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
 
@@ -18,16 +19,12 @@ export class CodelensProvider implements vscode.CodeLensProvider {
         });
     }
 
-    public refresh(){
+    public refresh() {
         this._onDidChangeCodeLenses.fire();
     }
 
     public provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
         let codeLenses: vscode.CodeLens[] = [];
-
-        // if (!fileListInitialized) {
-        //     return codeLenses;
-        // }
 
         const settings = getSettings(document);
         const bSettingsSideEffect = settings && settings.NoSideEffect;
@@ -122,7 +119,9 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                     const fileName = dubState.getPlayFileName();
 
                     do {
+                        // basic
                         let codeLensDubFileName = new vscode.CodeLens(range);
+
                         codeLensDubFileName.command = {
                             title: "对应语音文件: "
                                 + (dubState.dubChapter.iCmp(curChapter)
@@ -135,16 +134,34 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
                         codeLenses.push(codeLensDubFileName);
 
-                        if (fileName === undefined) {
-                            break;
-                        }
-
+                        // preview
                         let codeLensPlayDub = new vscode.CodeLens(range);
-                        codeLensPlayDub.command = {
-                            title: "播放语音 🔊",
-                            command: "vscode.open",
-                            arguments: [vscode.Uri.file(fileName), vscode.ViewColumn.Beside]
-                        };
+
+                        do {
+                            if (this.bFirstRun && !fileListInitialized) {
+                                codeLensPlayDub.command = {
+                                    title: "播放语音 🔊: 更新文件中...",
+                                    command: "",
+                                };
+
+                                break;
+                            }
+
+                            if (fileName === undefined) {
+                                codeLensPlayDub.command = {
+                                    title: "播放语音 🔊: 无语音文件",
+                                    command: "",
+                                };
+
+                                break;
+                            }
+
+                            codeLensPlayDub.command = {
+                                title: "播放语音 🔊",
+                                command: "vscode.open",
+                                arguments: [vscode.Uri.file(fileName), vscode.ViewColumn.Beside]
+                            };
+                        } while (0);
 
                         codeLenses.push(codeLensPlayDub);
                     } while (0);
@@ -154,6 +171,8 @@ export class CodelensProvider implements vscode.CodeLensProvider {
             dubState.afterPlay();
         });
 
+        this.bFirstRun = false;
+
         return codeLenses;
     }
 
@@ -162,6 +181,6 @@ export class CodelensProvider implements vscode.CodeLensProvider {
     }
 }
 
-export const codelensProviderClass = new CodelensProvider();
+export const codeLensProviderClass = new CodelensProvider();
 
-export const codeLensProvider = vscode.languages.registerCodeLensProvider('AvgScript', codelensProviderClass);
+export const codeLensProvider = vscode.languages.registerCodeLensProvider('AvgScript', codeLensProviderClass);

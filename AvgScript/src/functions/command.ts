@@ -15,7 +15,7 @@ import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { createWebviewPanel } from '../webview/_create';
 import { handleOnClickLink } from '../webview/_onClickLink';
-import { codelensProviderClass } from './codeLens';
+import { codeLensProviderClass } from './codeLens';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
 import { audio, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
@@ -779,7 +779,7 @@ export const commandUpdateDub_impl = async (targetFile: string) => {
 
     vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
 
-    codelensProviderClass.refresh();
+    codeLensProviderClass.refresh();
 
     return;
 };

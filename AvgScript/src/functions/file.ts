@@ -5,6 +5,7 @@ import * as mm from 'music-metadata';
 import { pinyin } from 'pinyin-pro';
 
 import { currentLineNotComment, FileType, getBuffer, getParamAtPosition, getUri, sleep } from '../lib/utilities';
+import { codeLensProviderClass } from './codeLens';
 import { commandBasePath, confBasePath } from './command';
 import { updateWatcher } from './watcher';
 
@@ -548,9 +549,12 @@ export async function updateFileList(progress: vscode.Progress<{
     scriptPath = basePath + "\\dialogue";
     let scriptFileList = await getFileListRecursively(scriptPath);
 
+    projectFileList = [];
     projectFileList = projectFileList.concat(graphicFXFileList, graphicCGFileList, graphicUIFileList, graphicPatternFadeFileList, graphicCharactersFileList
         , audioBgmFileList, audioBgsFileList, audioDubsFileList, audioSEFileList
         , videoFileList, scriptFileList);
+
+    codeLensProviderClass.refresh();
 
     let generateCompletionList = async (fileList: [string, vscode.FileType][]
         , completions: vscode.CompletionItem[]

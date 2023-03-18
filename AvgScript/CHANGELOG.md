@@ -6,6 +6,8 @@
 - code lens dub operations
 - fix chapter jump in dub list
 - fix watcher update duplicate
+- project file list not reset when refreshing
+- optimize dub operations
 
 ## 20230316
 
