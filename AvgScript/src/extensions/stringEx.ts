@@ -17,6 +17,12 @@ declare global {
         empty(): boolean;
 
         iCmp(str: string): boolean;
+
+        after(str: string): string;
+        right(index: number): string;
+
+        removeAfter(str: string): string;
+        removeRight(index: number): string;
     }
 }
 
@@ -107,4 +113,24 @@ String.prototype.empty = function () {
 
 String.prototype.iCmp = function (str: string) {
     return this.toLowerCase() === str.toLowerCase();
+};
+
+String.prototype.after = function (str: string) {
+    return this.right(this.lastIndexOf(str));
+};
+
+String.prototype.right = function (index: number) {
+    return index === -1
+        ? ''
+        : this.substring(index);
+};
+
+String.prototype.removeAfter = function (str: string) {
+    return this.removeRight(this.lastIndexOf(str));
+};
+
+String.prototype.removeRight = function (index: number) {
+    return index === -1
+        ? this.toString()
+        : this.substring(0, index);
 };

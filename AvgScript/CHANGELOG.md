@@ -4,6 +4,8 @@
 
 - `currentLineNotComment` now use exception to terminate
 - `@DubPlay` now compatible with new dub system, with completion & diagnostic support
+- fix completion order issue
+- add new extend functions for string
 
 ## 20230319
 

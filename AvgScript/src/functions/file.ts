@@ -572,12 +572,9 @@ export async function updateFileList(progress: vscode.Progress<{
                     let fileName: string = element[0].substring(element[0].lastIndexOf("\\") + 1);
                     let fileRelativeName: string = element[0].substring(basePath.length + 1);
 
-                    // let fileNameNoSuffix: string = fileName.lastIndexOf(".") === -1 ? fileName : fileName.substring(0, fileName.lastIndexOf("."));
-                    let fileNameNoSuffix: string = fileRelativeName.lastIndexOf(".") === -1 ? fileRelativeName : fileRelativeName.substring(0, fileRelativeName.lastIndexOf("."));
-                    // let fileNameSuffix: string = fileName.lastIndexOf(".") === -1 ? "" : fileName.substring(fileName.lastIndexOf("."));
-                    let fileNameSuffix: string = fileRelativeName.lastIndexOf(".") === -1 ? "" : fileRelativeName.substring(fileRelativeName.lastIndexOf("."));
+                    let fileNameNoSuffix: string = fileRelativeName.removeAfter('.');
+                    let fileNameSuffix: string = fileRelativeName.after('.');
 
-                    // let filePath: string = basePath + "\\{$FILENAME}";
                     let filePath: string = element[0];
                     let fileNameToEnglish = stringToEnglish(fileNameNoSuffix);
 
@@ -629,8 +626,8 @@ export async function updateFileList(progress: vscode.Progress<{
 
                     item.documentation = preview;
 
-                    // sort based on file path
-                    item.sortText = filePath;
+                    // sort based on file path, shorter is former
+                    item.sortText = filePath.length.toString() + '\t\t' + filePath;
 
                     if (detail !== undefined) {
                         completions.push(item);
