@@ -1,5 +1,10 @@
 # Change Log
 
+## 20230320
+
+- `currentLineNotComment` now use exception to terminate
+- `@DubPlay` now compatible with new dub system, with completion & diagnostic support
+
 ## 20230319
 
 - delete dubs

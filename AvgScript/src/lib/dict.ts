@@ -521,6 +521,23 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.CharName, "角色姓名"],
 ]);
 
+export enum IDBehaviour {
+    Create,
+    Destroy,
+}
+
+export enum IDType {
+    Pic,
+    Str,
+    DependOnParam,
+}
+
+export interface ID {
+    bBehaviour: IDBehaviour,
+    type: IDType,
+    param?: number,
+}
+
 export interface ParamInfo {
     // basic
     prefix: string;
@@ -1755,7 +1772,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@Dub=FileName:KeepSeq:KeepNTK"
             , "\t@DubPlay=FileName:KeepSeq:KeepNTK"
             , "更新语音内容，该语音会在显示下一句文本时播放。`KeepSeq`为真时，不会自动禁用语音序列，`KeepNTK`为真时，不会递增指针"]
-        , type: [ParamType.String, ParamType.Boolean, ParamType.Boolean]
+        , type: [ParamType.File, ParamType.Boolean, ParamType.Boolean]
         , inlayHintType: [InlayHintType.DubFileName, InlayHintType.KeepSeq, InlayHintType.KeepNTK]
     }],
     ["DubPlay", undefined],

@@ -63,7 +63,6 @@ export async function iterateScripts(
             try {
                 document = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
             } catch (err) {
-
                 vscode.window.showErrorMessage(referScript.script
                     + ' referred invalid script ' + script
                     + ' at line ' + referScript.line,

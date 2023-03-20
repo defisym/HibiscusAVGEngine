@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { audio, currentLocalCode, getFullFilePath, projectConfig } from "../functions/file";
+import * as vscode from 'vscode';
+
+import { audio, audioDubsCompletions, currentLocalCode, getFullFilePath, projectConfig } from "../functions/file";
 import { ScriptSettings } from "./settings";
-import { parseBoolean, parseCommand } from "./utilities";
+import { parseBoolean, parseCommand, stringToEnglish } from "./utilities";
 
 export class DubParser {
     bHoldNowTalking = false;
@@ -61,10 +63,14 @@ export class DubParser {
             }
         }
     }
+    getFileRelativePrefix() {
+        return currentLocalCode + "\\" + this.dubChapter + '\\';
+    }
+    getFilePrefix() {
+        return audio + "dubs\\" + this.getFileRelativePrefix();
+    }
     getPlayFileName() {
-        const fileName = this.dubChapter + '\\' + this.fileName;
-
-        let fullFileName: string | undefined = audio + "dubs\\" + currentLocalCode + "\\" + fileName;
+        let fullFileName: string | undefined = this.getFilePrefix() + this.fileName;
 
         let ret = getFullFilePath(fullFileName);
 
@@ -148,4 +154,30 @@ export class DubParser {
 
         } while (0);
     }
+}
+
+export function UpdateDubCompletion(dubParser: DubParser) {
+    let localDubCompletion: vscode.CompletionItem[] = [];
+    const relativePrefix = dubParser.getFileRelativePrefix();
+
+    for (const item of audioDubsCompletions) {
+        if (item.insertText) {
+            const sub = (<string>(item.insertText));
+            const subBegin = sub.substring(0, relativePrefix.length);
+
+            if (subBegin.iCmp(relativePrefix)) {
+                let localItem = JSON.parse(JSON.stringify(item));
+
+                const subName = sub.substring(relativePrefix.length);
+
+                (<vscode.CompletionItemLabel>(localItem.label)).label = subName;
+                localItem.insertText = subName;
+                localItem.filterText = stringToEnglish(localItem.insertText);
+
+                localDubCompletion.push(localItem);
+            }
+        }
+    }
+
+    return localDubCompletion;
 }

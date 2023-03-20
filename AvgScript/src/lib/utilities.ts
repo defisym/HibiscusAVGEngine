@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 
+import { pinyin } from 'pinyin-pro';
 import { audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListHasItem, getCorrectPathAndType, getFullFileNameByType, graphicCGCompletions, graphicCharactersCompletions, graphicFXCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from '../functions/file';
 import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, internalKeywordList } from './dict';
 import { iterateLines } from './iterateLines';
@@ -8,6 +9,22 @@ import { beginRegex, endRegex } from './regExp';
 import path = require('path');
 
 const delimiter = ['=', ':'];
+
+// add pinyin & romanize
+export function stringToEnglish(str: string) {
+    let py = pinyin(str
+        , {
+            toneType: 'none',
+            nonZh: 'consecutive'
+        });
+
+    let romanize: string = require('japanese').romanize(str);
+
+    let delimiter = "\t\t";
+    let fileNameToEnglish = str + delimiter + py + delimiter + romanize;
+
+    return fileNameToEnglish;
+}
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -442,21 +459,30 @@ export function fileExists(type: FileType, fileName: string) {
     return fileListHasItem(filePath);
 }
 
-export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position)
+export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position,
+    callback: (text: string) => void = (text: string) => { })
     : undefined[] | [string, number, string, number, string] {
     const curLine = position.line;
     let curText = "";
     let curStart = 0;
 
-    iterateLines(document, (text, lineNumber
-        , lineStart, lineEnd
-        , firstLineNotComment) => {
-        if (lineNumber === curLine) {
-            // curText = text.toLowerCase();
-            curText = text;
-            curStart = lineStart;
-        }
-    });
+    try {
+        iterateLines(document, (text, lineNumber
+            , lineStart, lineEnd
+            , firstLineNotComment) => {
+            if (lineNumber === curLine) {
+                callback(text);
+
+                // curText = text.toLowerCase();
+                curText = text;
+                curStart = lineStart;
+
+                throw Boolean;
+            }
+        });
+    } catch (err) {
+
+    }
 
     if (curText === "") {
         return [undefined, undefined, undefined, undefined];

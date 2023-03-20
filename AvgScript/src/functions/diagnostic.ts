@@ -2,11 +2,12 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, InlayHintType, internalImageID, internalKeywordList, ParamType, settingsParamDocList, sharpKeywordList } from '../lib/dict';
+import { DubParser } from '../lib/dubs';
 import { iterateLines } from "../lib/iterateLines";
 import { regexHexColor, regexRep } from '../lib/regExp';
-import { parseSettings, ScriptSettings } from '../lib/settings';
-import { fileExists, FileType, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
-import { currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
+import { getSettings, parseSettings, ScriptSettings } from '../lib/settings';
+import { cropScript, fileExists, FileType, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
+import { basePath, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
@@ -40,6 +41,12 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
     let EOF = false;
     let nextJMP = false;
+
+    const curChapter = fileListInitialized
+        ? cropScript(document.fileName.substring(basePath.length + 1))
+        : '';
+    let dubState = new DubParser(curChapter);
+    dubState.parseSettings(getSettings(document));
 
     iterateLines(document, (text, lineNumber
         , lineStart, lineEnd
@@ -140,6 +147,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                 return;
             }
+
+            dubState.parseCommand(text);
 
             const params = getAllParams(text);
             const prefix = params[0][0];
@@ -348,8 +357,15 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                         break;
                     case ParamType.File:
                         const commandType = getCommandType(curLinePrefix);
+
+                        let fileParam = curParam;
+
+                        if (commandType === FileType.dubs) {
+                            fileParam = dubState.getFileRelativePrefix() + fileParam;
+                        }
+
                         if (checkFile
-                            && !fileExists(commandType, curParam)) {
+                            && !fileExists(commandType, fileParam)) {
                             diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
                                 , "File " + curParam + " Not Exist"
                                 , vscode.DiagnosticSeverity.Warning));

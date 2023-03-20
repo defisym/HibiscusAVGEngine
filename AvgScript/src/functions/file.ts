@@ -2,9 +2,10 @@ import * as vscode from 'vscode';
 
 import { ImageProbe } from '@zerodeps/image-probe';
 import * as mm from 'music-metadata';
-import { pinyin } from 'pinyin-pro';
 
-import { currentLineNotComment, FileType, getBuffer, getParamAtPosition, getUri, sleep } from '../lib/utilities';
+import { DubParser } from '../lib/dubs';
+import { getSettings } from '../lib/settings';
+import { cropScript, currentLineNotComment, FileType, getBuffer, getParamAtPosition, getType, getUri, sleep, stringToEnglish } from '../lib/utilities';
 import { codeLensProviderClass } from './codeLens';
 import { commandBasePath, confBasePath } from './command';
 import { updateWatcher } from './watcher';
@@ -346,6 +347,7 @@ export async function getFileComment(previewStr: string
     , filePath: string
     , type: CompletionType) {
     let preview: vscode.MarkdownString | undefined = undefined;
+    let detail: string | undefined = undefined;
 
     if (fileName === undefined) {
         preview = new vscode.MarkdownString("文件不存在");
@@ -360,7 +362,7 @@ export async function getFileComment(previewStr: string
         preview.appendMarkdown("\n\n" + "Size: `" + size.toFixed(2) + " KB`"
             + "\tModified: `" + new Date(stat.mtime).toUTCString() + "`\t");
 
-        let detail = await getFileInfo(filePath, type);
+        detail = await getFileInfo(filePath, type);
         if (detail !== undefined) {
             preview.appendMarkdown(detail);
         }
@@ -372,7 +374,7 @@ export async function getFileComment(previewStr: string
         preview.supportHtml = true;
     }
 
-    return preview;
+    return [preview, detail];
 }
 
 export async function getFileList(uri: vscode.Uri) {
@@ -577,17 +579,7 @@ export async function updateFileList(progress: vscode.Progress<{
 
                     // let filePath: string = basePath + "\\{$FILENAME}";
                     let filePath: string = element[0];
-
-                    let py = pinyin(fileNameNoSuffix
-                        , {
-                            toneType: 'none',
-                            nonZh: 'consecutive'
-                        });
-
-                    let romanize: string = require('japanese').romanize(fileNameNoSuffix);
-
-                    let delimiter = "\t\t";
-                    let fileNameToEnglish = fileNameNoSuffix + delimiter + py + delimiter + romanize;
+                    let fileNameToEnglish = stringToEnglish(fileNameNoSuffix);
 
                     let item: vscode.CompletionItem = new vscode.CompletionItem({
                         label: fileNameNoSuffix
@@ -599,7 +591,6 @@ export async function updateFileList(progress: vscode.Progress<{
                     item.insertText = fileRelativeName;
                     item.filterText = fileNameToEnglish;
                     let previewStr: string = nonePreview;
-                    let detail: string | undefined = undefined;
 
                     switch (type) {
                         case CompletionType.image:
@@ -631,15 +622,19 @@ export async function updateFileList(progress: vscode.Progress<{
                     // 	, type);
 
                     // recursive
-                    item.documentation = await getFileComment(previewStr
+                    const [preview, detail] = await getFileComment(previewStr
                         , fileName
                         , filePath
                         , type);
 
+                    item.documentation = preview;
+
                     // sort based on file path
                     item.sortText = filePath;
 
-                    completions.push(item);
+                    if (detail !== undefined) {
+                        completions.push(item);
+                    }
 
                     resolve();
                 }));
@@ -708,7 +703,13 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
         async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
             let definitions: vscode.Location[] = [];
 
-            let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+            const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
+            let dubState = new DubParser(curChapter);
+            dubState.parseSettings(getSettings(document));
+
+            let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position, (text) => {
+                dubState.parseCommand(text);
+            });
 
             if (line === undefined) {
                 return undefined;
@@ -718,6 +719,10 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
 
             if (fileName === undefined) {
                 return undefined;
+            }
+
+            if (getType(linePrefix!) === FileType.dubs) {
+                fileName = dubState.getFileRelativePrefix() + fileName;
             }
 
             const fileUri = getUri(linePrefix!, fileName);

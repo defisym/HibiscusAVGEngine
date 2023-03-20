@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 
 import { atKeywordList, commandDocList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
-import { currentLineNotComment, FileType, getCompletionItemList, getSubStrings, getType, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
-import { audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
+import { DubParser, UpdateDubCompletion } from '../lib/dubs';
+import { getSettings } from '../lib/settings';
+import { cropScript, currentLineNotComment, FileType, getCompletionItemList, getSubStrings, getType, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
+import { audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePath, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCompletions } from './label';
 
@@ -144,7 +146,13 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
     'AvgScript',
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-            let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+            const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
+            let dubState = new DubParser(curChapter);
+            dubState.parseSettings(getSettings(document));
+
+            let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position, (text) => {
+                dubState.parseCommand(text);
+            });
 
             if (line === undefined) {
                 return undefined;
@@ -179,8 +187,10 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
                     return returnCompletion(audioBgmCompletions);
                 case FileType.bgs:
                     return returnCompletion(audioBgsCompletions);
-                case FileType.dubs:
-                    return returnCompletion(audioDubsCompletions);
+                case FileType.dubs: {
+                    // return returnCompletion(audioDubsCompletions);
+                    return returnCompletion(UpdateDubCompletion(dubState));
+                }
                 case FileType.se:
                     return returnCompletion(audioSECompletions);
 
