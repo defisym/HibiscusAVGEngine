@@ -170,7 +170,7 @@ export function UpdateDubCompletion(dubParser: DubParser) {
 
                 const subName = sub.substring(relativePrefix.length);
 
-                (<vscode.CompletionItemLabel>(localItem.label)).label = subName;
+                (<vscode.CompletionItemLabel>(localItem.label)).label = subName.substring(0, subName.length + 1 - subName.lastIndexOf('.'));
                 localItem.insertText = subName;
                 localItem.filterText = stringToEnglish(localItem.insertText);
 

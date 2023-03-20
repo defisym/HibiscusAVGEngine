@@ -146,9 +146,11 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
     'AvgScript',
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+            const settings = getSettings(document);
+
             const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
             let dubState = new DubParser(curChapter);
-            dubState.parseSettings(getSettings(document));
+            dubState.parseSettings(settings);
 
             let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position, (text) => {
                 dubState.parseCommand(text);
@@ -189,7 +191,10 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
                     return returnCompletion(audioBgsCompletions);
                 case FileType.dubs: {
                     // return returnCompletion(audioDubsCompletions);
-                    return returnCompletion(UpdateDubCompletion(dubState));
+                    return returnCompletion(
+                        settings && settings.NoSideEffect
+                            ? UpdateDubCompletion(dubState)
+                            : []);
                 }
                 case FileType.se:
                     return returnCompletion(audioSECompletions);

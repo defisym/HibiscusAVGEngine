@@ -703,9 +703,11 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
         async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
             let definitions: vscode.Location[] = [];
 
+            const settings = getSettings(document);
+
             const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
             let dubState = new DubParser(curChapter);
-            dubState.parseSettings(getSettings(document));
+            dubState.parseSettings(settings);
 
             let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position, (text) => {
                 dubState.parseCommand(text);
@@ -722,7 +724,11 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
             }
 
             if (getType(linePrefix!) === FileType.dubs) {
-                fileName = dubState.getFileRelativePrefix() + fileName;
+                if (settings && settings.NoSideEffect) {
+                    fileName = dubState.getFileRelativePrefix() + fileName;
+                } else {
+                    vscode.window.showInformationMessage("Cannot open file " + fileName + " if script has side effect");
+                }
             }
 
             const fileUri = getUri(linePrefix!, fileName);

@@ -96,12 +96,14 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                 if (!settingsParsed) {
                     settings = parseSettings(text)!;
 
-                    if (settings.LiteMode) {
-                        liteMode = true;
-                    }
+                    if (settings) {
+                        if (settings.LiteMode) {
+                            liteMode = true;
+                        }
 
-                    if (settings.VNMode) {
-                        bVNMode = true;
+                        if (settings.VNMode) {
+                            bVNMode = true;
+                        }
                     }
                 }
 
@@ -361,7 +363,16 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                         let fileParam = curParam;
 
                         if (commandType === FileType.dubs) {
-                            fileParam = dubState.getFileRelativePrefix() + fileParam;
+                            if (settings && settings.NoSideEffect) {
+                                fileParam = dubState.getFileRelativePrefix() + fileParam;
+                            } else {
+                                diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
+                                    , "Cannot diagnostic file " + curParam + " if script has side effect"
+                                    , vscode.DiagnosticSeverity.Information));
+
+                                break;
+                            }
+
                         }
 
                         if (checkFile
