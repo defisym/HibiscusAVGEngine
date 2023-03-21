@@ -335,8 +335,8 @@ export async function getFileInfo(filePath: string, type: CompletionType) {
         }
     }
     catch (err) {
-        console.log(filePath);
-        console.log(err);
+        // console.log(filePath);
+        // console.log(err);
 
         return undefined;
     }

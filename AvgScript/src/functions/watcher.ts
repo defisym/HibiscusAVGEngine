@@ -8,12 +8,12 @@ function getAutoUpdateState() {
     return vscode.workspace.getConfiguration().get<boolean>(confAutoUpdate, true);
 }
 
-function watcherAction(){
+function watcherAction() {
     if (!getAutoUpdateState()) {
         return;
     }
 
-    if(!fileListInitialized){
+    if (!fileListInitialized) {
         return;
     }
 
@@ -37,6 +37,7 @@ export function updateWatcher() {
 
     let watcher = vscode.workspace.createFileSystemWatcher(
         new vscode.RelativePattern(vscode.Uri.file(basePath), '**/*.*')
+        // new vscode.RelativePattern(vscode.Uri.file(basePath.substring(0, basePath.length - '\\data'.length)), '**/*.*')
         , false, false, false
     );
 

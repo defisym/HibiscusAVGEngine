@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { colorProvider } from './functions/color';
-import { assetsListPanel, commandAppendDialogue, commandAppendDialogue_impl, commandBasePath, commandBasePath_impl, commandDeleteDub, commandDeleteDub_impl, commandGetAssetsList, commandGetAssetsList_impl, commandGetDubList, commandGetDubList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl, commandShowHibiscusDocument, commandShowHibiscusDocument_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl, commandUpdateDub, commandUpdateDub_impl } from './functions/command';
+import { assetsListPanel, commandAppendDialogue, commandAppendDialogue_impl, commandBasePath, commandBasePath_impl, commandDeleteDub, commandDeleteDub_impl, commandGetAssetsList, commandGetAssetsList_impl, commandGetDubList, commandGetDubList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl, commandShowHibiscusDocument, commandShowHibiscusDocument_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl, commandUpdateDub, commandUpdateDub_impl, dubListPanel, formatHintPanel, jumpFlowPanel } from './functions/command';
 import { atCommands, fileName, fileSuffix, langPrefix, required, settingsParam, sharpCommands } from './functions/completion';
 import { debuggerFactory, debuggerProvider } from './functions/debugger';
 import { diagnosticsCollection, onUpdate, triggerUpdate } from './functions/diagnostic';
@@ -16,6 +16,7 @@ import { rename } from './functions/rename';
 import './extensions/_include';
 import { codeLensProvider } from './functions/codeLens';
 import { formatting } from './functions/formatting';
+import { previewer } from './functions/preview';
 
 export let activeEditor = vscode.window.activeTextEditor;
 export const outputChannel = vscode.window.createOutputChannel('AvgScript');
@@ -137,21 +138,23 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.window.onDidChangeActiveTextEditor(editor => {
 		activeEditor = editor;
 		if (editor) {
+			previewer.docUpdated();
 			triggerUpdate();
 		}
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {
 		if (activeEditor && event.document === activeEditor.document) {
+			previewer.docUpdated();
 			triggerUpdate(true);
 		}
 	}, null, context.subscriptions);
 	vscode.workspace.onDidCloseTextDocument(document => {
 		diagnosticsCollection.delete(document.uri);
+	}, null, context.subscriptions);
 
-		// if (activeEditor && document === activeEditor.document) {
-		// 	triggerUpdate(true);
-		// }
+	vscode.workspace.onDidSaveTextDocument(document => {
+		// previewer.updatePreview();
 	}, null, context.subscriptions);
 }
 
@@ -168,5 +171,17 @@ export function deactivate() {
 
 	if (assetsListPanel !== undefined) {
 		assetsListPanel.dispose();
+	}
+
+	if (jumpFlowPanel !== undefined) {
+		jumpFlowPanel.dispose();
+	}
+
+	if (formatHintPanel !== undefined) {
+		formatHintPanel.dispose();
+	}
+
+	if (dubListPanel !== undefined) {
+		dubListPanel.dispose();
 	}
 }
