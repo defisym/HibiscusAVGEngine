@@ -27,7 +27,9 @@ export class Previewer {
     }
 
     async updatePreview() {
-        if (projectConfig.Debug.Debug_Preview !== 1) {
+        const preview = projectConfig.Debug.Debug_Preview;
+        
+        if (preview !== '1') {
             console.log(this.previewCommandStrPrefix + 'NOT_ENABLE');
 
             return;
