@@ -2,7 +2,9 @@
 
 import * as vscode from 'vscode';
 
-import { audio, audioDubsCompletions, currentLocalCode, getFullFilePath, projectConfig } from "../functions/file";
+import * as mm from 'music-metadata';
+
+import { audio, audioDubsCompletions, currentLocalCode, getFullFilePath, projectConfig, projectFileInfoList } from "../functions/file";
 import { ScriptSettings } from "./settings";
 import { parseBoolean, parseCommand, stringToEnglish } from "./utilities";
 
@@ -68,6 +70,19 @@ export class DubParser {
     }
     getFilePrefix() {
         return audio + "dubs\\" + this.getFileRelativePrefix();
+    }
+    getPlayFileInfo(fileName: string | undefined = undefined) {
+        fileName = fileName === undefined
+            ? this.getPlayFileName()
+            : fileName;
+
+        if (fileName === undefined) {
+            return undefined;
+        }
+
+        const info = <mm.IAudioMetadata>projectFileInfoList.get(fileName);
+
+        return info;
     }
     getPlayFileName() {
         let fullFileName: string | undefined = this.getFilePrefix() + this.fileName;

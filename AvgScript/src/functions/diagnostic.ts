@@ -7,6 +7,7 @@ import { iterateLines } from "../lib/iterateLines";
 import { regexHexColor, regexRep } from '../lib/regExp';
 import { getSettings, parseSettings, ScriptSettings } from '../lib/settings';
 import { cropScript, fileExists, FileType, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
+import { dubError } from './codeLens';
 import { basePath, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
 
@@ -556,6 +557,17 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
         diagnostics.push(new vscode.Diagnostic(new vscode.Range(document.lineCount, 0, document.lineCount, document.lineAt(document.lineCount - 1).text.length)
             , "Non Valid JMP"
             , vscode.DiagnosticSeverity.Error));
+    }
+
+    const dubErrors = dubError.get(document.uri);
+
+    if (dubErrors !== undefined) {
+        for (const dubErrorRange of dubErrors) {
+            diagnostics.push(new vscode.Diagnostic(dubErrorRange
+                , "Dub file duration longer than excepted"
+                , vscode.DiagnosticSeverity.Warning
+            ));
+        }
     }
 
     diagnosticsCollection.set(document.uri, diagnostics);

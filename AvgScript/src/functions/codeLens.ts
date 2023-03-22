@@ -6,11 +6,14 @@ import { getSettings } from '../lib/settings';
 import { cropScript, sleep } from '../lib/utilities';
 import { narrator } from '../webview/dubList';
 import { commandDeleteDub, commandUpdateDub } from './command';
+import { refreshFileDiagnostics } from './diagnostic';
 import { basePath, fileListInitialized } from './file';
 
-// const refresher = setInterval(() => {
-//     codeLensProviderClass.refresh();
-// }, 500);
+const durationPerWord = (1.0 * 60 / 120);
+const durationRange = 0.5;
+const durationThreshold = 2.0;
+
+export const dubError: Map<vscode.Uri, vscode.Range[]> = new Map();
 
 export class CodelensProvider implements vscode.CodeLensProvider {
     private bUpdating = false;
@@ -45,6 +48,8 @@ export class CodelensProvider implements vscode.CodeLensProvider {
         const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
         let dubState = new DubParser(curChapter);
         dubState.parseSettings(settings);
+
+        dubError.clear();
 
         iterateLines(document, (text, lineNumber
             , lineStart, lineEnd
@@ -187,6 +192,20 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
                             codeLenses.push(codeLensPlayDub);
 
+                            const duration = dubState.getPlayFileInfo(fileName)!.format.duration!;
+                            const expectedDuration = dialogueStruct.m_dialoguePart.length * durationPerWord + durationRange;
+
+                            if (duration >= durationThreshold && expectedDuration <= duration) {
+                                let ranges = dubError.get(document.uri);
+
+                                if (ranges === undefined) {
+                                    dubError.set(document.uri, []);
+                                    ranges = dubError.get(document.uri);
+                                }
+
+                                ranges!.push(range);
+                            }
+
                             let codeLensDeleteDub = new vscode.CodeLens(range);
 
                             codeLensDeleteDub.command = {
@@ -208,6 +227,10 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
         this.bUpdating = false;
         this.bFirstRun = false;
+
+        if (!dubError.get(document.uri)?.empty()) {
+            refreshFileDiagnostics();
+        }
 
         return codeLenses;
     }

@@ -5,6 +5,8 @@
 - only trigger preview in debug session
 - list assets dub check
 - list unused files
+- check if dub is too long
+- file list refresh wait if file list is refreshing
 
 ## 20230321
 

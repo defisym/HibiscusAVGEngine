@@ -467,6 +467,10 @@ export async function updateFileList(progress: vscode.Progress<{
     message?: string | undefined;
     increment?: number | undefined;
 }>) {
+    do {
+        await sleep(50);
+    } while (!fileListInitialized);
+
     fileListInitialized = false;
 
     const total = 100;
