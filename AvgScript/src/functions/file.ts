@@ -18,6 +18,7 @@ import path = require("path");
 
 // state
 export let fileListInitialized = false;
+let fileListInitFirstRun = true;
 
 export async function waitForFileListInit() {
     // wait for file refresh
@@ -467,10 +468,14 @@ export async function updateFileList(progress: vscode.Progress<{
     message?: string | undefined;
     increment?: number | undefined;
 }>) {
-    do {
-        await sleep(50);
-    } while (!fileListInitialized);
+    if (!fileListInitFirstRun) {
+        do {
+            await sleep(50);
+        } while (!fileListInitialized);
 
+    }
+    
+    fileListInitFirstRun = false;
     fileListInitialized = false;
 
     const total = 100;
