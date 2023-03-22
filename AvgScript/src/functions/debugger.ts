@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 import { commandBasePath } from './command';
 import { execPath, updateBasePath } from './file';
+import { previewer } from './preview';
 
 class AvgScriptDebugConfigurationProvider implements vscode.DebugConfigurationProvider {
     resolveDebugConfiguration(folder: vscode.WorkspaceFolder | undefined
@@ -46,5 +47,26 @@ class AvgScriptDebugAdapterExecutableFactory implements vscode.DebugAdapterDescr
     }
 }
 
+class AvgScriptDebugAdapterTracker implements vscode.DebugAdapterTracker {
+    onWillStartSession() {
+        previewer.debugUpdate(true);
+        console.log('debug start');
+    }
+    onWillStopSession() {
+        previewer.debugUpdate(false);
+        console.log('debug stop');
+    }
+    onExit() {
+        console.log('debug exit');
+    }
+}
+
+class AvgScriptDebugAdapterTrackerFactory implements vscode.DebugAdapterTrackerFactory {
+    createDebugAdapterTracker(session: vscode.DebugSession) {
+        return new AvgScriptDebugAdapterTracker();
+    }
+}
+
 export const debuggerProvider = vscode.debug.registerDebugConfigurationProvider('AvgScript', new AvgScriptDebugConfigurationProvider());
 export const debuggerFactory = vscode.debug.registerDebugAdapterDescriptorFactory('AvgScript', new AvgScriptDebugAdapterExecutableFactory());
+export const debuggerTracker = vscode.debug.registerDebugAdapterTrackerFactory('AvgScript', new AvgScriptDebugAdapterTrackerFactory());

@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { colorProvider } from './functions/color';
 import { assetsListPanel, commandAppendDialogue, commandAppendDialogue_impl, commandBasePath, commandBasePath_impl, commandDeleteDub, commandDeleteDub_impl, commandGetAssetsList, commandGetAssetsList_impl, commandGetDubList, commandGetDubList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl, commandShowHibiscusDocument, commandShowHibiscusDocument_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl, commandUpdateDub, commandUpdateDub_impl, dubListPanel, formatHintPanel, jumpFlowPanel } from './functions/command';
 import { atCommands, fileName, fileSuffix, langPrefix, required, settingsParam, sharpCommands } from './functions/completion';
-import { debuggerFactory, debuggerProvider } from './functions/debugger';
+import { debuggerFactory, debuggerProvider, debuggerTracker } from './functions/debugger';
 import { diagnosticsCollection, onUpdate, triggerUpdate } from './functions/diagnostic';
 import { fileDefinition } from './functions/file';
 import { hover, hoverFile } from './functions/hover';
@@ -30,6 +30,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(debuggerProvider);
 	context.subscriptions.push(debuggerFactory);
+	context.subscriptions.push(debuggerTracker);
 
 	//--------------------
 	// Command

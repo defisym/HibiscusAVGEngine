@@ -3,7 +3,7 @@
 import path = require('path');
 import * as vscode from 'vscode';
 
-import { activeEditor, outputChannel } from '../extension';
+import { activeEditor } from '../extension';
 import { currentLineDialogue, DialogueStruct, parseDialogue } from '../lib/dialogue';
 import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
 import { iterateParams } from '../lib/iterateParams';
@@ -17,7 +17,7 @@ import { createWebviewPanel } from '../webview/_create';
 import { handleOnClickLink } from '../webview/_onClickLink';
 import { codeLensProviderClass } from './codeLens';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
-import { audio, audioBgmPath, audioBgsPath, audioDubsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -269,7 +269,6 @@ export const commandGetAssetsList_impl = async () => {
                     let refInfo = assets.get(fileName);
 
                     if (refInfo === undefined) {
-
                         assets.set(fileName, {
                             fileExist: fileListHasItem(fileName)
                             , type: []
@@ -330,7 +329,8 @@ export const commandGetAssetsList_impl = async () => {
 
                         break;
                     case InlayHintType.DubFileName:
-                        UpdateAssets(audioDubsPath + '\\' + currentParam, FileType.dubs);
+                        // UpdateAssets(audioDubsPath + '\\' + currentParam, FileType.dubs);
+                        UpdateAssets(currentParam, FileType.dubs);
 
                         break;
                     case InlayHintType.SEFileName:
@@ -363,16 +363,16 @@ export const commandGetAssetsList_impl = async () => {
             handleOnClickLink(message);
         });
 
-        outputChannel.clear();
-        outputChannel.show();
+        // outputChannel.clear();
+        // outputChannel.show();
 
-        outputChannel.appendLine('Unused file:');
+        // outputChannel.appendLine('Unused file:');
 
-        unusedFileList.sort();
+        // unusedFileList.sort();
 
-        for (let file of unusedFileList) {
-            outputChannel.appendLine(file);
-        }
+        // for (let file of unusedFileList) {
+        //     outputChannel.appendLine(file);
+        // }
 
         // done
         progress.report({ increment: 0, message: "Done" });

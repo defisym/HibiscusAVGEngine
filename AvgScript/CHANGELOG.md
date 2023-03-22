@@ -1,5 +1,11 @@
 # Change Log
 
+## 20230322
+
+- only trigger preview in debug session
+- list assets dub check
+- list unused files
+
 ## 20230321
 
 - preview

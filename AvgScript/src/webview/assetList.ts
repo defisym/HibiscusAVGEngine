@@ -6,6 +6,7 @@ import { RefInfo } from "../functions/command";
 import { getFullFileNameByType, nonePreview } from "../functions/file";
 import { FileType, fileTypeMap } from "../lib/utilities";
 import { html_getHyperLink } from "./_hyperLink";
+import { markdownParser, markDown_getMarkDownLevel, markDown_newLine } from './_mdToHtml';
 import { onClickLinkScript } from "./_onClickLink";
 
 export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unusedFileList: string[]) {
@@ -57,10 +58,10 @@ export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unused
         let fileName = value.fileExist
             ? key
             :
-            // `<a href="` + value.webUri + `">` +
-            `<font color="red"><b>` + key + `</b></font>`
-            // + `</a>`
-            ;
+            (value.type.includes(FileType.dubs)
+                ? `无法推导: <font color="blue"><b>` + key + `</b></font>`
+                : `文件不存在: <font color="red"><b>` + key + `</b></font>`
+            );
 
         line = line.replace('{$FileName}', fileName);
 
@@ -95,7 +96,9 @@ export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unused
                     preview = nonePreview;
             }
         } else {
-            preview = '文件不存在';
+            preview = value.type.includes(FileType.dubs)
+                ? '无法推导'
+                : '文件不存在';
         }
 
         preview = preview.replace('{$URI}', value.webUri.toString());
@@ -147,8 +150,16 @@ export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unused
         content += line;
     });
 
+    let unusedFileListMD = markDown_getMarkDownLevel(1) + '未显式引用' + markDown_newLine;
+
+    unusedFileList.sort();
+
+    for (let file of unusedFileList) {
+        unusedFileListMD += '  - ' + file + markDown_newLine;
+    }
+
     let table = tableTemplate.replace('{$CONTENT}', content);
-    let page = pageTemplate.replace('{$BODY}', table);
+    let page = pageTemplate.replace('{$BODY}', table + markdownParser(unusedFileListMD));
 
     return page;
 }

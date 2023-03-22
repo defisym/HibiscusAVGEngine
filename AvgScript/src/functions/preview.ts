@@ -6,6 +6,8 @@ import { iterateLines } from '../lib/iterateLines';
 import { projectConfig } from './file';
 
 export class Previewer {
+    private bDebugging = false;
+
     private bDocUpdated = false;
     private previousTimer = 0;
     private previousCursor: vscode.Position | undefined = undefined;
@@ -21,14 +23,22 @@ export class Previewer {
         return now.getTime();
     }
 
+    debugUpdate(bState: boolean) {
+        this.bDebugging = bState;
+    }
+
     docUpdated() {
         this.bDocUpdated = true;
         this.previousTimer = this.getTime();
     }
 
     async updatePreview() {
+        if (!this.bDebugging) {
+            return;
+        }
+
         const preview = projectConfig.Debug.Debug_Preview;
-        
+
         if (preview !== '1') {
             console.log(this.previewCommandStrPrefix + 'NOT_ENABLE');
 
@@ -78,16 +88,28 @@ export class Previewer {
         const cursorAt = cursor.line;
         let previewLineNumber = 0;
 
+        let bReached = false;
+        let bReachedBeforeText = false;
+
         try {
             iterateLines(document, (text, lineNumber
                 , lineStart, lineEnd
                 , firstLineNotComment) => {
-                if (currentLineDialogue(text)) {
-                    previewLineNumber++;
-                }
+                const bCurLineText = currentLineDialogue(text);
 
                 if (lineNumber >= cursorAt) {
-                    throw Boolean;
+                    bReached = true;
+                    bReachedBeforeText = bCurLineText;
+                }
+
+                if (bCurLineText) {
+                    if (!bReachedBeforeText) {
+                        previewLineNumber++;
+                    }
+
+                    if (bReached) {
+                        throw Boolean;
+                    }
                 }
             });
         } catch (err) {
