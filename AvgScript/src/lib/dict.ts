@@ -473,7 +473,7 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.OutlinePixel, "描边像素数"],
     [InlayHintType.Volume, "音量"],
     [InlayHintType.Channel, "音频通道"],
-    [InlayHintType.FadeSpeed, "淡入淡出速度"],
+    [InlayHintType.FadeSpeed, "淡入淡出时长(毫秒)"],
     [InlayHintType.StartPoint, "开始点"],
     [InlayHintType.EndPoint, "结束点"],
     [InlayHintType.PreludePoint, "前奏点"],
@@ -1688,7 +1688,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@Bgm=filename.MP3:fadeSpeed:StartPoint:endpoint"
             , "\t@BgmLoop=filename.MP3:fadeSpeed:StartPoint:endpoint"
             , "定义BGM的A-B循环，从起点开始循环播放到终点，淡入速度为淡入持续秒数，等待淡入淡出属于强制等待"
-            , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"
+            , "淡入淡出速度为持续毫秒数，等待淡入淡出属于强制等待"
             , "循环起始点/循环终止点参数设定为零，引擎会进行整曲循环"]
         , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.BGMFileName, InlayHintType.FadeSpeed, InlayHintType.StartPoint, InlayHintType.EndPoint]
@@ -1701,7 +1701,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@BgmPre=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
             , "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
             , "定义BGM有前奏的A-B循环，从前奏点开始播放，播放至循环终点后，在循环起点和循环终点间循环播放"
-            , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"
+            , "淡入淡出速度为持续毫秒数，等待淡入淡出属于强制等待"
             , "循环起始点/循环终止点/前奏点参数设定为零，效果与上条指令一致"]
         , type: [ParamType.File, ParamType.Number, ParamType.Number, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.BGMFileName, InlayHintType.FadeSpeed, InlayHintType.StartPoint, InlayHintType.EndPoint, InlayHintType.PreludePoint]
@@ -1726,7 +1726,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , minParam: 1, maxParam: 1
         , description: ["\t@BgmFadeOut=fadeSpeed"
             , "淡出BGM"
-            , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"]
+            , "淡入淡出速度为持续毫秒数，等待淡入淡出属于强制等待"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.FadeSpeed]
     }],
@@ -1737,7 +1737,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t@Bgs=filename.MP3:fadeSpeed"
             , "\t@BgsLoop=filename.MP3:fadeSpeed"
             , "定义BGS，BGS默认循环播放，请确认BGS素材可无缝循环"
-            , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"]
+            , "淡入淡出速度为持续毫秒数，等待淡入淡出属于强制等待"]
         , type: [ParamType.File, ParamType.Number]
         , inlayHintType: [InlayHintType.BGSFileName, InlayHintType.FadeSpeed]
     }],
@@ -1761,7 +1761,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , minParam: 1, maxParam: 1
         , description: ["\t@BgsFadeOut=fadeSpeed"
             , "淡出BGS"
-            , "淡入淡出速度为持续秒数，等待淡入淡出属于强制等待"]
+            , "淡入淡出速度为持续毫秒数，等待淡入淡出属于强制等待"]
         , type: [ParamType.Number]
         , inlayHintType: [InlayHintType.FadeSpeed]
     }],
