@@ -1,5 +1,10 @@
 # Change Log
 
+## 20230323
+
+- fix file definition doesn't work
+- fix codeLens trigger file diagnostic before finish
+
 ## 20230322
 
 - only trigger preview in debug session

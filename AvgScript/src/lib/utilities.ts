@@ -429,7 +429,13 @@ export function getCommandType(command: string) {
 }
 
 export function getFilePath(linePrefix: string, fileName: string) {
-    let filePath = getFileCompletionByType(getType(linePrefix), fileName)?.sortText;
+    let sortText = getFileCompletionByType(getType(linePrefix), fileName)?.sortText;
+
+    if (sortText === undefined) {
+        return undefined;
+    }
+
+    const filePath = getTextBySortText(sortText);
 
     return filePath;
 }
@@ -590,4 +596,15 @@ export function cropScript(curScript: string) {
     return scriptEndWithExt(curScript)
         ? curScript.substring(0, curScript.length - 4)
         : curScript;
+}
+
+// const sortTextPrefixDelimiter = '\t\t';
+const sortTextPrefixDelimiter = '|';
+
+export function getSortTextByText(text: string) {
+    return text.length.toString() + sortTextPrefixDelimiter + text;
+}
+
+export function getTextBySortText(sortText: string) {
+    return sortText.substring(sortText.indexOf(sortTextPrefixDelimiter) + 1);
 }

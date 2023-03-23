@@ -5,7 +5,7 @@ import * as mm from 'music-metadata';
 
 import { DubParser } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
-import { cropScript, currentLineNotComment, FileType, getBuffer, getParamAtPosition, getType, getUri, sleep, stringToEnglish } from '../lib/utilities';
+import { cropScript, currentLineNotComment, FileType, getBuffer, getParamAtPosition, getSortTextByText, getType, getUri, sleep, stringToEnglish } from '../lib/utilities';
 import { codeLensProviderClass } from './codeLens';
 import { commandBasePath, confBasePath } from './command';
 import { updateWatcher } from './watcher';
@@ -17,8 +17,8 @@ import { updateWatcher } from './watcher';
 import path = require("path");
 
 // state
-export let fileListInitialized = false;
 let fileListInitFirstRun = true;
+export let fileListInitialized = false;
 
 export async function waitForFileListInit() {
     // wait for file refresh
@@ -311,8 +311,12 @@ export async function getFileInfo(filePath: string, type: CompletionType) {
             case CompletionType.video:
                 const ffprobe = require('ffprobe');
                 const ffprobeStatic = require('ffprobe-static');
+                const bNoFFMpeg = ffprobeStatic.path !== undefined;
+                const noFFMpegInfo = 'No FFMpeg detected';
 
-                let info = (await ffprobe(filePath, { path: ffprobeStatic.path })).streams[0];
+                const info = bNoFFMpeg
+                    ? (await ffprobe(filePath, { path: ffprobeStatic.path })).streams[0]
+                    : { width: noFFMpegInfo, height: noFFMpegInfo, duration: noFFMpegInfo };
 
                 projectFileInfoList.set(filePath, info);
 
@@ -468,14 +472,10 @@ export async function updateFileList(progress: vscode.Progress<{
     message?: string | undefined;
     increment?: number | undefined;
 }>) {
-    if (!fileListInitFirstRun) {
-        do {
-            await sleep(50);
-        } while (!fileListInitialized);
-
+    while (!fileListInitialized && !fileListInitFirstRun) {
+        await sleep(50);
     }
-    
-    fileListInitFirstRun = false;
+
     fileListInitialized = false;
 
     const total = 100;
@@ -635,8 +635,8 @@ export async function updateFileList(progress: vscode.Progress<{
 
                     item.documentation = preview;
 
-                    // sort based on file path, shorter is former
-                    item.sortText = filePath.length.toString() + '\t\t' + filePath;
+                    // sort based on file path, shorter is former                    
+                    item.sortText = getSortTextByText(filePath);
 
                     if (detail !== undefined) {
                         completions.push(item);
@@ -700,6 +700,7 @@ export async function updateFileList(progress: vscode.Progress<{
     progress.report({ increment: 0, message: "Done" });
 
     fileListInitialized = true;
+    fileListInitFirstRun = false;
 
     await codeLensProviderClass.refresh();
 }
