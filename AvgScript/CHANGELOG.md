@@ -4,6 +4,7 @@
 
 - fix file definition doesn't work
 - fix codeLens trigger file diagnostic before finish
+- check text length
 
 ## 20230322
 

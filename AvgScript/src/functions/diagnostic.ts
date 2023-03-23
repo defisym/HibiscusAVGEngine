@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
+import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import { atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, InlayHintType, internalImageID, internalKeywordList, ParamType, settingsParamDocList, sharpKeywordList } from '../lib/dict';
 import { DubParser } from '../lib/dubs';
 import { iterateLines } from "../lib/iterateLines";
@@ -533,6 +534,16 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                     , vscode.DiagnosticSeverity.Warning));
 
                 return;
+            }
+        }
+
+        if (currentLineDialogue(text) && projectConfig) {
+            const maxLength = parseInt(projectConfig.Debug.Debug_MaxLength);
+            const dialogueStruct = parseDialogue(text.toLocaleLowerCase(), text);
+            if (dialogueStruct.m_dialoguePart.length > maxLength) {
+                diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, lineStart + maxLength, lineNumber, lineEnd)
+                    , "Text maybe too long, expected less than " + maxLength.toString() + " characters"
+                    , vscode.DiagnosticSeverity.Warning));
             }
         }
     });
