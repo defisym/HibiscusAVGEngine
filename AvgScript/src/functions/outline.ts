@@ -71,7 +71,7 @@ export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScrip
                     if (paramInfo.outlineKeyword) {
                         let keyWord = commandWithPrefix;
 
-                        item = new vscode.SymbolInformation("KeyWord: " + keyWord
+                        item = new vscode.SymbolInformation("KeyWord: " + /*keyWord*/text
                             , vscode.SymbolKind.Function
                             , prevSecName[prevSecName.length - 1]
                             , new vscode.Location(document.uri, new vscode.Position(lineNumber, 0)));

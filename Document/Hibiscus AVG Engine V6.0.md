@@ -2809,11 +2809,13 @@ CG/UI不会被销毁
 
 该指令不可与立绘叠化同时使用
 
-##### `@CharBlur=ID:Radius`
+##### `@CharBlur=ID:Radius:Accumulate`
 
 为角色创建模糊效果
 
 会在库中缓存访问文件名为`RelativePath_Blur_Radius`的文件
+
+`Accumulate`决定是否累计模糊
 
 ##### `@SetAutoArrange=On/Off`
 

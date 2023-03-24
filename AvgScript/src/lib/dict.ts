@@ -2556,10 +2556,11 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
     ["CharBlur", {
         prefix: "@"
-        , minParam: 2, maxParam: 2
-        , description: ["\t@CharBlur=ID:Radius"
+        , minParam: 2, maxParam: 3
+        , description: ["\t@CharBlur=ID:Radius:Accumulate"
             , "为角色创建模糊效果"
-            , "会在库中缓存访问文件名为`RelativePath_Blur_Radius`的文件"]
+            , "会在库中缓存访问文件名为`RelativePath_Blur_Radius`的文件"
+            , "`Accumulate`决定是否累计模糊"]
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.BlurRadius]
     }],
