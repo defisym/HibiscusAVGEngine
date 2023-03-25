@@ -422,6 +422,7 @@ export enum InlayHintType {
     ChannelType,
     FadeTime,
     CharName,
+    LayoutPrefix,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -519,6 +520,7 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.ChannelType, "通道类型"],
     [InlayHintType.FadeTime, "过渡时间"],
     [InlayHintType.CharName, "角色姓名"],
+    [InlayHintType.LayoutPrefix, "配置文件前缀"],
 ]);
 
 export enum IDBehaviour {
@@ -1423,6 +1425,94 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             undefined]
     }],
 
+    ["TextColor", {
+        prefix: "#"
+        , minParam: 2, maxParam: 4
+        , description: ["\t#TextColor=Fixed:R:G:B"
+            , "\t#TextColor=Fixed:#FFFFFF"
+            , "内部指令，更新文本颜色"]
+        , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.FixedValue, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
+        , internal: true
+    }],
+    ["TextSize", {
+        prefix: "#"
+        , minParam: 2, maxParam: 2
+        , description: ["\t#TextSize=Fixed:Size"
+            , "内部指令，更新文本大小"]
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.FixedValue, InlayHintType.Size]
+        , internal: true
+    }],
+    ["TextFont", {
+        prefix: "#"
+        , minParam: 2, maxParam: 2
+        , description: ["\t#TextFont=Fixed:Size"
+            , "内部指令，更新文本字体"]
+        , type: [ParamType.Number, ParamType.String]
+        , inlayHintType: [InlayHintType.FixedValue, InlayHintType.Font]
+        , internal: true
+    }],
+
+    ["TextShaderOn", {
+        prefix: "#"
+        , minParam: 3, maxParam: 5
+        , description: ["\t#TextShaderOn=Fixed:OutlinePixel:R:G:B"
+            , "\t#TextShaderOn=Fixed:OutlinePixel:#FFFFFF"
+            , "内部指令，更新文本Shader"]
+        , type: [ParamType.Number, ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.FixedValue, InlayHintType.OutlinePixel, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
+        , internal: true
+    }],
+    ["TextShaderOff", {
+        prefix: "#"
+        , minParam: 1, maxParam: 1
+        , description: ["\t#TextShaderOff=Fixed"
+            , "内部指令，更新文本Shader"]
+        , type: [ParamType.Number]
+        , inlayHintType: [InlayHintType.FixedValue]
+        , internal: true
+    }],
+
+    ["TextOutColor", {
+        prefix: "#"
+        , minParam: 2, maxParam: 4
+        , description: ["\t#TextOutColor=Fixed:R:G:B"
+            , "\t#TextOutColor=Fixed:#FFFFFF"
+            , "内部指令，更新文本Shader"]
+        , type: [ParamType.Number, ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.FixedValue, InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
+        , internal: true
+    }],
+    ["TextOutPixel", {
+        prefix: "#"
+        , minParam: 2, maxParam: 2
+        , description: ["\t#TextOutPixel=Fixed:OutlinePixel"
+            , "内部指令，更新文本Shader"]
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.FixedValue, InlayHintType.OutlinePixel]
+        , internal: true
+    }],
+    ["TextShadow", {
+        prefix: "#"
+        , minParam: 2, maxParam: 2
+        , description: ["\t#TextShadow=Fixed:On/Off"
+            , "内部指令，更新文本Shader"]
+        , type: [ParamType.Number, ParamType.ZeroOne]
+        , inlayHintType: [InlayHintType.FixedValue, InlayHintType.ShadowMode]
+        , internal: true
+    }],
+    ["TextDefault", {
+        prefix: "#"
+        , minParam: 2, maxParam: 2
+        , description: ["\t#TextDefault=Fixed:Prefix"
+            , "内部指令，根据配置文件更新文本外观"]
+        , type: [ParamType.Number, ParamType.String]
+        , inlayHintType: [InlayHintType.FixedValue, InlayHintType.LayoutPrefix]
+        , internal: true
+    }],
+
+
     ["DiaColor", {
         prefix: "#"
         , minParam: 1, maxParam: 3
@@ -1430,7 +1520,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "\t#DiaColor=#FFFFFF"
             , "定义对白文字的RGB值，`R:G:B/#FFFFFF`"
             , "字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误"]
-        , type: [ParamType.Color]
+        , type: [ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
     }],
     ["DiaSize", {
@@ -1472,7 +1562,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t#DiaOutColor=R:G:B"
             , "\t#DiaOutColor=#FFFFFF"
             , "启用勾边时，更改对白勾边颜色为`RGB/#FFFFFF`"]
-        , type: [ParamType.Color]
+        , type: [ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
     }],
     ["DiaOutPixel", {
@@ -1499,7 +1589,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "\t#NameColor=#FFFFFF"
             , "定义姓名文字的RGB值，`R:G:B/#FFFFFF`"
             , "字体颜色无法设置为`(255,255,255)/#FFFFFF`，否则会导致勾边错误"]
-        , type: [ParamType.Color]
+        , type: [ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
         , NonVNModeOnly: true
     }],
@@ -1546,7 +1636,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t#NameOutColor=R:G:B"
             , "\t#NameOutColor=#FFFFFF"
             , "启用勾边时，更改姓名勾边颜色为`RGB/#FFFFFF`"]
-        , type: [ParamType.Color]
+        , type: [ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
         , NonVNModeOnly: true
     }],

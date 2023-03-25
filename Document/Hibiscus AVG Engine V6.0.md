@@ -1168,7 +1168,7 @@ QuickBar = 1
 
 `Type`为`Str`时，要求`ID`参数，作用于该`ID`对应的字符串对象
 
-#### Align
+##### Align
 
 - Left
 - Center
@@ -1177,7 +1177,7 @@ QuickBar = 1
 - VCenter
 - Bottom
 
-#### Type
+##### Type
 
 - Name
 - Dia
@@ -1189,16 +1189,52 @@ QuickBar = 1
 
 `Type`为`Str`时，要求`ID`参数，作用于该`ID`对应的字符串对象
 
-#### SpaceType
+##### SpaceType
 
 - Row
 - Col
 
-#### Type
+##### Type
 
 - Name
 - Dia
 - Str
+
+#### `#TextColor=Fixed:R:G:B` / `#TextColor=Fixed:#FFFFFF`
+
+内部指令，更新文本颜色
+
+#### `#TextSize=Fixed:Size`
+
+内部指令，更新文本大小
+
+#### `#TextSize=Fixed:Font`
+
+内部指令，更新文本字体
+
+#### `#TextShaderOn=Fixed:OutlinePixel:R:G:B` / `#TextShaderOn=Fixed:OutlinePixel:#FFFFFF`
+
+内部指令，更新文本Shader
+
+#### `#TextOutColor=Fixed:R:G:B` / `#TextOutColor=Fixed:#FFFFFF`
+
+内部指令，更新文本Shader
+
+#### `#TextOutPixel=Fixed:OutlinePixel`
+
+内部指令，更新文本Shader
+
+#### `#TextShadow=Fixed:On/Off`
+
+内部指令，更新文本Shader
+
+#### `#TextShaderOff=Fixed`
+
+内部指令，更新文本Shader
+
+#### `#TextDefault=Fixed:Prefix`
+
+内部指令，根据配置文件更新文本外观
 
 ### 对白 / 姓名
 
