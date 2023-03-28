@@ -33,6 +33,10 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
     const charListTitle = 'Character List';
     let charList = markDown_getMarkDownLevel(2)
         + charListTitle
+        + markDown_newLine
+        + "**<font color=red>One character may be displayed in different names</font>**"
+        + markDown_newLine
+        + "**<font color=red>Don't forget those lines when submitting script to CVs</font>**"
         + markDown_newLine;
 
     const charListAppend = ',\t\t\t\t\t\t\t\t';
@@ -96,7 +100,7 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
         //     : narrator;
 
         // chapter title
-        const chapterListTitle = 'Chapter List' + ' ' + name;;
+        const chapterListTitle = 'Chapter List' + ' ' + name;
         let chapterList = markDown_getMarkDownLevel(3)
             + chapterListTitle
             + markDown_newLine;
@@ -162,7 +166,10 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
             infoIndex++;
         }
 
-        diaContent += chapterList.substring(0, chapterList.length - chapterListAppend.length)
+        const bChapterEndWithAppend = chapterList.trimRight().endsWith(chapterListAppend.trimRight());
+        diaContent += (bChapterEndWithAppend
+            ? chapterList.substring(0, chapterList.length - chapterListAppend.length)
+            : chapterList)
             + markDown_newLine
             + chapterContent;
 
@@ -193,11 +200,24 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
             + charTitle
             + markDown_newLine;
 
+        if (bInternalChanged) {
+            markdown += "**<font color=red>Character's internal name changed</font>**";
+            markdown += markDown_newLine;
+            markdown += "**<font color=red>If it's not a temporary name like `???`, possibly due to incorrect binding</font>**";
+            markdown += markDown_newLine;
+            markdown += "**<font color=red>Please check the `HeadHint` part</font>**";
+            markdown += markDown_newLine;
+        }
+
         markdown += diaContent;
     });
 
+    const bCharEndWithAppend = charList.trimRight().endsWith(charListAppend.trimRight());
     markdown = title
-        + charList.substring(0, charList.length - charListAppend.length) + markDown_newLine
+        + (bCharEndWithAppend
+            ? charList.substring(0, charList.length - charListAppend.length)
+            : charList)
+        + markDown_newLine
         + markdown;
 
     const html = markdownParser(markdown);

@@ -1,5 +1,10 @@
 # Change Log
 
+## 20230328
+
+- if dub list's char & chapter list end with change line, last link is clipped and corrupted
+- hint for name change
+
 ## 20230323
 
 - fix file definition doesn't work
