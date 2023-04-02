@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230402
+
+- fix multilingual prefix incompatible issues
+
 ## 20230328
 
 - if dub list's char & chapter list end with change line, last link is clipped and corrupted

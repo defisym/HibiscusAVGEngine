@@ -1,3 +1,5 @@
+import { langFilter } from "./regExp";
+
 /* eslint-disable @typescript-eslint/naming-convention */
 export const FORMAT_IGNORE_UNKNOWN = 0b00000001;
 export const FORMAT_IGNORE_INCOMPLETE = 0b00000010;
@@ -180,7 +182,7 @@ export interface DialogueStruct {
     m_headHint: string;
     m_dubHint: string;
 
-    m_namePartEmpty:boolean
+    m_namePartEmpty: boolean
     m_namePart: string;
     m_namePartRaw: string;
     m_dialoguePart: string;
@@ -188,6 +190,9 @@ export interface DialogueStruct {
 }
 
 export function parseDialogue(line: string, lineRaw: string): DialogueStruct {
+    line = line.replace(langFilter, '$2');
+    lineRaw = lineRaw.replace(langFilter, '$2');
+
     let bDialogue = false;
     let bNoNamePart = false;
 
@@ -244,7 +249,7 @@ export function parseDialogue(line: string, lineRaw: string): DialogueStruct {
         m_headHint: headHint,
         m_dubHint: dubHint,
 
-        m_namePartEmpty:namePartRaw.empty(),
+        m_namePartEmpty: namePartRaw.empty(),
         m_namePart: namePart,
         m_namePartRaw: namePartRaw,
         m_dialoguePart: dialoguePart,

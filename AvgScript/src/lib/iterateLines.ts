@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
+import { currentLocalCode } from '../functions/file';
 import { InlayHintType } from './dict';
 import { iterateScripts } from './iterateScripts';
+import { getLangRegex } from './regExp';
 
 export interface LineInfo {
     emptyLine: boolean,
 
     lineIsComment: boolean,
+    lineNotCurLanguage: boolean,
 
     originText: string
     textNoComment: string,
@@ -39,6 +42,10 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 
     let firstLineNotComment: number | undefined = undefined;
 
+    const langReg = currentLocalCode !== undefined
+        ? getLangRegex(currentLocalCode)
+        : undefined;
+
     for (let i = 0; i < document.lineCount; ++i) {
         const line = document.lineAt(i);
 
@@ -70,11 +77,16 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
                 + text.length - textRemoveFront.length;
             const lineEnd: number = lineStart + textNoComment.length;
 
+            const bNotCurrentLanguage = langReg !== undefined
+                ? textNoComment.matchEntire(langReg)
+                : false;
+
             lineCallBack(
                 {
                     emptyLine: false,
 
-                    lineIsComment: inComment || textNoComment.empty(),
+                    lineIsComment: inComment || textNoComment.empty() || bNotCurrentLanguage,
+                    lineNotCurLanguage: bNotCurrentLanguage,
 
                     originText: line.text,
                     textNoComment: textNoComment,
@@ -99,6 +111,7 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
                     emptyLine: true,
 
                     lineIsComment: false,
+                    lineNotCurLanguage: false,
 
                     originText: line.text,
                     textNoComment: '',

@@ -2,12 +2,12 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
-import { atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, InlayHintType, internalImageID, internalKeywordList, ParamType, settingsParamDocList, sharpKeywordList } from '../lib/dict';
+import { InlayHintType, ParamType, atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, internalImageID, internalKeywordList, settingsParamDocList, sharpKeywordList } from '../lib/dict';
 import { DubParser } from '../lib/dubs';
-import { iterateLines } from "../lib/iterateLines";
-import { regexHexColor, regexRep } from '../lib/regExp';
-import { getSettings, parseSettings, ScriptSettings } from '../lib/settings';
-import { cropScript, fileExists, FileType, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
+import { LineInfo, iterateLines, iterateLinesWithComment } from "../lib/iterateLines";
+import { getLangRegex, regexHexColor, regexRep } from '../lib/regExp';
+import { ScriptSettings, getSettings, parseSettings } from '../lib/settings';
+import { FileType, cropScript, fileExists, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
 import { dubError } from './codeLens';
 import { basePath, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
@@ -628,7 +628,7 @@ function updateLanguageDecorations(activeEditor: vscode.TextEditor
     , decorationType: vscode.TextEditorDecorationType
     , currentLocalCode: string
     , currentLocalCodeDisplay: string) {
-    const langReg = new RegExp("Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
+    const langReg = getLangRegex(currentLocalCode);
     const decoOpt: vscode.DecorationOptions[] = [];
     const document = activeEditor.document;
 
@@ -636,11 +636,14 @@ function updateLanguageDecorations(activeEditor: vscode.TextEditor
         return;
     }
 
-    iterateLines(document, (text, lineNumber
-        , lineStart, lineEnd
-        , firstLineNotComment) => {
-        if (text.matchStart(langReg)) {
-            const decoration = { range: new vscode.Range(lineNumber, lineStart, lineNumber, lineEnd), hoverMessage: "非当前语言: " + currentLocalCodeDisplay + currentLocalCode };
+    iterateLinesWithComment(document, (info: LineInfo) => {
+        let { lineNotCurLanguage,
+            lineNum,
+            lineStart,
+            lineEnd, } = info;
+
+        if (lineNotCurLanguage) {
+            const decoration = { range: new vscode.Range(lineNum, lineStart, lineNum, lineEnd), hoverMessage: "非当前语言: " + currentLocalCodeDisplay + currentLocalCode };
 
             decoOpt.push(decoration);
         }
