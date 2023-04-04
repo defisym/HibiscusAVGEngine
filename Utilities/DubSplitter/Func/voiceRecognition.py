@@ -8,6 +8,8 @@ from constants import tempPath, tempFile
 
 import whisper
 
+print('Loading voice recognition model')
+
 model = whisper.load_model("base")
 
 

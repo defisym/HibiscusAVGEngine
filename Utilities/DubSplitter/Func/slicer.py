@@ -36,7 +36,9 @@ def do_slice(sound, silence, out_path):
 
         print('  recognize result: {}'.format(text))
 
-        text = text[:5] + '……' if len(text) > 5 else text
+        textLen = 10
+
+        text = text[:textLen] + '……' if len(text) > textLen else text
         text = invalid_file_character_escape(text)
         outName = outName + '_' + text + '.ogg'
 
