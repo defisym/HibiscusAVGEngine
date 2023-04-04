@@ -3,6 +3,7 @@ import os
 from pydub.silence import split_on_silence
 
 from Func.path import mkdir, process_path, invalid_file_character_escape
+from Func.string import string_omit
 from Func.voiceRecognition import recognition_with_whisper
 from constants import tempPath
 
@@ -36,9 +37,7 @@ def do_slice(sound, silence, out_path):
 
         print('  recognize result: {}'.format(text))
 
-        textLen = 10
-
-        text = text[:textLen] + '……' if len(text) > textLen else text
+        text = string_omit(text)
         text = invalid_file_character_escape(text)
         outName = outName + '_' + text + '.ogg'
 
