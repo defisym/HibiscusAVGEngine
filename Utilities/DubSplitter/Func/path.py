@@ -1,5 +1,4 @@
 import os
-import sys
 
 
 # https://cloud.tencent.com/developer/article/1566632
@@ -17,3 +16,13 @@ def mkdir(path):
 
     if not bExist:
         os.makedirs(path)
+
+
+def invalid_file_character_escape(file):
+    invalidChar = ['\\', '/', '*', '?', '<', '>', '|']
+    fileStr: str = file
+
+    for char in invalidChar:
+        fileStr = fileStr.replace(char, '_')
+
+    return fileStr

@@ -2,12 +2,11 @@ import argparse
 
 from pydub import AudioSegment
 
-from Func.path import script_path
 from Func.slicer import do_slice
+from constants import defaultOutPath
 
 # -f "F:/DEV/Mobius/资产/语音/干音/丽丽娅干音.wav" -s 400
-
-defaultOutPath = script_path(__file__) + '\\Out\\'
+# -f "F:\DEV\Mobius\资产\语音\基利尔\01_初\干音\初.wav" -o "F:\DEV\Mobius\资产\语音\基利尔\01_初\Out" -s 800 -r 400
 
 # https://docs.python.org/zh-cn/3.6/library/argparse.html
 parser = argparse.ArgumentParser(description='Slice dubs.')
@@ -43,3 +42,5 @@ print('read complete...')
 
 for silence in range(silenceStart, silenceEnd + 1, silenceStep):
     do_slice(sound, silence, outPath)
+
+print('process end')
