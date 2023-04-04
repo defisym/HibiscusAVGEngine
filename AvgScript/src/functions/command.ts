@@ -9,12 +9,12 @@ import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, Inlay
 import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
 import { currentLineNotComment, FileType } from '../lib/utilities';
+import { createWebviewPanel } from '../webview/_create';
+import { handleOnClickLink } from '../webview/_onClickLink';
 import { assetList_getWebviewContent } from '../webview/assetList';
 import { dubList_getWebviewContent, narrator } from '../webview/dubList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
-import { createWebviewPanel } from '../webview/_create';
-import { handleOnClickLink } from '../webview/_onClickLink';
 import { codeLensProviderClass } from './codeLens';
 import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
 import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
@@ -756,11 +756,15 @@ export const commandGetDubList_impl = async () => {
 
 let previousUri: vscode.Uri | undefined = undefined;
 
-export const commandUpdateDub_impl = async (targetFile: string) => {
+export const commandUpdateDub_impl = async (dialogue: string, targetFile: string) => {
+    const clipLength = 20;
+
     let options: vscode.OpenDialogOptions = {
         openLabel: '更新',
         canSelectMany: false,
-        title: '更新语音',
+        title: '更新语音: '
+            + dialogue.substring(0, clipLength)
+            + (dialogue.length > clipLength ? '……' : ''),
     };
 
     if (previousUri !== undefined) {

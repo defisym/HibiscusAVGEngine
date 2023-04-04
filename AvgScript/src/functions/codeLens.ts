@@ -146,7 +146,10 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                                 + dubState.fileName,
                             tooltip: "点击指定当前行对应的语音文件，将拷贝选定文件至对应路径，并重命名为对应语音文件名",
                             command: commandUpdateDub,
-                            arguments: [dubState.dubChapter + '\\' + dubState.fileName]
+                            arguments: [
+                                dialogueStruct.m_dialoguePart,
+                                dubState.dubChapter + '\\' + dubState.fileName
+                            ]
                         };
 
                         codeLenses.push(codeLensDubFileName);

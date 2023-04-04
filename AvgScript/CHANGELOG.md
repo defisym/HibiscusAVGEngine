@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230404
+
+- dialogue title of `commandUpdateDub_impl` now has more info
+
 ## 20230402
 
 - fix multilingual prefix incompatible issues
