@@ -1,6 +1,10 @@
 # Note
 
-## Debug
+## References
 
-in `package.json`, `"main": "./dist/extension.js"` determines the entry point of the extension.
-when debugging in VSCode, `"main"` needs to be changed to `"main": "./out/extension.js"` to hit the breakpoint, and set back to `"main": "./dist/extension.js"` after debugging.
+- [VS Code API](https://code.visualstudio.com/api/references/vscode-api)
+- [Built-in Commands](https://code.visualstudio.com/api/references/commands)
+- [Webview API](https://code.visualstudio.com/api/extension-guides/webview)
+- [Programmatic Language Features](https://code.visualstudio.com/api/language-extensions/programmatic-language-features)
+- [Semantic Highlight Guide](https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide)
+- [Continuous Integration](https://code.visualstudio.com/api/working-with-extensions/continuous-integration)
