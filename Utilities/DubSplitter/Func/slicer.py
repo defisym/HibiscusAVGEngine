@@ -8,12 +8,12 @@ from Func.voiceRecognition import recognition_with_whisper
 from constants import tempPath
 
 
-def do_slice(sound, silence, out_path):
+def do_slice(sound, silence, out_path, b_vr):
     print('slice audio by silence length {}'.format(silence))
 
     dubs = split_on_silence(sound, silence, -40, 100, 1)
     length = len(dubs)
-    print('got {} lines'.format(length))
+    print('slice complete, got {} lines'.format(length))
 
     mkdir(tempPath)
 
@@ -32,14 +32,16 @@ def do_slice(sound, silence, out_path):
 
         audioSeg.export(fullOut, format='ogg')
 
-        print('  voice recognizing...')
-        text = recognition_with_whisper(fullOut)
+        if b_vr:
+            print('  voice recognizing...')
+            text = recognition_with_whisper(fullOut)
 
-        print('  recognize result: {}'.format(text))
+            print('  recognize result: {}'.format(text))
 
-        text = string_omit(text)
-        text = invalid_file_character_escape(text)
-        outName = outName + '_' + text + '.ogg'
+            text = string_omit(text)
+            text = invalid_file_character_escape(text)
+            outName = outName + '_' + text + '.ogg'
 
-        print('  Update file name to: {}'.format(outName))
-        os.rename(fullOut, localPath + '/' + outName)
+            print('  update file name to: {}'.format(outName))
+            # os.rename(fullOut, localPath + '/' + outName)
+            os.replace(fullOut, localPath + '/' + outName)
