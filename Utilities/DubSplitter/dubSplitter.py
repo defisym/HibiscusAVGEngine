@@ -18,7 +18,7 @@ parser.add_argument('-f', '--fileName',
 parser.add_argument('-o', '--outFilePath',
                     help='output folder, if not set, will use script path + \\Out\\')
 parser.add_argument('-s', '--silence',
-                    help='silence time, in ms, default is 1000ms. ',
+                    help='silence time, in ms, default is 1000ms',
                     type=int, default=1000)
 parser.add_argument('-r', '--range',
                     help='range, default is 100ms. e.g., silence = 400, range = 100 will slice in 400ms and 500ms',
