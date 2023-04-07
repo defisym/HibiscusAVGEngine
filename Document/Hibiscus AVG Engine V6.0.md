@@ -3134,6 +3134,18 @@ CG/UI不会被销毁
 
 用于创建Steam生成版本所需Content的批处理
 
+#### DubLister
+
+重命名配音文件到引擎使用格式，也可以使用CodeLens命令手动指定
+
+#### DubSplitter
+
+用于切分语音的Python工具
+
+可以在终端中打开文件夹并运行`python main.py`，或使用命令`pip install DubSplitter`安装[包](https://pypi.org/project/DubSplitter/)，并在终端中运行`dubSplitter`
+
+若国内镜像源没有及时更新，可使用`-i https://pypi.org/simple`使用国外镜像源
+
 #### Easing
 
 用于直观的指定Easing参数
@@ -3167,7 +3179,7 @@ CG/UI不会被销毁
 
 #### ScriptConverter
 
-用于转换剧本到导演代码的宏
+用于转换剧本到导演代码的宏，被插件功能替代
 
 #### Settings_CLI
 
