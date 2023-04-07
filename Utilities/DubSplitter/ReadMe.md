@@ -22,10 +22,19 @@ an easy tool to split dubs based on given silence
 ## Usage
 
 open folder in terminal, then run `python main.py`
-or install package, then run `dubSplitter`
+
+or use command `pip install DubSplitter` to install [package](https://pypi.org/project/DubSplitter/), then run `dubSplitter`
 
 ## Changelog
 
-### 230407
+### 230407 0.1.2
+
+- optimize `update_path`
+
+### 230407 0.1.1
+
+- update readme
+
+### 230407 0.1.0
 
 - init release

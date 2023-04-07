@@ -11,25 +11,35 @@ tempPath = scriptPath + '\\Temp\\'
 tempFile = tempPath + 'temp.wav'
 
 
+def update_path_core(base_path, description):
+    global defaultOutPath, tempPath, tempFile
+
+    print('use {} path {} as base path '.format(description, base_path))
+
+    defaultOutPath = base_path + '\\Out\\'
+    tempPath = base_path + '\\Temp\\'
+
+
 def update_path(is_package):
     global defaultOutPath, tempPath, tempFile
 
     if is_package:
-        print('use user path {}'.format(userPath))
-
-        defaultOutPath = userPath + '\\DubSplitter\\Out\\'
-        tempPath = userPath + '\\DubSplitter\\Temp\\'
+        update_path_core(userPath + '\\DubSplitter', 'user')
+        # print('use user path {} as base path '.format(userPath))
+        #
+        # defaultOutPath = userPath + '\\DubSplitter\\Out\\'
+        # tempPath = userPath + '\\DubSplitter\\Temp\\'
     else:
-        print('use script path {}'.format(scriptPath))
-
-        defaultOutPath = scriptPath + '\\Out\\'
-        tempPath = scriptPath + '\\Temp\\'
+        update_path_core(scriptPath, 'script')
+        # print('use script path {} as base path '.format(scriptPath))
+        #
+        # defaultOutPath = scriptPath + '\\Out\\'
+        # tempPath = scriptPath + '\\Temp\\'
 
     tempFile = tempPath + 'temp.wav'
 
-    print(defaultOutPath)
-    print(tempPath)
-    print(tempFile)
+    print("default output path {}".format(defaultOutPath))
+    print("temp path {}".format(tempPath))
 
 
 defaultWhisperLanguage = 'Chinese'

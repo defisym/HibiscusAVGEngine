@@ -44,6 +44,7 @@ rename dub files to engine syntax easily (you can also assign manually through c
 python tool to split dubs
 
 you can open folder in terminal, then run `python main.py`
+
 or use command `pip install DubSplitter` to install [package](https://pypi.org/project/DubSplitter/), then run `dubSplitter`
 
 #### Easing
