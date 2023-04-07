@@ -1,16 +1,31 @@
 # DubSplitter
 
+## Description
+
 an easy tool to split dubs based on given silence
 
-![Screenshot](Screenshot.png)
+![Screenshot](https://github.com/defisym/HibiscusAVGEngine/blob/main/Utilities/DubSplitter/Screenshot.png?raw=true)
 
-| Command           | type   | Info                                                                                              |
-|-------------------|--------|---------------------------------------------------------------------------------------------------|
-| -f, --fileName    | option | file to process                                                                                   |
-| -o, --outFilePath | option | output folder, if not set, will use `script path + \Out\`                                         |
-| -s, --silence     | option | silence time, in ms, default is `1000`ms                                                          |
-| -r, --range       | option | range, default is `100`ms. e.g., silence = `400`, range = `100` will slice in `400`ms and `500`ms |
-| --step            | option | loop step, default is `100`ms                                                                     |
-| --noVR            | option | don't use voice recognition, default is false                                                     |
-| --step            | option | whisper model, default is base                                                                    |
-| --step            | option | language used in whisper, default is chinese                                                      |
+## Params
+
+| Command           | type   | Info                                                                                                                      |
+|-------------------|--------|---------------------------------------------------------------------------------------------------------------------------|
+| -f, --fileName    | option | file to process                                                                                                           |
+| -o, --outFilePath | option | output folder, if not set, will use `scriptPath + \\Out\\` (as script), or `userPath + \\DubSplitter\\Out\\` (as package) |
+| -s, --silence     | option | silence time, in ms, default is `1000`ms                                                                                  |
+| -r, --range       | option | range, default is `100`ms. e.g., silence = `400`, range = `100` will slice in `400`ms and `500`ms                         |
+| --step            | option | loop step, default is `100`ms                                                                                             |
+| --noVR            | option | don't use voice recognition, default is `false`                                                                           |
+| --step            | option | whisper model, default is `base`                                                                                          |
+| --step            | option | language used in whisper, default is `chinese`                                                                            |
+
+## Usage
+
+open folder in terminal, then run `python main.py`
+or install package, then run `dubSplitter`
+
+## Changelog
+
+### 230407
+
+- init release

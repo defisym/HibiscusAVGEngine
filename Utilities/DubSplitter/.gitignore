@@ -1,4 +1,9 @@
 __pycache__
+DubSplitter.egg-info
+
+build
+dist
 
 Out
 Temp
+Static

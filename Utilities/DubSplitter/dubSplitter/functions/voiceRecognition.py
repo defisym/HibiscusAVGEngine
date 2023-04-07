@@ -9,7 +9,7 @@ whisper import
 import whisper
 from whisper import Whisper
 
-from constants import whisperModel, defaultWhisperModel, defaultWhisperLanguage
+from ..constants import whisperModel, defaultWhisperModel, defaultWhisperLanguage
 
 '''
 speech_recognition import
@@ -19,7 +19,7 @@ speech_recognition import
 import speech_recognition as sr
 from pydub import AudioSegment
 
-from Func.path import mkdir
+from functions.path import mkdir
 from constants import tempPath, tempFile
 '''
 

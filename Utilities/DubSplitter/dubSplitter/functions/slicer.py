@@ -2,10 +2,10 @@ import os
 
 from pydub.silence import split_on_silence
 
-from Func.path import mkdir, process_path, invalid_file_character_escape
-from Func.string import string_omit
-from Func.voiceRecognition import recognition_with_whisper
-from constants import tempPath
+from ..constants import tempPath
+from .path import mkdir, process_path, invalid_file_character_escape
+from .stringEx import string_omit
+from .voiceRecognition import recognition_with_whisper
 
 
 def do_slice(sound, silence, out_path, b_vr):

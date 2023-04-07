@@ -26,3 +26,7 @@ def invalid_file_character_escape(file):
         fileStr = fileStr.replace(char, '_')
 
     return fileStr
+
+
+def user_path():
+    return os.path.expanduser('~')
