@@ -16,16 +16,36 @@ an easy tool to split dubs based on given silence
 | -r, --range       | option | range, default is `100`ms. e.g., silence = `400`, range = `100` will slice in `400`ms and `500`ms                         |
 | --step            | option | loop step, default is `100`ms                                                                                             |
 | --noVR            | option | don't use voice recognition, default is `false`                                                                           |
-| --step            | option | whisper model, default is `base`                                                                                          |
-| --step            | option | language used in whisper, default is `chinese`                                                                            |
+| --model           | option | whisper model, default is `base`                                                                                          |
+| --language        | option | language used in whisper, default is `chinese`                                                                            |
 
 ## Usage
 
 open folder in terminal, then run `python main.py`
 
-or use command `pip install DubSplitter` to install [package](https://pypi.org/project/DubSplitter/), then run `dubSplitter`
+or use command `pip install DubSplitter` to install [package](https://pypi.org/project/DubSplitter/), then
+run `dubSplitter`
+
+## Note
+
+if whisper doesn't use GPU, you need to uninstall CPU version first then install GPU version
+
+```shell
+pip uninstall torch
+pip cache purge
+# from https://pytorch.org/get-started/locally/
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+```
 
 ## Changelog
+
+### 230407 0.2.0
+
+- print version when boot
+
+### 230407 0.1.3
+
+- fix typo
 
 ### 230407 0.1.2
 

@@ -1,7 +1,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
-VERSION = '0.1.2'
+from dubSplitter.dubSplitter import VERSION
 
 with open('ReadMe.md') as f:
     LONG_DESCRIPTION = f.read()

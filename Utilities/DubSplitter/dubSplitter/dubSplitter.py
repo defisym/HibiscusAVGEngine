@@ -4,10 +4,13 @@ from pydub import AudioSegment
 from sympy import false, true
 
 import dubSplitter.constants as consts
-
 from .constants import update_path
 from .functions.slicer import do_slice
 from .functions.voiceRecognition import update_whisper_model, update_model_language
+
+VERSION = '0.2.0'
+
+print('DubSplitter {}'.format(VERSION))
 
 bFromPackage = true
 
