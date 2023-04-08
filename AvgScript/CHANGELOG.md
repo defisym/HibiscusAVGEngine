@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230408
+
+- show total lines in code lens
+
 ## 20230404
 
 - dialogue title of `commandUpdateDub_impl` now has more info

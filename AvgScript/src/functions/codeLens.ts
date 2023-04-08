@@ -5,7 +5,7 @@ import { iterateLines } from '../lib/iterateLines';
 import { getSettings } from '../lib/settings';
 import { cropScript, sleep } from '../lib/utilities';
 import { narrator } from '../webview/dubList';
-import { commandDeleteDub, commandUpdateDub } from './command';
+import { commandDeleteDub, commandUpdateDub, confCodeLens_ShowTotalLineCount } from './command';
 import { diagnosticUpdateCore } from './diagnostic';
 import { basePath, fileListInitialized } from './file';
 
@@ -43,7 +43,10 @@ export class CodelensProvider implements vscode.CodeLensProvider {
         const bSettingsSideEffect = settings && settings.NoSideEffect;
         let bNoSideEffect = bSettingsSideEffect;
 
+        let totalLineCount = 0;
         let lineCountMap: Map<string, number> = new Map();
+
+        let showTotalLineCount = vscode.workspace.getConfiguration().get<boolean>(confCodeLens_ShowTotalLineCount, false);
 
         const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
         let dubState = new DubParser(curChapter);
@@ -81,6 +84,9 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                 const range = new vscode.Range(new vscode.Position(lineNumber, lineStart),
                     new vscode.Position(lineNumber, lineEnd));
 
+                // total line count
+                const curTotalLineCount = totalLineCount;
+                totalLineCount++;
                 // depend on display name
                 let name = dialogueStruct.m_name;
 
@@ -114,16 +120,21 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                     ? (dialogueStruct.m_appendType === AppendType.sameLine ? '同行桥接' : '换行桥接')
                     : '';
 
+                const lineInfo = bNoSideEffect
+                    ? (name
+                        + ' Line ' + lineCount.toString()
+                        + (appendTypeText !== ''
+                            ? ', ' + appendTypeText
+                            : ''))
+                    : (appendTypeText !== ''
+                        ? appendTypeText
+                        : typeText);
+                const totalLineInfo = showTotalLineCount ?
+                    '[' + curTotalLineCount.toString() + ']'
+                    : '';
+
                 codeLens.command = {
-                    title: bNoSideEffect
-                        ? (name
-                            + ' Line ' + lineCount.toString()
-                            + (appendTypeText !== ''
-                                ? ', ' + appendTypeText
-                                : ''))
-                        : (appendTypeText !== ''
-                            ? appendTypeText
-                            : typeText),
+                    title: totalLineInfo + lineInfo,
                     tooltip: "当前行的信息",
                     command: "",
                 };

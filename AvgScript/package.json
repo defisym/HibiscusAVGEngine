@@ -282,6 +282,12 @@
                             }
                         }
                     },
+                    "conf.AvgScript.codeLens.totalLineCount": {
+                        "type": "boolean",
+                        "order": 1,
+                        "description": "Show total line count in code lens",
+                        "default": "false"
+                    },
                     "conf.AvgScript.formatRules.emptyLineAfterDialogue": {
                         "type": "boolean",
                         "order": 3,
