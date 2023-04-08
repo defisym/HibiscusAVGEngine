@@ -27,6 +27,7 @@ export const confAutoUpdate: string = "conf.AvgScript.autoUpdate";
 export const confCommandExt: string = "conf.AvgScript.commandExtension";
 export const confReplaceScript: string = "conf.AvgScript.replaceScript";
 
+export const confPreview_AlwaysSendingMessage: string = "conf.AvgScript.preview.alwaysSendingMessage";
 export const confCodeLens_ShowTotalLineCount: string = "conf.AvgScript.codeLens.totalLineCount";
 
 export const confFormatRules_emptyLineAfterDialogue: string = "conf.AvgScript.formatRules.emptyLineAfterDialogue";

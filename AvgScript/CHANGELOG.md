@@ -3,6 +3,8 @@
 ## 20230408
 
 - show total lines in code lens
+- always sending preview message
+- send script info
 
 ## 20230404
 

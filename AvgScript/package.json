@@ -282,9 +282,15 @@
                             }
                         }
                     },
+                    "conf.AvgScript.preview.alwaysSendingMessage": {
+                        "type": "boolean",
+                        "order": 2,
+                        "description": "always sending preview message even not debugging",
+                        "default": "false"
+                    },
                     "conf.AvgScript.codeLens.totalLineCount": {
                         "type": "boolean",
-                        "order": 1,
+                        "order": 2,
                         "description": "Show total line count in code lens",
                         "default": "false"
                     },

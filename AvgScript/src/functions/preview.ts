@@ -3,7 +3,8 @@ import * as vscode from 'vscode';
 import { activeEditor } from '../extension';
 import { currentLineDialogue } from '../lib/dialogue';
 import { iterateLines } from '../lib/iterateLines';
-import { projectConfig } from './file';
+import { confPreview_AlwaysSendingMessage } from './command';
+import { basePath, projectConfig } from './file';
 
 export class Previewer {
     private bDebugging = false;
@@ -12,6 +13,7 @@ export class Previewer {
     private previousTimer = 0;
     private previousCursor: vscode.Position | undefined = undefined;
     private previousLineNumber = 0;
+    private previousScript = '';
 
     private threshold = 1000;
     private previewCommandStrFinish = 'Hibiscus_Preview_Finish';
@@ -33,7 +35,9 @@ export class Previewer {
     }
 
     async updatePreview() {
-        if (!this.bDebugging) {
+        let alwaysSending = vscode.workspace.getConfiguration().get<boolean>(confPreview_AlwaysSendingMessage, false);
+
+        if (!this.bDebugging && !alwaysSending) {
             return;
         }
 
@@ -71,6 +75,12 @@ export class Previewer {
 
         const timePassed = this.getTime() - this.previousTimer;
 
+        if (!document.languageId.iCmp('AvgScript')) {
+            console.log(this.previewCommandStrPrefix + 'INVALID_SCRIPT');
+
+            return;
+        }
+
         if (timePassed < this.threshold) {
             console.log(this.previewCommandStrPrefix + 'INVALID_DELAY');
 
@@ -87,6 +97,7 @@ export class Previewer {
 
         const cursorAt = cursor.line;
         let previewLineNumber = 0;
+        const previewScript = document.fileName.right(basePath.length + 1);
 
         let bReached = false;
         let bReachedBeforeText = false;
@@ -116,15 +127,16 @@ export class Previewer {
 
         }
 
-        if (!this.bDocUpdated && this.previousLineNumber === previewLineNumber) {
-            console.log(this.previewCommandStrPrefix + 'NO_LINE_UPDATE');
+        if (!this.bDocUpdated && this.previousLineNumber === previewLineNumber && this.previousScript.iCmp(previewScript)) {
+            console.log(this.previewCommandStrPrefix + 'NO_UPDATE');
 
             return;
         }
 
         this.previousLineNumber = previewLineNumber;
+        this.previousScript = previewScript;
 
-        const command = this.previewCommandStrPrefix + previewLineNumber.toString();
+        const command = this.previewCommandStrPrefix + this.previousScript + '_' + previewLineNumber.toString();
         console.log(command);
 
         await vscode.env.clipboard.writeText(command);
