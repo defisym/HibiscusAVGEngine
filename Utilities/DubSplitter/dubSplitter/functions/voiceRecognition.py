@@ -61,7 +61,7 @@ def update_whisper_model(model_name):
 
     print('loading voice recognition model {}'.format(actual_model_name))
     model = whisper.load_model(actual_model_name)
-    print('loading complete')
+    print('load complete')
 
 
 def recognition_with_whisper(file):

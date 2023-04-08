@@ -8,9 +8,11 @@ from .constants import update_path
 from .functions.slicer import do_slice
 from .functions.voiceRecognition import update_whisper_model, update_model_language
 
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
+print('====================================')
 print('DubSplitter {}'.format(VERSION))
+print('====================================')
 
 bFromPackage = true
 
@@ -57,8 +59,16 @@ def main():
     inName = args.fileName
     outPath = consts.defaultOutPath if args.outFilePath is None else args.outFilePath
 
-    print('processing file {}'.format(inName))
+    print('prepare to process file {}'.format(inName))
     print('output to {}'.format(outPath))
+
+    silenceStart = args.silence
+    silenceEnd = silenceStart + args.range
+    silenceStep = args.step
+
+    print('reading file...')
+    sound = AudioSegment.from_file(inName)
+    print('read complete...')
 
     noVR = args.noVR
 
@@ -66,15 +76,14 @@ def main():
         update_whisper_model(args.model)
         update_model_language(args.language)
 
-    silenceStart = args.silence
-    silenceEnd = silenceStart + args.range
-    silenceStep = args.step
-
-    print('reading file...')
-    sound = AudioSegment.from_wav(inName)
-    print('read complete...')
+    print('============================')
+    print('processing...')
+    print('============================')
 
     for silence in range(silenceStart, silenceEnd + 1, silenceStep):
         do_slice(sound, silence, outPath, not noVR)
 
+    print('============================')
     print('process complete')
+    print('============================')
+

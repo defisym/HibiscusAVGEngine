@@ -20,6 +20,7 @@ def do_slice(sound, silence, out_path, b_vr):
     localPath = process_path(out_path) + '/' + 'Silence_' + str(silence)
     mkdir(localPath)
     print('export to {}'.format(localPath))
+    print('====================')
 
     for index in range(length):
         outName = '{:0>4d}_{:0>8d}'.format(silence, index)

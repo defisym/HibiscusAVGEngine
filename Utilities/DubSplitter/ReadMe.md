@@ -39,6 +39,12 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 
 ## Changelog
 
+### 230407 0.2.1
+
+- use `AudioSegment.from_file` to support more file type
+- load file before load model as file error happens more often
+- remove unnecessary info & fix typo
+
 ### 230407 0.2.0
 
 - print version when boot

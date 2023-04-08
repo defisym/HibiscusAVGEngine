@@ -14,7 +14,7 @@ tempFile = tempPath + 'temp.wav'
 def update_path_core(base_path, description):
     global defaultOutPath, tempPath, tempFile
 
-    print('use {} path {} as base path '.format(description, base_path))
+    # print('use {} path {} as base path '.format(description, base_path))
 
     defaultOutPath = base_path + '\\Out\\'
     tempPath = base_path + '\\Temp\\'
@@ -38,8 +38,8 @@ def update_path(is_package):
 
     tempFile = tempPath + 'temp.wav'
 
-    print("default output path {}".format(defaultOutPath))
-    print("temp path {}".format(tempPath))
+    # print("default output path {}".format(defaultOutPath))
+    # print("temp path {}".format(tempPath))
 
 
 defaultWhisperLanguage = 'Chinese'
