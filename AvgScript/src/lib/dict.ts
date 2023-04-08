@@ -977,10 +977,23 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["跳转到下一个跳转指令并重启扫描，内部指令，用于跳过文本功能"
             , "置跳转标志位为1，跳转标志位在解析到文本后重置为0"]
         , type: []
+        , internal: true
+        , deprecated: true
         , outlineKeyword: true
         , emptyLineAfter: true
     }],
     ["SkipJmp", undefined],
+
+    ["FFJMP", {
+        prefix: "#"
+        , minParam: 0, maxParam: 0
+        , description: ["使用无间断快进跳转到下一个跳转指令并重启扫描，内部指令，用于跳过文本功能"
+            , "相较于`#SJMP/#SkipJmp`，无需处理跳转标志位与再初始化"]
+        , type: []
+        , internal: true
+        , outlineKeyword: true
+        , emptyLineAfter: true
+    }],
 
     ["SkipAnchor", {
         prefix: "#"
