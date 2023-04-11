@@ -573,9 +573,11 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
     const dubErrors = dubError.get(document.uri);
 
     if (dubErrors !== undefined) {
-        for (const dubErrorRange of dubErrors) {
-            diagnostics.push(new vscode.Diagnostic(dubErrorRange
-                , "Dub file duration longer than excepted"
+        for (const dubError of dubErrors) {
+            let info = "Dub file duration " + dubError.info + " than excepted";
+
+            diagnostics.push(new vscode.Diagnostic(dubError.range
+                , info
                 , vscode.DiagnosticSeverity.Warning
             ));
         }

@@ -1,5 +1,9 @@
 # Change Log
 
+## 20230411
+
+- check if dub is too short
+
 ## 20230408
 
 - show total lines in code lens

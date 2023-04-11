@@ -9,11 +9,17 @@ import { commandDeleteDub, commandUpdateDub, confCodeLens_ShowTotalLineCount } f
 import { diagnosticUpdateCore } from './diagnostic';
 import { basePath, fileListInitialized } from './file';
 
-const durationPerWord = (1.0 * 60 / 120);
+const durationPerWordSlow = (1.0 * 60 / 360);       // check shorter
+const durationPerWordFast = (1.0 * 60 / 120);       // check longer
 const durationRange = 0.5;
-const durationThreshold = 2.0;
+const durationThreshold = 2.5;
 
-export const dubError: Map<vscode.Uri, vscode.Range[]> = new Map();
+export interface DubError {
+    range: vscode.Range,
+    info: string,
+};
+
+export const dubError: Map<vscode.Uri, DubError[]> = new Map();
 
 export class CodelensProvider implements vscode.CodeLensProvider {
     private bUpdating = false;
@@ -206,6 +212,10 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
                             codeLenses.push(codeLensPlayDub);
 
+                            // ------------
+                            // Check dub length
+                            // ------------
+
                             do {
                                 const fileInfo = dubState.getPlayFileInfo(fileName);
 
@@ -219,18 +229,39 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                                     break;
                                 }
 
-                                const expectedDuration = dialogueStruct.m_dialoguePart.length * durationPerWord + durationRange;
-
-                                if (duration >= durationThreshold && expectedDuration <= duration) {
-                                    let ranges = dubError.get(document.uri);
-
-                                    if (ranges === undefined) {
-                                        dubError.set(document.uri, []);
-                                        ranges = dubError.get(document.uri);
-                                    }
-
-                                    ranges!.push(range);
+                                if (duration < durationThreshold) {
+                                    break;
                                 }
+
+                                let curDubError: DubError = {
+                                    range: range,
+                                    info: '',
+                                };
+
+                                const expectedDurationFast = dialogueStruct.m_dialoguePart.length * durationPerWordFast;
+
+                                if (duration >= expectedDurationFast + durationRange) {
+                                    curDubError.info = 'longer';
+                                }
+
+                                const expectedDurationSlow = dialogueStruct.m_dialoguePart.length * durationPerWordSlow;
+
+                                if (duration <= expectedDurationSlow - durationRange) {
+                                    curDubError.info = 'shorter';
+                                }
+
+                                if (curDubError.info === '') {
+                                    break;
+                                }
+
+                                let dubErrors = dubError.get(document.uri);
+
+                                if (dubErrors === undefined) {
+                                    dubError.set(document.uri, []);
+                                    dubErrors = dubError.get(document.uri);
+                                }
+
+                                dubErrors!.push(curDubError);
                             } while (0);
 
                             let codeLensDeleteDub = new vscode.CodeLens(range);
