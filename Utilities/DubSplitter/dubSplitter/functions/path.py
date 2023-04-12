@@ -19,10 +19,10 @@ def mkdir(path):
 
 
 def invalid_file_character_escape(file):
-    invalidChar = ['\\', '/', '*', '?', '<', '>', '|']
+    invalidChars = ['\\', '/', '*', '?', '<', '>', '|']
     fileStr: str = file
 
-    for char in invalidChar:
+    for char in invalidChars:
         fileStr = fileStr.replace(char, '_')
 
     return fileStr

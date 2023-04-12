@@ -42,6 +42,7 @@ def update_path(is_package):
     # print("temp path {}".format(tempPath))
 
 
+defaultWhisperPrompt = '简体中文'
 defaultWhisperLanguage = 'Chinese'
 
 defaultWhisperModel = 'base'
@@ -53,3 +54,7 @@ whisperModel = Enum('WhisperModel',
                         'medium',
                         'large',
                     ))
+
+defaultOutputFormat = 'ogg'
+defaultFileNameFormat = '{2:0>4d}_{3:0>8d}.{1}'
+defaultFileNameVRFormat = '{2:0>4d}_{3:0>8d}_{5}.{1}'

@@ -8,16 +8,22 @@ an easy tool to split dubs based on given silence
 
 ## Params
 
-| Command           | type   | Info                                                                                                                      |
-|-------------------|--------|---------------------------------------------------------------------------------------------------------------------------|
-| -f, --fileName    | option | file to process                                                                                                           |
-| -o, --outFilePath | option | output folder, if not set, will use `scriptPath + \\Out\\` (as script), or `userPath + \\DubSplitter\\Out\\` (as package) |
-| -s, --silence     | option | silence time, in ms, default is `1000`ms                                                                                  |
-| -r, --range       | option | range, default is `100`ms. e.g., silence = `400`, range = `100` will slice in `400`ms and `500`ms                         |
-| --step            | option | loop step, default is `100`ms                                                                                             |
-| --noVR            | option | don't use voice recognition, default is `false`                                                                           |
-| --model           | option | whisper model, default is `base`                                                                                          |
-| --language        | option | language used in whisper, default is `chinese`                                                                            |
+| Command              | Type   | Info                                                                                                                      |
+|----------------------|--------|---------------------------------------------------------------------------------------------------------------------------|
+| -f, --fileName       | option | file to process                                                                                                           |
+| -o, --outFilePath    | option | output folder, if not set, will use `scriptPath + \\Out\\` (as script), or `userPath + \\DubSplitter\\Out\\` (as package) |
+| --outFileFormat      | option | output format, default is `ogg`                                                                                           |
+| --fileNameFormat     | option | output file name format                                                                                                   |
+| --fileNameVRFormat   | option | output file name format with voice recognition                                                                            |
+| --fileNameCustomInfo | option | custom info for output file name, default is `''`                                                                         |
+| -s, --silence        | option | silence time, in ms, default is `1000`ms                                                                                  |
+| -r, --range          | option | range, default is `100`ms. e.g., silence = `400`, range = `100` will slice in `400`ms and `500`ms                         |
+| --step               | option | loop step, default is `100`ms                                                                                             |
+| --noVR               | option | don't use voice recognition, default is `false`                                                                           |
+| --model              | option | whisper model, default is `base`                                                                                          |
+| --prompt             | option | init prompt used in whisper, default is `简体中文`                                                                            |
+| --language           | option | language used in whisper, default is `chinese`                                                                            |
+| --omitLen            | option | recognize result will omit middle characters if longer than given, `len <=0` -> do nothing, default is `20`               |
 
 ## Usage
 
@@ -26,7 +32,51 @@ open folder in terminal, then run `python main.py`
 or use command `pip install DubSplitter` to install [package](https://pypi.org/project/DubSplitter/), then
 run `dubSplitter`
 
+## Custom File Name
+
+### Basic
+
+`fileNameFormat` & `fileNameVRFormat` receives a format string, you can reference
+the [formatting syntax doc](https://docs.python.org/3/tutorial/inputoutput.html#the-string-format-method) then write
+your own one.
+
+files will firstly be outputted in the format of `fileNameFormat`. If the script needs to do voice recognition, then the
+file will be renamed to `fileNameVRFormat`
+
+### File Name Format
+
+default is `{2:0>4d}_{3:0>8d}.{1}`
+
+| String        | Index | 
+|---------------|-------|
+| custom info   | 0     | 
+| output format | 1     | 
+| silence       | 2     | 
+| loop index    | 3     | 
+
+`custom info` is the one you passed in `fileNameCustomInfo`
+
+### Dile Name Format (with voice recognition)
+
+default is `{2:0>4d}_{3:0>8d}_{5}.{1}`
+
+| String           | Index | 
+|------------------|-------|
+| custom info      | 0     | 
+| output format    | 1     | 
+| silence          | 2     | 
+| loop index       | 3     | 
+| recognize_result | 4     | 
+| text             | 5     | 
+
+`custom info` is the one you passed in `fileNameCustomInfo`
+
+`text` is the process result of `recognize_result`, by omitting middle characters, and escaping invalid characters
+like `\\`, `/`, `*`, `?`, `<`, `>`, `|`
+
 ## Note
+
+### Whisper GPU
 
 if whisper doesn't use GPU, you need to uninstall CPU version first then install GPU version
 
@@ -37,7 +87,25 @@ pip cache purge
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
 ```
 
+### Whisper prompt
+
+[document](https://platform.openai.com/docs/guides/speech-to-text/prompting)
+
+example:
+
+use `--prompt 简体中文` -> `真辛苦真辛苦啊 我会跳个好天气出去运动的`
+
+use `--prompt 正體中文` -> `真辛苦真辛苦啊我會跳個好天氣出去運動的`
+
 ## Changelog
+
+### 230412 0.3.0
+
+- add color for outputs
+- add custom file format support
+- add custom filename format support
+- add prompt support
+- add omit len option
 
 ### 230407 0.2.1
 

@@ -3,7 +3,7 @@ from setuptools import setup
 
 from dubSplitter.dubSplitter import VERSION
 
-with open('ReadMe.md') as f:
+with open('ReadMe.md', encoding='utf-8') as f:
     LONG_DESCRIPTION = f.read()
 
 setup(
@@ -24,6 +24,7 @@ setup(
         'sympy',
         'pydub',
         'openai-whisper',
+        'colorama',
     ],
     entry_points={
         'console_scripts': [

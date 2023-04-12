@@ -5,6 +5,9 @@ e.g., 123456789012345678901234567890 -> 1234567890……1234567890
 
 
 def string_omit(text, text_len=20):
+    if text_len <= 0:
+        return text
+
     text_len = int(text_len)
     sliceLen = int(text_len / 2)
     originLen = len(text)

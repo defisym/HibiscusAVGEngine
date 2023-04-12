@@ -1,6 +1,7 @@
 """
 voice recognition
 """
+from colorama import Fore, Style
 
 '''
 whisper import
@@ -9,7 +10,7 @@ whisper import
 import whisper
 from whisper import Whisper
 
-from ..constants import whisperModel, defaultWhisperModel, defaultWhisperLanguage
+from ..constants import whisperModel, defaultWhisperModel, defaultWhisperLanguage, defaultWhisperPrompt
 
 '''
 speech_recognition import
@@ -24,6 +25,7 @@ from constants import tempPath, tempFile
 '''
 
 model: Whisper | None = None
+modelPrompt: str = defaultWhisperPrompt
 modelLanguage: str = defaultWhisperLanguage
 
 '''
@@ -33,11 +35,22 @@ https://github.com/openai/whisper
 '''
 
 
+# prompt
+# https://platform.openai.com/docs/guides/speech-to-text/prompting
+# https://github.com/openai/whisper/discussions/355
+# https://github.com/openai/whisper/discussions/277
+def update_model_prompt(prompt):
+    global modelPrompt
+    modelPrompt = prompt
+
+    print(Fore.WHITE + Style.DIM + '  recognize prompt {}'.format(prompt))
+
+
 def update_model_language(lang):
     global modelLanguage
     modelLanguage = lang
 
-    print('recognize in language {}'.format(lang))
+    print(Fore.WHITE + Style.DIM + '  recognize in language {}'.format(lang))
 
 
 def get_whisper_model(model_name):
@@ -45,7 +58,7 @@ def get_whisper_model(model_name):
         if model_name.lower() == name:
             return model_name.lower()
 
-    print('given model name not found, use \'base\' instead')
+    print(Fore.RED + '  given model name not found, use \'base\' instead')
 
     return defaultWhisperModel
 
@@ -59,9 +72,9 @@ def update_whisper_model(model_name):
     # https://github.com/openai/whisper/discussions/63#discussioncomment-3798552
     actual_model_name = get_whisper_model(model_name)
 
-    print('loading voice recognition model {}'.format(actual_model_name))
+    print(Fore.WHITE + Style.DIM + '  loading voice recognition model {}'.format(actual_model_name))
     model = whisper.load_model(actual_model_name)
-    print('load complete')
+    print(Fore.WHITE + Style.DIM + '  load complete')
 
 
 def recognition_with_whisper(file):
@@ -72,8 +85,10 @@ def recognition_with_whisper(file):
         return 'InvalidModel'
 
     # Update options here
-    # result = model.transcribe(file, fp16=False, language='Chinese')
-    result = model.transcribe(file, fp16=False, language=modelLanguage)
+    result = model.transcribe(file,
+                              fp16=False,
+                              language=modelLanguage,
+                              initial_prompt=modelPrompt)
     # print(result["text"])
 
     return result["text"]
