@@ -658,6 +658,11 @@ namenull.png = 2_1
 - `LangSwitchAble`
   - 该脚本支持切换语言后读取
 
+- `NoIndent`
+  - 该脚本忽略文本的首行缩进
+- `CenterNoIndent`
+  - 该脚本忽略居中行文本的首行缩进
+
 - `VNMode` / `VN`
   - 启用Visual Novel模式
 - `LiteMode` / `Lite`
@@ -2855,11 +2860,46 @@ CG/UI不会被销毁
 
 ##### `@CharBlur=ID:Radius:Accumulate`
 
-为角色创建模糊效果
+为角色创建模糊效果，无法与透视同时使用
 
 会在库中缓存访问文件名为`RelativePath_Blur_Radius`的文件
 
 `Accumulate`决定是否累计模糊
+
+##### `@CharPerspective=ID:Matrix`
+
+为角色创建透视效果，无法与模糊同时使用
+
+会在库中缓存访问文件名为`RelativePath_Perspective_Matrix`的文件
+
+`Matrix`为变换用到的矩阵
+
+| 行为     | 矩阵                                                 |
+| -------- | ---------------------------------------------------- |
+| 保持原样 | `{ {1,0,0}, {0,1,0}, {0,0,1} }`                      |
+| 缩放     | `{ {2,0,0}, {0,2,0}, {0,0,1} }`                      |
+| 旋转     | `{ {1.732 / 2,-0.5,0}, {0.5,1.732 / 2,0}, {0,0,1} }` |
+| 剪切     | `{ {1,0.5,0}, {0.5,1,0}, {0,0,1} }`                  |
+
+##### `@CharAnimation=ID:Animation`
+
+指定角色动画
+
+使用其他指令更新图像或参数的，会自动禁用动画
+
+##### `@CharAnimationSpeed=ID:AnimationSpeed`
+
+指定角色动画速度
+
+##### `@CharAnimationFrame=ID:Type:AnimationFrame`
+
+指定角色动画帧
+
+| 类型       | 行为                           |
+| ---------- | ------------------------------ |
+| Step       | 当前帧到下一帧的`[ 0, 1 ]`插值 |
+| FrameID    | 计算插值帧在内的总帧数         |
+| FrameIndex | 动画文件中定义的帧             |
 
 ##### `@SetAutoArrange=On/Off`
 
@@ -3374,7 +3414,7 @@ VSCode插件中提供了多个可供参考的Snippets，可以方便的快速插
 
 ##### 特效对象
 
-用于创建特效的对象都应启用`特效对象`Flag，该Flag会在保存/读取时根据特效类型不同保存对应的参数
+用于创建特效的对象都应启用`特效对象`Flag，该Flag会在保存/读取时根据特效类型不同保存对应的参数，同时不会被`@AttachShader`覆盖
 
 ##### 周期动画
 

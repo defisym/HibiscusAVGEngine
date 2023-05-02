@@ -60,6 +60,9 @@ export const settingsParamDocList = new Map<string, string[]>([
 
     ["LangSwitchAble", ["该脚本支持切换语言后读取"]],
 
+    ["NoIndent", ["该脚本忽略文本的首行缩进"]],
+    ["CenterNoIndent", ["该脚本忽略居中行文本的首行缩进"]],
+
     ["VN", ["启用Visual Novel模式"]],
     ["VNMode", ["启用Visual Novel模式"]],
     ["Lite", ["启用Lite模式，该模式下部分功能会被禁用"]],
@@ -423,6 +426,11 @@ export enum InlayHintType {
     FadeTime,
     CharName,
     LayoutPrefix,
+    PerspectiveMatrix,
+    Animation,
+    AnimationSpeed,
+    AnimationFrame,
+    AnimationFrameType,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -521,6 +529,11 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.FadeTime, "过渡时间"],
     [InlayHintType.CharName, "角色姓名"],
     [InlayHintType.LayoutPrefix, "配置文件前缀"],
+    [InlayHintType.PerspectiveMatrix, "变换矩阵"],
+    [InlayHintType.Animation, "动画文件"],
+    [InlayHintType.AnimationSpeed, "动画速度"],
+    [InlayHintType.AnimationFrame, "动画帧"],
+    [InlayHintType.AnimationFrameType, "动画帧类型"],
 ]);
 
 export enum IDBehaviour {
@@ -2661,12 +2674,76 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         prefix: "@"
         , minParam: 2, maxParam: 3
         , description: ["\t@CharBlur=ID:Radius:Accumulate"
-            , "为角色创建模糊效果"
+            , "为角色创建模糊效果，无法与透视同时使用"
             , "会在库中缓存访问文件名为`RelativePath_Blur_Radius`的文件"
             , "`Accumulate`决定是否累计模糊"]
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.BlurRadius]
     }],
+    ["CharPerspective", {
+        prefix: "@"
+        , minParam: 2, maxParam: 2
+        , description: ["\t@CharPerspective=ID:Matrix"
+            , "为角色创建透视效果，无法与模糊同时使用"
+            , "会在库中缓存访问文件名为`RelativePath_Perspective_Matrix`的文件"
+            , "`Matrix`为变换用到的矩阵"
+            , "参考矩阵"
+            , "保持原样: `{ {1,0,0}, {0,1,0}, {0,0,1} }`"
+            , "缩放: `{ {2,0,0}, {0,2,0}, {0,0,1} }`"
+            , "旋转: `{ {1.732 / 2,-0.5,0}, {0.5,1.732 / 2,0}, {0,0,1} }`"
+            , "剪切: `{ {1,0.5,0}, {0.5,1,0}, {0,0,1} }`"]
+        , type: [ParamType.Number, ParamType.Any]
+        , inlayHintType: [InlayHintType.ID, InlayHintType.PerspectiveMatrix]
+    }],
+
+    ["CharAnimation", {
+        prefix: "@"
+        , minParam: 2, maxParam: 2
+        , description: ["\t@CharAnimation=ID:Animation"
+            , "指定角色动画"
+            , "使用其他指令更新图像或参数的，会自动禁用动画"]
+        , type: [ParamType.Number, ParamType.File]
+        , inlayHintType: [InlayHintType.ID, InlayHintType.Animation]
+        , internal: true
+    }],
+    ["CharAnimationSpeed", {
+        prefix: "@"
+        , minParam: 2, maxParam: 2
+        , description: ["\t@CharAnimationSpeed=ID:AnimationSpeed"
+            , "指定角色动画速度"]
+        , type: [ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.ID, InlayHintType.AnimationSpeed]
+        , internal: true
+    }],
+    ["CharAnimationFrame", {
+        prefix: "@"
+        , minParam: 3, maxParam: 3
+        , description: ["\t`@CharAnimationFrame=ID:Type:AnimationFrame"
+            , "指定角色动画帧"
+            , "`Type`为`Step`时，为当前帧到下一帧的`[ 0, 1 ]`插值"
+            , "`Type`为`FrameID`时，为计算插值帧在内的总帧数 "
+            , "`Type`为`FrameIndex`时，为动画文件中定义的帧"]
+        , type: [ParamType.Number, ParamType.String, ParamType.Number]
+        , required: [
+            undefined,
+            [
+                "Step",
+                "FrameID",
+                "FrameIndex",
+            ],
+            undefined]
+        , inlayHintType: [InlayHintType.ID, InlayHintType.AnimationFrameType, InlayHintType.AnimationFrame]
+        , inlayHintAddition: [
+            undefined,
+            new Map<string, string>([
+                ["Step", "插值"],
+                ["FrameID", "插值帧"],
+                ["FrameIndex", "帧定义"],
+            ]),
+            undefined]
+        , internal: true
+    }],
+
 
     ["SetAutoArrange", {
         prefix: "@"
