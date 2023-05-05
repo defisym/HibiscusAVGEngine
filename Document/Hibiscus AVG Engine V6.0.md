@@ -1018,18 +1018,10 @@ QuickBar = 1
    3. `localization`
       1. `localization\Localization.dat`
    4. `data`
-      1. `data\Assets\`
-         1. `data\Assets\Movies\*.*`
-         2. `data\Assets\Fonts\*.*`
+      1. `data\Assets\*.*`
       2. `data\audio\*.*`
-      2. `data\dialogue\*.*`
-      3. `data\Graphics`
-         1. `data\Graphics\FX\*.*`
-         2. `data\Graphics\PatternFade\*.*`
-         3. `data\Graphics\UI\*.*`
-         4. `data\Graphics\_Sys\*.*`
-         5. `data\Graphics\CG\*.*`
-         6. `data\Graphics\Characters\*.*`
+      3. `data\dialogue\*.*`
+      4. `data\Graphics\*.*`
 5. 更新初始鉴赏`Appreciation_Progress`，用于解锁标题画面音乐等正常游玩不会被记录到的文件
 6. 打包上传
 
@@ -1485,13 +1477,11 @@ QuickBar = 1
 
 若非跳转至此(跳转标志位等于0)，则跳转到指定的标签位，用于跳转后的再初始化
 
-#### `#SJMP`
+#### ~~`#SJMP`~~ **已弃用**
 
 同义指令
 
 - `#SkipJmp`
-
-**已弃用**
 
 跳转到下一个跳转指令并重启扫描，内部指令，用于跳过文本功能
 
