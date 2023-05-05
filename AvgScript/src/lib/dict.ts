@@ -431,6 +431,10 @@ export enum InlayHintType {
     AnimationSpeed,
     AnimationFrame,
     AnimationFrameType,
+    PeriodicAnimation,
+    PeriodicAnimationName,
+    PeriodicAnimationDelta,
+    PeriodicAnimationPeriod,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -534,6 +538,10 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.AnimationSpeed, "动画速度"],
     [InlayHintType.AnimationFrame, "动画帧"],
     [InlayHintType.AnimationFrameType, "动画帧类型"],
+    [InlayHintType.PeriodicAnimation, "启用周期动画"],
+    [InlayHintType.PeriodicAnimationName, "周期动画名"],
+    [InlayHintType.PeriodicAnimationDelta, "增量"],
+    [InlayHintType.PeriodicAnimationPeriod, "周期"],
 ]);
 
 export enum IDBehaviour {
@@ -2508,11 +2516,16 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , minParam: 3, maxParam: 3
         , description: ["\t@CPF=PicName:PatternName:ID"
             , "\t@CPatternFade=PicName:PatternName:ID"
-            , "读取贴图，前景背景同时叠化"]
+            , "\t@CharPF=PicName:PatternName:ID"
+            , "\t@CharPatternFade=PicName:PatternName:ID"
+            , "读取贴图，前景背景同时叠化"
+            , "不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果"]
         , type: [ParamType.File, ParamType.File, ParamType.Number]
         , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
     }],
     ["CPatternFade", undefined],
+    ["CharPF", undefined],
+    ["CharPatternFade", undefined],
     ["CPFI", {
         prefix: "@"
         , minParam: 3, maxParam: 3
@@ -2538,7 +2551,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , minParam: 2, maxParam: 2
         , description: ["\t@CGPFI=PicName:PatternName"
             , "\t@CGPatternFadeIn=PicName:PatternName"
-            , "转译指令，读取贴图，CG叠化至前景图像"]
+            , "转译`@CPFI`，读取贴图，CG叠化至前景图像"]
         , type: [ParamType.File, ParamType.File]
         , inlayHintType: [InlayHintType.CGFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
     }],
@@ -2549,22 +2562,11 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , minParam: 2, maxParam: 2
         , description: ["\t@CGPFO=PicName:PatternName"
             , "\t@CGPatternFadeOut=PicName:PatternName"
-            , "转译指令，读取贴图，CG叠化至背景图像"]
+            , "转译`@CPFO`，读取贴图，CG叠化至背景图像"]
         , type: [ParamType.File, ParamType.File]
         , inlayHintType: [InlayHintType.CGFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
     }],
     ["CGPatternFadeOut", undefined],
-
-    ["CharPF", {
-        prefix: "@"
-        , minParam: 3, maxParam: 3
-        , description: ["\t@CharPF=PicName:PatternName:ID"
-            , "\t@CharPatternFade=PicName:PatternName:ID"
-            , "转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**"]
-        , type: [ParamType.File, ParamType.File, ParamType.Number]
-        , inlayHintType: [InlayHintType.CharacterFileName, InlayHintType.PatternFadeFileName, InlayHintType.ID]
-    }],
-    ["CharPatternFade", undefined],
 
     ["Char", {
         prefix: "@"
@@ -2649,7 +2651,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         prefix: "@"
         , minParam: 2, maxParam: 34
         , description: ["\t@AttachShader=ID:ShaderName:Param1:Param2:..."
-            , "为非特效图像附加Shader，依照内部顺序指定参数"]
+            , "为非特效图像附加Shader，依照类型顺序指定参数"]
         , type: [ParamType.Number, ParamType.String
             , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
             , ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
@@ -2668,6 +2670,15 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam
             , InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam
             , InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam, InlayHintType.ShaderParam]
+    }],
+    ["PeriodicAnimation", {
+        prefix: "@"
+        , minParam: 5, maxParam: 5
+        , description: ["\t@PeriodicAnimation=ID:Name:Enable:Delta:Period"
+            , "为图像对象启用周期动画，依照类型更新参数"
+            , "每经过`Period`则为类型对应的参数增加`Delta`，`Period`为`-1`时每帧更新"]
+        , type: [ParamType.Number, ParamType.String, ParamType.ZeroOne, ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.ID, InlayHintType.PeriodicAnimationName, InlayHintType.PeriodicAnimation, InlayHintType.PeriodicAnimationDelta, InlayHintType.PeriodicAnimationPeriod]
     }],
 
     ["CharBlur", {

@@ -2615,8 +2615,14 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 同义指令
 
 - `@CPatternFade=PicName:PatternName:ID`
+- `@CharPF=PicName:PatternName:ID`
+- `@CharPatternFade=PicName:PatternName:ID`
 
 读取贴图，前景背景同时叠化
+
+不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果
+
+![CharPatternFade](media/image12.jpeg)
 
 ###### `@CPFI=PicName:PatternName:ID`
 
@@ -2636,23 +2642,13 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ##### 转译指令
 
-###### `@CharPF=PicName:PatternName:ID`
-
-同义指令
-
-- `@CharPatternFade=PicName:PatternName:ID`
-
-转译指令，读取贴图，叠化至前景图像。**不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果**
-
-![CharPatternFade](media/image12.jpeg)
-
 ###### `@CGPFI=PicName:PatternName`
 
 同义指令
 
 - `@CGPatternFadeIn=PicName:PatternName`
 
-转译指令，读取贴图，CG叠化至前景图像
+转译`@CPFI`，读取贴图，CG叠化至前景图像
 
 ###### `@CGPFO=PicName:PatternName`
 
@@ -2660,7 +2656,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 - `@CGPatternFadeOut=PicName:PatternName`
 
-转译指令，读取贴图，CG叠化至背景图像
+转译`@CPFO`，读取贴图，CG叠化至背景图像
 
 #### 特效对象
 
@@ -2909,7 +2905,29 @@ CG/UI不会被销毁
 
 ##### `@AttachShader=ID:ShaderName:Param1:Param2:...`
 
-为非特效图像附加Shader，依照内部顺序指定参数
+为图像对象附加Shader，依照类型顺序指定参数
+
+| ShaderName      | 备注                                        | Param1     | Param2   | Param3   | Param4 | Param5    | Param6 |
+| --------------- | ------------------------------------------- | ---------- | -------- | -------- | ------ | --------- | ------ |
+| NULL            | 移除Shader                                  |            |          |          |        |           |        |
+| DotMatrix       |                                             | dotColor   | rowSpace | colSpace | radius | threshold |        |
+| SepiaToning     | 重置RGB参数，默认加载`..\FX\SepiaNoise.png` | strength   |          |          |        |           |        |
+| BGBlur          | 背景模糊                                    |            |          |          |        |           |        |
+| GaussBlur       | 背景模糊                                    |            |          |          |        |           |        |
+| PatternFade     |                                             | patternPic |          |          |        |           |        |
+| ForePatternFade | 仅作用于前景                                | patternPic |          |          |        |           |        |
+| GrasWave        |                                             | fAmplitude | fPeriods | fFreq    |        |           |        |
+
+##### `@PeriodicAnimation=ID:Name:Enable:Delta:Period`
+
+为图像对象启用周期动画，依照类型更新参数
+
+每经过`Period`则为类型对应的参数增加`Delta`，`Period`为`-1`时每帧更新
+
+| Name        | 备注           | 更新对象  |
+| ----------- | -------------- | --------- |
+| SepiaToning | 随机更新偏移量 | `FX`/`FY` |
+| GrasWave    |                | `fFreq`   |
 
 #### UI / CG指令
 
@@ -3414,7 +3432,7 @@ VSCode插件中提供了多个可供参考的Snippets，可以方便的快速插
 
 ##### 特效对象
 
-用于创建特效的对象都应启用`特效对象`Flag，该Flag会在保存/读取时根据特效类型不同保存对应的参数，同时不会被`@AttachShader`覆盖
+用于创建特效的对象都应启用`特效对象`Flag，该Flag会在保存/读取时根据特效类型不同保存对应的参数
 
 ##### 周期动画
 
