@@ -59,6 +59,8 @@ del "%ContentPath%\_HWDECODE" /f /s /q
 
 del "%ContentPath%\Application resizing errors.txt" /f /s /q
 
+del "%ContentPath%\steam_appid.txt" /f /s /q
+
 del "%ContentPath%\ContentGenerator.bat" /f /s /q
 del "%ContentPath%\Publish.bat" /f /s /q
 
