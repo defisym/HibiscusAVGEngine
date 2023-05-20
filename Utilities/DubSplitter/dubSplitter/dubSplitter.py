@@ -10,9 +10,11 @@ from .functions.slicer import do_slice, update_output_format, update_filename_fo
     update_filename_custom, update_result_omit_length
 from .functions.voiceRecognition import update_whisper_model, update_model_language, update_model_prompt
 
+# -f "F:\DEV\Mobius\资产\语音\基利尔\01_初\干音\初.wav" -o "F:\DEV\Mobius\资产\语音\基利尔\01_初\Out" -s 800 -r 1200 --keepSilence 500
+
 init(autoreset=True)
 
-VERSION = '0.3.0'
+VERSION = '0.4.0'
 
 print(Fore.LIGHTGREEN_EX + '====================================')
 print(Fore.LIGHTGREEN_EX + 'DubSplitter {}'.format(VERSION))
@@ -26,7 +28,6 @@ def update_runtime(runtime):
     bFromPackage = runtime
 
 
-# -f "F:\DEV\Mobius\资产\语音\基利尔\01_初\干音\初.wav" -o "F:\DEV\Mobius\资产\语音\基利尔\01_初\Out" -s 800 -r 400
 def main():
     # https://docs.python.org/zh-cn/3.6/library/argparse.html
     parser = argparse.ArgumentParser(description='Slice dubs.')
@@ -59,6 +60,16 @@ def main():
     parser.add_argument('--step',
                         help='loop step, default is 100ms',
                         type=int, default=100)
+    parser.add_argument('--threshold',
+                        help='anything quieter than this will be considered silence, default is -40db',
+                        type=int, default=-40)
+    parser.add_argument('--keepSilence',
+                        help='leave some silence at the beginning and end of the chunks. Keeps the sound from '
+                             'sounding like it is abruptly cut off. When the length of the silence is less than the '
+                             'given duration it is split evenly between the preceding and following non-silent '
+                             'segments, default is 100ms',
+                        type=int, default=100)
+
     parser.add_argument('--noVR',
                         help='don\'t use voice recognition, default is false',
                         type=bool, default=false)
@@ -96,6 +107,9 @@ def main():
     silenceEnd = silenceStart + args.range
     silenceStep = args.step
 
+    threshold = args.threshold
+    keepSilence = args.keepSilence
+
     print(Fore.WHITE + Style.DIM + '  reading file...')
     sound = AudioSegment.from_file(inName)
     print(Fore.WHITE + Style.DIM + '  read complete...')
@@ -114,7 +128,7 @@ def main():
     print(Fore.LIGHTGREEN_EX + '============================')
 
     for silence in range(silenceStart, silenceEnd + 1, silenceStep):
-        do_slice(sound, silence, outPath, not noVR)
+        do_slice(sound, silence, threshold, keepSilence, outPath, not noVR)
 
     print(Fore.LIGHTGREEN_EX + '============================')
     print(Fore.LIGHTGREEN_EX + 'process complete')

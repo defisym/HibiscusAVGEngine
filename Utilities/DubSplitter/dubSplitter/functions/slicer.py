@@ -45,10 +45,10 @@ def update_result_omit_length(new_length):
     resultOmitLength = new_length
 
 
-def do_slice(sound, silence, out_path, b_vr):
+def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr):
     print('slice audio by silence length {}'.format(silence))
 
-    dubs = split_on_silence(sound, silence, -40, 100, 1)
+    dubs = split_on_silence(sound, silence, threshold, keep_silence, 1)
     length = len(dubs)
     print('slice complete, got {} lines'.format(length))
 
@@ -92,10 +92,10 @@ def do_slice(sound, silence, out_path, b_vr):
             audioSeg.export(fullOut, format=outputFormat)
 
         if b_vr:
-            print(Fore.WHITE+Style.DIM + '  voice recognizing...')
+            print(Fore.WHITE + Style.DIM + '  voice recognizing...')
             recognize_result = recognition_with_whisper(fullOut)
 
-            print(Fore.WHITE+Style.DIM+'  recognize result: {}'.format(recognize_result))
+            print(Fore.WHITE + Style.DIM + '  recognize result: {}'.format(recognize_result))
 
             text = string_omit(recognize_result, resultOmitLength)
             text = invalid_file_character_escape(text)
@@ -106,4 +106,4 @@ def do_slice(sound, silence, out_path, b_vr):
                                               recognize_result, text)
 
             os.replace(fullOut, localPath + '\\' + outName)
-            print(Fore.WHITE+Style.DIM + '  update file name to: {}'.format(outName))
+            print(Fore.WHITE + Style.DIM + '  update file name to: {}'.format(outName))

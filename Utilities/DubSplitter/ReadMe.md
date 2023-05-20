@@ -8,22 +8,24 @@ an easy tool to split dubs based on given silence
 
 ## Params
 
-| Command              | Type   | Info                                                                                                                      |
-|----------------------|--------|---------------------------------------------------------------------------------------------------------------------------|
-| -f, --fileName       | option | file to process                                                                                                           |
-| -o, --outFilePath    | option | output folder, if not set, will use `scriptPath + \\Out\\` (as script), or `userPath + \\DubSplitter\\Out\\` (as package) |
-| --outFileFormat      | option | output format, default is `ogg`                                                                                           |
-| --fileNameFormat     | option | output file name format                                                                                                   |
-| --fileNameVRFormat   | option | output file name format with voice recognition                                                                            |
-| --fileNameCustomInfo | option | custom info for output file name, default is `''`                                                                         |
-| -s, --silence        | option | silence time, in ms, default is `1000`ms                                                                                  |
-| -r, --range          | option | range, default is `100`ms. e.g., silence = `400`, range = `100` will slice in `400`ms and `500`ms                         |
-| --step               | option | loop step, default is `100`ms                                                                                             |
-| --noVR               | option | don't use voice recognition, default is `false`                                                                           |
-| --model              | option | whisper model, default is `base`                                                                                          |
-| --prompt             | option | init prompt used in whisper, default is `简体中文`                                                                            |
-| --language           | option | language used in whisper, default is `chinese`                                                                            |
-| --omitLen            | option | recognize result will omit middle characters if longer than given, `len <=0` -> do nothing, default is `20`               |
+| Command              | Type   | Info                                                                                                                                                                                                                                                                                |
+|----------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| -f, --fileName       | option | file to process                                                                                                                                                                                                                                                                     |
+| -o, --outFilePath    | option | output folder, if not set, will use `scriptPath + \\Out\\` (as script), or `userPath + \\DubSplitter\\Out\\` (as package)                                                                                                                                                           |
+| --outFileFormat      | option | output format, default is `ogg`                                                                                                                                                                                                                                                     |
+| --fileNameFormat     | option | output file name format                                                                                                                                                                                                                                                             |
+| --fileNameVRFormat   | option | output file name format with voice recognition                                                                                                                                                                                                                                      |
+| --fileNameCustomInfo | option | custom info for output file name, default is `''`                                                                                                                                                                                                                                   |
+| -s, --silence        | option | silence time, in ms, default is `1000`ms                                                                                                                                                                                                                                            |
+| -r, --range          | option | range, default is `100`ms. e.g., silence = `400`, range = `100` will slice in `400`ms and `500`ms                                                                                                                                                                                   |
+| --step               | option | loop step, default is `100`ms                                                                                                                                                                                                                                                       |
+| --threshold          | option | anything quieter than this will be considered silence, default is `-40`db                                                                                                                                                                                                           |
+| --keepSilence        | option | leave some silence at the beginning and end of the chunks. Keeps the sound from sounding like it is abruptly cut off. When the length of the silence is less than the given duration it is split evenly between the preceding and following non-silent segments, default is `100`ms |
+| --noVR               | option | don't use voice recognition, default is `false`                                                                                                                                                                                                                                     |
+| --model              | option | whisper model, default is `base`                                                                                                                                                                                                                                                    |
+| --prompt             | option | init prompt used in whisper, default is `简体中文`                                                                                                                                                                                                                                      |
+| --language           | option | language used in whisper, default is `chinese`                                                                                                                                                                                                                                      |
+| --omitLen            | option | recognize result will omit middle characters if longer than given, `len <=0` -> do nothing, default is `20`                                                                                                                                                                         |
 
 ## Usage
 
@@ -98,6 +100,10 @@ use `--prompt 简体中文` -> `真辛苦真辛苦啊 我会跳个好天气出�
 use `--prompt 正體中文` -> `真辛苦真辛苦啊我會跳個好天氣出去運動的`
 
 ## Changelog
+
+### 230520 0.4.0
+
+- set silence threshold & keep silence length
 
 ### 230412 0.3.0
 
