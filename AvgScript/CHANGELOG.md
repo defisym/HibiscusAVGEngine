@@ -1,5 +1,10 @@
 # Change Log
 
+## 20230523
+
+- enable json animation commands
+- show filename when updating dubs
+
 ## 20230411
 
 - check if dub is too short

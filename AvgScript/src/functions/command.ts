@@ -759,13 +759,13 @@ export const commandGetDubList_impl = async () => {
 
 let previousUri: vscode.Uri | undefined = undefined;
 
-export const commandUpdateDub_impl = async (dialogue: string, targetFile: string) => {
+export const commandUpdateDub_impl = async (dialogue: string, chapter: string, fileName: string) => {
     const clipLength = 20;
 
     let options: vscode.OpenDialogOptions = {
         openLabel: '更新',
         canSelectMany: false,
-        title: '更新语音: '
+        title: '更新 \'' + fileName + '\' 语音: '
             + dialogue.substring(0, clipLength)
             + (dialogue.length > clipLength ? '……' : ''),
     };
@@ -781,7 +781,8 @@ export const commandUpdateDub_impl = async (dialogue: string, targetFile: string
     }
 
     const src = file[0].path;
-    const target = audio + "dubs\\" + currentLocalCode + "\\" + targetFile + '.ogg';
+    const folder = audio + "dubs\\" + currentLocalCode + "\\" + chapter + "\\";
+    const target = folder + fileName + '.ogg';
 
     previousUri = vscode.Uri.file(path.dirname(src));
 

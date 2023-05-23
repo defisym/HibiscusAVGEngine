@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
 import { pinyin } from 'pinyin-pro';
-import { audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListHasItem, getCorrectPathAndType, getFullFileNameByType, graphicCGCompletions, graphicCharactersCompletions, graphicFXCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from '../functions/file';
-import { commandInfoList, deprecatedKeywordList, docList, InlayHintType, internalKeywordList } from './dict';
+import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListHasItem, getCorrectPathAndType, getFullFileNameByType, graphicCGCompletions, graphicCharactersCompletions, graphicFXCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from '../functions/file';
+import { InlayHintType, commandInfoList, deprecatedKeywordList, docList, internalKeywordList } from './dict';
 import { iterateLines } from './iterateLines';
 import { beginRegex, endRegex } from './regExp';
 
@@ -84,6 +84,8 @@ export function getFileCompletionByType(type: FileType, fileName: string) {
             return getCompletion(fileName, audioSECompletions);
         case FileType.video:
             return getCompletion(fileName, videoCompletions);
+        case FileType.animation:
+            return getCompletion(fileName, animationCompletions);
         case FileType.script:
             return getCompletion(fileName, scriptCompletions);
         default:
@@ -325,6 +327,8 @@ export enum FileType {
     script,
     frame,
     label,
+
+    animation,
 };
 
 export const fileTypeMap = new Map<number, string>([
@@ -342,6 +346,7 @@ export const fileTypeMap = new Map<number, string>([
     [FileType.script, "脚本"],
     [FileType.frame, "场景"],
     [FileType.label, "标签"],
+    [FileType.animation, "动画"],
 ]);
 
 export function getType(linePrefix: string) {
@@ -414,7 +419,8 @@ export function getType(linePrefix: string) {
                 return FileType.frame;
             case InlayHintType.Label:
                 return FileType.label;
-
+            case InlayHintType.Animation:
+                return FileType.animation;
             default:
                 return FileType.inValid;
 

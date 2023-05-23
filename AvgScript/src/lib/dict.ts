@@ -2715,7 +2715,6 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "使用其他指令更新图像或参数的，会自动禁用动画"]
         , type: [ParamType.Number, ParamType.File]
         , inlayHintType: [InlayHintType.ID, InlayHintType.Animation]
-        , internal: true
     }],
     ["CharAnimationSpeed", {
         prefix: "@"
@@ -2724,7 +2723,6 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "指定角色动画速度"]
         , type: [ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.AnimationSpeed]
-        , internal: true
     }],
     ["CharAnimationFrame", {
         prefix: "@"
@@ -2752,7 +2750,6 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
                 ["FrameIndex", "帧定义"],
             ]),
             undefined]
-        , internal: true
     }],
 
 

@@ -165,7 +165,8 @@ export class CodelensProvider implements vscode.CodeLensProvider {
                             command: commandUpdateDub,
                             arguments: [
                                 dialogueStruct.m_dialoguePart,
-                                dubState.dubChapter + '\\' + dubState.fileName
+                                dubState.dubChapter,
+                                dubState.fileName
                             ]
                         };
 

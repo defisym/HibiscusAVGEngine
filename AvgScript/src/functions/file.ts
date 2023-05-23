@@ -37,7 +37,7 @@ export let currentLocalCodeDefinition: any;
 export let currentLocalCodeDisplay: string;
 
 // completion type
-export enum CompletionType { image, audio, video, script };
+export enum CompletionType { image, audio, video, animation, script };
 
 //file List
 export let projectFileList: [string, vscode.FileType][] = [];
@@ -97,6 +97,14 @@ export const videoRelativePath = 'Assets\\Movies';
 export let videoCompletions: vscode.CompletionItem[] = [];
 
 // paths
+export let animationPath: string;
+
+export const animationRelativePath = 'Assets\\Animation';
+
+// completion
+export let animationCompletions: vscode.CompletionItem[] = [];
+
+// paths
 export let scriptPath: string;
 
 export const scriptRelativePath = 'dialogue';
@@ -110,6 +118,7 @@ export const nonePreview = "暂无预览";
 const imagePreview = `<div align="center"><img src ="{$FILENAME}" height = "160"/></div>`;
 const audioPreview = nonePreview;
 const videoPreview = nonePreview;
+const animationPreview = nonePreview;
 const scriptPreview = nonePreview;
 
 // project config
@@ -162,8 +171,11 @@ export function getBasePathByType(type: FileType) {
 
         case FileType.video:
             return videoPath;
+        case FileType.animation:
+            return animationPath;
         case FileType.script:
             return scriptPath;
+
         default:
             return undefined;
     }
@@ -251,6 +263,9 @@ export function getPathType(fileName: string) {
     if (compareStart(fileName, videoRelativePath)) {
         return FileType.video;
     }
+    if (compareStart(fileName, animationRelativePath)) {
+        return FileType.animation;
+    }
 
     if (compareStart(fileName, scriptRelativePath)) {
         return FileType.script;
@@ -322,6 +337,8 @@ export async function getFileInfo(filePath: string, type: CompletionType) {
 
                 return "Width: `" + info.width.toString() + "` Height: `" + info.height.toString() + "`\t"
                     + getDuration(info.duration!);
+            case CompletionType.animation:
+                return "Animation file";
             case CompletionType.script:
                 const commentRegex = new RegExp("(\\/\\*(.|[\r\n])*?\\*\\/)|(\\/\\/[^\r\n]*)|(\\([^\r\n]*)|Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
                 const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
@@ -479,9 +496,13 @@ export async function updateFileList(progress: vscode.Progress<{
     fileListInitialized = false;
 
     const total = 100;
-    const steps = 27;
+    const steps = 31;
 
     const incrementPerStep = total / steps;
+
+    // ------
+    // Step 1
+    // ------
 
     progress.report({ increment: 0, message: "Updating file list..." });
 
@@ -490,6 +511,11 @@ export async function updateFileList(progress: vscode.Progress<{
     }
 
     // Update config
+
+    // ------
+    // Step 2
+    // ------
+
     progress.report({ increment: 0, message: "Updating settings..." });
 
     let iniParser = require('ini');
@@ -497,6 +523,10 @@ export async function updateFileList(progress: vscode.Progress<{
 
     let configPath = basePath + "\\..\\settings\\settings.ini";
     projectConfig = iniParser.parse((await getBuffer(configPath)).toString(encoding));
+
+    // ------
+    // Step 3
+    // ------
 
     progress.report({ increment: incrementPerStep, message: "Updating LocalSettings..." });
 
@@ -509,7 +539,18 @@ export async function updateFileList(progress: vscode.Progress<{
     currentLocalCodeDisplay = currentLocalCodeDefinition[
         "LanguageDisplayName_" + currentLocalCode];
 
-    // Update completion list		
+    // ------------------------
+    // Update file list		
+    // ------------------------
+
+    // ------------
+    // Graphic
+    // ------------
+
+    // ------
+    // Step 4
+    // ------
+
     progress.report({ increment: incrementPerStep, message: "Updating graphic fileList..." });
 
     graphic = basePath + "\\Graphics\\";
@@ -519,6 +560,10 @@ export async function updateFileList(progress: vscode.Progress<{
     graphicUIPath = graphic + "UI";
     graphicPatternFadePath = graphic + "PatternFade";
     graphicCharactersPath = graphic + "Characters";
+
+    // ------
+    // Step 5 ~ 9
+    // ------
 
     progress.report({ increment: incrementPerStep, message: "Updating FX fileList..." });
     let graphicFXFileList = await getFileListRecursively(graphicFXPath);
@@ -531,6 +576,14 @@ export async function updateFileList(progress: vscode.Progress<{
     progress.report({ increment: incrementPerStep, message: "Updating Characters fileList..." });
     let graphicCharactersFileList = await getFileListRecursively(graphicCharactersPath);
 
+    // ------------
+    // Audio
+    // ------------    
+
+    // ------
+    // Step 10
+    // ------
+
     progress.report({ increment: incrementPerStep, message: "Updating audio fileList..." });
 
     audio = basePath + "\\Audio\\";
@@ -539,6 +592,10 @@ export async function updateFileList(progress: vscode.Progress<{
     audioBgsPath = audio + "Bgs";
     audioDubsPath = audio + "Dubs";
     audioSEPath = audio + "SE";
+
+    // ------
+    // Step 11 ~ 14
+    // ------
 
     progress.report({ increment: incrementPerStep, message: "Updating BGM fileList..." });
     let audioBgmFileList = await getFileListRecursively(audioBgmPath);
@@ -549,21 +606,56 @@ export async function updateFileList(progress: vscode.Progress<{
     progress.report({ increment: incrementPerStep, message: "Updating SE fileList..." });
     let audioSEFileList = await getFileListRecursively(audioSEPath);
 
+    // ------------
+    // Video
+    // ------------
+
+    // ------
+    // Step 15
+    // ------
+
     progress.report({ increment: incrementPerStep, message: "Updating video fileList..." });
 
     videoPath = basePath + "\\Assets\\Movies";
 
     let videoFileList = await getFileListRecursively(videoPath);
 
+    // ------------
+    // Animation
+    // ------------
+
+    // ------
+    // Step 16
+    // ------
+
+    progress.report({ increment: incrementPerStep, message: "Updating animation fileList..." });
+
+    animationPath = basePath + "\\Assets\\Animation";
+
+    let animationFileList = await getFileListRecursively(animationPath);
+
+    // ------------
+    // Script
+    // ------------
+
+    // ------
+    // Step 17
+    // ------
+
     progress.report({ increment: incrementPerStep, message: "Updating script fileList..." });
 
     scriptPath = basePath + "\\dialogue";
+
     let scriptFileList = await getFileListRecursively(scriptPath);
+
+    // ------------------------
+    // Update completion list		
+    // ------------------------
 
     projectFileList = [];
     projectFileList = projectFileList.concat(graphicFXFileList, graphicCGFileList, graphicUIFileList, graphicPatternFadeFileList, graphicCharactersFileList
         , audioBgmFileList, audioBgsFileList, audioDubsFileList, audioSEFileList
-        , videoFileList, scriptFileList);
+        , videoFileList, animationFileList, scriptFileList);
 
     let generateCompletionList = async (fileList: [string, vscode.FileType][]
         , completions: vscode.CompletionItem[]
@@ -610,8 +702,14 @@ export async function updateFileList(progress: vscode.Progress<{
 
                             break;
                         case CompletionType.video:
-                            previewStr = videoPreview;
                             item.detail = "Video file";
+                            previewStr = videoPreview;
+
+                            break;
+
+                        case CompletionType.animation:
+                            item.detail = "Animation file";
+                            previewStr = animationPreview;
 
                             break;
                         case CompletionType.script:
@@ -650,6 +748,14 @@ export async function updateFileList(progress: vscode.Progress<{
         await Promise.all(promiseList);
     };
 
+    // ------------
+    // Graphic
+    // ------------
+
+    // ------
+    // Step 18
+    // ------
+
     progress.report({ increment: incrementPerStep, message: "Generating graphic completionList..." });
 
     graphicFXCompletions = [];
@@ -657,6 +763,10 @@ export async function updateFileList(progress: vscode.Progress<{
     graphicUICompletions = [];
     graphicPatternFadeCompletions = [];
     graphicCharactersCompletions = [];
+
+    // ------
+    // Step 19 ~ 23
+    // ------
 
     progress.report({ increment: incrementPerStep, message: "Generating FX completionList..." });
     await generateCompletionList(graphicFXFileList, graphicFXCompletions, graphicFXPath);
@@ -669,12 +779,24 @@ export async function updateFileList(progress: vscode.Progress<{
     progress.report({ increment: incrementPerStep, message: "Generating Characters completionList..." });
     await generateCompletionList(graphicCharactersFileList, graphicCharactersCompletions, graphicCharactersPath);
 
+    // ------------
+    // Audio
+    // ------------   
+
+    // ------
+    // Step 24
+    // ------
+
     progress.report({ increment: incrementPerStep, message: "Generating audio completionList..." });
 
     audioBgmCompletions = [];
     audioBgsCompletions = [];
     audioDubsCompletions = [];
     audioSECompletions = [];
+
+    // ------
+    // Step 25 ~ 28
+    // ------
 
     progress.report({ increment: incrementPerStep, message: "Generating BGM completionList..." });
     await generateCompletionList(audioBgmFileList, audioBgmCompletions, audioBgmPath, CompletionType.audio);
@@ -685,11 +807,41 @@ export async function updateFileList(progress: vscode.Progress<{
     progress.report({ increment: incrementPerStep, message: "Generating SE completionList..." });
     await generateCompletionList(audioSEFileList, audioSECompletions, audioSEPath, CompletionType.audio);
 
+    // ------------
+    // Video
+    // ------------
+
+    // ------
+    // Step 29
+    // ------
+
     progress.report({ increment: incrementPerStep, message: "Generating video completionList..." });
 
     videoCompletions = [];
 
     await generateCompletionList(videoFileList, videoCompletions, videoPath, CompletionType.video);
+
+    // ------------
+    // Animation
+    // ------------
+
+    // ------
+    // Step 30
+    // ------
+
+    progress.report({ increment: incrementPerStep, message: "Generating animation completionList..." });
+
+    animationCompletions = [];
+
+    await generateCompletionList(animationFileList, animationCompletions, animationPath, CompletionType.animation);
+
+    // ------------
+    // Script
+    // ------------
+
+    // ------
+    // Step 31
+    // ------
 
     progress.report({ increment: incrementPerStep, message: "Generating script completionList..." });
 

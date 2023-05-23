@@ -4,7 +4,7 @@ import { atKeywordList, commandDocList, ParamType, settingsParamDocList, setting
 import { DubParser, UpdateDubCompletion } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
 import { cropScript, currentLineNotComment, FileType, getCompletionItemList, getSubStrings, getType, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
-import { audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePath, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
+import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePath, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCompletions } from './label';
 
@@ -131,6 +131,12 @@ export const fileSuffix = vscode.languages.registerCompletionItemProvider(
                         new vscode.CompletionItem('avi', vscode.CompletionItemKind.Method),
                     ];
 
+                case FileType.animation:
+                    return [
+                        new vscode.CompletionItem('json', vscode.CompletionItemKind.Method),
+                        new vscode.CompletionItem('jsonc', vscode.CompletionItemKind.Method)
+                    ];
+
                 case FileType.script:
                 case FileType.frame:
                 case FileType.label:
@@ -201,6 +207,9 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
 
                 case FileType.video:
                     return returnCompletion(videoCompletions);
+                    
+                case FileType.animation:
+                    return returnCompletion(animationCompletions);
 
                 case FileType.script:
                     return returnCompletion(scriptCompletions);
