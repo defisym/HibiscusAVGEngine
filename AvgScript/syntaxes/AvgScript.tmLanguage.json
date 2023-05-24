@@ -185,7 +185,7 @@
 			}
 		},
 		"keywords_media": {
-			"match": "(?i)(@play|@P|@Stop|@se|@BgmLoop|@BgmPreludeLoop|@BgmPre|@BgmPause|@BgmResume|@BgmFadeOut|@bgm|@BgsLoop|@BgsPause|@BgsResume|@BgsFadeOut|@bgs|@DubPlay|@dub|@DubSeque|@DubSequeOff|@DubSequePrefix|@DubChapter|@SeparateNTKChange|@NtkChange|@ntk|@PV|@PlayVideo|@ChangeVideo|@OV|@OpenVideo|@CV|@CloseVideo|@CloseVideo_Core|@VR|@VideoResume|@VP|@VideoPause|@VW|@VideoWait|@VL|@VideoLoop|@VideoFinish|@SVP|@SetVideoPos|@IgnoreStaticVideo|@VideoCache|VideoErase)\\b",
+			"match": "(?i)(@play|@P|@Stop|@se|@BgmLoop|@BgmPreludeLoop|@BgmPre|@BgmPause|@BgmResume|@BgmFadeOut|@bgm|@BgsLoop|@BgsPause|@BgsResume|@BgsFadeOut|@bgs|@DubPlay|@dub|@DubSeque|@DubSequeOff|@DubSequePrefix|@DubChapter|@SeparateNTKChange|@NtkChange|@ntk|@PV|@PlayVideo|@ChangeVideo|@OV|@OpenVideo|@CV|@CloseVideo|@CloseVideo_Core|@VideoCodec|@VR|@VideoResume|@VP|@VideoPause|@VW|@VideoWait|@VL|@VideoLoop|@VideoFinish|@SVP|@SetVideoPos|@IgnoreStaticVideo|@VideoCache|VideoErase)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.media.AvgScript"
