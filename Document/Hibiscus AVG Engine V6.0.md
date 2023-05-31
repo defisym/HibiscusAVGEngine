@@ -2016,6 +2016,14 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 若`Steam_StatAdd`留空，默认为统计量+1
 
+#### `#RichPresence=Message`
+
+更新`chapter`，并更新`steam_display`为`#ChapterStates`，即`当前章节: %chapter%`
+
+若当前章节名在鉴赏定义中不存在对应项，则使用原始名称。若`Message`不为空，则会将其附加至章节名后方
+
+在读取脚本时会自动调用`#RichPresence`将丰富状态更新为当前章节名
+
 ## @控制指令
 
 ### 音频指令
