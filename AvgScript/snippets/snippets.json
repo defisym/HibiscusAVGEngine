@@ -197,7 +197,7 @@
       "@Fade",
       "#Wait",
       "",
-      "@CharDispose:-5",
+      "@CharDispose:-100",
       "@CharDispose:20",
       "#Wait",
       "",

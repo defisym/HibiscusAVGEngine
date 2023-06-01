@@ -25,27 +25,33 @@ export const internalImageID = new Map<number, internalImageIDAvailableBehavior>
     [-1, { Create: false, Destroy: false }],      // 姓名栏
     [-2, { Create: false, Destroy: false }],      // 对话框
     [-3, { Create: false, Destroy: false }],       // CG
-    [-5, { Create: false, Destroy: true }],        // Sepia Toning
-    [-100, { Create: false, Destroy: false }],       // 景深
-    [-101, { Create: false, Destroy: false }],       // 景深
-    [-102, { Create: false, Destroy: false }],       // 景深
-    [-103, { Create: false, Destroy: false }],       // 景深
-    [-104, { Create: false, Destroy: false }],       // 景深
-    [-105, { Create: false, Destroy: false }],       // 景深
-    [-106, { Create: false, Destroy: false }],       // 景深
-    [-107, { Create: false, Destroy: false }],       // 景深
-    [-108, { Create: false, Destroy: false }],       // 景深
-    [-109, { Create: false, Destroy: false }],       // 景深
-    [-110, { Create: false, Destroy: false }],       // 景深
-    [-111, { Create: false, Destroy: false }],       // 景深
-    [-112, { Create: false, Destroy: false }],       // 景深
-    [-113, { Create: false, Destroy: false }],       // 景深
-    [-114, { Create: false, Destroy: false }],       // 景深
-    [-115, { Create: false, Destroy: false }],       // 景深
-    [-116, { Create: false, Destroy: false }],       // 景深
-    [-117, { Create: false, Destroy: false }],       // 景深
-    [-118, { Create: false, Destroy: false }],       // 景深
-    [-119, { Create: false, Destroy: false }],       // 景深
+    [-4, { Create: false, Destroy: false }],       // 头像栏
+    [-5, { Create: false, Destroy: false }],        // 头像
+
+    [-100, { Create: false, Destroy: true }],       // Sepia Toning
+    
+    [-1000, { Create: false, Destroy: false }],       // 景深
+    [-1001, { Create: false, Destroy: false }],       // 景深
+    [-1002, { Create: false, Destroy: false }],       // 景深
+    [-1003, { Create: false, Destroy: false }],       // 景深
+    [-1004, { Create: false, Destroy: false }],       // 景深
+    [-1005, { Create: false, Destroy: false }],       // 景深
+    [-1006, { Create: false, Destroy: false }],       // 景深
+    [-1007, { Create: false, Destroy: false }],       // 景深
+    [-1008, { Create: false, Destroy: false }],       // 景深
+    [-1009, { Create: false, Destroy: false }],       // 景深
+    [-1010, { Create: false, Destroy: false }],       // 景深
+    [-1011, { Create: false, Destroy: false }],       // 景深
+    [-1012, { Create: false, Destroy: false }],       // 景深
+    [-1013, { Create: false, Destroy: false }],       // 景深
+    [-1014, { Create: false, Destroy: false }],       // 景深
+    [-1015, { Create: false, Destroy: false }],       // 景深
+    [-1016, { Create: false, Destroy: false }],       // 景深
+    [-1017, { Create: false, Destroy: false }],       // 景深
+    [-1018, { Create: false, Destroy: false }],       // 景深
+    [-1019, { Create: false, Destroy: false }],       // 景深
+    [-1020, { Create: false, Destroy: false }],       // 景深
+    
     [-65535, { Create: false, Destroy: false }]     // 错误提示
 ]);
 

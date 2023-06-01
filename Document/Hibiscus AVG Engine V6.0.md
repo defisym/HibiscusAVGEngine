@@ -2676,7 +2676,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ###### `@CreateBlur`
 
-创建带有背景模糊的景深对象，对象保存至景深堆栈，默认ID从`-100`开始递减
+创建带有背景模糊的景深对象，对象保存至景深堆栈，默认ID从`-1000`开始递减
 
 该指令创建的景深对象位于演出对象最下方
 
@@ -2700,7 +2700,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 - `@SepiaToning=Strength:NoiseMotion:Period`
 
-创建强度为`Strength`的`Sepia Toning`对象，对象默认ID为`-5`。其中`Strength`应为一个`[0,1]`的浮点数，默认值为`0.5`，`NoiseMotion`参数控制噪声运动的开启与关闭，当设定为`1`或`On`的时候会启用噪声运动，运动周期为`Period`，单位毫秒，默认值为`-1`，即每帧更新。已经创建了`Sepia Toning`对象后调用该指令，该指令无效。
+创建强度为`Strength`的`Sepia Toning`对象，对象默认ID为`-100`。其中`Strength`应为一个`[0,1]`的浮点数，默认值为`0.5`，`NoiseMotion`参数控制噪声运动的开启与关闭，当设定为`1`或`On`的时候会启用噪声运动，运动周期为`Period`，单位毫秒，默认值为`-1`，即每帧更新。已经创建了`Sepia Toning`对象后调用该指令，该指令无效。
 
 ###### `@ChangeSepiaStrength=Strength`
 
@@ -2745,7 +2745,7 @@ Set Sepia Noise Motion
 Toggle Sepia Noise Motion
 @SetSepiaNoiseMotion
 
-@CharDispose=-5
+@CharDispose=-100
 @CharDispose=20
 ```
 
@@ -3424,10 +3424,12 @@ VSCode插件中提供了多个可供参考的Snippets，可以方便的快速插
 | 对话框       | -2     | dianull.png  |
 | CG           | -3     | null.png     |
 | 头像栏       | -4     | null.png     |
-| Sepia Toning | -5     | N/A          |
-| 头像栏头像   | -6     | null.png     |
+| 头像栏头像   | -5     | null.png     |
+| \-\-\-       | \-\-\- | \-\-\-       |
+| Sepia Toning | -100   | N/A          |
+| 景深         | -1000  | N/A          |
 | ...          | ...    | ...          |
-| 景深         | -100   | N/A          |
+| \-\-\-       | \-\-\- | \-\-\-       |
 | 错误提示     | -65535 | N/A          |
 
 #### 重要Flag
