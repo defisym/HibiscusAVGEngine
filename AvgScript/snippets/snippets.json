@@ -197,7 +197,7 @@
       "@Fade",
       "#Wait",
       "",
-      "@CharDispose:-100",
+      "@CharDispose:<InternalID_SepiaToning>",
       "@CharDispose:20",
       "#Wait",
       "",

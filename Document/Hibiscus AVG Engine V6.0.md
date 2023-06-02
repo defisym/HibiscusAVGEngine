@@ -2745,7 +2745,7 @@ Set Sepia Noise Motion
 Toggle Sepia Noise Motion
 @SetSepiaNoiseMotion
 
-@CharDispose=-100
+@CharDispose=<InternalID_SepiaToning>
 @CharDispose=20
 ```
 
@@ -2942,6 +2942,10 @@ CG/UI不会被销毁
 程序会**自动对姓名栏、对话框与CG初始化为对应的NULL透明图片**，**请勿移除NULL文件，否则显示会出现偏移**。需要变更时，请使用本节指令进行指定
 
 通常情况下，UI变更会在叠化阶段与其他图像叠化同时进行，若需要UI变更**在其他图像叠化完成后进行**，请**在需要等待的文本前追加#Wait指令**
+
+##### `@Bottom=filename.png`
+
+切换底板，叠化阶段进行
 
 ##### `@CG=filename.png`
 
@@ -3416,15 +3420,17 @@ VSCode插件中提供了多个可供参考的Snippets，可以方便的快速插
 
 #### 系统ID
 
-以下图像ID为系统占用，请勿将其指定为图像ID：
+负数图像ID为系统占用，请勿在指令中引用。具体使用情况如下表:
 
 | 类别         | 默认ID | 初始化       |
 | ------------ | ------ | ------------ |
 | 姓名栏       | -1     | namenull.png |
 | 对话框       | -2     | dianull.png  |
-| CG           | -3     | null.png     |
-| 头像栏       | -4     | null.png     |
-| 头像栏头像   | -5     | null.png     |
+| 头像栏       | -3     | null.png     |
+| \-\-\-       | \-\-\- | \-\-\-       |
+| 底板         | -4     | null.png     |
+| CG           | -5     | null.png     |
+| 头像         | -6     | null.png     |
 | \-\-\-       | \-\-\- | \-\-\-       |
 | Sepia Toning | -100   | N/A          |
 | 景深         | -1000  | N/A          |

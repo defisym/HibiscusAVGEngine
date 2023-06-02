@@ -24,12 +24,13 @@ export interface internalImageIDAvailableBehavior {
 export const internalImageID = new Map<number, internalImageIDAvailableBehavior>([
     [-1, { Create: false, Destroy: false }],      // 姓名栏
     [-2, { Create: false, Destroy: false }],      // 对话框
-    [-3, { Create: false, Destroy: false }],       // CG
-    [-4, { Create: false, Destroy: false }],       // 头像栏
-    [-5, { Create: false, Destroy: false }],        // 头像
+    [-3, { Create: false, Destroy: false }],       // 头像栏
+    [-4, { Create: false, Destroy: false }],       // 底板
+    [-5, { Create: false, Destroy: false }],        // CG
+    [-6, { Create: false, Destroy: false }],        // 头像
 
     [-100, { Create: false, Destroy: true }],       // Sepia Toning
-    
+
     [-1000, { Create: false, Destroy: false }],       // 景深
     [-1001, { Create: false, Destroy: false }],       // 景深
     [-1002, { Create: false, Destroy: false }],       // 景深
@@ -51,7 +52,7 @@ export const internalImageID = new Map<number, internalImageIDAvailableBehavior>
     [-1018, { Create: false, Destroy: false }],       // 景深
     [-1019, { Create: false, Destroy: false }],       // 景深
     [-1020, { Create: false, Destroy: false }],       // 景深
-    
+
     [-65535, { Create: false, Destroy: false }]     // 错误提示
 ]);
 
@@ -3020,6 +3021,15 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
     }],
     ["MoveObj", undefined],
 
+    ["Bottom", {
+        prefix: "@"
+        , minParam: 1, maxParam: 1
+        , description: ["\t@Bottom=filename.png"
+            , "切换底板，叠化阶段进行"
+        ]
+        , type: [ParamType.File]
+        , inlayHintType: [InlayHintType.CGFileName]
+    }],
     ["CG", {
         prefix: "@"
         , minParam: 1, maxParam: 1

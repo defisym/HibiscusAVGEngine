@@ -201,7 +201,7 @@
 			}
 		},
 		"keywords_preobj": {
-			"match": "(?i)(@StrCenter|@StrBottom|@str|@string|@CreateStr|@CreateString|@StrS|@StrSize|@StrF|@StrFont|@StrA|@StrAlpha|@StrC|@StrColor|@MS|@MoveStr|@DestroyStr|@DestroyString|@DestroyAllStr|@DestroyAllString|@Spe|@MO|@MoveObj|@cg|@CGChange|@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CGPFI|@CGPatternFadeIn|@CGPFO|@CGPatternFadeOut|@CharPF|@CharPatternFade|@char|@character|@CC|@CharChange|@CA|@CharAlpha|@HideChar|@HideAllChar|@ShowChar|@ShowAllChar|@CharRotate|@AttachShader|@PeriodicAnimation|@CharBlur|@CharPerspective|@CharAnimation|@CharAnimationSpeed|@CharAnimationFrame|@SetAutoArrange|@CD|@CharDispose|@CAD|@CharAllDispose|@MC|@MoveChar|@Order|@Front|@Back|@Forward|@Backward)\\b",
+			"match": "(?i)(@StrCenter|@StrBottom|@str|@string|@CreateStr|@CreateString|@StrS|@StrSize|@StrF|@StrFont|@StrA|@StrAlpha|@StrC|@StrColor|@MS|@MoveStr|@DestroyStr|@DestroyString|@DestroyAllStr|@DestroyAllString|@Spe|@MO|@MoveObj|@Bottom|@CG|@CGChange|@CPF|@CPatternFade|@CPFI|@CPatternFadeIn|@CPFO|@CPatternFadeOut|@CGPFI|@CGPatternFadeIn|@CGPFO|@CGPatternFadeOut|@CharPF|@CharPatternFade|@char|@character|@CC|@CharChange|@CA|@CharAlpha|@HideChar|@HideAllChar|@ShowChar|@ShowAllChar|@CharRotate|@AttachShader|@PeriodicAnimation|@CharBlur|@CharPerspective|@CharAnimation|@CharAnimationSpeed|@CharAnimationFrame|@SetAutoArrange|@CD|@CharDispose|@CAD|@CharAllDispose|@MC|@MoveChar|@Order|@Front|@Back|@Forward|@Backward)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.preobj.AvgScript"
