@@ -89,7 +89,8 @@ export const settingsParamDocList = new Map<string, string[]>([
     ["LoadOnCall", ["在第一次使用时读取并缓存"]],
     ["LoadAtStart", ["在读取脚本时即读取该场景中使用的所有图像素材并缓存"]],
     ["LoadAll", ["加载图像文件夹中的所有图像素材并缓存"]],
-    ["EraseAtEnd", ["在退出后结束后清除缓存"]],
+    
+    ["EraseAtEnd", ["在程序退出后清除缓存"]],
     ["EraseAtEOF", ["在脚本执行结束后清除缓存"]],
 ]);
 
@@ -675,15 +676,22 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["空指令，用于指令转译"]
         , type: []
     }],
-    ["CacheClean", {
+
+    ["HandlePreload", {
         prefix: "#"
-        , minParam: 1, maxParam: 1
-        , description: ["\t#CacheClean=MemLimit"
-            , "尝试清理未引用的缓存，直到当前内存占用低于`MemLimit`或无可清理缓存。`MemLimit = -1`将按照默认设置清理，`MemLimit = 0`将清理全部未引用缓存"
-            , "注意:内存的分配与释放非常耗时，清理100MB内存大约需要10ms，可在黑屏淡出时进行清理，以避免可感知的卡顿，同时请尽量避免频繁清理"]
-        , type: [ParamType.Number]
-        , inlayHintType: [InlayHintType.MemLimit]
+        , minParam: 0, maxParam: 0
+        , description: ["内部指令，用于处理脚本定义的预载行为"]
+        , type: []
+        , internal: true
     }],
+    ["HandleErase", {
+        prefix: "#"
+        , minParam: 0, maxParam: 0
+        , description: ["内部指令，用于处理脚本定义的清理行为"]
+        , type: []
+        , internal: true
+    }],
+
     ["UnSkipAble", {
         prefix: "#"
         , minParam: 0, maxParam: 0
@@ -3210,6 +3218,15 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
             , "每经过`Period`则为类型对应的参数增加`Delta`，`Period`为`-1`时每帧更新"]
         , type: [ParamType.Number, ParamType.String, ParamType.ZeroOne, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ID, InlayHintType.PeriodicAnimationName, InlayHintType.PeriodicAnimation, InlayHintType.PeriodicAnimationDelta, InlayHintType.PeriodicAnimationPeriod]
+    }],
+    ["GraphicErase", {
+        prefix: "@"
+        , minParam: 1, maxParam: 1
+        , description: ["\t#GraphicErase=MemLimit"
+            , "尝试清理未引用的缓存，直到当前内存占用低于`MemLimit`或无可清理缓存。`MemLimit = -1`将按照默认设置清理，`MemLimit = 0`将清理全部未引用缓存"
+            , "注意:内存的分配与释放非常耗时，清理100MB内存大约需要10ms，可在黑屏淡出时进行清理，以避免可感知的卡顿，同时请尽量避免频繁清理"]
+        , type: [ParamType.Number]
+        , inlayHintType: [InlayHintType.MemLimit]
     }],
 
     ["CharBlur", {
