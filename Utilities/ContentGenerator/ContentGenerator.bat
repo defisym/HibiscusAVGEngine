@@ -95,11 +95,11 @@ for /r "%ContentPath%\data\dialogue\_External" %%F in (*.*) do (
 
 rmdir /s /q "%ContentPath%\data\dialogue\_External\"
 
-for /r "%ContentPath%\data\dialogue\_Tests" %%F in (*.*) do (
+for /r "%ContentPath%\data\dialogue\_Test" %%F in (*.*) do (
 	del "%%F" /f /s /q	
 )
 
-rmdir /s /q "%ContentPath%\data\dialogue\_Tests\"
+rmdir /s /q "%ContentPath%\data\dialogue\_Test\"
 
 for /r "%ContentPath%\data\dialogue\_Template" %%F in (*.*) do (
 	del "%%F" /f /s /q	
