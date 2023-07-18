@@ -89,7 +89,7 @@ export const settingsParamDocList = new Map<string, string[]>([
     ["LoadOnCall", ["在第一次使用时读取并缓存"]],
     ["LoadAtStart", ["在读取脚本时即读取该场景中使用的所有图像素材并缓存"]],
     ["LoadAll", ["加载图像文件夹中的所有图像素材并缓存"]],
-    
+
     ["EraseAtEnd", ["在程序退出后清除缓存"]],
     ["EraseAtEOF", ["在脚本执行结束后清除缓存"]],
 ]);
@@ -1143,6 +1143,13 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         ]
         , type: [ParamType.String]
         , inlayHintType: [InlayHintType.RichPresence]
+    }],
+    ["ScreenShot", {
+        prefix: "#"
+        , minParam: 0, maxParam: 0
+        , description: ["\t调用Steam Overlay截取屏幕，并将Tag标记为当前`RichPresence`内容"
+        ]
+        , type: []
     }],
     ["UnlockAppreciation", {
         prefix: "#"

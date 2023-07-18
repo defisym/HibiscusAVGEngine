@@ -2009,6 +2009,12 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 在读取脚本时会自动调用`#RichPresence`将丰富状态更新为当前章节名
 
+#### `#ScreenShot`
+
+调用Steam Overlay截取屏幕，并将地点Tag标记为当前`RichPresence`内容
+
+![ScreenShot](media/ScreenShot.png)
+
 ## @控制指令
 
 ### 音频指令
