@@ -1139,7 +1139,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["\t#RichPresence=Message"
             , "更新`chapter`，并更新`steam_display`为`#ChapterStates`，即`当前章节: %chapter%`"
             , "若当前章节名在鉴赏定义中不存在对应项，则使用原始名称。若`Message`不为空，则会将其附加至章节名后方"
-            , "在读取脚本时会自动调用`#RichPresence`将丰富状态更新为当前章节名"
+            , "在读取脚本时会自动调用`#RichPresence`将丰富状态更新为当前章节名。在非对话页面中，则会将丰富状态更新为当前页面名"
         ]
         , type: [ParamType.String]
         , inlayHintType: [InlayHintType.RichPresence]
@@ -1147,7 +1147,8 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
     ["ScreenShot", {
         prefix: "#"
         , minParam: 0, maxParam: 0
-        , description: ["\t调用Steam Overlay截取屏幕，并将Tag标记为当前`RichPresence`内容"
+        , description: ["\t调用Steam Overlay截取屏幕，并将标记地点Tag",
+            "标记场景名需要在`Appreciation_Definition`的CG/BG/Video对应映射部分标记名称。角色名根据现存图像演出对象的ID查找，定义在`Appreciation_Mapping_Character`一节中"
         ]
         , type: []
     }],

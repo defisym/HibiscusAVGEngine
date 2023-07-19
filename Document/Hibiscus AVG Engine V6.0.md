@@ -2007,13 +2007,22 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 若当前章节名在鉴赏定义中不存在对应项，则使用原始名称。若`Message`不为空，则会将其附加至章节名后方
 
-在读取脚本时会自动调用`#RichPresence`将丰富状态更新为当前章节名
+在读取脚本时会自动调用`#RichPresence`将丰富状态更新为当前章节名。在非对话页面中，则会将丰富状态更新为当前页面名
+
+丰富状态必须在[后台](https://partner.steamgames.com/apps/richpresence)上传本地化后才会有效，可在[此网页](https://steamcommunity.com/dev/testrichpresence)进行验证
 
 #### `#ScreenShot`
 
-调用Steam Overlay截取屏幕，并将地点Tag标记为当前`RichPresence`内容
+调用Steam Overlay截取屏幕，并将标记地点Tag
 
 ![ScreenShot](media/ScreenShot.png)
+
+- 当前未指定`RichPresence`时: 显示App文件名
+- 当前指定了`RichPresence`时:
+  - 对话页面: `RichPresence`为章节名，输出为`"章节名" 场景名; 角色名`
+  - 其他页面: `RichPresence`为页面名，输出为`页面名`
+
+标记场景名需要在`Appreciation_Definition`的CG/BG/Video对应映射部分标记名称。角色名根据现存图像演出对象的ID查找，定义在`Appreciation_Mapping_Character`一节中
 
 ## @控制指令
 
