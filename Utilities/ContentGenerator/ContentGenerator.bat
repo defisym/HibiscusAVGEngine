@@ -38,6 +38,7 @@ echo f | xcopy "%curPath%\settings\settings_Template.ini" "%ContentPath%\setting
 echo f | xcopy "%curPath%\settings\settings_Template.ini" "%ContentPath%\settings\settings_Template.ini" /s /e
 echo f | xcopy "%curPath%\settings\settings_Dynamic.ini" "%ContentPath%\settings\settings_Dynamic.ini" /s /e
 
+echo f | xcopy "%curPath%\savings\_Global\_Cache_Template" "%ContentPath%\savings\_Global\_Cache" /s /e
 echo f | xcopy "%curPath%\savings\_Global\_GlobalProgress_Template" "%ContentPath%\savings\_Global\_GlobalProgress" /s /e
 echo f | xcopy "%curPath%\savings\_Global\Appreciation_Definition_Template" "%ContentPath%\savings\_Global\Appreciation_Definition" /s /e
 echo f | xcopy "%curPath%\savings\_Global\Appreciation_Progress_Template" "%ContentPath%\savings\_Global\Appreciation_Progress" /s /e
