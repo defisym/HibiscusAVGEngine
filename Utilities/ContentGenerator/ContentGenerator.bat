@@ -131,11 +131,11 @@ del "%ContentPath%\data\dialogue\_initial.asc" /f /s /q
 del "%ContentPath%\data\dialogue\_Ref.md" /f /s /q
 
 @REM Text
-for /r "%ContentPath%\Mobius_Text" %%F in (*.*) do (
+for /r "%ContentPath%\%AppName%_Text" %%F in (*.*) do (
 	del "%%F" /f /s /q	
 )
 
-rmdir /s /q "%ContentPath%\Mobius_Text\"
+rmdir /s /q "%ContentPath%\%AppName%_Text\"
 
 @echo Encrypt Files...
 
