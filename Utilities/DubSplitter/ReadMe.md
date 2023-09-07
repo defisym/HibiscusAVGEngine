@@ -58,7 +58,7 @@ default is `{2:0>4d}_{3:0>8d}.{1}`
 
 `custom info` is the one you passed in `fileNameCustomInfo`
 
-### Dile Name Format (with voice recognition)
+### File Name Format (with voice recognition)
 
 default is `{2:0>4d}_{3:0>8d}_{5}.{1}`
 
