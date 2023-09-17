@@ -15,13 +15,13 @@ int main(int argc, char** argv) {
 
 	app.allow_windows_style_options();
 
-	std::string inFilePath = "";
-	std::string outFilePath = "";
+	std::string inFilePath;
+	std::string outFilePath;
 	
-	std::string section = "";
-	std::string item = "";
+	std::string section;
+	std::string item;
 
-	std::string value = "";
+	std::string value;
 
 	bool bUnicode = false;
 
@@ -75,21 +75,21 @@ int main(int argc, char** argv) {
 
 	auto wFilePath = ConvertStrToWStr(inFilePath);
 
-	auto wOutFilePath = outFilePath == ""
-		? wFilePath
-		: ConvertStrToWStr(outFilePath);
+	auto wOutFilePath = outFilePath.empty()
+							? wFilePath
+							: ConvertStrToWStr(outFilePath);
 
-	SI_Error err = SI_Error::SI_OK;
+	SI_Error err = SI_OK;
 
 	err = ini.LoadFile(wFilePath.c_str());
 
-	if (err != SI_Error::SI_OK) {
+	if (err != SI_OK) {
 		std::cout << "failed to open file " << inFilePath << std::endl;
 
 		return -1;
 	}
 
-	if (section == "" || item == "") {
+	if (section.empty() || item.empty()) {
 		std::cout << "invalid section / key" << std::endl;
 
 		return -1;
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
 
 		err = ini.SaveFile(wOutFilePath.c_str(), false);
 
-		if (err != SI_Error::SI_OK) {
+		if (err != SI_OK) {
 			std::cout << "save failed" << inFilePath << std::endl;
 
 			return -1;

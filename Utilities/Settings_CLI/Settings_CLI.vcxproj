@@ -71,16 +71,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>F:\DEV\OpenFusionExamples\Extensions\_DeLib;F:\DEV\OpenFusionExamples\Extensions\_3rdLib;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\..\..\OpenFusionExamples\Extensions\_DeLib;..\..\..\OpenFusionExamples\Extensions\_3rdLib;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>F:\DEV\OpenFusionExamples\Extensions\_DeLib;F:\DEV\OpenFusionExamples\Extensions\_3rdLib;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\..\..\OpenFusionExamples\Extensions\_DeLib;..\..\..\OpenFusionExamples\Extensions\_3rdLib;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>F:\DEV\OpenFusionExamples\Extensions\_DeLib;F:\DEV\OpenFusionExamples\Extensions\_3rdLib;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\..\..\OpenFusionExamples\Extensions\_DeLib;..\..\..\OpenFusionExamples\Extensions\_3rdLib;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>F:\DEV\OpenFusionExamples\Extensions\_DeLib;F:\DEV\OpenFusionExamples\Extensions\_3rdLib;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\..\..\OpenFusionExamples\Extensions\_DeLib;..\..\..\OpenFusionExamples\Extensions\_3rdLib;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\DEV\OpenFusionExamples\Extensions\_DeLib;F:\DEV\OpenFusionExamples\Extensions\_3rdLib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\OpenFusionExamples\Extensions\_DeLib;..\..\..\OpenFusionExamples\Extensions\_3rdLib;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -111,7 +111,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\DEV\OpenFusionExamples\Extensions\_DeLib;F:\DEV\OpenFusionExamples\Extensions\_3rdLib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\OpenFusionExamples\Extensions\_DeLib;..\..\..\OpenFusionExamples\Extensions\_3rdLib;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -132,7 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\DEV\OpenFusionExamples\Extensions\_DeLib;F:\DEV\OpenFusionExamples\Extensions\_3rdLib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\OpenFusionExamples\Extensions\_DeLib;..\..\..\OpenFusionExamples\Extensions\_3rdLib</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -140,6 +140,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(TargetPath) ".\"</Command>
+      <Message>Copy file</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -149,7 +153,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\DEV\OpenFusionExamples\Extensions\_DeLib;F:\DEV\OpenFusionExamples\Extensions\_3rdLib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\OpenFusionExamples\Extensions\_DeLib;..\..\..\OpenFusionExamples\Extensions\_3rdLib</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -159,6 +163,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(TargetPath) ".\"</Command>
+      <Message>Copy file</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\OpenFusionExamples\Extensions\_DeLib\Encryption.cpp" />
