@@ -766,12 +766,58 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , description: ["调试模式下无叠化关闭调试参数"]
         , type: []
     }],
+
+	["RefreshRGB", {
+        prefix: "#"
+		, minParam: 0, maxParam: 0
+        , description: ["内部指令，将RGB刷新为指定的值"]
+        , type: []
+		, internal:true
+    }],
+	["StashRGB", {
+        prefix: "#"
+        , minParam: 0, maxParam: 0
+        , description: ["缓存当前RGB值"]
+        , type: []
+    }],
+	["RestoreRGB", {
+        prefix: "#"
+		, minParam: 0, maxParam: 0
+        , description: ["将RGB指定为缓存的值"]
+        , type: []
+    }],	
+	["DisableRGB", {
+        prefix: "#"
+        , minParam: 1, maxParam: 1
+        , description: ["\t#DisableRGB=ID",
+		"指定图像对象不受RGB参数影响"]
+        , type: [ParamType.Number]
+		, inlayHintType:[InlayHintType.ID]
+    }],
+	["EnableRGB", {
+        prefix: "#"
+        , minParam: 1, maxParam: 1
+        , description: ["\t#EnableRGB=ID",
+		"指定图像对象受到RGB参数影响"]
+        , type: [ParamType.Number]
+		, inlayHintType:[InlayHintType.ID]
+    }],
+	
     ["DefineRGB", {
         prefix: "#"
         , minParam: 1, maxParam: 3
         , description: ["\t#DefineRGB=R:G:B"
             , "\t#DefineRGB=#FFFFFF"
             , "定义立绘的色调RGB值为`R:G:B/#FFFFFF`，无叠化更新所有立绘对象(非特殊非特效对象)的RGB参数。该指令通常用于根据背景光照情况调整立绘色调，可使用附带的`RGBDefiner`工具来直观的调整该参数"]
+        , type: [ParamType.Color, ParamType.Number, ParamType.Number]
+        , inlayHintType: [InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
+    }],
+	["TransitionRGB", {
+        prefix: "#"
+        , minParam: 1, maxParam: 3
+        , description: ["\t#TransitionRGB=R:G:B"
+            , "\t#TransitionRGB=#FFFFFF"
+            , "与`#DefineRGB`行为一致，但是附带叠化过程"]
         , type: [ParamType.Color, ParamType.Number, ParamType.Number]
         , inlayHintType: [InlayHintType.ColorHex, InlayHintType.ColorRGB_G, InlayHintType.ColorRGB_B]
     }],
