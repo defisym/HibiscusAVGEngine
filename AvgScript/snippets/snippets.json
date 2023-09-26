@@ -1,273 +1,309 @@
 {
-  // Place your AvgScript workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
-  // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
-  // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
-  // used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
-  // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
-  // Placeholders with the same ids are connected.
-  // Example:
-  // "Print to console": {
-  //  "scope": "javascript,typescript",
-  //  "prefix": "log",
-  //  "body": [
-  //    "console.log('$1');",
-  //    "$2"
-  //  ],
-  //  "description": "Log output to console"
-  // }
-
-  // basic
-  "Snippet: Block": {
-    "prefix": "Snippet: Block",
-    "body": [
-      "#Begin $1",
-      "\t$2",
-      "#End"
-    ],
-    "description": "Block"
-  },
-
-  // script template
-  "Snippet: Basic Template": {
-    "prefix": "Snippet: Basic",
-    "body": [
-      "#Begin 参考初始化",
-      "\t/*这一整行都是注释区块*/",
-      "\t/*该章节导演代码仅供参考*/",
-      "\t;注释区块外以';'开头的行会被视为跳转标签",
-      "\t",
-      "\t@BgmLoop=$1:0:0",
-      "\t",
-      "\t/*CG、姓名栏与对话框默认为空，初始化时需手动指定*/",
-      "\t@CG=$2",
-      "\t",
-      "\t@Dia=$3",
-      "\t@Name=$4",
-      "",
-      "\t#DiaColor:0:0:0",
-      "\t#NameColor:255:255:255",
-      "",
-      "#End",
-      "",
-      "#Begin 参考文本",
-      "\t/*存在冒号的句子会被解析为对白，不存在冒号的会被解析为旁白*/",
-      "\t您哪位:这是历史记录中会显示头像的场合",
-      "\t/*括号开始的行会被忽略，没有任何作用*/",
-      "\t(这里进行普通的演出)",
-      "#End",
-      "",
-      "#Begin 演出内容",
-      "",
-      "\t/*请将需要调试的导演代码粘贴至此*/",
-      "\t/*↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓*/",
-      "\t$6",
-      "\t/*↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑*/",
-      "",
-      "#End",
-      "",
-      "#Begin 文件尾",
-      "",
-      "\t/*文件的最后一条有效指令必须为跳转指令*/",
-      "\t/*#JmpFra=*/",
-      "\t#JmpCha=$5",
-      "\t/*文件的末尾必须为#EOF*/",
-      "\t#EOF",
-      "",
-      "#End"
-    ],
-    "description": "Basic Template"
-  },
-  "Snippet: VNMode Template": {
-    "prefix": "Snippet: VNMode",
-    "body": [
-      "#Settings=VNMode",
-      "",
-      "#Begin 初始化",
-      "",
-      "\t@BgmLoop=$1",
-      "",
-      "\t@CG=$2",
-      "\t@Dia=$3",
-      "",
-      "\t#DiaColor=255:255:255",
-      "\t#DiaShaderOn=1:0:0:0",
-      "",
-      "#End",
-      "",
-      "#Begin 演出内容",
-      "",
-      "\t/*请将需要调试的导演代码粘贴至此*/",
-      "\t/*↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓*/",
-      "\t$4",
-      "\t/*↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑*/",
-      "",
-      "\t@TextFadeOut",
-      "\t#Wait",
-      "",
-      "#End",
-      "",
-      "#Begin 文件尾",
-      "",
-      "\t/*文件的最后一条有效指令必须为跳转指令*/",
-      "\t#JmpFra=$2",
-      "\t/*文件的末尾必须为#EOF*/",
-      "\t#EOF",
-      "",
-      "#End"
-    ],
-    "description": "VNMode Init"
-  },
-
-  // system
-  "Snippet: SkipAnchor": {
-    "prefix": "Snippet: SkipAnchor",
-    "body": [
-      "#SkipAnchor",
-      "",
-      "#NJMP=$1",
-      "// if start, CMP -> true",
-      "#FNT",
-      "",
-      "@CharAllDispose",
-      "@TransitionSpeed=10",
-      "// re-init block",
-      "$2",
-      "",
-      "#FNTO",
-      "",
-      ";${1:label}",
-      "// if end"
-    ],
-    "description": "Re-init after JMP"
-  },
-  "Snippet: One Line Dialogue Size Change": {
-    "prefix": "Snippet: Size",
-    "body": [
-      "#DiaSize=$1",
-      "$3",
-      "#DiaSize=$2"
-    ],
-    "description": "Small Dialogue"
-  },
-
-  // cut scene
-  "Snippet: Scene Transition": {
-    "prefix": "Snippet: Scene Transition",
-    "body": [
-      "@TextFadeOut",
-      "@PF=$1",
-      "#Wait",
-      "",
-      "@CG=$2",
-      "#DefineRGB=$3",
-      "#Wait",
-      "",
-      "@PFO=$4",
-      "@RestoreUIGraphic"
-    ],
-    "description": "Scene Transition"
-  },
-  "Snippet: Flash": {
-    "prefix": "Snippet: Flash",
-    "body": [
-      "#FNT",
-      "@Char=..\\CG\\white.png:-10",
-      "#FNTO",
-      "@CharDispose=-10"
-    ],
-    "description": "Flash"
-  },
-  "Snippet: Create Sepia": {
-    "prefix": "Snippet: Create Sepia",
-    "body": [
-      "@Fade",
-      "#Wait",
-      "",
-      "@SepiaToning:0.5:On:300",
-      "@Char=..\\FX\\Memory.png:20:0:0:0",
-      "#Wait",
-      "",
-      "@DestroyFade"
-    ],
-    "description": "Create Sepia"
-  },
-  "Snippet: Dispose Sepia": {
-    "prefix": "Snippet: Dispose Sepia",
-    "body": [
-      "@Fade",
-      "#Wait",
-      "",
-      "@CharDispose:<InternalID_SepiaToning>",
-      "@CharDispose:20",
-      "#Wait",
-      "",
-      "@DestroyFade"
-    ],
-    "description": "Dispose Sepia"
-  },
-
-  // Syntax sugar 
-  "Snippet: If": {
-    "prefix": "Snippet: If",
-    "body": [
-      "// if-else name: $1",
-      "#CMPGeneral=$2:$3",
-      "// if start, CMP -> true",
-      "#JNE=${1:label}",
-      "// if content",
-      "",
-      ";${1:label}_End",
-      "// if end"
-    ],
-    "description": "If clause"
-  },
-  "Snippet: If-Else": {
-    "prefix": "Snippet: If-Else",
-    "body": [
-      "// if-else name: $1",
-      "#CMPGeneral=$2:$3",
-      "// if start, CMP -> true",
-      "#JNE=${1:label}",
-      "// if content",
-      "",
-      "#Jmp=${1:label}_End",
-      "// if end",
-      "// else start",
-      ";${1:label}",
-      "// else content",
-      "",
-      ";${1:label}_End",
-      "// else end"
-    ],
-    "description": "If clause"
-  },
-
-  // OP
-  "Snippet: Video Opening": {
-  "prefix": "Snippet: Video Opening",
-  "body": [
-    "#HideUI",
-    "@TextFadeOut",
-    "@IgnoreStaticVideo=On",
-    "@PlayVideo=$1.mp4",
-    "// @VideoFinish=#JmpCha=1",
-    "@VideoFinish=#JmpFra=$2",
-    "",
-    "[Color = #00FFFFFF]invisible[/Color]",
-    "",
-    "// #JmpCha=1",
-    "#JmpFra=$2",
-    "",
-    "#EOF"
-  ],
-  "description": "Video Opening"
-  }
-
-
-  // template
-  // "Snippet: Name": {
-  // "prefix": "Snippet: Name",
-  // "body": [],
-  // "description": "Name"
-  // }
+	// Place your AvgScript workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	//  "scope": "javascript,typescript",
+	//  "prefix": "log",
+	//  "body": [
+	//    "console.log('$1');",
+	//    "$2"
+	//  ],
+	//  "description": "Log output to console"
+	// }
+	// ----------
+	// Basic
+	// ----------
+	"Snippet: Block": {
+		"prefix": "Snippet: Block",
+		"body": [
+			"#Begin $1",
+			"\t$2",
+			"#End"
+		],
+		"description": "Block"
+	},
+	// ----------
+	// Script template
+	// ----------
+	"Snippet: Basic Template": {
+		"prefix": "Snippet: Basic",
+		"body": [
+			"#Begin 参考初始化",
+			"\t/*这一整行都是注释区块*/",
+			"\t/*该章节导演代码仅供参考*/",
+			"\t;注释区块外以';'开头的行会被视为跳转标签",
+			"\t",
+			"\t@BgmLoop=$1:0:0",
+			"\t",
+			"\t/*CG、姓名栏与对话框默认为空，初始化时需手动指定*/",
+			"\t@CG=$2",
+			"\t",
+			"\t@Dia=$3",
+			"\t@Name=$4",
+			"",
+			"\t#DiaColor:0:0:0",
+			"\t#NameColor:255:255:255",
+			"",
+			"#End",
+			"",
+			"#Begin 参考文本",
+			"\t/*存在冒号的句子会被解析为对白，不存在冒号的会被解析为旁白*/",
+			"\t您哪位:这是历史记录中会显示头像的场合",
+			"\t/*括号开始的行会被忽略，没有任何作用*/",
+			"\t(这里进行普通的演出)",
+			"#End",
+			"",
+			"#Begin 演出内容",
+			"",
+			"\t/*请将需要调试的导演代码粘贴至此*/",
+			"\t/*↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓*/",
+			"\t$6",
+			"\t/*↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑*/",
+			"",
+			"#End",
+			"",
+			"#Begin 文件尾",
+			"",
+			"\t/*文件的最后一条有效指令必须为跳转指令*/",
+			"\t/*#JmpFra=*/",
+			"\t#JmpCha=$5",
+			"\t/*文件的末尾必须为#EOF*/",
+			"\t#EOF",
+			"",
+			"#End"
+		],
+		"description": "Basic Template"
+	},
+	"Snippet: VNMode Template": {
+		"prefix": "Snippet: VNMode",
+		"body": [
+			"#Settings=VNMode",
+			"",
+			"#Begin 初始化",
+			"",
+			"\t@BgmLoop=$1",
+			"",
+			"\t@CG=$2",
+			"\t@Dia=$3",
+			"",
+			"\t#DiaColor=255:255:255",
+			"\t#DiaShaderOn=1:0:0:0",
+			"",
+			"#End",
+			"",
+			"#Begin 演出内容",
+			"",
+			"\t/*请将需要调试的导演代码粘贴至此*/",
+			"\t/*↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓*/",
+			"\t$4",
+			"\t/*↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑*/",
+			"",
+			"\t@TextFadeOut",
+			"\t#Wait",
+			"",
+			"#End",
+			"",
+			"#Begin 文件尾",
+			"",
+			"\t/*文件的最后一条有效指令必须为跳转指令*/",
+			"\t#JmpFra=$2",
+			"\t/*文件的末尾必须为#EOF*/",
+			"\t#EOF",
+			"",
+			"#End"
+		],
+		"description": "VNMode Init"
+	},
+	// ----------
+	// System
+	// ----------
+	"Snippet: SkipAnchor": {
+		"prefix": "Snippet: SkipAnchor",
+		"body": [
+			"#SkipAnchor",
+			"",
+			"#NJMP=$1",
+			"// if start, CMP -> true",
+			"#FNT",
+			"",
+			"@CharAllDispose",
+			"@TransitionSpeed=10",
+			"// re-init block",
+			"$2",
+			"",
+			"#FNTO",
+			"",
+			";${1:label}",
+			"// if end"
+		],
+		"description": "Re-init after JMP"
+	},
+	"Snippet: One Line Dialogue Size Change": {
+		"prefix": "Snippet: Size",
+		"body": [
+			"#DiaSize=$1",
+			"$3",
+			"#DiaSize=$2"
+		],
+		"description": "Small Dialogue"
+	},
+	// ----------
+	// String
+	// ----------
+	"Snippet: String": {
+		"prefix": "Snippet: String",
+		"body": [
+			"@TextFadeOut",
+			"",
+			"@Str=$1:1:0:0:0:480:30",
+			"#Wait=500",
+			"",
+			"@DestroyAllStr",
+			"#Wait",
+			"",
+			"@RestoreUIGraphic"
+		],
+		"description": "Name"
+	},
+	// ----------
+	// Cut scene
+	// ----------
+	"Snippet: Scene Transition": {
+		"prefix": "Snippet: Scene Transition",
+		"body": [
+			"@TextFadeOut",
+			"@Fade",
+			"#Wait",
+			"",
+			"@DestroyFade",
+			"@RestoreUIGraphic"
+		],
+		"description": "Scene Transition"
+	},
+	"Snippet: Scene PattenFade Transition": {
+		"prefix": "Snippet: Scene PattenFade Transition",
+		"body": [
+			"@TextFadeOut",
+			"@PF=$1",
+			"#Wait",
+			"",
+			"@CG=$2",
+			"#DefineRGB=$3",
+			"#Wait",
+			"",
+			"@PFO=$4",
+			"@RestoreUIGraphic"
+		],
+		"description": "Scene Transition"
+	},
+	"Snippet: Flash": {
+		"prefix": "Snippet: Flash",
+		"body": [
+			"#FNT",
+			"@Char=..\\CG\\white.png:-10",
+			"#FNTO",
+			"@CharDispose=-10"
+		],
+		"description": "Flash"
+	},
+	"Snippet: Create Sepia": {
+		"prefix": "Snippet: Create Sepia",
+		"body": [
+			"@Fade",
+			"#Wait",
+			"",
+			"@SepiaToning:0.5:On:300",
+			"@Char=..\\FX\\Memory.png:20:0:0:0",
+			"#Wait",
+			"",
+			"@DestroyFade"
+		],
+		"description": "Create Sepia"
+	},
+	"Snippet: Dispose Sepia": {
+		"prefix": "Snippet: Dispose Sepia",
+		"body": [
+			"@Fade",
+			"#Wait",
+			"",
+			"@CharDispose:<InternalID_SepiaToning>",
+			"@CharDispose:20",
+			"#Wait",
+			"",
+			"@DestroyFade"
+		],
+		"description": "Dispose Sepia"
+	},
+	// ----------
+	// Syntax sugar 
+	// ----------
+	"Snippet: If": {
+		"prefix": "Snippet: If",
+		"body": [
+			"// if-else name: $1",
+			"#CMPGeneral=$2:$3",
+			"// if start, CMP -> true",
+			"#JNE=${1:label}",
+			"// if content",
+			"",
+			";${1:label}_End",
+			"// if end"
+		],
+		"description": "If clause"
+	},
+	"Snippet: If-Else": {
+		"prefix": "Snippet: If-Else",
+		"body": [
+			"// if-else name: $1",
+			"#CMPGeneral=$2:$3",
+			"// if start, CMP -> true",
+			"#JNE=${1:label}",
+			"// if content",
+			"",
+			"#Jmp=${1:label}_End",
+			"// if end",
+			"// else start",
+			";${1:label}",
+			"// else content",
+			"",
+			";${1:label}_End",
+			"// else end"
+		],
+		"description": "If clause"
+	},
+	// ----------
+	// OP
+	// ----------
+	"Snippet: Video Opening": {
+		"prefix": "Snippet: Video Opening",
+		"body": [
+			"#HideUI",
+			"@TextFadeOut",
+			"@IgnoreStaticVideo=On",
+			"@PlayVideo=$1.mp4",
+			"// @VideoFinish=#JmpCha=1",
+			"@VideoFinish=#JmpFra=$2",
+			"",
+			"[Color = #00FFFFFF]invisible[/Color]",
+			"",
+			"// #JmpCha=1",
+			"#JmpFra=$2",
+			"",
+			"#EOF"
+		],
+		"description": "Video Opening"
+	}
+	// ----------
+	// Template
+	// ----------
+	// "Snippet: Name": {
+	// "prefix": "Snippet: Name",
+	// "body": [],
+	// "description": "Name"
+	// }
 }
