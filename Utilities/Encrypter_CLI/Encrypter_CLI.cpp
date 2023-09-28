@@ -25,35 +25,35 @@ int main(int argc, char** argv) {
 
 	app.allow_windows_style_options();
 
-	std::string inFilePath = "";
-	std::string outFilePath = "";
-	std::string key = "";
+	std::string inFilePath;
+	std::string outFilePath;
+	std::string key;
 
-	bool operationFlags[3] = { false };
-	
+	bool operationFlags[3] = {false};
+
 	DWORD bufSz = BUFFER_SIZE;
 	bool bTime = false;
 
 	Operation operation = Operation::Encrypt;
-	
+
 	try {
 		app.add_option("-f, --fileName", inFilePath)
-			->required()
-			->ignore_case();
+		   ->required()
+		   ->ignore_case();
 		app.add_option("-o, --outFileName", outFilePath)
-			->ignore_case();
+		   ->ignore_case();
 		app.add_option("-k, --key", key)
-			->ignore_case();
+		   ->ignore_case();
 		app.add_option("--bufferSize", bufSz)
-			->ignore_case();
+		   ->ignore_case();
 
 		app.add_flag("-e, --encrypt", operationFlags[0])
-			->ignore_case();
+		   ->ignore_case();
 		app.add_flag("-d, --decrypt", operationFlags[1])
-			->ignore_case();
+		   ->ignore_case();
 		// -h is used as help
 		app.add_flag("--hash", operationFlags[2])
-			->ignore_case();
+		   ->ignore_case();
 		//app.add_flag("--Time",bTime)
 		//	->ignore_case();
 	}
@@ -89,23 +89,24 @@ int main(int argc, char** argv) {
 
 			break;
 		}
-	} while (0);
+	}
+	while (false);
 
 	Encryption Encrypt;
 
 	auto enHandler = [&](bool encrypt) {
-		if (key == "" || key.length() < 16) {
+		if (key.empty() || key.length() < 16) {
 			std::cout << "invalid key" << std::endl;
 
 			exit(-1);
 		}
 
-		auto wKey = ConvertStrToWStr(key);
-		auto wFilePath = ConvertStrToWStr(inFilePath);
+		const auto wKey = ConvertStrToWStr(key, CP_ACP);
+		auto wFilePath = ConvertStrToWStr(inFilePath, CP_ACP);
 
-		auto wOutFilePath = outFilePath == ""
-			? wFilePath
-			: ConvertStrToWStr(outFilePath);
+		const auto wOutFilePath = outFilePath.empty()
+									  ? wFilePath
+									  : ConvertStrToWStr(outFilePath, CP_ACP);
 
 		Encrypt.GenerateKey(wKey.c_str());
 
@@ -113,47 +114,47 @@ int main(int argc, char** argv) {
 
 #ifdef USE_PROCESS_DIRECTLY
 		Encrypt.SetBufferSize(bufSz);
-				
+
 		auto ret =
 			encrypt
-			? Encrypt.EncryptFileDirectly(wFilePath.c_str())
-			: Encrypt.DecryptFileDirectly(wFilePath.c_str());
+				? Encrypt.EncryptFileDirectly(wFilePath.c_str())
+				: Encrypt.DecryptFileDirectly(wFilePath.c_str());
 #else
 		auto ret =
 			encrypt
 			? Encrypt.EncryptFile(wFilePath.c_str())
 			: Encrypt.DecryptFile(wFilePath.c_str());
-#endif 
+#endif
 
 		if (!ret) {
 			std::cout << std::format("{} operation failed, file {}\n"
-				, encrypt
-					? "encrypt"
-					: "decrypt"
-				, inFilePath);
+									 , encrypt
+										   ? "encrypt"
+										   : "decrypt"
+									 , inFilePath);
 
 			exit(-1);
 		}
 
 		Encrypt.SaveFile(wOutFilePath.c_str());
 		std::cout << std::format("{} operation success, file {}\n"
-			, encrypt
-				? "encrypt"
-				: "decrypt"
-			, inFilePath);
+								 , encrypt
+									   ? "encrypt"
+									   : "decrypt"
+								 , inFilePath);
 	};
 
 	switch (operation) {
 	case Operation::Encrypt:
 		enHandler(true);
-		
+
 		break;
 	case Operation::Decrypt:
 		enHandler(false);
 
 		break;
 	case Operation::Hash:
-		Encrypt.OpenFile(ConvertStrToWStr(inFilePath).c_str());
+		Encrypt.OpenFile(ConvertStrToWStr(inFilePath, CP_ACP).c_str());
 		auto hash = Encrypt.GetHash();
 
 		if (!hash) {

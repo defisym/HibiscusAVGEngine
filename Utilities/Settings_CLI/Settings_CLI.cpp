@@ -73,11 +73,11 @@ int main(int argc, char** argv) {
 		ini.SetUnicode();
 	}
 
-	auto wFilePath = ConvertStrToWStr(inFilePath);
+	auto wFilePath = ConvertStrToWStr(inFilePath, CP_ACP);
 
 	auto wOutFilePath = outFilePath.empty()
 							? wFilePath
-							: ConvertStrToWStr(outFilePath);
+							: ConvertStrToWStr(outFilePath, CP_ACP);
 
 	SI_Error err = SI_OK;
 
@@ -95,9 +95,9 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	err = ini.SetValue(ConvertStrToWStr(section).c_str()
-		, ConvertStrToWStr(item).c_str()
-		, ConvertStrToWStr(value).c_str());
+	err = ini.SetValue(ConvertStrToWStr(section, CP_ACP).c_str()
+		, ConvertStrToWStr(item, CP_ACP).c_str()
+		, ConvertStrToWStr(value, CP_ACP).c_str());
 
 	if (err == SI_UPDATED || err == SI_INSERTED) {
 		std::cout << "modified, save to file "<< outFilePath << std::endl;
