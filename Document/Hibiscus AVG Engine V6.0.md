@@ -2328,9 +2328,11 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 同义指令
 
-- `@VideoWait`
+- `@VideoWait=AllowSkip`
 
 当前视频播放结束后才会进入下一阶段
+
+若`AllowSkip=1`，则允许在视频播放中按任意键跳过
 
 ##### `@VL`
 
@@ -2399,6 +2401,33 @@ Audio_1_1_Name= 无尽闪亮的哀愁
   */
 
   #Wait
+
+  #JmpFra=1
+
+  #EOF
+
+#End
+```
+
+如果允许用户跳过视频播放，则范例导演代码如下：
+
+```AVGScript
+#Begin 参考视频播放
+  /*播放*/
+  @PlayVideo=DemoVideo.avi
+  @VideoWait=1
+  #Wait
+
+  /*另一种写法*/
+
+  /*
+  #HideUI
+  @TextFadeOut
+  @PlayVideo=DemoVideo.avi
+  @VideoFinish=#JmpFra=1
+  //使用不可见文本处理翻页
+  [Color = #00FFFFFF]invisible[/Color]
+  */
 
   #JmpFra=1
 

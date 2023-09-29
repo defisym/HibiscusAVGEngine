@@ -446,6 +446,7 @@ export enum InlayHintType {
     VideoCodec,
     AudioCodec,
     RichPresence,
+	AllowSkip,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -556,6 +557,7 @@ export let inlayHintMap = new Map<number, string>([
     [InlayHintType.VideoCodec, "视频解码器"],
     [InlayHintType.AudioCodec, "音频解码器"],
     [InlayHintType.RichPresence, "丰富状态"],
+    [InlayHintType.AllowSkip, "允许跳过"],
 ]);
 
 export enum IDBehaviour {
@@ -2606,9 +2608,12 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
     ["VideoPause", undefined],
     ["VW", {
         prefix: "@"
-        , minParam: 0, maxParam: 0
-        , description: ["当前视频播放结束后才会进入下一阶段"]
-        , type: []
+        , minParam: 0, maxParam: 1
+        , description: ["\t@VideoWait=AllowSkip"
+		,"当前视频播放结束后才会进入下一阶段"
+		,"若`AllowSkip=1`，则允许在视频播放中按任意键跳过"]
+        , type: [ParamType.ZeroOne]
+        , inlayHintType: [InlayHintType.LoopTransition]
     }],
     ["VideoWait", undefined],
     ["VL", {
