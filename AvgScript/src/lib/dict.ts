@@ -952,7 +952,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , minParam: 0, maxParam: 1
         , description: ["\t#W=2000"
             , "\t#Wait=2000"
-            , "等待指令:等待时间"
+            , "等待指令=等待时间"
             , "等待指令只对**交叠淡化**有效"
             , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]
         , type: [ParamType.Number]
@@ -966,7 +966,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , minParam: 0, maxParam: 1
         , description: ["\t#FW=2000"
             , "\t#ForceWait=2000"
-            , "强制等待指令:等待时间"
+            , "强制等待指令=等待时间"
             , "强制等待指令对**移动旋转、BGM淡出淡出**等有效"
             , "等待时间为零时，则会在当前叠化指令完成后立即继续解析操作"]
         , type: [ParamType.Number]
@@ -974,6 +974,18 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
         , emptyLineAfter: true
     }],
     ["ForceWait", undefined],
+	["OW", {
+        prefix: "#"
+        , minParam: 0, maxParam: 1
+        , description: ["\t#OW=2000"
+            , "\t#OperationWait=2000"
+            , "等待指令=等待时间"
+            , "与`#Wait`行为一致，但是操作等待指令会等待玩家输入"]
+        , type: [ParamType.Number]
+        , inlayHintType: [InlayHintType.WaitTime]
+        , emptyLineAfter: true
+    }],
+    ["OperationWait", undefined],
     ["AutoChangePage", {
         prefix: "#"
         , minParam: 0, maxParam: 1
