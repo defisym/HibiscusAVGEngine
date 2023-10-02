@@ -3192,6 +3192,26 @@ CG/UI不会被销毁
 
 无叠化，更改字符串颜色
 
+#### `@StrShaderOn=ID:OutlinePixel:R:G:B` / `@StrShaderOn=ID:OutlinePixel:#FFFFFF`
+
+启用字符串勾边，勾边颜色为`RGB/#FFFFFF`，勾边像素数为`OutlinePixel`
+
+#### `@StrOutColor=ID:R:G:B` / `@StrOutColor=ID:#FFFFFF`
+
+启用勾边时，更改字符串勾边颜色为`RGB/#FFFFFF`
+
+#### `@StrOutPixel=ID:OutlinePixel`
+
+启用勾边时，更改字符串勾边像素数为`OutlinePixel`
+
+#### `@StrShadow=ID:On/Off`
+
+打开或关闭阴影模式，该模式仅在描边启用时有效
+
+#### `@StrShaderOff=ID`
+
+关闭字符串勾边效果
+
 #### `@DestroyStr=ID`
 
 同义指令
