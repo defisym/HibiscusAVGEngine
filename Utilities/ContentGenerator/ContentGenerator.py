@@ -165,7 +165,7 @@ def copy(src, dst):
 # remove_tree(ContentPath + r"\data\dialogue\__Old")
 # remove_tree(ContentPath + r"\data\dialogue\.vscode")
 #
-# remove_tree("{}\\{}_Text".format(curPath, AppName))
+# remove_tree("{}\\{}_Text".format(ContentPath, AppName))
 #
 # print(Fore.LIGHTCYAN_EX + '====================')
 # print(Fore.LIGHTCYAN_EX + 'Encrypt files')
