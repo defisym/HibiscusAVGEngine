@@ -948,6 +948,10 @@ Debug_AVG = Chapter_1
 
 ![Coord](media/Coord.png)
 
+###### 显示/隐藏原始层级
+
+`Shift + O`: 原始层级信息
+
 ##### S/L
 
 ###### 强制读取
