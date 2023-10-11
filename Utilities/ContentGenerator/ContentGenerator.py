@@ -1,4 +1,5 @@
 import os
+import shlex
 import shutil
 import subprocess
 
@@ -172,14 +173,14 @@ def copy(src, dst):
 # print(Fore.LIGHTCYAN_EX + '====================')
 #
 #
-# def encrypt_file(file):
-#     if os.path.exists(file):
-#         status = subprocess.call("{} -f \"{}\" --encrypt --key {}".format(Encrypter_CLI, file, Encrypter_Key))
-#
-#         # success
-#         return status == 0
-#     else:
-#         return false
+def encrypt_file(file):
+    if os.path.exists(file):
+        status = subprocess.call("{} -f \"{}\" --encrypt --key {}".format(Encrypter_CLI, file, Encrypter_Key))
+
+        # success
+        return status == 0
+    else:
+        return false
 #
 #
 # encrypt_file(ContentPath + r"\settings\settings_Dynamic.ini")
@@ -194,10 +195,44 @@ def copy(src, dst):
 # iterate(ContentPath + r"\localization", lambda fullname, filename, ext: encrypt_file(fullname))
 
 print(Fore.LIGHTCYAN_EX + '====================')
-print(Fore.LIGHTCYAN_EX + 'Steam')
+print(Fore.LIGHTCYAN_EX + 'Steam DRM')
 print(Fore.LIGHTCYAN_EX + '====================')
 
 # subprocess.call(SteamCMDPath)
-steam = subprocess.Popen(SteamCMDPath)
-steam.stdin.write("login defisym".encode('utf8'))
+# steam = subprocess.Popen(SteamCMDPath)
+# steam.stdin.write("login defisym".encode('utf8'))
 
+print(Fore.LIGHTCYAN_EX + '====================')
+print(Fore.LIGHTCYAN_EX + 'Hash')
+print(Fore.LIGHTCYAN_EX + '====================')
+
+
+def hash_file(filename):
+    ret = subprocess.run([Encrypter_CLI, "-f", filename, "--hash"],
+                         capture_output=True, text=True)
+
+    if ret.returncode == 0:
+        return ret.stdout
+    else:
+        return "Error !"
+
+
+def set_ini(filename, section, item, value):
+    return subprocess.call(
+        "{} -f {} --unicode --section {} --item {} --value {}".format(Settings_CLI, filename, section, item, value))
+
+
+# exeHash = hash_file("{}\\{}.exe".format(ContentPath, AppName))
+# set_ini("\"{}\\settings\\settings.ini\"".format(ContentPath), "System", "ExeHash", exeHash)
+# set_ini("\"{}\\settings\\settings_Template.ini\"".format(ContentPath), "System", "ExeHash", exeHash)
+#
+# datHash = hash_file("{}\\{}.dat".format(ContentPath, AppName))
+# set_ini("\"{}\\settings\\settings.ini\"".format(ContentPath), "System", "DatHash", datHash)
+# set_ini("\"{}\\settings\\settings_Template.ini\"".format(ContentPath), "System", "DatHash", datHash)
+#
+# encrypt_file(ContentPath + r"\settings\settings.ini")
+# encrypt_file(ContentPath + r"\settings\settings_Template.ini")
+
+print(Fore.LIGHTCYAN_EX + '====================')
+print(Fore.LIGHTCYAN_EX + 'Steam Upload')
+print(Fore.LIGHTCYAN_EX + '====================')
