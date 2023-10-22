@@ -30,3 +30,13 @@ def invalid_file_character_escape(file):
 
 def user_path():
     return os.path.expanduser('~')
+
+
+def iterate_path(path, callback):
+    for root, ds, fs in os.walk(path):
+        for f in fs:
+            fullname = os.path.join(root, f)
+            filename = os.path.split(fullname)[1]
+            ext = os.path.splitext(filename)[1]
+
+            callback(fullname, filename, ext)

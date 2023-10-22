@@ -107,3 +107,7 @@ def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr):
 
             os.replace(fullOut, localPath + '\\' + outName)
             print(Fore.WHITE + Style.DIM + '  update file name to: {}'.format(outName))
+
+    print(Fore.LIGHTCYAN_EX + '====================')
+    print(Fore.LIGHTCYAN_EX + 'output to folder {}'.format(localPath))
+    print(Fore.LIGHTCYAN_EX + '====================')
