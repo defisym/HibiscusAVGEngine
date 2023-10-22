@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from colorama import init, Fore, Style
 from pydub import AudioSegment
@@ -6,15 +7,18 @@ from sympy import false, true
 
 import dubSplitter.constants as consts
 from .constants import update_path
+from .functions.path import iterate_path, process_path
 from .functions.slicer import do_slice, update_output_format, update_filename_format, update_filename_vr_format, \
     update_filename_custom, update_result_omit_length
 from .functions.voiceRecognition import update_whisper_model, update_model_language, update_model_prompt
 
 # -f "F:\DEV\Mobius\资产\语音\基利尔\01_初\干音\初.wav" -o "F:\DEV\Mobius\资产\语音\基利尔\01_初\Out" -s 800 -r 1200 --keepSilence 500
+# -f "正文14.wav" -o "D:\Dev\Mobius\资产\语音\基利尔\正文\Out\正文14" --model medium --silence 1500 --range 0
+
 
 init(autoreset=True)
 
-VERSION = '0.4.0'
+VERSION = '0.5.0'
 
 print(Fore.LIGHTGREEN_EX + '====================================')
 print(Fore.LIGHTGREEN_EX + 'DubSplitter {}'.format(VERSION))
@@ -92,17 +96,22 @@ def main():
     if bFromPackage:
         update_path(true)
 
+    # process file name
     inName = args.fileName
     outPath = consts.defaultOutPath if args.outFilePath is None else args.outFilePath
+
+    if not os.path.exists(inName):
+        print(Fore.RED + 'file or path {} not exist!'.format(inName))
+        return
+
+    bFolder = os.path.isdir(inName)
 
     update_output_format(args.outFileFormat)
     update_filename_format(args.fileNameFormat)
     update_filename_vr_format(args.fileNameVRFormat)
     update_filename_custom(args.fileNameCustomInfo)
 
-    print('prepare to process file {}'.format(inName))
-    print('output to folder {}'.format(outPath))
-
+    # slice param init
     silenceStart = args.silence
     silenceEnd = silenceStart + args.range
     silenceStep = args.step
@@ -110,10 +119,7 @@ def main():
     threshold = args.threshold
     keepSilence = args.keepSilence
 
-    print(Fore.WHITE + Style.DIM + '  reading file...')
-    sound = AudioSegment.from_file(inName)
-    print(Fore.WHITE + Style.DIM + '  read complete...')
-
+    # whisper init
     noVR = args.noVR
 
     if not noVR:
@@ -127,8 +133,23 @@ def main():
     print(Fore.LIGHTGREEN_EX + 'processing...')
     print(Fore.LIGHTGREEN_EX + '============================')
 
-    for silence in range(silenceStart, silenceEnd + 1, silenceStep):
-        do_slice(sound, silence, threshold, keepSilence, outPath, not noVR)
+    def process_file(input_file, output_folder):
+        print('prepare to process file {}'.format(input_file))
+        print('output to folder {}'.format(output_folder))
+
+        print(Fore.WHITE + Style.DIM + '  reading file...')
+        sound = AudioSegment.from_file(input_file)
+        print(Fore.WHITE + Style.DIM + '  read complete...')
+
+        for silence in range(silenceStart, silenceEnd + 1, silenceStep):
+            do_slice(sound, silence, threshold, keepSilence, output_folder, not noVR)
+
+    if bFolder:
+        iterate_path(inName,
+                     lambda fullname, filename, ext:
+                     process_file(fullname, process_path(outPath) + '\\' + os.path.splitext(filename)[0]))
+    else:
+        process_file(inName, outPath)
 
     print(Fore.LIGHTGREEN_EX + '============================')
     print(Fore.LIGHTGREEN_EX + 'process complete')

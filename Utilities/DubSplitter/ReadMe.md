@@ -101,6 +101,10 @@ use `--prompt 正體中文` -> `真辛苦真辛苦啊我會跳個好天氣出去
 
 ## Changelog
 
+### 231022 0.5.0
+
+- iterate all files if input path is a folder
+
 ### 230520 0.4.0
 
 - set silence threshold & keep silence length
