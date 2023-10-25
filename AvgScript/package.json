@@ -21,7 +21,7 @@
         "Linters",
         "Themes"
     ],
-    "extensionDependencies": [
+    "_extensionDependencies": [
         "sukumo28.wav-preview"
     ],
     "contributes": {
