@@ -168,6 +168,7 @@ def main():
             progress.advance(silenceProgress, advance=1)
 
         progress.remove_task(silenceProgress)
+        progress.advance(fileProgress, advance=1)
 
     # call processor
     with Progress() as progress:
@@ -177,8 +178,6 @@ def main():
             iterate_path(inName,
                          lambda fullname, filename, ext:
                          process_file(fullname, process_path(outPath) + '\\' + os.path.splitext(filename)[0]))
-
-            progress.advance(fileProgress, advance=1)
         else:
             process_file(inName, outPath)
 
