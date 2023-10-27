@@ -5,7 +5,7 @@ from colorama import init, Fore, Style
 from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 from sympy import false, true
-from rich.progress import Progress
+from rich.progress import Progress, TaskID
 
 import dubSplitter.constants as consts
 from .constants import update_path
@@ -22,7 +22,7 @@ from .functions.voiceRecognition import update_whisper_model, update_model_langu
 
 init(autoreset=True)
 
-VERSION = '0.5.0'
+VERSION = '0.6.0'
 
 print(Fore.LIGHTGREEN_EX + '====================================')
 print(Fore.LIGHTGREEN_EX + 'DubSplitter {}'.format(VERSION))
@@ -157,23 +157,54 @@ def main():
 
         output(Fore.WHITE + Style.DIM + '  read complete...')
 
+        def get_progress():
+            if not args.log:
+                return progress
+            else:
+                return -1
+
+        filename = os.path.split(input_file)[1]
+        filename = os.path.splitext(filename)[0]
+
+        if bFolder and not args.log:
+            progress.update(fileProgress, description="[red]file: {}".format(filename))
+
         loopCount = 0
         for silence in range(silenceStart, silenceEnd + 1, silenceStep):
             loopCount = loopCount + 1
 
-        silenceProgress = progress.add_task("[green]silence...", total=loopCount)
+        if loopCount == 1:
+            do_slice(sound, silenceStart, threshold, keepSilence, output_folder, not noVR, -1, get_progress())
+        else:
+            if not args.log:
+                silenceProgress = progress.add_task("[green]silence...", total=loopCount)
+            else:
+                silenceProgress = -1
 
-        for silence in range(silenceStart, silenceEnd + 1, silenceStep):
-            do_slice(sound, silence, threshold, keepSilence, output_folder, not noVR, progress)
-            progress.advance(silenceProgress, advance=1)
+            previous = -1
+            for silence in range(silenceStart, silenceEnd + 1, silenceStep):
+                if not args.log:
+                    progress.update(silenceProgress, description="[green]silence: {}".format(silence), total=loopCount)
 
-        progress.remove_task(silenceProgress)
-        progress.advance(fileProgress, advance=1)
+                previous = do_slice(sound, silence, threshold, keepSilence, output_folder, not noVR, previous, get_progress())
+
+                if not args.log:
+                    progress.advance(silenceProgress, advance=1)
+
+            if not args.log:
+                progress.remove_task(silenceProgress)
+
+        if bFolder and not args.log:
+            progress.advance(fileProgress, advance=1)
 
     # call processor
+    # https://github.com/textualize/rich/blob/master/README.cn.md
+    # https://rich.readthedocs.io/en/latest/progress.html#basic-usage
     with Progress() as progress:
         if bFolder:
-            fileProgress = progress.add_task("[red]file...", total=get_filecount(inName))
+            filecount = get_filecount(inName)
+            if not args.log:
+                fileProgress = progress.add_task("[red]{} files".format(filecount), total=filecount)
 
             iterate_path(inName,
                          lambda fullname, filename, ext:

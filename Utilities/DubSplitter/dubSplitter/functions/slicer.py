@@ -46,12 +46,16 @@ def update_result_omit_length(new_length):
     resultOmitLength = new_length
 
 
-def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr, progress):
+def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr, previous, progress):
     output('slice audio by silence length {}'.format(silence))
 
     dubs = split_on_silence(sound, silence, threshold, keep_silence, 1)
     length = len(dubs)
     output('slice complete, got {} lines'.format(length))
+
+    if previous == length:
+        output('new silence has no change'.format(length))
+        return previous
 
     mkdir(tempPath)
 
@@ -62,7 +66,10 @@ def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr, progress):
     output(Fore.LIGHTCYAN_EX + 'output to folder {}'.format(localPath))
     output(Fore.LIGHTCYAN_EX + '====================')
 
-    outputProgress = progress.add_task("[cyan]output...", total=length)
+    if progress != -1:
+        outputProgress = progress.add_task("[cyan]output...", total=length)
+    else:
+        outputProgress = -1
 
     for index in range(length):
         # https://python3-cookbook.readthedocs.io/zh_CN/latest/c07/p07_capturing_variables_in_anonymous_functions.html
@@ -111,10 +118,14 @@ def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr, progress):
             os.replace(fullOut, localPath + '\\' + outName)
             output(Fore.WHITE + Style.DIM + '  update file name to: {}'.format(outName))
 
-        progress.advance(outputProgress, advance=1)
+        if progress != -1:
+            progress.advance(outputProgress, advance=1)
 
-    progress.remove_task(outputProgress)
+    if progress != -1:
+        progress.remove_task(outputProgress)
 
     output(Fore.LIGHTCYAN_EX + '====================')
     output(Fore.LIGHTCYAN_EX + 'output to folder {}'.format(localPath))
     output(Fore.LIGHTCYAN_EX + '====================')
+
+    return length
