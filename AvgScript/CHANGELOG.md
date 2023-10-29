@@ -1,5 +1,9 @@
 # Change Log
 
+## 20231029
+
+- file scan can't complete if given path doesn't exist
+
 ## 20231025
 
 - remove dependency [Audio-Preview by sukumo28](https://marketplace.visualstudio.com/items?itemName=sukumo28.wav-preview)
