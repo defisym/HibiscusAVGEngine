@@ -15,7 +15,7 @@ Hibiscus AVG Engine AvgScript Support for VS Code
 
 ## Requirements
 
-- [Audio-Preview by sukumo28](https://marketplace.visualstudio.com/items?itemName=sukumo28.wav-preview)
+- Removed as VScode now officially support audio playback natively: ~~[Audio-Preview by sukumo28](https://marketplace.visualstudio.com/items?itemName=sukumo28.wav-preview)~~
 
 ## Extension Settings
 

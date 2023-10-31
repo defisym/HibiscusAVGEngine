@@ -21,14 +21,14 @@ let fileListInitFirstRun = true;
 export let fileListInitialized = false;
 
 export async function waitForFileListInit() {
-    // wait for file refresh
-    if (!fileListInitialized) {
-        vscode.window.showInformationMessage('Waiting for file scanning complete');
-    }
+	// wait for file refresh
+	if (!fileListInitialized) {
+		vscode.window.showInformationMessage('Waiting for file scanning complete');
+	}
 
-    do {
-        await sleep(50);
-    } while (!fileListInitialized);
+	do {
+		await sleep(50);
+	} while (!fileListInitialized);
 }
 
 // settings
@@ -124,783 +124,803 @@ const scriptPreview = nonePreview;
 // project config
 export let projectConfig: any = undefined;
 
-export async function fileExistsOnDisk(filePath: string) {
-    try {
-        await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
+// pass type as undefined to check if name exists
+export async function fileTypeExistsOnDisk(filePath: string, type: vscode.FileType | undefined) {
+	try {
+		const stat = await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
 
-        return true;
-    } catch {
-        return false;
-    }
+		if (type === undefined) {
+			return true;
+		}
+
+		return stat.type === type;
+	} catch {
+		return false;
+	}
+}
+
+export async function nameExistsOnDisk(filePath: string) {
+	return await fileTypeExistsOnDisk(filePath, undefined);
+}
+
+export async function dirExistsOnDisk(filePath: string) {
+	return await fileTypeExistsOnDisk(filePath, vscode.FileType.Directory);
+}
+
+export async function fileExistsOnDisk(filePath: string) {
+	return await fileTypeExistsOnDisk(filePath, vscode.FileType.File);
 }
 
 export function getActualFileName(filePath: string, bHasExt: boolean = true) {
-    let ext = bHasExt ? path.extname(filePath) : '';
-    let actualFileName = path.basename(filePath, ext);
+	let ext = bHasExt ? path.extname(filePath) : '';
+	let actualFileName = path.basename(filePath, ext);
 
-    return actualFileName;
+	return actualFileName;
 };
 
 export function getFullFilePath(filePath: string) {
-    return getFileListItem(path.resolve(filePath));
+	return getFileListItem(path.resolve(filePath));
 }
 
 export function getBasePathByType(type: FileType) {
-    switch (type) {
-        case FileType.fx:
-            return graphicFXPath;
-        case FileType.characters:
-            return graphicCharactersPath;
-        case FileType.ui:
-            return graphicUIPath;
-        case FileType.cg:
-            return graphicCGPath;
-        case FileType.patternFade:
-            return graphicPatternFadePath;
+	switch (type) {
+		case FileType.fx:
+			return graphicFXPath;
+		case FileType.characters:
+			return graphicCharactersPath;
+		case FileType.ui:
+			return graphicUIPath;
+		case FileType.cg:
+			return graphicCGPath;
+		case FileType.patternFade:
+			return graphicPatternFadePath;
 
-        case FileType.audio:
-            return audio;
-        case FileType.bgm:
-            return audioBgmPath;
-        case FileType.bgs:
-            return audioBgsPath;
-        case FileType.dubs:
-            return audioDubsPath;
-        case FileType.se:
-            return audioSEPath;
+		case FileType.audio:
+			return audio;
+		case FileType.bgm:
+			return audioBgmPath;
+		case FileType.bgs:
+			return audioBgsPath;
+		case FileType.dubs:
+			return audioDubsPath;
+		case FileType.se:
+			return audioSEPath;
 
-        case FileType.video:
-            return videoPath;
-        case FileType.animation:
-            return animationPath;
-        case FileType.script:
-            return scriptPath;
+		case FileType.video:
+			return videoPath;
+		case FileType.animation:
+			return animationPath;
+		case FileType.script:
+			return scriptPath;
 
-        default:
-            return undefined;
-    }
+		default:
+			return undefined;
+	}
 }
 
 export function getFullFileNameByType(type: FileType, fileName: string) {
-    let handler = (basePath: string, fileNameToHandle: string) => {
-        return getFullFilePath(basePath + '\\' + fileNameToHandle);
-    };
+	let handler = (basePath: string, fileNameToHandle: string) => {
+		return getFullFilePath(basePath + '\\' + fileNameToHandle);
+	};
 
-    let basePath = getBasePathByType(type);
+	let basePath = getBasePathByType(type);
 
-    if (basePath === undefined) {
-        return undefined;
-    }
+	if (basePath === undefined) {
+		return undefined;
+	}
 
-    let filePath = handler(basePath, fileName);
+	let filePath = handler(basePath, fileName);
 
-    if (filePath === undefined) {
-        return undefined;
-    }
+	if (filePath === undefined) {
+		return undefined;
+	}
 
-    let actualFileName = getActualFileName(filePath).toLowerCase();
+	let actualFileName = getActualFileName(filePath).toLowerCase();
 
-    // fix incorrect result when has the same prefix
-    let bHasExtSame = actualFileName === getActualFileName(fileName).toLowerCase();
-    let bNoExtSame = actualFileName === getActualFileName(fileName, false).toLowerCase();
+	// fix incorrect result when has the same prefix
+	let bHasExtSame = actualFileName === getActualFileName(fileName).toLowerCase();
+	let bNoExtSame = actualFileName === getActualFileName(fileName, false).toLowerCase();
 
-    return bHasExtSame || bNoExtSame
-        ? filePath
-        : undefined;
+	return bHasExtSame || bNoExtSame
+		? filePath
+		: undefined;
 }
 
 export function getCorrectPathAndType(type: FileType, fileName: string): [FileType, string] | undefined {
-    let relativeFileName = getFullFileNameByType(type, fileName);
+	let relativeFileName = getFullFileNameByType(type, fileName);
 
-    if (relativeFileName === undefined) {
-        return undefined;
-    }
+	if (relativeFileName === undefined) {
+		return undefined;
+	}
 
-    type = getPathType(relativeFileName)!;
+	type = getPathType(relativeFileName)!;
 
-    let base = getBasePathByType(type)!;
+	let base = getBasePathByType(type)!;
 
-    return [type, relativeFileName.substring(base.length + 1)];
+	return [type, relativeFileName.substring(base.length + 1)];
 }
 
 // input should be full path
 export function getPathType(fileName: string) {
-    fileName = fileName.substring(basePath.length + 1);
+	fileName = fileName.substring(basePath.length + 1);
 
-    let compareStart = (toCmp: string, base: string) => {
-        return toCmp.substring(0, base.length).iCmp(base);
-    };
+	let compareStart = (toCmp: string, base: string) => {
+		return toCmp.substring(0, base.length).iCmp(base);
+	};
 
-    if (compareStart(fileName, graphicFXRelativePath)) {
-        return FileType.fx;
-    }
-    if (compareStart(fileName, graphicCGRelativePath)) {
-        return FileType.cg;
-    }
-    if (compareStart(fileName, graphicUIRelativePath)) {
-        return FileType.ui;
-    }
-    if (compareStart(fileName, graphicPatternFadeRelativePath)) {
-        return FileType.patternFade;
-    }
-    if (compareStart(fileName, graphicCharactersRelativePath)) {
-        return FileType.characters;
-    }
+	if (compareStart(fileName, graphicFXRelativePath)) {
+		return FileType.fx;
+	}
+	if (compareStart(fileName, graphicCGRelativePath)) {
+		return FileType.cg;
+	}
+	if (compareStart(fileName, graphicUIRelativePath)) {
+		return FileType.ui;
+	}
+	if (compareStart(fileName, graphicPatternFadeRelativePath)) {
+		return FileType.patternFade;
+	}
+	if (compareStart(fileName, graphicCharactersRelativePath)) {
+		return FileType.characters;
+	}
 
-    if (compareStart(fileName, audioBgmRelativePath)) {
-        return FileType.bgm;
-    }
-    if (compareStart(fileName, audioBgsRelativePath)) {
-        return FileType.bgs;
-    }
-    if (compareStart(fileName, audioDubRelativePath)) {
-        return FileType.dubs;
-    }
-    if (compareStart(fileName, audioSERelativePath)) {
-        return FileType.se;
-    }
+	if (compareStart(fileName, audioBgmRelativePath)) {
+		return FileType.bgm;
+	}
+	if (compareStart(fileName, audioBgsRelativePath)) {
+		return FileType.bgs;
+	}
+	if (compareStart(fileName, audioDubRelativePath)) {
+		return FileType.dubs;
+	}
+	if (compareStart(fileName, audioSERelativePath)) {
+		return FileType.se;
+	}
 
-    if (compareStart(fileName, videoRelativePath)) {
-        return FileType.video;
-    }
-    if (compareStart(fileName, animationRelativePath)) {
-        return FileType.animation;
-    }
+	if (compareStart(fileName, videoRelativePath)) {
+		return FileType.video;
+	}
+	if (compareStart(fileName, animationRelativePath)) {
+		return FileType.animation;
+	}
 
-    if (compareStart(fileName, scriptRelativePath)) {
-        return FileType.script;
-    }
+	if (compareStart(fileName, scriptRelativePath)) {
+		return FileType.script;
+	}
 
 }
 
 export function getFileListItem(filePath: string) {
-    for (let [path, type] of projectFileList) {
-        if (path.substring(0, filePath.length).iCmp(filePath)) {
-            return path;
-        }
-    }
+	for (let [path, type] of projectFileList) {
+		if (path.substring(0, filePath.length).iCmp(filePath)) {
+			return path;
+		}
+	}
 
-    return undefined;
+	return undefined;
 }
 
 export function fileListHasItem(filePath: string) {
-    let fullPath = getFullFilePath(filePath);
+	let fullPath = getFullFilePath(filePath);
 
-    return fullPath !== undefined;
+	return fullPath !== undefined;
 }
 
 export function getFileInfoInternal(filePath: string) {
-    return projectFileInfoList.getValue(filePath);
+	return projectFileInfoList.getValue(filePath);
 }
 
 export async function getFileInfo(filePath: string, type: CompletionType) {
-    let getDuration = (duration: number) => {
-        let minutes = Math.floor(duration / 60);
-        let seconds = Math.floor(duration % 60);
+	let getDuration = (duration: number) => {
+		let minutes = Math.floor(duration / 60);
+		let seconds = Math.floor(duration % 60);
 
-        return "Duration: `"
-            + minutes.toString() + ":"
-            + (seconds < 10 ? "0" + seconds.toString() : seconds.toString()) + "`";
-    };
+		return "Duration: `"
+			+ minutes.toString() + ":"
+			+ (seconds < 10 ? "0" + seconds.toString() : seconds.toString()) + "`";
+	};
 
-    try {
-        switch (type) {
-            case CompletionType.image:
-                const data = ImageProbe.fromBuffer(await getBuffer(filePath));
+	try {
+		switch (type) {
+			case CompletionType.image:
+				const data = ImageProbe.fromBuffer(await getBuffer(filePath));
 
-                if (data === undefined) {
-                    throw new Error("ImageProbe.fromBuffer() failed");
-                }
+				if (data === undefined) {
+					throw new Error("ImageProbe.fromBuffer() failed");
+				}
 
-                projectFileInfoList.set(filePath, data);
+				projectFileInfoList.set(filePath, data);
 
-                return "Width: `" + data.width.toString() + "` Height: `" + data.height.toString() + "`";
-            case CompletionType.audio:
-                const metadata = await mm.parseBuffer(await getBuffer(filePath));
+				return "Width: `" + data.width.toString() + "` Height: `" + data.height.toString() + "`";
+			case CompletionType.audio:
+				const metadata = await mm.parseBuffer(await getBuffer(filePath));
 
-                projectFileInfoList.set(filePath, metadata);
+				projectFileInfoList.set(filePath, metadata);
 
-                return "`" + (metadata.format.sampleRate! / 1000).toFixed(1) + "KHz`\t"
-                    + "`" + (metadata.format.bitrate! / 1000).toFixed() + "kbps`\t"
-                    + getDuration(metadata.format.duration!);
-            case CompletionType.video:
-                const ffprobe = require('ffprobe');
-                const ffprobeStatic = require('ffprobe-static');
-                const bNoFFMpeg = ffprobeStatic.path !== undefined;
-                const noFFMpegInfo = 'No FFMpeg detected';
+				return "`" + (metadata.format.sampleRate! / 1000).toFixed(1) + "KHz`\t"
+					+ "`" + (metadata.format.bitrate! / 1000).toFixed() + "kbps`\t"
+					+ getDuration(metadata.format.duration!);
+			case CompletionType.video:
+				const ffprobe = require('ffprobe');
+				const ffprobeStatic = require('ffprobe-static');
+				const bNoFFMpeg = ffprobeStatic.path !== undefined;
+				const noFFMpegInfo = 'No FFMpeg detected';
 
-                const info = bNoFFMpeg
-                    ? (await ffprobe(filePath, { path: ffprobeStatic.path })).streams[0]
-                    : { width: noFFMpegInfo, height: noFFMpegInfo, duration: noFFMpegInfo };
+				const info = bNoFFMpeg
+					? (await ffprobe(filePath, { path: ffprobeStatic.path })).streams[0]
+					: { width: noFFMpegInfo, height: noFFMpegInfo, duration: noFFMpegInfo };
 
-                projectFileInfoList.set(filePath, info);
+				projectFileInfoList.set(filePath, info);
 
-                return "Width: `" + info.width.toString() + "` Height: `" + info.height.toString() + "`\t"
-                    + getDuration(info.duration!);
-            case CompletionType.animation:
-                return "Animation file";
-            case CompletionType.script:
-                const commentRegex = new RegExp("(\\/\\*(.|[\r\n])*?\\*\\/)|(\\/\\/[^\r\n]*)|(\\([^\r\n]*)|Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
-                const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
-                const string = (await getBuffer(filePath)).toString('utf-8').replace(commentRegex, "");
-                const lines = string.split('\r\n');
+				return "Width: `" + info.width.toString() + "` Height: `" + info.height.toString() + "`\t"
+					+ getDuration(info.duration!);
+			case CompletionType.animation:
+				return "Animation file";
+			case CompletionType.script:
+				const commentRegex = new RegExp("(\\/\\*(.|[\r\n])*?\\*\\/)|(\\/\\/[^\r\n]*)|(\\([^\r\n]*)|Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
+				const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
+				const string = (await getBuffer(filePath)).toString('utf-8').replace(commentRegex, "");
+				const lines = string.split('\r\n');
 
-                for (let lineRaw of lines) {
-                    let line = lineRaw.trim().replace(blankRegex, "");
+				for (let lineRaw of lines) {
+					let line = lineRaw.trim().replace(blankRegex, "");
 
-                    if (line.length > 0
-                        && !line.startsWith("#")
-                        && !line.startsWith("@")) {
-                        return "\n\n" + line;
-                    }
-                }
-        }
-    }
-    catch (err) {
-        // console.log(filePath);
-        // console.log(err);
+					if (line.length > 0
+						&& !line.startsWith("#")
+						&& !line.startsWith("@")) {
+						return "\n\n" + line;
+					}
+				}
+		}
+	}
+	catch (err) {
+		// console.log(filePath);
+		// console.log(err);
 
-        return undefined;
-    }
+		return undefined;
+	}
 }
 
 export async function getFileComment(previewStr: string
-    , fileName: string | undefined
-    , filePath: string
-    , type: CompletionType) {
-    let preview: vscode.MarkdownString | undefined = undefined;
-    let detail: string | undefined = undefined;
+	, fileName: string | undefined
+	, filePath: string
+	, type: CompletionType) {
+	let preview: vscode.MarkdownString | undefined = undefined;
+	let detail: string | undefined = undefined;
 
-    if (fileName === undefined) {
-        preview = new vscode.MarkdownString("文件不存在");
-    } else {
-        previewStr = previewStr.replace('{$FILENAME}', fileName);
-        filePath = filePath.replace('{$FILENAME}', fileName);
+	if (fileName === undefined) {
+		preview = new vscode.MarkdownString("文件不存在");
+	} else {
+		previewStr = previewStr.replace('{$FILENAME}', fileName);
+		filePath = filePath.replace('{$FILENAME}', fileName);
 
-        let stat = await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
-        let size = stat.size / (1024);
+		let stat = await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
+		let size = stat.size / (1024);
 
-        preview = new vscode.MarkdownString(fileName);
-        preview.appendMarkdown("\n\n" + "Size: `" + size.toFixed(2) + " KB`"
-            + "\tModified: `" + new Date(stat.mtime).toUTCString() + "`\t");
+		preview = new vscode.MarkdownString(fileName);
+		preview.appendMarkdown("\n\n" + "Size: `" + size.toFixed(2) + " KB`"
+			+ "\tModified: `" + new Date(stat.mtime).toUTCString() + "`\t");
 
-        detail = await getFileInfo(filePath, type);
-        if (detail !== undefined) {
-            preview.appendMarkdown(detail);
-        }
+		detail = await getFileInfo(filePath, type);
+		if (detail !== undefined) {
+			preview.appendMarkdown(detail);
+		}
 
-        preview.appendMarkdown("\n\n");
-        preview.appendMarkdown(previewStr);
+		preview.appendMarkdown("\n\n");
+		preview.appendMarkdown(previewStr);
 
-        preview.baseUri = vscode.Uri.file(filePath);
-        preview.supportHtml = true;
-    }
+		preview.baseUri = vscode.Uri.file(filePath);
+		preview.supportHtml = true;
+	}
 
-    return [preview, detail];
+	return [preview, detail];
 }
 
 export async function getFileList(uri: vscode.Uri) {
-    return vscode.workspace.fs.readDirectory(uri);
+	return vscode.workspace.fs.readDirectory(uri);
 }
 
 export async function getFileListRecursively(filePath: string) {
-    let fileList: [string, vscode.FileType][] = [];
-    await getFileListRecursivelyFunc(filePath, fileList);
+	let fileList: [string, vscode.FileType][] = [];
 
-    return fileList;
+	if (await dirExistsOnDisk(filePath)) {
+		await getFileListRecursivelyFunc(filePath, fileList);
+	}
+
+	return fileList;
 }
 
 export async function getFileListRecursivelyFunc(filePath: string, fileList: [string, vscode.FileType][]) {
-    let uri = vscode.Uri.file(filePath);
-    let result: [string, vscode.FileType][] = await getFileList(uri);
-    let promiseList: Promise<void>[] = [];
+	let uri = vscode.Uri.file(filePath);
+	let result: [string, vscode.FileType][] = await getFileList(uri);
+	let promiseList: Promise<void>[] = [];
 
-    for (let resultItem of result) {
-        let fileName = resultItem[0];
-        let type = resultItem[1];
+	for (let resultItem of result) {
+		let fileName = resultItem[0];
+		let type = resultItem[1];
 
-        if (type === vscode.FileType.Directory) {
-            promiseList.push(new Promise(async (resolve, reject) => {
-                let subFilePath = filePath + "\\" + fileName;
-                await getFileListRecursivelyFunc(subFilePath, fileList);
+		if (type === vscode.FileType.Directory) {
+			promiseList.push(new Promise(async (resolve, reject) => {
+				let subFilePath = filePath + "\\" + fileName;
+				await getFileListRecursivelyFunc(subFilePath, fileList);
 
-                resolve();
-            }));
-        } else if (type === vscode.FileType.File) {
-            fileList.push([filePath + "\\" + fileName, type]);
-        }
-    }
+				resolve();
+			}));
+		} else if (type === vscode.FileType.File) {
+			fileList.push([filePath + "\\" + fileName, type]);
+		}
+	}
 
-    await Promise.all(promiseList);
+	await Promise.all(promiseList);
 }
 
 // pass undefined -> update from config
 export async function updateBasePath(newPath: string | undefined = undefined, bPopUp: boolean = true) {
-    // popup
-    let popUp = () => {
-        if (bPopUp) {
-            vscode.window.showErrorMessage('Invalid base path');
-        }
+	// popup
+	let popUp = () => {
+		if (bPopUp) {
+			vscode.window.showErrorMessage('Invalid base path');
+		}
 
-        return false;
-    };
+		return false;
+	};
 
-    // undefined
-    if (newPath === undefined) {
-        newPath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
-    }
+	// undefined
+	if (newPath === undefined) {
+		newPath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
+	}
 
-    // remove ''/""
-    while (newPath.startsWith("\'") || newPath.startsWith("\"")) {
-        newPath = newPath.substring(1);
-    }
-    while (newPath.endsWith("\'") || newPath.endsWith("\"")) {
-        newPath = newPath.substring(0, newPath.length - 1);
-    }
+	// remove ''/""
+	while (newPath.startsWith("\'") || newPath.startsWith("\"")) {
+		newPath = newPath.substring(1);
+	}
+	while (newPath.endsWith("\'") || newPath.endsWith("\"")) {
+		newPath = newPath.substring(0, newPath.length - 1);
+	}
 
 
-    // exist
-    if (!await fileExistsOnDisk(newPath)) {
-        return popUp();
-    }
+	// exist
+	if (!await fileExistsOnDisk(newPath)) {
+		return popUp();
+	}
 
-    // split
-    const ext = path.extname(newPath);
-    const dir = path.dirname(newPath);
-    const name = path.basename(newPath, ext);
+	// split
+	const ext = path.extname(newPath);
+	const dir = path.dirname(newPath);
+	const name = path.basename(newPath, ext);
 
-    if (ext !== ".exe" || dir === "" || name === "") {
-        return popUp();
-    }
+	if (ext !== ".exe" || dir === "" || name === "") {
+		return popUp();
+	}
 
-    // base path
-    const calcBasePath = dir + '\\data';
+	// base path
+	const calcBasePath = dir + '\\data';
 
-    // update
-    basePath = calcBasePath;
-    execPath = newPath;
+	// update
+	basePath = calcBasePath;
+	execPath = newPath;
 
-    updateWatcher();
+	updateWatcher();
 
-    return true;
+	return true;
 }
 
 export async function updateFileList(progress: vscode.Progress<{
-    message?: string | undefined;
-    increment?: number | undefined;
+	message?: string | undefined;
+	increment?: number | undefined;
 }>) {
-    while (!fileListInitialized && !fileListInitFirstRun) {
-        await sleep(50);
-    }
+	while (!fileListInitialized && !fileListInitFirstRun) {
+		await sleep(50);
+	}
 
-    fileListInitialized = false;
+	fileListInitialized = false;
 
-    const total = 100;
-    const steps = 31;
+	const total = 100;
+	const steps = 31;
 
-    const incrementPerStep = total / steps;
+	const incrementPerStep = total / steps;
 
-    // ------
-    // Step 1
-    // ------
+	// ------
+	// Step 1
+	// ------
 
-    progress.report({ increment: 0, message: "Updating file list..." });
+	progress.report({ increment: 0, message: "Updating file list..." });
 
-    if (!await updateBasePath()) {
-        await vscode.commands.executeCommand(commandBasePath);
-    }
+	if (!await updateBasePath()) {
+		await vscode.commands.executeCommand(commandBasePath);
+	}
 
-    // Update config
+	// Update config
 
-    // ------
-    // Step 2
-    // ------
+	// ------
+	// Step 2
+	// ------
 
-    progress.report({ increment: 0, message: "Updating settings..." });
+	progress.report({ increment: 0, message: "Updating settings..." });
 
-    let iniParser = require('ini');
-    let encoding: BufferEncoding = 'utf-8';
+	let iniParser = require('ini');
+	let encoding: BufferEncoding = 'utf-8';
 
-    let configPath = basePath + "\\..\\settings\\settings.ini";
-    projectConfig = iniParser.parse((await getBuffer(configPath)).toString(encoding));
+	let configPath = basePath + "\\..\\settings\\settings.ini";
+	projectConfig = iniParser.parse((await getBuffer(configPath)).toString(encoding));
 
-    // ------
-    // Step 3
-    // ------
+	// ------
+	// Step 3
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Updating LocalSettings..." });
+	progress.report({ increment: incrementPerStep, message: "Updating LocalSettings..." });
 
-    currentLocalCode = projectConfig.Display.Language;
+	currentLocalCode = projectConfig.Display.Language;
 
-    let localizationPath = basePath + "\\..\\localization\\Localization.dat";
-    let localization = iniParser.parse((await getBuffer(localizationPath)).toString(encoding));
+	let localizationPath = basePath + "\\..\\localization\\Localization.dat";
+	let localization = iniParser.parse((await getBuffer(localizationPath)).toString(encoding));
 
-    currentLocalCodeDefinition = localization.Definition;
-    currentLocalCodeDisplay = currentLocalCodeDefinition[
-        "LanguageDisplayName_" + currentLocalCode];
+	currentLocalCodeDefinition = localization.Definition;
+	currentLocalCodeDisplay = currentLocalCodeDefinition[
+		"LanguageDisplayName_" + currentLocalCode];
 
-    // ------------------------
-    // Update file list		
-    // ------------------------
+	// ------------------------
+	// Update file list		
+	// ------------------------
 
-    // ------------
-    // Graphic
-    // ------------
+	// ------------
+	// Graphic
+	// ------------
 
-    // ------
-    // Step 4
-    // ------
+	// ------
+	// Step 4
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Updating graphic fileList..." });
+	progress.report({ increment: incrementPerStep, message: "Updating graphic fileList..." });
 
-    graphic = basePath + "\\Graphics\\";
+	graphic = basePath + "\\Graphics\\";
 
-    graphicFXPath = graphic + "FX";
-    graphicCGPath = graphic + "CG";
-    graphicUIPath = graphic + "UI";
-    graphicPatternFadePath = graphic + "PatternFade";
-    graphicCharactersPath = graphic + "Characters";
+	graphicFXPath = graphic + "FX";
+	graphicCGPath = graphic + "CG";
+	graphicUIPath = graphic + "UI";
+	graphicPatternFadePath = graphic + "PatternFade";
+	graphicCharactersPath = graphic + "Characters";
 
-    // ------
-    // Step 5 ~ 9
-    // ------
+	// ------
+	// Step 5 ~ 9
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Updating FX fileList..." });
-    let graphicFXFileList = await getFileListRecursively(graphicFXPath);
-    progress.report({ increment: incrementPerStep, message: "Updating CG fileList..." });
-    let graphicCGFileList = await getFileListRecursively(graphicCGPath);
-    progress.report({ increment: incrementPerStep, message: "Updating UI fileList..." });
-    let graphicUIFileList = await getFileListRecursively(graphicUIPath);
-    progress.report({ increment: incrementPerStep, message: "Updating PatternFade fileList..." });
-    let graphicPatternFadeFileList = await getFileListRecursively(graphicPatternFadePath);
-    progress.report({ increment: incrementPerStep, message: "Updating Characters fileList..." });
-    let graphicCharactersFileList = await getFileListRecursively(graphicCharactersPath);
+	progress.report({ increment: incrementPerStep, message: "Updating FX fileList..." });
+	let graphicFXFileList = await getFileListRecursively(graphicFXPath);
+	progress.report({ increment: incrementPerStep, message: "Updating CG fileList..." });
+	let graphicCGFileList = await getFileListRecursively(graphicCGPath);
+	progress.report({ increment: incrementPerStep, message: "Updating UI fileList..." });
+	let graphicUIFileList = await getFileListRecursively(graphicUIPath);
+	progress.report({ increment: incrementPerStep, message: "Updating PatternFade fileList..." });
+	let graphicPatternFadeFileList = await getFileListRecursively(graphicPatternFadePath);
+	progress.report({ increment: incrementPerStep, message: "Updating Characters fileList..." });
+	let graphicCharactersFileList = await getFileListRecursively(graphicCharactersPath);
 
-    // ------------
-    // Audio
-    // ------------    
+	// ------------
+	// Audio
+	// ------------    
 
-    // ------
-    // Step 10
-    // ------
+	// ------
+	// Step 10
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Updating audio fileList..." });
+	progress.report({ increment: incrementPerStep, message: "Updating audio fileList..." });
 
-    audio = basePath + "\\Audio\\";
+	audio = basePath + "\\Audio\\";
 
-    audioBgmPath = audio + "Bgm";
-    audioBgsPath = audio + "Bgs";
-    audioDubsPath = audio + "Dubs";
-    audioSEPath = audio + "SE";
+	audioBgmPath = audio + "Bgm";
+	audioBgsPath = audio + "Bgs";
+	audioDubsPath = audio + "Dubs";
+	audioSEPath = audio + "SE";
 
-    // ------
-    // Step 11 ~ 14
-    // ------
+	// ------
+	// Step 11 ~ 14
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Updating BGM fileList..." });
-    let audioBgmFileList = await getFileListRecursively(audioBgmPath);
-    progress.report({ increment: incrementPerStep, message: "Updating BGS fileList..." });
-    let audioBgsFileList = await getFileListRecursively(audioBgsPath);
-    progress.report({ increment: incrementPerStep, message: "Updating Dubs fileList..." });
-    let audioDubsFileList = await getFileListRecursively(audioDubsPath);
-    progress.report({ increment: incrementPerStep, message: "Updating SE fileList..." });
-    let audioSEFileList = await getFileListRecursively(audioSEPath);
+	progress.report({ increment: incrementPerStep, message: "Updating BGM fileList..." });
+	let audioBgmFileList = await getFileListRecursively(audioBgmPath);
+	progress.report({ increment: incrementPerStep, message: "Updating BGS fileList..." });
+	let audioBgsFileList = await getFileListRecursively(audioBgsPath);
+	progress.report({ increment: incrementPerStep, message: "Updating Dubs fileList..." });
+	let audioDubsFileList = await getFileListRecursively(audioDubsPath);
+	progress.report({ increment: incrementPerStep, message: "Updating SE fileList..." });
+	let audioSEFileList = await getFileListRecursively(audioSEPath);
 
-    // ------------
-    // Video
-    // ------------
+	// ------------
+	// Video
+	// ------------
 
-    // ------
-    // Step 15
-    // ------
+	// ------
+	// Step 15
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Updating video fileList..." });
+	progress.report({ increment: incrementPerStep, message: "Updating video fileList..." });
 
-    videoPath = basePath + "\\Assets\\Movies";
+	videoPath = basePath + "\\Assets\\Movies";
 
-    let videoFileList = await getFileListRecursively(videoPath);
+	let videoFileList = await getFileListRecursively(videoPath);
 
-    // ------------
-    // Animation
-    // ------------
+	// ------------
+	// Animation
+	// ------------
 
-    // ------
-    // Step 16
-    // ------
+	// ------
+	// Step 16
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Updating animation fileList..." });
+	progress.report({ increment: incrementPerStep, message: "Updating animation fileList..." });
 
-    animationPath = basePath + "\\Assets\\Animation";
+	animationPath = basePath + "\\Assets\\Animation";
 
-    let animationFileList = await getFileListRecursively(animationPath);
+	let animationFileList = await getFileListRecursively(animationPath);
 
-    // ------------
-    // Script
-    // ------------
+	// ------------
+	// Script
+	// ------------
 
-    // ------
-    // Step 17
-    // ------
+	// ------
+	// Step 17
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Updating script fileList..." });
+	progress.report({ increment: incrementPerStep, message: "Updating script fileList..." });
 
-    scriptPath = basePath + "\\dialogue";
+	scriptPath = basePath + "\\dialogue";
 
-    let scriptFileList = await getFileListRecursively(scriptPath);
+	let scriptFileList = await getFileListRecursively(scriptPath);
 
-    // ------------------------
-    // Update completion list		
-    // ------------------------
+	// ------------------------
+	// Update completion list		
+	// ------------------------
 
-    projectFileList = [];
-    projectFileList = projectFileList.concat(graphicFXFileList, graphicCGFileList, graphicUIFileList, graphicPatternFadeFileList, graphicCharactersFileList
-        , audioBgmFileList, audioBgsFileList, audioDubsFileList, audioSEFileList
-        , videoFileList, animationFileList, scriptFileList);
+	projectFileList = [];
+	projectFileList = projectFileList.concat(graphicFXFileList, graphicCGFileList, graphicUIFileList, graphicPatternFadeFileList, graphicCharactersFileList
+		, audioBgmFileList, audioBgsFileList, audioDubsFileList, audioSEFileList
+		, videoFileList, animationFileList, scriptFileList);
 
-    let generateCompletionList = async (fileList: [string, vscode.FileType][]
-        , completions: vscode.CompletionItem[]
-        , basePath: string = ""
-        , type: CompletionType = CompletionType.image) => {
-        if (basePath === "") {
-            return;
-        }
+	let generateCompletionList = async (fileList: [string, vscode.FileType][]
+		, completions: vscode.CompletionItem[]
+		, basePath: string = ""
+		, type: CompletionType = CompletionType.image) => {
+		if (basePath === "") {
+			return;
+		}
 
-        let promiseList: Promise<void>[] = [];
+		let promiseList: Promise<void>[] = [];
 
-        fileList.forEach(async element => {
-            if (element[1] === vscode.FileType.File) {
-                promiseList.push(new Promise(async (resolve, reject) => {
-                    let fileName: string = element[0].substring(element[0].lastIndexOf("\\") + 1);
-                    let fileRelativeName: string = element[0].substring(basePath.length + 1);
+		fileList.forEach(async element => {
+			if (element[1] === vscode.FileType.File) {
+				promiseList.push(new Promise(async (resolve, reject) => {
+					let fileName: string = element[0].substring(element[0].lastIndexOf("\\") + 1);
+					let fileRelativeName: string = element[0].substring(basePath.length + 1);
 
-                    let fileNameNoSuffix: string = fileRelativeName.removeAfter('.');
-                    let fileNameSuffix: string = fileRelativeName.after('.');
-
-                    let filePath: string = element[0];
-                    let fileNameToEnglish = stringToEnglish(fileNameNoSuffix);
-
-                    let item: vscode.CompletionItem = new vscode.CompletionItem({
-                        label: fileNameNoSuffix
-                        , detail: fileNameSuffix
-                        // , description: ".ogg"
-                    }
-                        , vscode.CompletionItemKind.File);
-
-                    item.insertText = fileRelativeName;
-                    item.filterText = fileNameToEnglish;
-                    let previewStr: string = nonePreview;
+					let fileNameNoSuffix: string = fileRelativeName.removeAfter('.');
+					let fileNameSuffix: string = fileRelativeName.after('.');
+
+					let filePath: string = element[0];
+					let fileNameToEnglish = stringToEnglish(fileNameNoSuffix);
+
+					let item: vscode.CompletionItem = new vscode.CompletionItem({
+						label: fileNameNoSuffix
+						, detail: fileNameSuffix
+						// , description: ".ogg"
+					}
+						, vscode.CompletionItemKind.File);
+
+					item.insertText = fileRelativeName;
+					item.filterText = fileNameToEnglish;
+					let previewStr: string = nonePreview;
 
-                    switch (type) {
-                        case CompletionType.image:
-                            item.detail = "Image file preview";
-                            previewStr = imagePreview;
-
-                            break;
-                        case CompletionType.audio:
-                            item.detail = "Audio file";
-                            previewStr = audioPreview;
-
-                            break;
-                        case CompletionType.video:
-                            item.detail = "Video file";
-                            previewStr = videoPreview;
-
-                            break;
-
-                        case CompletionType.animation:
-                            item.detail = "Animation file";
-                            previewStr = animationPreview;
-
-                            break;
-                        case CompletionType.script:
-                            item.detail = "Script file";
-                            previewStr = scriptPreview;
-
-                            break;
-                    }
-
-                    // normal
-                    // item.documentation = await getFileComment(previewStr
-                    // 	, element[0]
-                    // 	, filePath
-                    // 	, type);
-
-                    // recursive
-                    const [preview, detail] = await getFileComment(previewStr
-                        , fileName
-                        , filePath
-                        , type);
-
-                    item.documentation = preview;
+					switch (type) {
+						case CompletionType.image:
+							item.detail = "Image file preview";
+							previewStr = imagePreview;
+
+							break;
+						case CompletionType.audio:
+							item.detail = "Audio file";
+							previewStr = audioPreview;
+
+							break;
+						case CompletionType.video:
+							item.detail = "Video file";
+							previewStr = videoPreview;
+
+							break;
+
+						case CompletionType.animation:
+							item.detail = "Animation file";
+							previewStr = animationPreview;
+
+							break;
+						case CompletionType.script:
+							item.detail = "Script file";
+							previewStr = scriptPreview;
+
+							break;
+					}
+
+					// normal
+					// item.documentation = await getFileComment(previewStr
+					// 	, element[0]
+					// 	, filePath
+					// 	, type);
+
+					// recursive
+					const [preview, detail] = await getFileComment(previewStr
+						, fileName
+						, filePath
+						, type);
+
+					item.documentation = preview;
 
-                    // sort based on file path, shorter is former                    
-                    item.sortText = getSortTextByText(filePath);
+					// sort based on file path, shorter is former                    
+					item.sortText = getSortTextByText(filePath);
 
-                    if (detail !== undefined) {
-                        completions.push(item);
-                    }
+					if (detail !== undefined) {
+						completions.push(item);
+					}
 
-                    resolve();
-                }));
-            }
-        });
+					resolve();
+				}));
+			}
+		});
 
-        await Promise.all(promiseList);
-    };
+		await Promise.all(promiseList);
+	};
 
-    // ------------
-    // Graphic
-    // ------------
+	// ------------
+	// Graphic
+	// ------------
 
-    // ------
-    // Step 18
-    // ------
+	// ------
+	// Step 18
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Generating graphic completionList..." });
+	progress.report({ increment: incrementPerStep, message: "Generating graphic completionList..." });
 
-    graphicFXCompletions = [];
-    graphicCGCompletions = [];
-    graphicUICompletions = [];
-    graphicPatternFadeCompletions = [];
-    graphicCharactersCompletions = [];
+	graphicFXCompletions = [];
+	graphicCGCompletions = [];
+	graphicUICompletions = [];
+	graphicPatternFadeCompletions = [];
+	graphicCharactersCompletions = [];
 
-    // ------
-    // Step 19 ~ 23
-    // ------
+	// ------
+	// Step 19 ~ 23
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Generating FX completionList..." });
-    await generateCompletionList(graphicFXFileList, graphicFXCompletions, graphicFXPath);
-    progress.report({ increment: incrementPerStep, message: "Generating CG completionList..." });
-    await generateCompletionList(graphicCGFileList, graphicCGCompletions, graphicCGPath);
-    progress.report({ increment: incrementPerStep, message: "Generating UI completionList..." });
-    await generateCompletionList(graphicUIFileList, graphicUICompletions, graphicUIPath);
-    progress.report({ increment: incrementPerStep, message: "Generating PatternFade completionList..." });
-    await generateCompletionList(graphicPatternFadeFileList, graphicPatternFadeCompletions, graphicPatternFadePath);
-    progress.report({ increment: incrementPerStep, message: "Generating Characters completionList..." });
-    await generateCompletionList(graphicCharactersFileList, graphicCharactersCompletions, graphicCharactersPath);
+	progress.report({ increment: incrementPerStep, message: "Generating FX completionList..." });
+	await generateCompletionList(graphicFXFileList, graphicFXCompletions, graphicFXPath);
+	progress.report({ increment: incrementPerStep, message: "Generating CG completionList..." });
+	await generateCompletionList(graphicCGFileList, graphicCGCompletions, graphicCGPath);
+	progress.report({ increment: incrementPerStep, message: "Generating UI completionList..." });
+	await generateCompletionList(graphicUIFileList, graphicUICompletions, graphicUIPath);
+	progress.report({ increment: incrementPerStep, message: "Generating PatternFade completionList..." });
+	await generateCompletionList(graphicPatternFadeFileList, graphicPatternFadeCompletions, graphicPatternFadePath);
+	progress.report({ increment: incrementPerStep, message: "Generating Characters completionList..." });
+	await generateCompletionList(graphicCharactersFileList, graphicCharactersCompletions, graphicCharactersPath);
 
-    // ------------
-    // Audio
-    // ------------   
+	// ------------
+	// Audio
+	// ------------   
 
-    // ------
-    // Step 24
-    // ------
+	// ------
+	// Step 24
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Generating audio completionList..." });
+	progress.report({ increment: incrementPerStep, message: "Generating audio completionList..." });
 
-    audioBgmCompletions = [];
-    audioBgsCompletions = [];
-    audioDubsCompletions = [];
-    audioSECompletions = [];
+	audioBgmCompletions = [];
+	audioBgsCompletions = [];
+	audioDubsCompletions = [];
+	audioSECompletions = [];
 
-    // ------
-    // Step 25 ~ 28
-    // ------
+	// ------
+	// Step 25 ~ 28
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Generating BGM completionList..." });
-    await generateCompletionList(audioBgmFileList, audioBgmCompletions, audioBgmPath, CompletionType.audio);
-    progress.report({ increment: incrementPerStep, message: "Generating BGS completionList..." });
-    await generateCompletionList(audioBgsFileList, audioBgsCompletions, audioBgsPath, CompletionType.audio);
-    progress.report({ increment: incrementPerStep, message: "Generating Dubs completionList..." });
-    await generateCompletionList(audioDubsFileList, audioDubsCompletions, audioDubsPath, CompletionType.audio);
-    progress.report({ increment: incrementPerStep, message: "Generating SE completionList..." });
-    await generateCompletionList(audioSEFileList, audioSECompletions, audioSEPath, CompletionType.audio);
+	progress.report({ increment: incrementPerStep, message: "Generating BGM completionList..." });
+	await generateCompletionList(audioBgmFileList, audioBgmCompletions, audioBgmPath, CompletionType.audio);
+	progress.report({ increment: incrementPerStep, message: "Generating BGS completionList..." });
+	await generateCompletionList(audioBgsFileList, audioBgsCompletions, audioBgsPath, CompletionType.audio);
+	progress.report({ increment: incrementPerStep, message: "Generating Dubs completionList..." });
+	await generateCompletionList(audioDubsFileList, audioDubsCompletions, audioDubsPath, CompletionType.audio);
+	progress.report({ increment: incrementPerStep, message: "Generating SE completionList..." });
+	await generateCompletionList(audioSEFileList, audioSECompletions, audioSEPath, CompletionType.audio);
 
-    // ------------
-    // Video
-    // ------------
+	// ------------
+	// Video
+	// ------------
 
-    // ------
-    // Step 29
-    // ------
+	// ------
+	// Step 29
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Generating video completionList..." });
+	progress.report({ increment: incrementPerStep, message: "Generating video completionList..." });
 
-    videoCompletions = [];
+	videoCompletions = [];
 
-    await generateCompletionList(videoFileList, videoCompletions, videoPath, CompletionType.video);
+	await generateCompletionList(videoFileList, videoCompletions, videoPath, CompletionType.video);
 
-    // ------------
-    // Animation
-    // ------------
+	// ------------
+	// Animation
+	// ------------
 
-    // ------
-    // Step 30
-    // ------
+	// ------
+	// Step 30
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Generating animation completionList..." });
+	progress.report({ increment: incrementPerStep, message: "Generating animation completionList..." });
 
-    animationCompletions = [];
+	animationCompletions = [];
 
-    await generateCompletionList(animationFileList, animationCompletions, animationPath, CompletionType.animation);
+	await generateCompletionList(animationFileList, animationCompletions, animationPath, CompletionType.animation);
 
-    // ------------
-    // Script
-    // ------------
+	// ------------
+	// Script
+	// ------------
 
-    // ------
-    // Step 31
-    // ------
+	// ------
+	// Step 31
+	// ------
 
-    progress.report({ increment: incrementPerStep, message: "Generating script completionList..." });
+	progress.report({ increment: incrementPerStep, message: "Generating script completionList..." });
 
-    scriptCompletions = [];
+	scriptCompletions = [];
 
-    await generateCompletionList(scriptFileList, scriptCompletions, scriptPath, CompletionType.script);
+	await generateCompletionList(scriptFileList, scriptCompletions, scriptPath, CompletionType.script);
 
-    progress.report({ increment: 0, message: "Done" });
+	progress.report({ increment: 0, message: "Done" });
 
-    fileListInitialized = true;
-    fileListInitFirstRun = false;
+	fileListInitialized = true;
+	fileListInitFirstRun = false;
 
-    await codeLensProviderClass.refresh();
+	await codeLensProviderClass.refresh();
 }
 
 export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgScript',
-    {
-        async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
-            let definitions: vscode.Location[] = [];
+	{
+		async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
+			let definitions: vscode.Location[] = [];
 
-            const settings = getSettings(document);
+			const settings = getSettings(document);
 
-            const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
-            let dubState = new DubParser(curChapter);
-            dubState.parseSettings(settings);
+			const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
+			let dubState = new DubParser(curChapter);
+			dubState.parseSettings(settings);
 
-            let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position, (text) => {
-                dubState.parseCommand(text);
-            });
+			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position, (text) => {
+				dubState.parseCommand(text);
+			});
 
-            if (line === undefined) {
-                return undefined;
-            }
+			if (line === undefined) {
+				return undefined;
+			}
 
-            let fileName = getParamAtPosition(line, curPos!);
+			let fileName = getParamAtPosition(line, curPos!);
 
-            if (fileName === undefined) {
-                return undefined;
-            }
+			if (fileName === undefined) {
+				return undefined;
+			}
 
-            if (getType(linePrefix!) === FileType.dubs) {
-                if (settings && settings.NoSideEffect) {
-                    fileName = dubState.getFileRelativePrefix() + fileName;
-                } else {
-                    vscode.window.showInformationMessage("Cannot open file " + fileName + " if script has side effect");
-                }
-            }
+			if (getType(linePrefix!) === FileType.dubs) {
+				if (settings && settings.NoSideEffect) {
+					fileName = dubState.getFileRelativePrefix() + fileName;
+				} else {
+					vscode.window.showInformationMessage("Cannot open file " + fileName + " if script has side effect");
+				}
+			}
 
-            const fileUri = getUri(linePrefix!, fileName);
+			const fileUri = getUri(linePrefix!, fileName);
 
-            if (fileUri === undefined) {
-                return undefined;
-            }
+			if (fileUri === undefined) {
+				return undefined;
+			}
 
-            let link = new vscode.Location(fileUri
-                , new vscode.Position(0, 0));
+			let link = new vscode.Location(fileUri
+				, new vscode.Position(0, 0));
 
-            definitions.push(link);
+			definitions.push(link);
 
-            return definitions;
-        }
-    });
+			return definitions;
+		}
+	});

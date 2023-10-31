@@ -15,6 +15,7 @@ import { rename } from './functions/rename';
 // must import to make extensions enabled
 import './extensions/_include';
 import { codeLensProvider } from './functions/codeLens';
+import { drop } from './functions/drop';
 import { formatting } from './functions/formatting';
 import { previewer } from './functions/preview';
 
@@ -129,6 +130,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	//--------------------
 
 	context.subscriptions.push(codeLensProvider);
+
+	//--------------------
+	// Drag & drop
+	//--------------------
+
+	context.subscriptions.push(drop);	
 
 	//--------------------
 	// File Updated

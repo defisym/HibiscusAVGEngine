@@ -40,3 +40,15 @@ def iterate_path(path, callback):
             ext = os.path.splitext(filename)[1]
 
             callback(fullname, filename, ext)
+
+
+def get_filecount(path):
+    count = 0
+
+    def adder(fullname, filename, ext):
+        nonlocal count
+        count = count + 1
+
+    iterate_path(path, adder)
+
+    return count

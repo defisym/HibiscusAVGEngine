@@ -1,5 +1,62 @@
 # Change Log
 
+## 20231031
+
+- drag to update dubs
+
+## 20231029
+
+- file scan can't complete if given path doesn't exist
+
+## 20231025
+
+- remove dependency [Audio-Preview by sukumo28](https://marketplace.visualstudio.com/items?itemName=sukumo28.wav-preview)
+
+## 20231002
+
+- string object shader control commands
+
+## 20231001
+
+- OperationWait commands
+
+## 20230929
+
+- video wait commands
+
+## 20230924
+
+- update snippets
+- RGB commands
+
+## 2023618
+
+- ScreenShot commands
+
+## 20230524
+
+- video codec commands
+
+## 20230605
+
+- cache settings commands
+
+## 20230602
+
+- bottom command
+
+## 20230601
+
+- update internal IDs
+
+## 20230531
+
+- RichPresence commands
+
+## 20230524
+
+- video codec commands
+
 ## 20230523
 
 - enable json animation commands

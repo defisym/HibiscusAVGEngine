@@ -26,6 +26,7 @@ an easy tool to split dubs based on given silence
 | --prompt             | option | init prompt used in whisper, default is `简体中文`                                                                                                                                                                                                                                      |
 | --language           | option | language used in whisper, default is `chinese`                                                                                                                                                                                                                                      |
 | --omitLen            | option | recognize result will omit middle characters if longer than given, `len <=0` -> do nothing, default is `20`                                                                                                                                                                         |
+| --log                | option | output detailed log instead of progress bar, default is false                                                                                                                                                                                                                       |
 
 ## Usage
 
@@ -100,6 +101,11 @@ use `--prompt 简体中文` -> `真辛苦真辛苦啊 我会跳个好天气出�
 use `--prompt 正體中文` -> `真辛苦真辛苦啊我會跳個好天氣出去運動的`
 
 ## Changelog
+
+### 231027 0.6.0
+
+- progress bar
+- auto skip output routine if new silence has the same count comparing to previous one
 
 ### 231022 0.5.0
 
