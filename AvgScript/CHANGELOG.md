@@ -1,5 +1,9 @@
 # Change Log
 
+## 20231031
+
+- drag to update dubs
+
 ## 20231029
 
 - file scan can't complete if given path doesn't exist
