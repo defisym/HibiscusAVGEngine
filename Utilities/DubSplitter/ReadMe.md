@@ -50,12 +50,16 @@ file will be renamed to `fileNameVRFormat`
 
 default is `{2:0>4d}_{3:0>8d}.{1}`
 
-| String        | Index | 
-|---------------|-------|
-| custom info   | 0     | 
-| output format | 1     | 
-| silence       | 2     | 
-| loop index    | 3     | 
+| String              | Index | 
+|---------------------|-------|
+| custom info         | 0     | 
+| output format       | 1     | 
+| silence             | 2     | 
+| loop index          | 3     | 
+| ms time stamp start | 4     | 
+| ms time stamp end   | 5     | 
+| time stamp start    | 6     | 
+| time stamp end      | 7     | 
 
 `custom info` is the one you passed in `fileNameCustomInfo`
 
@@ -63,14 +67,18 @@ default is `{2:0>4d}_{3:0>8d}.{1}`
 
 default is `{2:0>4d}_{3:0>8d}_{5}.{1}`
 
-| String           | Index | 
-|------------------|-------|
-| custom info      | 0     | 
-| output format    | 1     | 
-| silence          | 2     | 
-| loop index       | 3     | 
-| recognize_result | 4     | 
-| text             | 5     | 
+| String              | Index | 
+|---------------------|-------|
+| custom info         | 0     | 
+| output format       | 1     | 
+| silence             | 2     | 
+| loop index          | 3     | 
+| recognize_result    | 4     | 
+| text                | 5     | 
+| ms time stamp start | 6     | 
+| ms time stamp end   | 7     | 
+| time stamp start    | 8     | 
+| time stamp end      | 9     | 
 
 `custom info` is the one you passed in `fileNameCustomInfo`
 
@@ -101,6 +109,10 @@ use `--prompt 简体中文` -> `真辛苦真辛苦啊 我会跳个好天气出�
 use `--prompt 正體中文` -> `真辛苦真辛苦啊我會跳個好天氣出去運動的`
 
 ## Changelog
+
+### 231102 0.7.0
+
+- time stamp usable in custom file format
 
 ### 231027 0.6.0
 

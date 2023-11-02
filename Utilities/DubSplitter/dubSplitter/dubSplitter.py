@@ -22,7 +22,7 @@ from .functions.voiceRecognition import update_whisper_model, update_model_langu
 
 init(autoreset=True)
 
-VERSION = '0.6.0'
+VERSION = '0.7.0'
 
 print(Fore.LIGHTGREEN_EX + '====================================')
 print(Fore.LIGHTGREEN_EX + 'DubSplitter {}'.format(VERSION))
@@ -186,7 +186,8 @@ def main():
                 if not args.log:
                     progress.update(silenceProgress, description="[green]silence: {}".format(silence), total=loopCount)
 
-                previous = do_slice(sound, silence, threshold, keepSilence, output_folder, not noVR, previous, get_progress())
+                previous = do_slice(sound, silence, threshold, keepSilence, output_folder, not noVR, previous,
+                                    get_progress())
 
                 if not args.log:
                     progress.advance(silenceProgress, advance=1)

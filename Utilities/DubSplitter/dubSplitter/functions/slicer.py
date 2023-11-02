@@ -1,8 +1,9 @@
+import itertools
 import os
 
 from colorama import Fore, Style
 from pydub.exceptions import CouldntEncodeError
-from pydub.silence import split_on_silence
+from pydub.silence import split_on_silence, detect_nonsilent
 
 from .output import output
 from .path import mkdir, process_path, invalid_file_character_escape
@@ -46,10 +47,56 @@ def update_result_omit_length(new_length):
     resultOmitLength = new_length
 
 
+def update_nonsilent_ranges(audio_segment, nonsilent_ranges, keep_silence=100):
+    # from the itertools documentation
+    def pairwise(iterable):
+        """s -> (s0,s1), (s1,s2), (s2, s3), ..."""
+        a, b = itertools.tee(iterable)
+        next(b, None)
+        return zip(a, b)
+
+    if isinstance(keep_silence, bool):
+        keep_silence = len(audio_segment) if keep_silence else 0
+
+    output_ranges = [
+        [start - keep_silence, end + keep_silence]
+        for (start, end) in nonsilent_ranges
+    ]
+
+    for range_i, range_ii in pairwise(output_ranges):
+        last_end = range_i[1]
+        next_start = range_ii[0]
+        if next_start < last_end:
+            range_i[1] = (last_end + next_start) // 2
+            range_ii[0] = range_i[1]
+
+    output_ranges = [
+        [max(start, 0), min(end, len(audio_segment))]
+        for (start, end) in output_ranges
+    ]
+
+    return output_ranges
+
+
+def split_on_given_nonsilent_ranges(audio_segment, output_ranges):
+    """
+    the same as split_on_silence but allows you to use given nonsilent_ranges output by detect_nonsilent
+    """
+
+    return [
+        audio_segment[max(start, 0): min(end, len(audio_segment))]
+        for start, end in output_ranges
+    ]
+
+
 def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr, previous, progress):
     output('slice audio by silence length {}'.format(silence))
 
-    dubs = split_on_silence(sound, silence, threshold, keep_silence, 1)
+    # dubs = split_on_silence(sound, silence, threshold, keep_silence, 1)
+    nonsilent_ranges = detect_nonsilent(sound, silence, threshold, 1)
+    output_ranges = update_nonsilent_ranges(sound, nonsilent_ranges, keep_silence)
+    dubs = split_on_given_nonsilent_ranges(sound, output_ranges)
+
     length = len(dubs)
     output('slice complete, got {} lines'.format(length))
 
@@ -72,8 +119,33 @@ def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr, previous, 
         outputProgress = -1
 
     for index in range(length):
+        def ms_to_output(millis, delimiter=":"):
+            seconds, milliseconds = divmod(millis, 1000)
+            minutes, seconds = divmod(seconds, 60)
+            hours, minutes = divmod(minutes, 60)
+
+            return "{}{}{}{}{}".format(hours, delimiter, minutes, delimiter, seconds)
+
+            # if hours != 0:
+            #     return "{}{}{}{}{}".format(hours, delimiter, minutes, delimiter, seconds)
+            #
+            # if minutes != 0:
+            #     return "{}{}{}".format(minutes, delimiter, seconds)
+            #
+            # if seconds != 0:
+            #     return "{}{}{}".format(seconds, delimiter, milliseconds)
+            #
+            # return "{}".format(milliseconds)
+
+        timeStamp = output_ranges[index]
+        timeStampStr = [ms_to_output(timeStamp[0], "'"), ms_to_output(timeStamp[1], "'")]
+        audioSeg = dubs[index]
+
         # https://python3-cookbook.readthedocs.io/zh_CN/latest/c07/p07_capturing_variables_in_anonymous_functions.html
-        updateOutName = lambda: fileNameFormat.format(fileNameCustomInfo, outputFormat, silence, index)
+        updateOutName = lambda: fileNameFormat.format(fileNameCustomInfo, outputFormat,
+                                                      silence, index,
+                                                      timeStamp[0], timeStamp[1],
+                                                      timeStampStr[0], timeStampStr[1])
         updateFullOut = lambda: localPath + '\\' + outName
 
         # outName = fileNameFormat.format(fileNameCustomInfo,
@@ -85,8 +157,6 @@ def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr, previous, 
         fullOut = updateFullOut()
 
         output('exporting file {}'.format(outName))
-
-        audioSeg = dubs[index]
 
         try:
             audioSeg.export(fullOut, format=outputFormat)
@@ -113,7 +183,9 @@ def do_slice(sound, silence, threshold, keep_silence, out_path, b_vr, previous, 
             outName = fileNameVRFormat.format(fileNameCustomInfo,
                                               outputFormat,
                                               silence, index,
-                                              recognize_result, text)
+                                              recognize_result, text,
+                                              timeStamp[0], timeStamp[1],
+                                              timeStampStr[0], timeStampStr[1])
 
             os.replace(fullOut, localPath + '\\' + outName)
             output(Fore.WHITE + Style.DIM + '  update file name to: {}'.format(outName))
