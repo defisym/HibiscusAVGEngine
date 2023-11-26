@@ -151,13 +151,6 @@ export async function fileExistsOnDisk(filePath: string) {
 	return await fileTypeExistsOnDisk(filePath, vscode.FileType.File);
 }
 
-export function getActualFileName(filePath: string, bHasExt: boolean = true) {
-	let ext = bHasExt ? path.extname(filePath) : '';
-	let actualFileName = path.basename(filePath, ext);
-
-	return actualFileName;
-};
-
 export function getFullFilePath(filePath: string) {
 	return getFileListItem(path.resolve(filePath));
 }
@@ -211,19 +204,7 @@ export function getFullFileNameByType(type: FileType, fileName: string) {
 
 	let filePath = handler(basePath, fileName);
 
-	if (filePath === undefined) {
-		return undefined;
-	}
-
-	let actualFileName = getActualFileName(filePath).toLowerCase();
-
-	// fix incorrect result when has the same prefix
-	let bHasExtSame = actualFileName === getActualFileName(fileName).toLowerCase();
-	let bNoExtSame = actualFileName === getActualFileName(fileName, false).toLowerCase();
-
-	return bHasExtSame || bNoExtSame
-		? filePath
-		: undefined;
+	return filePath;
 }
 
 export function getCorrectPathAndType(type: FileType, fileName: string): [FileType, string] | undefined {
@@ -290,14 +271,24 @@ export function getPathType(fileName: string) {
 
 }
 
-export function getFileListItem(filePath: string) {
-	for (let [path, type] of projectFileList) {
-		if (path.substring(0, filePath.length).iCmp(filePath)) {
-			return path;
-		}
-	}
+export function removeExt(fileName: string) {
+	let ext = path.extname(fileName);
 
-	return undefined;
+	return fileName.substring(0, fileName.length - ext.length);
+}
+
+export function getFileListItem(filePath: string) {
+	const idx = projectFileList.findIf((item: [string, vscode.FileType]) => {
+		let [itemPath, itemType] = item;
+
+		// file list item is full path
+		return filePath.iCmp(itemPath) ||
+			filePath.iCmp(removeExt(itemPath));
+	});
+
+	return idx !== -1
+		? projectFileList[idx][0]
+		: undefined;
 }
 
 export function fileListHasItem(filePath: string) {

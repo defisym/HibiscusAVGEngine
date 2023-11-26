@@ -1,5 +1,11 @@
 # Change Log
 
+## 20231126
+
+- fix incorrect path returned when two file have the same prefix
+- only clear current document's dub error when updating
+- dub fallback didn't implemented
+
 ## 20231031
 
 - drag to update dubs, now you need VSCode 1.78 to use this extension (aka dropped support for Windows 7)
