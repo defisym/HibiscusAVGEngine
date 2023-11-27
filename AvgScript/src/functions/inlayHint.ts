@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { commandInfoList, inlayHintMap, InlayHintType } from '../lib/dict';
 import { iterateLines } from "../lib/iterateLines";
-import { getAllParams, getCommandType } from '../lib/utilities';
+import { getAllParams, getCommandParamFileType } from '../lib/utilities';
 
 export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript', {
     provideInlayHints(document: vscode.TextDocument, range: vscode.Range, token: vscode.CancellationToken) {
@@ -39,7 +39,7 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
                         let currentInlayHintType: number = paramInlayHintType[j - 1];
 
                         curLinePrefix = curLinePrefix + ":" + curParam;
-                        const commandType = getCommandType(curLinePrefix);
+                        const commandType = getCommandParamFileType(curLinePrefix);
 
                         if (currentInlayHintType === InlayHintType.ColorHex) {
                             if (j !== params.length - 1) {

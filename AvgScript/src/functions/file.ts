@@ -5,7 +5,7 @@ import * as mm from 'music-metadata';
 
 import { DubParser } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
-import { cropScript, currentLineNotComment, FileType, getBuffer, getParamAtPosition, getSortTextByText, getType, getUri, sleep, stringToEnglish } from '../lib/utilities';
+import { FileType, cropScript, currentLineNotComment, getBuffer, getCommandParamFileType, getParamAtPosition, getSortTextByText, getUri, sleep, stringToEnglish } from '../lib/utilities';
 import { codeLensProviderClass } from './codeLens';
 import { commandBasePath, confBasePath } from './command';
 import { updateWatcher } from './watcher';
@@ -192,21 +192,18 @@ export function getBasePathByType(type: FileType) {
 }
 
 export function getFullFileNameByType(type: FileType, fileName: string) {
-	let handler = (basePath: string, fileNameToHandle: string) => {
-		return getFullFilePath(basePath + '\\' + fileNameToHandle);
-	};
-
 	let basePath = getBasePathByType(type);
 
 	if (basePath === undefined) {
 		return undefined;
 	}
 
-	let filePath = handler(basePath, fileName);
+	let filePath = getFullFilePath(basePath + '\\' + fileName);
 
 	return filePath;
 }
 
+// update file to get full name
 export function getCorrectPathAndType(type: FileType, fileName: string): [FileType, string] | undefined {
 	let relativeFileName = getFullFileNameByType(type, fileName);
 
@@ -221,7 +218,10 @@ export function getCorrectPathAndType(type: FileType, fileName: string): [FileTy
 	return [type, relativeFileName.substring(base.length + 1)];
 }
 
+
+
 // input should be full path
+// get file path type
 export function getPathType(fileName: string) {
 	fileName = fileName.substring(basePath.length + 1);
 
@@ -261,14 +261,14 @@ export function getPathType(fileName: string) {
 	if (compareStart(fileName, videoRelativePath)) {
 		return FileType.video;
 	}
-	if (compareStart(fileName, animationRelativePath)) {
-		return FileType.animation;
-	}
 
 	if (compareStart(fileName, scriptRelativePath)) {
 		return FileType.script;
 	}
 
+	if (compareStart(fileName, animationRelativePath)) {
+		return FileType.animation;
+	}
 }
 
 export function removeExt(fileName: string) {
@@ -443,6 +443,102 @@ export async function getFileListRecursivelyFunc(filePath: string, fileList: [st
 	}
 
 	await Promise.all(promiseList);
+}
+
+export function getCompletionTypeByFileType(type: FileType) {
+	switch (type) {
+		case FileType.fx:
+		case FileType.characters:
+		case FileType.ui:
+		case FileType.cg:
+		case FileType.patternFade:
+			return CompletionType.image;
+
+		case FileType.audio:
+		case FileType.bgm:
+		case FileType.bgs:
+		case FileType.dubs:
+		case FileType.se:
+			return CompletionType.audio;
+
+		case FileType.video:
+			return CompletionType.video;
+		case FileType.animation:
+			return CompletionType.animation;
+		case FileType.script:
+			return CompletionType.script;
+
+		default:
+			return undefined;
+	}
+}
+
+export async function updateCompletion(filePath: string,
+	completions: vscode.CompletionItem[],
+	basePath: string = "",
+	type: CompletionType = CompletionType.image) {
+	let fileName: string = filePath.substring(filePath.lastIndexOf("\\") + 1);
+	let fileRelativeName: string = filePath.substring(basePath.length + 1);
+
+	let fileNameNoSuffix: string = fileRelativeName.removeAfter('.');
+	let fileNameSuffix: string = fileRelativeName.after('.');
+
+	let fileNameToEnglish = stringToEnglish(fileNameNoSuffix);
+
+	let item: vscode.CompletionItem = new vscode.CompletionItem(
+		{
+			label: fileNameNoSuffix,
+			detail: fileNameSuffix,
+			// description: ".ogg"
+		},
+		vscode.CompletionItemKind.File);
+
+	item.insertText = fileRelativeName;
+	item.filterText = fileNameToEnglish;
+	let previewStr: string = nonePreview;
+
+	switch (type) {
+		case CompletionType.image:
+			item.detail = "Image file preview";
+			previewStr = imagePreview;
+
+			break;
+		case CompletionType.audio:
+			item.detail = "Audio file";
+			previewStr = audioPreview;
+
+			break;
+		case CompletionType.video:
+			item.detail = "Video file";
+			previewStr = videoPreview;
+
+			break;
+
+		case CompletionType.animation:
+			item.detail = "Animation file";
+			previewStr = animationPreview;
+
+			break;
+		case CompletionType.script:
+			item.detail = "Script file";
+			previewStr = scriptPreview;
+
+			break;
+	}
+
+	const [preview, detail] = await getFileComment(previewStr
+		, fileName
+		, filePath
+		, type);
+
+	item.documentation = preview;
+
+	// sort based on file path, shorter is former                    
+	item.sortText = getSortTextByText(filePath);
+
+	if (detail !== undefined) {
+		completions.push(item);
+	}
 }
 
 // pass undefined -> update from config
@@ -681,76 +777,7 @@ export async function updateFileList(progress: vscode.Progress<{
 		fileList.forEach(async element => {
 			if (element[1] === vscode.FileType.File) {
 				promiseList.push(new Promise(async (resolve, reject) => {
-					let fileName: string = element[0].substring(element[0].lastIndexOf("\\") + 1);
-					let fileRelativeName: string = element[0].substring(basePath.length + 1);
-
-					let fileNameNoSuffix: string = fileRelativeName.removeAfter('.');
-					let fileNameSuffix: string = fileRelativeName.after('.');
-
-					let filePath: string = element[0];
-					let fileNameToEnglish = stringToEnglish(fileNameNoSuffix);
-
-					let item: vscode.CompletionItem = new vscode.CompletionItem({
-						label: fileNameNoSuffix
-						, detail: fileNameSuffix
-						// , description: ".ogg"
-					}
-						, vscode.CompletionItemKind.File);
-
-					item.insertText = fileRelativeName;
-					item.filterText = fileNameToEnglish;
-					let previewStr: string = nonePreview;
-
-					switch (type) {
-						case CompletionType.image:
-							item.detail = "Image file preview";
-							previewStr = imagePreview;
-
-							break;
-						case CompletionType.audio:
-							item.detail = "Audio file";
-							previewStr = audioPreview;
-
-							break;
-						case CompletionType.video:
-							item.detail = "Video file";
-							previewStr = videoPreview;
-
-							break;
-
-						case CompletionType.animation:
-							item.detail = "Animation file";
-							previewStr = animationPreview;
-
-							break;
-						case CompletionType.script:
-							item.detail = "Script file";
-							previewStr = scriptPreview;
-
-							break;
-					}
-
-					// normal
-					// item.documentation = await getFileComment(previewStr
-					// 	, element[0]
-					// 	, filePath
-					// 	, type);
-
-					// recursive
-					const [preview, detail] = await getFileComment(previewStr
-						, fileName
-						, filePath
-						, type);
-
-					item.documentation = preview;
-
-					// sort based on file path, shorter is former                    
-					item.sortText = getSortTextByText(filePath);
-
-					if (detail !== undefined) {
-						completions.push(item);
-					}
-
+					await updateCompletion(element[0], completions, basePath, type);
 					resolve();
 				}));
 			}
@@ -860,12 +887,15 @@ export async function updateFileList(progress: vscode.Progress<{
 
 	await generateCompletionList(scriptFileList, scriptCompletions, scriptPath, CompletionType.script);
 
-	progress.report({ increment: 0, message: "Done" });
-
+	progress.report({ increment: 0, message: "Refresh code lens" });
+	
 	fileListInitialized = true;
+	await codeLensProviderClass.refresh();
+
 	fileListInitFirstRun = false;
 
-	await codeLensProviderClass.refresh();
+	progress.report({ increment: 0, message: "Done" });
+
 }
 
 export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgScript',
@@ -893,7 +923,7 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
 				return undefined;
 			}
 
-			if (getType(linePrefix!) === FileType.dubs) {
+			if (getCommandParamFileType(linePrefix!) === FileType.dubs) {
 				if (settings && settings.NoSideEffect) {
 					fileName = dubState.getFileRelativePrefix() + fileName;
 				} else {

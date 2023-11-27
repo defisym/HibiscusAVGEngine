@@ -1,5 +1,9 @@
 # Change Log
 
+## 20231127
+
+- optimize watcher, now will only update changed files, instead of trigger full refresh
+
 ## 20231126
 
 - fix incorrect path returned when two file have the same prefix

@@ -4,7 +4,7 @@ import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue'
 import {
     commandDocList, dialogueTextElement, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
 } from '../lib/dict';
-import { FileType, currentLineNotComment, getAllParams, getFileCompletionByType, getHoverContents, getParamAtPosition, getType } from '../lib/utilities';
+import { FileType, currentLineNotComment, getAllParams, getCommandParamFileType, getFileCompletionByType, getHoverContents, getParamAtPosition } from '../lib/utilities';
 import { fileListInitialized } from './file';
 import { getLabelComment } from './label';
 
@@ -118,7 +118,7 @@ export const hoverFile = vscode.languages.registerHoverProvider('AvgScript', {
             return undefined;
         }
 
-        const type = getType(linePrefix!);
+        const type = getCommandParamFileType(linePrefix!);
 
         switch (type) {
             case FileType.frame:

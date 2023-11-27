@@ -7,7 +7,7 @@ import { DubParser } from '../lib/dubs';
 import { LineInfo, iterateLines, iterateLinesWithComment } from "../lib/iterateLines";
 import { getLangRegex, regexHexColor, regexRep } from '../lib/regExp';
 import { ScriptSettings, getSettings, parseSettings } from '../lib/settings';
-import { FileType, cropScript, fileExists, getAllParams, getCommandType, imageStretched } from '../lib/utilities';
+import { FileType, cropScript, fileExistsInFileList, getAllParams, getCommandParamFileType, imageStretched } from '../lib/utilities';
 import { dubError } from './codeLens';
 import { basePath, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
@@ -360,7 +360,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
                         break;
                     case ParamType.File:
-                        const commandType = getCommandType(curLinePrefix);
+                        const commandType = getCommandParamFileType(curLinePrefix);
 
                         let fileParam = curParam;
 
@@ -378,7 +378,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
                         }
 
                         if (checkFile
-                            && !fileExists(commandType, fileParam)) {
+                            && !fileExistsInFileList(commandType, fileParam)) {
                             diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNumber, contentStart, lineNumber, contentStart + curParam.length)
                                 , "File " + curParam + " Not Exist"
                                 , vscode.DiagnosticSeverity.Warning));

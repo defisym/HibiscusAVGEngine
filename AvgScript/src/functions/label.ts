@@ -150,7 +150,7 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
                 }
             }
 
-            // if (getType(line) !== FileType.label) {
+            // if (getCommandParamFileType(line) !== FileType.label) {
             // 	return undefined;
             // }
 
@@ -233,7 +233,7 @@ export const labelReference = vscode.languages.registerReferenceProvider(
             }
 
 
-            // if (getType(text) === FileType.label) {
+            // if (getCommandParamFileType(text) === FileType.label) {
             // 	let curLabel = getNthParam(text, 1);
 
             // 	if (curLabel === label) {

@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { atKeywordList, commandDocList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
 import { DubParser, UpdateDubCompletion } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
-import { cropScript, currentLineNotComment, FileType, getCompletionItemList, getSubStrings, getType, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
+import { cropScript, currentLineNotComment, FileType, getCommandParamFileType, getCompletionItemList, getSubStrings, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
 import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePath, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCompletions } from './label';
@@ -100,7 +100,7 @@ export const fileSuffix = vscode.languages.registerCompletionItemProvider(
                 return undefined;
             }
 
-            switch (getType(linePrefix!)) {
+            switch (getCommandParamFileType(linePrefix!)) {
                 case FileType.inValid:
                     return undefined;
 
@@ -178,7 +178,7 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
                 }
             };
 
-            switch (getType(linePrefix!)) {
+            switch (getCommandParamFileType(linePrefix!)) {
                 case FileType.inValid:
                     return undefined;
 
