@@ -135,7 +135,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Drag & drop
 	//--------------------
 
-	context.subscriptions.push(drop);	
+	context.subscriptions.push(drop);
 
 	//--------------------
 	// File Updated

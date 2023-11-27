@@ -56,5 +56,7 @@ whisperModel = Enum('WhisperModel',
                     ))
 
 defaultOutputFormat = 'ogg'
-defaultFileNameFormat = '{2:0>4d}_{3:0>8d}.{1}'
-defaultFileNameVRFormat = '{2:0>4d}_{3:0>8d}_{5}.{1}'
+# defaultFileNameFormat = '{2:0>4d}_{3:0>8d}.{1}'
+# defaultFileNameVRFormat = '{2:0>4d}_{3:0>8d}_{5}.{1}'
+defaultFileNameFormat = '{2:0>4d}_{3:0>8d}_{6}_{7}.{1}'
+defaultFileNameVRFormat = '{2:0>4d}_{3:0>8d}_{8}_{9}_{5}.{1}'

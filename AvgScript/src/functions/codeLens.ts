@@ -64,9 +64,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 		let dubState = new DubParser(curChapter);
 		dubState.parseSettings(settings);
 
-		// TODO only clear current>
-		dubError.clear();
-		// dubError.delete(document.uri);
+		dubError.delete(document.uri);
 		dubInfo.delete(document.uri);
 
 		iterateLines(document, (text, lineNumber

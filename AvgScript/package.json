@@ -526,16 +526,7 @@
         ]
     },
     "activationEvents": [
-        "onDebug:AvgScript",
-        "onLanguage:AvgScript",
-        "onCommand:config.AvgScript.basePath",
-        "onCommand:config.AvgScript.refreshAssets",
-        "onCommand:config.AvgScript.updateCommandExtension",
-        "onCommand:config.AvgScript.getAssetsList",
-        "onCommand:config.AvgScript.showJumpFlow",
-        "onCommand:config.AvgScript.replaceScript",
-        "onCommand:config.AvgScript.appendDialogue",
-        "onCommand:config.AvgScript.showDialogueFormatHint"
+        "onDebug:AvgScript"
     ],
     "scripts": {
         "vscode:prepublish": "set NODE_ENV=production&&npm run package",
