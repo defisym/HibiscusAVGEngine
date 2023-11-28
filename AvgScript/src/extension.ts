@@ -8,7 +8,7 @@ import { diagnosticUpdate, diagnosticsCollection } from './functions/diagnostic'
 import { fileDefinition } from './functions/file';
 import { hover, hoverFile } from './functions/hover';
 import { inlayHint } from './functions/inlayHint';
-import { labelDefinition, labelReference } from './functions/label';
+import { labelDefinition, labelReference, parseLabel, removeLabelCache } from './functions/label';
 import { outline } from './functions/outline';
 import { rename } from './functions/rename';
 
@@ -19,7 +19,7 @@ import { drop } from './functions/drop';
 import { formatting } from './functions/formatting';
 import { previewer } from './functions/preview';
 import { throttle } from './lib/throttle';
-import { parseLineComment } from './lib/utilities';
+import { parseLineComment, removeLineCommentCache } from './lib/utilities';
 
 export let activeEditor = vscode.window.activeTextEditor;
 export const outputChannel = vscode.window.createOutputChannel('AvgScript');
@@ -144,31 +144,26 @@ export async function activate(context: vscode.ExtensionContext) {
 	//--------------------
 
 	throttle.addCallback(() => {
-		previewer.docUpdated();
-	});
-	throttle.addCallback(() => {
 		diagnosticUpdate();
 	});
 
-	throttle.triggerUpdate(true);
+	throttle.triggerCallback(() => { }, true);
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {
 		activeEditor = editor;
 		if (!editor) { return; }
 
-		throttle.triggerUpdate();
 		throttle.triggerCallback(() => {
+			previewer.docUpdated();			
 			parseLineComment(editor.document);
+			parseLabel(editor.document);
 		});
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {
-		const bCurChanged = activeEditor && event.document === activeEditor.document;
-		if (!bCurChanged) { return; }
-
-		throttle.triggerUpdate(true);
 		throttle.triggerCallback(() => {
 			parseLineComment(event.document);
+			parseLabel(event.document);
 		}, true);
 	}, null, context.subscriptions);
 
@@ -177,6 +172,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	}, null, context.subscriptions);
 	vscode.workspace.onDidCloseTextDocument(document => {
 		diagnosticsCollection.delete(document.uri);
+		removeLineCommentCache(document);
+		removeLabelCache(document);
 	}, null, context.subscriptions);
 	vscode.workspace.onDidSaveTextDocument(document => {
 	}, null, context.subscriptions);
