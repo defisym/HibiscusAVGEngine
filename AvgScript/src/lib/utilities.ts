@@ -483,14 +483,10 @@ interface CommentCache {
 
 export const lineCommentCache = new Map<vscode.TextDocument, CommentCache>();
 
-export function removeLineComment(document: vscode.TextDocument) {
-	lineCommentCache.delete(document);
-}
-
 export function parseLineComment(document: vscode.TextDocument) {
 	console.log("prase document :" + document.fileName);
 
-	removeLineComment(document);
+	removeLineCommentCache(document);
 	lineCommentCache.set(document, { comment: [], result: [] });
 
 	const curCache = lineCommentCache.get(document)!;
@@ -509,6 +505,10 @@ export function parseLineComment(document: vscode.TextDocument) {
 		curCache.comment.push(lineInfo.lineIsComment);
 		curCache.result.push(parseResult);
 	});
+}
+
+export function removeLineCommentCache(document: vscode.TextDocument) {
+	lineCommentCache.delete(document);
 }
 
 export function getLineCommentCache(document: vscode.TextDocument) {
