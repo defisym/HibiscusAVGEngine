@@ -481,9 +481,8 @@ interface CommentCache {
 	result: ParseCommandResult[];
 }
 
-const lineCommentCache = new Map<vscode.TextDocument, CommentCache>();
+export const lineCommentCache = new Map<vscode.TextDocument, CommentCache>();
 
-//TODO find a update part
 export function removeLineComment(document: vscode.TextDocument) {
 	lineCommentCache.delete(document);
 }
@@ -510,9 +509,7 @@ export function parseLineComment(document: vscode.TextDocument) {
 	});
 }
 
-export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position,
-	callback: (text: string) => void = (text: string) => { })
-	: ParseCommandResult {
+export function getLineCommentCache(document: vscode.TextDocument){
 	let curCache = lineCommentCache.get(document);
 
 	if (curCache === undefined) {
@@ -520,6 +517,14 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
 	}
 
 	curCache = lineCommentCache.get(document)!;
+
+	return curCache;
+}
+
+export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position,
+	callback: (text: string) => void = (text: string) => { })
+	: ParseCommandResult {
+	let curCache = getLineCommentCache(document);
 
 	const curLine = position.line;
 
@@ -537,48 +542,6 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
 
 	return [praseResult[0]!, praseResult[1]!, curLinePrefix, curPos, praseResult[4]!];
 }
-
-// export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position,
-// 	callback: (text: string) => void = (text: string) => { })
-// 	: ParseCommandResult {
-// 	const curLine = position.line;
-// 	let curText = "";
-// 	let curStart = 0;
-
-// 	try {
-// 		iterateLines(document, (text, lineNumber
-// 			, lineStart, lineEnd
-// 			, firstLineNotComment) => {
-// 			if (lineNumber === curLine) {
-// 				callback(text);
-
-// 				// curText = text.toLowerCase();
-// 				curText = text;
-// 				curStart = lineStart;
-
-// 				throw Boolean;
-// 			}
-// 		});
-// 	} catch (err) {
-
-// 	}
-
-// 	if (curText === "") {
-// 		return [undefined, undefined, undefined, undefined];
-// 	}
-
-// 	let curPos = position.character - curStart!;
-// 	let curLinePrefix: string = curText.substring(0, curPos).trim().toLowerCase();
-
-// 	return [curText.toLowerCase(), curStart, curLinePrefix, curPos, curText];
-// }
-
-// usage
-// const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoComment);
-
-// if (paramInfo === undefined) {
-//     return;
-// }
 
 export function parseCommand(line: string) {
 	const params = getAllParams(line);
