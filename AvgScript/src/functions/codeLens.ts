@@ -49,7 +49,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 		}
 
 		this.throttle.triggerCallback(async () => {
-			console.log("trigger code lens parse");
+			// console.log("trigger code lens parse");
 			this._onDidChangeCodeLenses.fire();
 		}, true);
 	}

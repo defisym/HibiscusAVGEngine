@@ -23,20 +23,6 @@ function completionValid(document: vscode.TextDocument, position: vscode.Positio
 	return true;
 }
 
-function completionItemsProvider(document: vscode.TextDocument, position: vscode.Position, src: string[]) {
-	let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
-
-	if (line === undefined) {
-		return undefined;
-	}
-
-	if (!lineValidForCommandCompletion(linePrefix!)) {
-		return undefined;
-	}
-
-	return getCompletionItemList(src, commandDocList);
-}
-
 let sharpCompletionList: vscode.CompletionItem[] = [];
 
 export function updateSharpCompletionList() {

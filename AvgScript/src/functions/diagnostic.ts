@@ -7,6 +7,7 @@ import { DubParser } from '../lib/dubs';
 import { LineInfo, iterateLinesWithComment } from "../lib/iterateLines";
 import { regexHexColor, regexRep } from '../lib/regExp';
 import { ScriptSettings, getSettings, parseSettings } from '../lib/settings';
+import { Throttle } from '../lib/throttle';
 import { FileType, cropScript, fileExistsInFileList, getAllParams, getCommandParamFileType, imageStretched } from '../lib/utilities';
 import { dubError } from './codeLens';
 import { basePath, basePathUpdated, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
@@ -634,3 +635,9 @@ export function refreshFileDiagnostics() {
 export function diagnosticUpdate() {
 	diagnosticUpdateCore(fileListInitialized);
 }
+
+export const diagnosticThrottle = new Throttle();
+
+diagnosticThrottle.addCallback(() => {
+	diagnosticUpdate();
+});
