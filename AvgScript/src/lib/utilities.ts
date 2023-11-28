@@ -253,7 +253,7 @@ export function lineValidForCommandCompletion(src: string): boolean {
 		return true;
 	}
 
-	if(src.empty()){
+	if (src.empty()) {
 		return true;
 	}
 
@@ -485,7 +485,7 @@ interface CommentCache {
 	result: ParseCommandResult[];
 }
 
-export const lineCommentCache = new Map<vscode.TextDocument, CommentCache>();
+const lineCommentCache = new Map<vscode.TextDocument, CommentCache>();
 
 export function parseLineComment(document: vscode.TextDocument) {
 	removeLineCommentCache(document);

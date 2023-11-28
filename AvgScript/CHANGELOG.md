@@ -1,5 +1,17 @@
 # Change Log
 
+## 20231128
+
+- cache comment parse result
+- optimize inlay hints using parse result
+- optimize setting parse
+- optimize preview parse
+- optimize label parse
+- merge diagnostic & decoration
+- fix scanning may suck due to exception in code lens
+- add protection for dub fallback
+- use throttle to handle update
+
 ## 20231127
 
 - optimize watcher, now will only update changed files, instead of trigger full refresh

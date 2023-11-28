@@ -8,7 +8,7 @@ import { diagnosticUpdate, diagnosticsCollection } from './functions/diagnostic'
 import { fileDefinition } from './functions/file';
 import { hover, hoverFile } from './functions/hover';
 import { inlayHint } from './functions/inlayHint';
-import { labelDefinition, labelReference, parseLabel, removeLabelCache } from './functions/label';
+import { labelDefinition, labelReference, removeLabelCache } from './functions/label';
 import { outline } from './functions/outline';
 import { rename } from './functions/rename';
 
@@ -19,7 +19,7 @@ import { drop } from './functions/drop';
 import { formatting } from './functions/formatting';
 import { previewer } from './functions/preview';
 import { throttle } from './lib/throttle';
-import { parseLineComment, removeLineCommentCache } from './lib/utilities';
+import { removeLineCommentCache } from './lib/utilities';
 
 export let activeEditor = vscode.window.activeTextEditor;
 export const outputChannel = vscode.window.createOutputChannel('AvgScript');
@@ -158,8 +158,8 @@ export async function activate(context: vscode.ExtensionContext) {
 			console.log("trigger parse :" + editor.document.fileName);
 
 			previewer.docUpdated();
-			parseLineComment(editor.document);
-			parseLabel(editor.document);
+			// parseLineComment(editor.document);
+			// parseLabel(editor.document);
 		});
 	}, null, context.subscriptions);
 
@@ -169,8 +169,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		throttle.triggerCallback(() => {
 			console.log("trigger throttle parse :" + event.document.fileName);
 
-			parseLineComment(event.document);
-			parseLabel(event.document);
+			// parseLineComment(event.document);
+			// parseLabel(event.document);
+			removeLineCommentCache(event.document);
+			removeLabelCache(event.document);
 		}, true);
 	}, null, context.subscriptions);
 
