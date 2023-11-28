@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { pinyin } from 'pinyin-pro';
 import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListHasItem, getCorrectPathAndType, getFullFileNameByType, graphicCGCompletions, graphicCharactersCompletions, graphicFXCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from '../functions/file';
 import { InlayHintType, commandInfoList, deprecatedKeywordList, docList, internalKeywordList } from './dict';
-import { iterateLines } from './iterateLines';
+import { LineInfo, iterateLinesWithComment } from './iterateLines';
 import { beginRegex, endRegex } from './regExp';
 
 import path = require('path');
@@ -474,41 +474,104 @@ export function fileExistsInFileList(type: FileType, fileName: string) {
 	return fileListHasItem(filePath);
 }
 
-//TODO
+type ParseCommandResult = undefined[] | [string, number, string, number, string];
+
+interface CommentCache {
+	comment: boolean[];
+	result: ParseCommandResult[];
+}
+
+const lineCommentCache = new Map<vscode.TextDocument, CommentCache>();
+
+//TODO find a update part
+export function removeLineComment(document: vscode.TextDocument) {
+	lineCommentCache.delete(document);
+}
+
+export function parseLineComment(document: vscode.TextDocument) {
+	removeLineComment(document);
+	lineCommentCache.set(document, { comment: [], result: [] });
+
+	const curCache = lineCommentCache.get(document)!;
+
+	iterateLinesWithComment(document, (lineInfo: LineInfo) => {
+		let parseResult: ParseCommandResult = [undefined, undefined, undefined, undefined];
+
+		if (!lineInfo.lineIsComment) {
+			parseResult = [lineInfo.textNoComment.toLowerCase(),
+			lineInfo.lineStart,
+				"",
+			-1,
+			lineInfo.textNoComment];
+		}
+
+		curCache.comment.push(lineInfo.lineIsComment);
+		curCache.result.push(parseResult);
+	});
+}
+
 export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position,
 	callback: (text: string) => void = (text: string) => { })
-	: undefined[] | [string, number, string, number, string] {
+	: ParseCommandResult {
+	let curCache = lineCommentCache.get(document);
+
+	if (curCache === undefined) {
+		parseLineComment(document);
+	}
+
+	curCache = lineCommentCache.get(document)!;
+
 	const curLine = position.line;
-	let curText = "";
-	let curStart = 0;
 
-	try {
-		iterateLines(document, (text, lineNumber
-			, lineStart, lineEnd
-			, firstLineNotComment) => {
-			if (lineNumber === curLine) {
-				callback(text);
+	const bComment = curCache.comment[curLine];
+	const praseResult = curCache.result[curLine];
 
-				// curText = text.toLowerCase();
-				curText = text;
-				curStart = lineStart;
-
-				throw Boolean;
-			}
-		});
-	} catch (err) {
-
+	if (bComment) {
+		return praseResult;
 	}
 
-	if (curText === "") {
-		return [undefined, undefined, undefined, undefined];
-	}
+	callback(praseResult[4]!);
 
-	let curPos = position.character - curStart!;
-	let curLinePrefix: string = curText.substring(0, curPos).trim().toLowerCase();
+	let curPos = position.character - praseResult[1]!;
+	let curLinePrefix: string = praseResult[0]!.substring(0, curPos).trim();
 
-	return [curText.toLowerCase(), curStart, curLinePrefix, curPos, curText];
+	return [praseResult[0]!, praseResult[1]!, curLinePrefix, curPos, praseResult[4]!];
 }
+
+// export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position,
+// 	callback: (text: string) => void = (text: string) => { })
+// 	: ParseCommandResult {
+// 	const curLine = position.line;
+// 	let curText = "";
+// 	let curStart = 0;
+
+// 	try {
+// 		iterateLines(document, (text, lineNumber
+// 			, lineStart, lineEnd
+// 			, firstLineNotComment) => {
+// 			if (lineNumber === curLine) {
+// 				callback(text);
+
+// 				// curText = text.toLowerCase();
+// 				curText = text;
+// 				curStart = lineStart;
+
+// 				throw Boolean;
+// 			}
+// 		});
+// 	} catch (err) {
+
+// 	}
+
+// 	if (curText === "") {
+// 		return [undefined, undefined, undefined, undefined];
+// 	}
+
+// 	let curPos = position.character - curStart!;
+// 	let curLinePrefix: string = curText.substring(0, curPos).trim().toLowerCase();
+
+// 	return [curText.toLowerCase(), curStart, curLinePrefix, curPos, curText];
+// }
 
 // usage
 // const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoComment);

@@ -7,148 +7,149 @@ import { confPreview_AlwaysSendingMessage } from './command';
 import { basePath, projectConfig } from './file';
 
 export class Previewer {
-    private bDebugging = false;
+	private bDebugging = false;
 
-    private bDocUpdated = false;
-    private previousTimer = 0;
-    private previousCursor: vscode.Position | undefined = undefined;
-    private previousLineNumber = 0;
-    private previousScript = '';
+	private bDocUpdated = false;
+	private previousTimer = 0;
+	private previousCursor: vscode.Position | undefined = undefined;
+	private previousLineNumber = 0;
+	private previousScript = '';
 
-    private threshold = 1000;
-    private previewCommandStrFinish = 'Hibiscus_Preview_Finish';
-    private previewCommandStrPrefix = 'Hibiscus_Preview_';
+	private threshold = 1000;
+	private previewCommandStrFinish = 'Hibiscus_Preview_Finish';
+	private previewCommandStrPrefix = 'Hibiscus_Preview_';
 
-    private getTime() {
-        const now = new Date();
+	private getTime() {
+		const now = new Date();
 
-        return now.getTime();
-    }
+		return now.getTime();
+	}
 
-    debugUpdate(bState: boolean) {
-        this.bDebugging = bState;
-    }
+	debugUpdate(bState: boolean) {
+		this.bDebugging = bState;
+	}
 
-    docUpdated() {
-        this.bDocUpdated = true;
-        this.previousTimer = this.getTime();
-    }
+	docUpdated() {
+		this.bDocUpdated = true;
+		this.previousTimer = this.getTime();
+	}
 
-    async updatePreview() {
-        let alwaysSending = vscode.workspace.getConfiguration().get<boolean>(confPreview_AlwaysSendingMessage, false);
+	async updatePreview() {
+		let alwaysSending = vscode.workspace.getConfiguration().get<boolean>(confPreview_AlwaysSendingMessage, false);
 
-        if (!this.bDebugging && !alwaysSending) {
-            return;
-        }
+		if (!this.bDebugging && !alwaysSending) {
+			return;
+		}
 
-        const preview = projectConfig.Debug.Debug_Preview;
+		const preview = projectConfig.Debug.Debug_Preview;
 
-        if (preview !== '1') {
-            console.log(this.previewCommandStrPrefix + 'NOT_ENABLE');
+		if (preview !== '1') {
+			console.log(this.previewCommandStrPrefix + 'NOT_ENABLE');
 
-            return;
-        }
+			return;
+		}
 
-        if (await vscode.env.clipboard.readText() !== this.previewCommandStrFinish) {
-            console.log(this.previewCommandStrPrefix + 'NOT_COMPLETE');
+		if (await vscode.env.clipboard.readText() !== this.previewCommandStrFinish) {
+			console.log(this.previewCommandStrPrefix + 'NOT_COMPLETE');
 
-            return;
-        }
+			return;
+		}
 
-        if (!activeEditor) {
-            console.log(this.previewCommandStrPrefix + 'INVALID_EDITOR');
+		if (!activeEditor) {
+			console.log(this.previewCommandStrPrefix + 'INVALID_EDITOR');
 
-            return;
-        }
+			return;
+		}
 
-        const bResult = await activeEditor.document.save();
+		const bResult = await activeEditor.document.save();
 
-        if (!bResult) {
-            console.log(this.previewCommandStrPrefix + 'INVALID_FILE');
+		if (!bResult) {
+			console.log(this.previewCommandStrPrefix + 'INVALID_FILE');
 
-            return;
-        }
+			return;
+		}
 
-        const document = activeEditor.document;
+		const document = activeEditor.document;
 
-        const cursor = activeEditor.selection.active;
+		const cursor = activeEditor.selection.active;
 
-        const timePassed = this.getTime() - this.previousTimer;
+		const timePassed = this.getTime() - this.previousTimer;
 
-        if (!document.languageId.iCmp('AvgScript')) {
-            console.log(this.previewCommandStrPrefix + 'INVALID_SCRIPT');
+		if (!document.languageId.iCmp('AvgScript')) {
+			console.log(this.previewCommandStrPrefix + 'INVALID_SCRIPT');
 
-            return;
-        }
+			return;
+		}
 
-        if (timePassed < this.threshold) {
-            console.log(this.previewCommandStrPrefix + 'INVALID_DELAY');
+		if (timePassed < this.threshold) {
+			console.log(this.previewCommandStrPrefix + 'INVALID_DELAY');
 
-            return;
-        }
+			return;
+		}
 
-        if (!this.bDocUpdated && cursor === this.previousCursor) {
-            console.log(this.previewCommandStrPrefix + 'NO_CURSOR_UPDATE');
+		if (!this.bDocUpdated && cursor === this.previousCursor) {
+			console.log(this.previewCommandStrPrefix + 'NO_CURSOR_UPDATE');
 
-            return;
-        }
+			return;
+		}
 
-        this.previousCursor = activeEditor.selection.active;
+		this.previousCursor = activeEditor.selection.active;
 
-        const cursorAt = cursor.line;
-        let previewLineNumber = 0;
-        const previewScript = document.fileName.right(basePath.length + 1);
+		const cursorAt = cursor.line;
+		let previewLineNumber = 0;
+		const previewScript = document.fileName.right(basePath.length + 1);
 
-        let bReached = false;
-        let bReachedBeforeText = false;
+		let bReached = false;
+		let bReachedBeforeText = false;
 
-        try {
-            iterateLines(document, (text, lineNumber
-                , lineStart, lineEnd
-                , firstLineNotComment) => {
-                const bCurLineText = currentLineDialogue(text);
+		try {
+			iterateLines(document, (text, lineNumber
+				, lineStart, lineEnd
+				, firstLineNotComment) => {
+				const bCurLineText = currentLineDialogue(text);
 
-                if (lineNumber >= cursorAt) {
-                    bReached = true;
-                    bReachedBeforeText = bCurLineText;
-                }
+				if (lineNumber >= cursorAt) {
+					bReached = true;
+					bReachedBeforeText = bCurLineText;
+				}
 
-                if (bCurLineText) {
-                    if (!bReachedBeforeText) {
-                        previewLineNumber++;
-                    }
+				if (bCurLineText) {
+					if (!bReachedBeforeText) {
+						previewLineNumber++;
+					}
 
-                    if (bReached) {
-                        throw Boolean;
-                    }
-                }
-            });
-        } catch (err) {
+					if (bReached) {
+						throw Boolean;
+					}
+				}
+			});
+		} catch (err) {
 
-        }
+		}
 
-        if (!this.bDocUpdated && this.previousLineNumber === previewLineNumber && this.previousScript.iCmp(previewScript)) {
-            console.log(this.previewCommandStrPrefix + 'NO_UPDATE');
+		if (!this.bDocUpdated && this.previousLineNumber === previewLineNumber && this.previousScript.iCmp(previewScript)) {
+			console.log(this.previewCommandStrPrefix + 'NO_UPDATE');
 
-            return;
-        }
+			return;
+		}
 
-        this.previousLineNumber = previewLineNumber;
-        this.previousScript = previewScript;
+		this.previousLineNumber = previewLineNumber;
+		this.previousScript = previewScript;
 
-        const command = this.previewCommandStrPrefix + this.previousScript + '_' + previewLineNumber.toString();
-        console.log(command);
+		const command = this.previewCommandStrPrefix + this.previousScript + '_' + previewLineNumber.toString();
+		console.log(command);
 
-        await vscode.env.clipboard.writeText(command);
+		await vscode.env.clipboard.writeText(command);
 
-        this.bDocUpdated = false;
-    }
+		this.bDocUpdated = false;
+	}
 }
 
 export const previewer = new Previewer();
 
 function refreshPreview() {
-    previewer.updatePreview();
+	previewer.updatePreview();
 }
 
 setInterval(refreshPreview, 500);
+
