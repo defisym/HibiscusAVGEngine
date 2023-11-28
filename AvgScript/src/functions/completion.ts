@@ -1,12 +1,27 @@
 import * as vscode from 'vscode';
 
 import { atKeywordList, commandDocList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
-import { DubParser, UpdateDubCompletion } from '../lib/dubs';
+import { UpdateDubCompletion } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
-import { cropScript, currentLineNotComment, FileType, getCommandParamFileType, getCompletionItemList, getSubStrings, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
-import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePath, basePathUpdated, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
+import { currentLineNotComment, FileType, getCommandParamFileType, getCompletionItemList, getSubStrings, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
+import { codeLensProviderClass } from './codeLens';
+import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePathUpdated, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { getLabelCache } from './label';
+
+function completionValid(document: vscode.TextDocument, position: vscode.Position) {
+	let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+
+	if (line === undefined) {
+		return false;
+	}
+
+	if (!lineValidForCommandCompletion(linePrefix!)) {
+		return false;
+	}
+
+	return true;
+}
 
 function completionItemsProvider(document: vscode.TextDocument, position: vscode.Position, src: string[]) {
 	let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
@@ -22,21 +37,37 @@ function completionItemsProvider(document: vscode.TextDocument, position: vscode
 	return getCompletionItemList(src, commandDocList);
 }
 
+let sharpCompletionList: vscode.CompletionItem[] = [];
+
+export function updateSharpCompletionList() {
+	sharpCompletionList = getCompletionItemList(sharpKeywordList, commandDocList);
+}
+
 export const sharpCommands = vscode.languages.registerCompletionItemProvider(
 	'AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			return completionItemsProvider(document, position, sharpKeywordList);
+			if (!completionValid(document, position)) { return undefined; }
+
+			return sharpCompletionList;
 		}
 	},
 	'#' // triggered whenever a '#' is being typed
 );
 
+let atCompletionList: vscode.CompletionItem[] = [];
+
+export function updateAtCompletionList() {
+	atCompletionList = getCompletionItemList(atKeywordList, commandDocList);
+}
+
 export const atCommands = vscode.languages.registerCompletionItemProvider(
 	'AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			return completionItemsProvider(document, position, atKeywordList);
+			if (!completionValid(document, position)) { return undefined; }
+
+			return atCompletionList;
 		}
 	},
 	'@' // triggered whenever a '@' is being typed
@@ -152,21 +183,11 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
 	'AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			const settings = getSettings(document);
-
 			if (!basePathUpdated) { return undefined; }
 
-			const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
-			let dubState = new DubParser(curChapter);
-			dubState.parseSettings(settings);
+			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position, (text) => {
-				dubState.parseCommand(text);
-			});
-
-			if (line === undefined) {
-				return undefined;
-			}
+			if (line === undefined) { return undefined; }
 
 			let returnCompletion = (completion: vscode.CompletionItem[]) => {
 				if (!fileListInitialized) {
@@ -198,10 +219,10 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
 				case FileType.bgs:
 					return returnCompletion(audioBgsCompletions);
 				case FileType.dubs: {
-					// return returnCompletion(audioDubsCompletions);
+					const settings = getSettings(document);
 					return returnCompletion(
 						settings && settings.NoSideEffect
-							? UpdateDubCompletion(dubState)
+							? UpdateDubCompletion(codeLensProviderClass.dubState)
 							: []);
 				}
 				case FileType.se:

@@ -14,8 +14,11 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
 
 			const praseResult = curCache.result[lineNumber];
 
-			const text = praseResult[0]!;
-			const lineStart = praseResult[1]!;
+			const text = praseResult[0];
+			if (text === undefined) { continue; }
+			
+			const lineStart = praseResult[1];
+			if (lineStart === undefined) { continue; }
 
 			if (!(text.startsWith("#") || text.startsWith("@"))) { continue; }
 

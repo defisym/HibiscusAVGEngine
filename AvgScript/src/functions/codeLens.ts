@@ -35,6 +35,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 	public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
 
 	private throttle = new Throttle();
+	public dubState = new DubParser("NULL");
 
 	constructor() {
 		vscode.workspace.onDidChangeTextDocument(async (_) => {
@@ -69,8 +70,8 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 		let showTotalLineCount = vscode.workspace.getConfiguration().get<boolean>(confCodeLens_ShowTotalLineCount, false);
 
 		const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
-		let dubState = new DubParser(curChapter);
-		dubState.parseSettings(settings);
+		this.dubState = new DubParser(curChapter);
+		this.dubState.parseSettings(settings);
 
 		dubError.delete(document.uri);
 		dubInfo.delete(document.uri);
@@ -96,7 +97,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 					}
 				}
 
-				dubState.parseCommand(text);
+				this.dubState.parseCommand(text);
 			}
 			// ----------
 			// Parse dialogue
@@ -164,8 +165,8 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 				codeLenses.push(codeLens);
 
 				if (bNoSideEffect) {
-					dubState.updateState(name);
-					const fileName = dubState.getPlayFileName();
+					this.dubState.updateState(name);
+					const fileName = this.dubState.getPlayFileName();
 
 					do {
 						// basic
@@ -173,16 +174,16 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
 						codeLensDubFileName.command = {
 							title: "对应语音文件名: "
-								+ (dubState.dubChapter.iCmp(curChapter)
+								+ (this.dubState.dubChapter.iCmp(curChapter)
 									? ''
-									: dubState.dubChapter + '\\')
-								+ dubState.fileName,
+									: this.dubState.dubChapter + '\\')
+								+ this.dubState.fileName,
 							tooltip: "点击指定当前行对应的语音文件，将拷贝选定文件至对应路径，并重命名为对应语音文件名",
 							command: commandUpdateDub,
 							arguments: [
 								dialogueStruct.m_dialoguePart,
-								dubState.dubChapter,
-								dubState.fileName
+								this.dubState.dubChapter,
+								this.dubState.fileName
 							]
 						};
 
@@ -197,8 +198,8 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 								dubInfos = dubInfo.get(document.uri);
 							}
 
-							const folder = audio + "dubs\\" + currentLocalCode + "\\" + dubState.dubChapter + "\\";
-							const target = folder + dubState.fileName + '.ogg';
+							const folder = audio + "dubs\\" + currentLocalCode + "\\" + this.dubState.dubChapter + "\\";
+							const target = folder + this.dubState.fileName + '.ogg';
 
 							dubInfos!.push({
 								range: range,
@@ -252,7 +253,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 							// ------------
 
 							do {
-								const fileInfo = dubState.getPlayFileInfo(fileName);
+								const fileInfo = this.dubState.getPlayFileInfo(fileName);
 
 								if (fileInfo === undefined) {
 									break;
@@ -315,7 +316,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 				}
 			}
 
-			dubState.afterPlay();
+			this.dubState.afterPlay();
 		});
 
 		this.bUpdating = false;
