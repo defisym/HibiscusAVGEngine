@@ -1,12 +1,12 @@
 import { langFilter } from "./regExp";
 
 /* eslint-disable @typescript-eslint/naming-convention */
-export const FORMAT_IGNORE_UNKNOWN = 0b00000001;
-export const FORMAT_IGNORE_INCOMPLETE = 0b00000010;
+const FORMAT_IGNORE_UNKNOWN = 0b00000001;
+const FORMAT_IGNORE_INCOMPLETE = 0b00000010;
 
-export const FORMAT_IGNORE_DEFAULTFLAG = FORMAT_IGNORE_UNKNOWN | FORMAT_IGNORE_INCOMPLETE;
+const FORMAT_IGNORE_DEFAULTFLAG = FORMAT_IGNORE_UNKNOWN | FORMAT_IGNORE_INCOMPLETE;
 
-export const syntaxCommandList = [
+const syntaxCommandList = [
     '^',
     '^-',
     '!^',
@@ -52,7 +52,7 @@ function stringStartWithSyntaxCommand(str: string) {
     return false;
 }
 
-export function filterString(str: string, filterFlag: number = FORMAT_IGNORE_DEFAULTFLAG) {
+function filterString(str: string, filterFlag: number = FORMAT_IGNORE_DEFAULTFLAG) {
     let filterText: string = str;
     let replacePos: [number, number][] = [];
 
@@ -119,7 +119,7 @@ export function filterString(str: string, filterFlag: number = FORMAT_IGNORE_DEF
     return filterText;
 }
 
-export function paddingString(str: string) {
+function paddingString(str: string) {
     const replaceChar = '□';
 
     let bInCommand: boolean = false;
@@ -151,7 +151,7 @@ export function paddingString(str: string) {
     return str;
 }
 
-export function findDelimiter(str: string) {
+function findDelimiter(str: string) {
     return paddingString(str).lastIndexOf(':');
 };
 
