@@ -89,9 +89,14 @@ export class DubParser {
 
 		let ret = getFullFilePath(fullFileName);
 
-		if (ret === undefined && currentLocalCode !== projectConfig.Display.LanguageFallback) {
-			fullFileName =  this.getFilePrefix(projectConfig.Display.LanguageFallback) + this.fileName;
-			ret = getFullFilePath(fullFileName);
+		try {
+			const fallback = projectConfig.Display.LanguageFallback;
+			if (ret === undefined && currentLocalCode !== fallback) {
+				fullFileName = this.getFilePrefix(fallback) + this.fileName;
+				ret = getFullFilePath(fullFileName);
+			}
+		} catch (error) {
+
 		}
 
 		return ret;
