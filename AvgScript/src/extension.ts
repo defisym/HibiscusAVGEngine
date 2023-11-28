@@ -4,7 +4,7 @@ import { colorProvider } from './functions/color';
 import { assetsListPanel, commandAppendDialogue, commandAppendDialogue_impl, commandBasePath, commandBasePath_impl, commandDeleteDub, commandDeleteDub_impl, commandGetAssetsList, commandGetAssetsList_impl, commandGetDubList, commandGetDubList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl, commandShowHibiscusDocument, commandShowHibiscusDocument_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl, commandUpdateDub, commandUpdateDub_impl, dubListPanel, formatHintPanel, jumpFlowPanel } from './functions/command';
 import { atCommands, fileName, fileSuffix, langPrefix, required, settingsParam, sharpCommands } from './functions/completion';
 import { debuggerFactory, debuggerProvider, debuggerTracker } from './functions/debugger';
-import { diagnosticUpdate, diagnosticsCollection, triggerDiagnosticUpdate } from './functions/diagnostic';
+import { diagnosticUpdate, diagnosticsCollection } from './functions/diagnostic';
 import { fileDefinition } from './functions/file';
 import { hover, hoverFile } from './functions/hover';
 import { inlayHint } from './functions/inlayHint';
@@ -18,6 +18,7 @@ import { codeLensProvider } from './functions/codeLens';
 import { drop } from './functions/drop';
 import { formatting } from './functions/formatting';
 import { previewer } from './functions/preview';
+import { throttle } from './lib/throttle';
 import { parseLineComment } from './lib/utilities';
 
 export let activeEditor = vscode.window.activeTextEditor;
@@ -142,29 +143,37 @@ export async function activate(context: vscode.ExtensionContext) {
 	// File Updated
 	//--------------------
 
-	diagnosticUpdate();
+	throttle.addCallback(() => {
+		previewer.docUpdated();
+	});
+	throttle.addCallback(() => {
+		diagnosticUpdate();
+	});
+
+	throttle.triggerUpdate(true);
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {
 		activeEditor = editor;
 		if (!editor) { return; }
 
-		previewer.docUpdated();
-		triggerDiagnosticUpdate();
-		parseLineComment(editor.document);
+		throttle.triggerUpdate();
+		throttle.triggerCallback(() => {
+			parseLineComment(editor.document);
+		});
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {
 		const bCurChanged = activeEditor && event.document === activeEditor.document;
 		if (!bCurChanged) { return; }
 
-		previewer.docUpdated();
-		triggerDiagnosticUpdate(true);
-		parseLineComment(event.document);
+		throttle.triggerUpdate(true);
+		throttle.triggerCallback(() => {
+			parseLineComment(event.document);
+		}, true);
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidOpenTextDocument((event) => {
 		const document = event;
-
 	}, null, context.subscriptions);
 	vscode.workspace.onDidCloseTextDocument(document => {
 		diagnosticsCollection.delete(document.uri);

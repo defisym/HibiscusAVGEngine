@@ -488,6 +488,8 @@ export function removeLineComment(document: vscode.TextDocument) {
 }
 
 export function parseLineComment(document: vscode.TextDocument) {
+	console.log("prase document :" + document.fileName);
+
 	removeLineComment(document);
 	lineCommentCache.set(document, { comment: [], result: [] });
 
@@ -509,7 +511,7 @@ export function parseLineComment(document: vscode.TextDocument) {
 	});
 }
 
-export function getLineCommentCache(document: vscode.TextDocument){
+export function getLineCommentCache(document: vscode.TextDocument) {
 	let curCache = lineCommentCache.get(document);
 
 	if (curCache === undefined) {
