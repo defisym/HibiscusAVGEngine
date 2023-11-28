@@ -22,15 +22,10 @@ export class Throttle {
 		}
 	}
 
-	// throttle = false: trigger immediately
-	public triggerUpdate(throttle: boolean = false) {
-		this.triggerCallback(() => {
-			this.callCallback();
-		}, throttle);
-	}
-
+	// trigger added callbacks and function callback
 	// throttle = false: trigger immediately	
-	public triggerCallback(callback: (...args: any[]) => void, throttle: boolean = false) {
+	public triggerCallback(callback: (...args: any[]) => void = () => { },
+		throttle: boolean = false) {
 		if (this.timeout) {
 			clearTimeout(this.timeout);
 			this.timeout = undefined;
@@ -38,9 +33,11 @@ export class Throttle {
 		if (throttle) {
 			this.timeout = setTimeout(() => {
 				callback();
+				this.callCallback();
 			}, this.delay);
 		} else {
 			callback();
+			this.callCallback();
 		}
 	}
 }
