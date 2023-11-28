@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { currentLineDialogue } from '../lib/dialogue';
-import { iterateLines } from '../lib/iterateLines';
+import { getLineCommentCache } from '../lib/utilities';
 import { confPreview_AlwaysSendingMessage } from './command';
 import { basePath, basePathUpdated, projectConfig } from './file';
 
@@ -105,29 +105,29 @@ export class Previewer {
 		let bReached = false;
 		let bReachedBeforeText = false;
 
-		try {
-			iterateLines(document, (text, lineNumber
-				, lineStart, lineEnd
-				, firstLineNotComment) => {
-				const bCurLineText = currentLineDialogue(text);
+		let curCache = getLineCommentCache(document);
+		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
+			if (curCache.comment[lineNumber]) { continue; }
 
-				if (lineNumber >= cursorAt) {
-					bReached = true;
-					bReachedBeforeText = bCurLineText;
+			const praseResult = curCache.result[lineNumber];
+			const text = praseResult[0]!;
+
+			const bCurLineText = currentLineDialogue(text);
+
+			if (lineNumber >= cursorAt) {
+				bReached = true;
+				bReachedBeforeText = bCurLineText;
+			}
+
+			if (bCurLineText) {
+				if (!bReachedBeforeText) {
+					previewLineNumber++;
 				}
 
-				if (bCurLineText) {
-					if (!bReachedBeforeText) {
-						previewLineNumber++;
-					}
-
-					if (bReached) {
-						throw Boolean;
-					}
+				if (bReached) {
+					break;
 				}
-			});
-		} catch (err) {
-
+			}
 		}
 
 		if (!this.bDocUpdated && this.previousLineNumber === previewLineNumber && this.previousScript.iCmp(previewScript)) {
