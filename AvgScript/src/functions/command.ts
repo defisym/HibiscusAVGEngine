@@ -484,7 +484,6 @@ export const commandShowJumpFlow_impl = async () => {
         // update display
         progress.report({ increment: 10, message: "Creating scripts..." });
 
-
         // And set its HTML content
         progress.report({ increment: 10, message: "Generating webview..." });
         jumpFlowPanel.webview.html = jumpFlow_getWebviewContent(jumpTable);
