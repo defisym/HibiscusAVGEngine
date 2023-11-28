@@ -4,7 +4,7 @@ import { activeEditor } from '../extension';
 import { currentLineDialogue } from '../lib/dialogue';
 import { iterateLines } from '../lib/iterateLines';
 import { confPreview_AlwaysSendingMessage } from './command';
-import { basePath, projectConfig } from './file';
+import { basePath, basePathUpdated, projectConfig } from './file';
 
 export class Previewer {
 	private bDebugging = false;
@@ -97,6 +97,9 @@ export class Previewer {
 
 		const cursorAt = cursor.line;
 		let previewLineNumber = 0;
+
+		if (!basePathUpdated) { return; }
+
 		const previewScript = document.fileName.right(basePath.length + 1);
 
 		let bReached = false;

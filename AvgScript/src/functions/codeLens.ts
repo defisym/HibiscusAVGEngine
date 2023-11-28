@@ -7,7 +7,7 @@ import { cropScript, sleep } from '../lib/utilities';
 import { narrator } from '../webview/dubList';
 import { commandDeleteDub, commandUpdateDub, confCodeLens_ShowTotalLineCount } from './command';
 import { diagnosticUpdateCore } from './diagnostic';
-import { audio, basePath, currentLocalCode, fileListInitialized } from './file';
+import { audio, basePath, basePathUpdated, currentLocalCode, fileListInitialized } from './file';
 
 const durationPerWordSlow = (1.0 * 60 / 360);       // check shorter
 const durationPerWordFast = (1.0 * 60 / 120);       // check longer
@@ -49,6 +49,8 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
 	public provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
 		let codeLenses: vscode.CodeLens[] = [];
+		if (!basePathUpdated) { return codeLenses; }
+
 		this.bUpdating = true;
 
 		const settings = getSettings(document);
@@ -93,7 +95,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 			// Parse dialogue
 			// ----------
 			else {
-				const dialogueStruct = parseDialogue(text, text!);
+				const dialogueStruct = parseDialogue(text, text);
 				const range = new vscode.Range(new vscode.Position(lineNumber, lineStart),
 					new vscode.Position(lineNumber, lineEnd));
 

@@ -4,7 +4,7 @@ import { atKeywordList, commandDocList, ParamType, settingsParamDocList, setting
 import { DubParser, UpdateDubCompletion } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
 import { cropScript, currentLineNotComment, FileType, getCommandParamFileType, getCompletionItemList, getSubStrings, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
-import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePath, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
+import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePath, basePathUpdated, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCompletions } from './label';
 
@@ -153,6 +153,8 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
     {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             const settings = getSettings(document);
+
+			if (!basePathUpdated) { return undefined; }
 
             const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
             let dubState = new DubParser(curChapter);

@@ -45,6 +45,7 @@ export let projectFileList: [string, vscode.FileType][] = [];
 export let projectFileInfoList = new Map<string, any>([]);
 
 // paths
+export let basePathUpdated = false;
 export let basePath: string;
 export let execPath: string;
 
@@ -587,6 +588,8 @@ export async function updateBasePath(newPath: string | undefined = undefined, bP
 	basePath = calcBasePath;
 	execPath = newPath;
 
+	basePathUpdated = true;
+
 	updateWatcher();
 
 	return true;
@@ -888,7 +891,7 @@ export async function updateFileList(progress: vscode.Progress<{
 	await generateCompletionList(scriptFileList, scriptCompletions, scriptPath, CompletionType.script);
 
 	progress.report({ increment: 0, message: "Refresh code lens" });
-	
+
 	fileListInitialized = true;
 	await codeLensProviderClass.refresh();
 
@@ -904,6 +907,8 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
 			let definitions: vscode.Location[] = [];
 
 			const settings = getSettings(document);
+
+			if (!basePathUpdated) { return undefined; }
 
 			const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
 			let dubState = new DubParser(curChapter);

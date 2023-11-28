@@ -9,7 +9,7 @@ import { regexHexColor, regexRep } from '../lib/regExp';
 import { ScriptSettings, getSettings, parseSettings } from '../lib/settings';
 import { FileType, cropScript, fileExistsInFileList, getAllParams, getCommandParamFileType, imageStretched } from '../lib/utilities';
 import { dubError } from './codeLens';
-import { basePath, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
+import { basePath, basePathUpdated, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
 
 export let timeout: NodeJS.Timer | undefined = undefined;
@@ -46,6 +46,8 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 	let nextJMP = false;
 
 	decoOpt = [];
+
+	if (!basePathUpdated) { return; }
 
 	const curChapter = fileListInitialized
 		? cropScript(document.fileName.substring(basePath.length + 1))
