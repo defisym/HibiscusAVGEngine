@@ -69,6 +69,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 		dubError.delete(document.uri);
 		dubInfo.delete(document.uri);
 
+		// No range passed in, so no need to remove this iterate
 		iterateLines(document, (text, lineNumber
 			, lineStart, lineEnd
 			, firstLineNotComment) => {
