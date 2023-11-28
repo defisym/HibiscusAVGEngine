@@ -12,15 +12,13 @@ import { dubError } from './codeLens';
 import { basePath, basePathUpdated, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { getLabelCompletion, labelJumpMap } from './label';
 
-export let timeout: NodeJS.Timer | undefined = undefined;
-
 export const diagnosticsCollection = vscode.languages.createDiagnosticCollection('AvgScript');
-export const nonActiveLanguageDecorator = vscode.window.createTextEditorDecorationType({
+const nonActiveLanguageDecorator = vscode.window.createTextEditorDecorationType({
 	opacity: '0.5',
 });
 let decoOpt: vscode.DecorationOptions[] = [];
 
-export function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = false) {
+function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = false) {
 	if (commandListInitialized === false) {
 		return;
 	}
@@ -617,7 +615,7 @@ export function updateDiagnostics(document: vscode.TextDocument, checkFile: bool
 
 //--------------------
 
-export function diagnosticUpdateCore(checkFile: boolean = false) {
+function diagnosticUpdateCore(checkFile: boolean = false) {
 	if (activeEditor === undefined) {
 		return;
 	}
@@ -636,16 +634,4 @@ export function refreshFileDiagnostics() {
 
 export function diagnosticUpdate() {
 	diagnosticUpdateCore(fileListInitialized);
-}
-
-export function triggerDiagnosticUpdate(throttle = false) {
-	if (timeout) {
-		clearTimeout(timeout);
-		timeout = undefined;
-	}
-	if (throttle) {
-		timeout = setTimeout(diagnosticUpdate, 500);
-	} else {
-		diagnosticUpdate();
-	}
 }

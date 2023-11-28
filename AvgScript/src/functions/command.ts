@@ -16,8 +16,8 @@ import { dubList_getWebviewContent, narrator } from '../webview/dubList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { codeLensProviderClass } from './codeLens';
-import { diagnosticUpdateCore as diagnosticUpdateHandler, refreshFileDiagnostics } from './diagnostic';
-import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListInitialized, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { diagnosticUpdate, refreshFileDiagnostics } from './diagnostic';
+import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -221,7 +221,7 @@ export const commandUpdateCommandExtension_impl = async () => {
     generateList();
 
     // update diagnostic
-    diagnosticUpdateHandler(fileListInitialized);
+    diagnosticUpdate() ;
 };
 
 export let assetsListPanel: vscode.WebviewPanel;

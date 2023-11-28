@@ -6,7 +6,7 @@ import { getSettings } from '../lib/settings';
 import { cropScript, sleep } from '../lib/utilities';
 import { narrator } from '../webview/dubList';
 import { commandDeleteDub, commandUpdateDub, confCodeLens_ShowTotalLineCount } from './command';
-import { diagnosticUpdateCore } from './diagnostic';
+import { diagnosticUpdate } from './diagnostic';
 import { audio, basePath, basePathUpdated, currentLocalCode, fileListInitialized } from './file';
 
 const durationPerWordSlow = (1.0 * 60 / 360);       // check shorter
@@ -316,7 +316,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 		this.bFirstRun = false;
 
 		if (!dubError.get(document.uri)?.empty()) {
-			diagnosticUpdateCore(fileListInitialized);
+			diagnosticUpdate() ;
 		}
 
 		return codeLenses;
