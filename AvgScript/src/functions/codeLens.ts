@@ -3,6 +3,7 @@ import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue'
 import { DubParser } from '../lib/dubs';
 import { iterateLines } from '../lib/iterateLines';
 import { getSettings } from '../lib/settings';
+import { Throttle } from '../lib/throttle';
 import { cropScript, sleep } from '../lib/utilities';
 import { narrator } from '../webview/dubList';
 import { commandDeleteDub, commandUpdateDub, confCodeLens_ShowTotalLineCount } from './command';
@@ -33,9 +34,11 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 	private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
 	public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
 
+	private throttle = new Throttle();
+
 	constructor() {
-		vscode.workspace.onDidChangeTextDocument((_) => {
-			this._onDidChangeCodeLenses.fire();
+		vscode.workspace.onDidChangeTextDocument(async (_) => {
+			await this.refresh();
 		});
 	}
 
@@ -44,7 +47,10 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 			await sleep(50);
 		}
 
-		this._onDidChangeCodeLenses.fire();
+		this.throttle.triggerCallback(async () => {
+			console.log("trigger code lens parse");
+			this._onDidChangeCodeLenses.fire();
+		}, true);
 	}
 
 	public provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
@@ -316,7 +322,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 		this.bFirstRun = false;
 
 		if (!dubError.get(document.uri)?.empty()) {
-			diagnosticUpdate() ;
+			diagnosticUpdate();
 		}
 
 		return codeLenses;

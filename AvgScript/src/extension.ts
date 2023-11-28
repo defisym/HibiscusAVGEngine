@@ -58,7 +58,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Init Command
 	//--------------------
 
-	vscode.commands.executeCommand(commandUpdateCommandExtension);
+	// make sure command info list is valid
+	await vscode.commands.executeCommand(commandUpdateCommandExtension);
 	vscode.commands.executeCommand(commandRefreshAssets);
 
 	//--------------------
@@ -154,14 +155,20 @@ export async function activate(context: vscode.ExtensionContext) {
 		if (!editor) { return; }
 
 		throttle.triggerCallback(() => {
-			previewer.docUpdated();			
+			console.log("trigger parse :" + editor.document.fileName);
+
+			previewer.docUpdated();
 			parseLineComment(editor.document);
 			parseLabel(editor.document);
 		});
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {
+		console.log("doc changed");
+
 		throttle.triggerCallback(() => {
+			console.log("trigger throttle parse :" + event.document.fileName);
+
 			parseLineComment(event.document);
 			parseLabel(event.document);
 		}, true);

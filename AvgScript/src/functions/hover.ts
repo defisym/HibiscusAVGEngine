@@ -125,7 +125,11 @@ export const hoverFile = vscode.languages.registerHoverProvider('AvgScript', {
 			case FileType.label:
 				return new vscode.Hover(new vscode.MarkdownString(getLabelComment(document, fileName)));
 			default:
-				const doc = getFileCompletionByType(type, fileName)?.documentation!;
+				const fileCompletion = getFileCompletionByType(type, fileName);
+				if (fileCompletion === undefined) { return undefined; }
+
+				const doc = fileCompletion.documentation;
+
 				return doc !== undefined
 					? new vscode.Hover(doc)
 					: undefined;

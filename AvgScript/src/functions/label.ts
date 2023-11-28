@@ -16,8 +16,6 @@ class LabelInfo {
 export let labelCache: Map<vscode.TextDocument, LabelInfo> = new Map();
 
 export function parseLabel(document: vscode.TextDocument) {
-	console.log("prase label :" + document.fileName);
-
 	removeLabelCache(document);
 	labelCache.set(document, new LabelInfo());
 
