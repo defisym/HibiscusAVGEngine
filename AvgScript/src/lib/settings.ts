@@ -2,7 +2,8 @@
 
 import * as vscode from 'vscode';
 
-import { getAllParams, getLineCommentCache } from "./utilities";
+import { lineCommentCache } from './comment';
+import { getAllParams } from "./utilities";
 
 export interface ScriptSettings {
 	LangSwitchAble: boolean,
@@ -145,7 +146,7 @@ export function parseSettings(line: string) {
 }
 
 export function getSettings(document: vscode.TextDocument): ScriptSettings | undefined {
-	let curCache = getLineCommentCache(document);
+	let curCache = lineCommentCache.getDocumentCache(document);
 
 	for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
 		if (curCache.comment[lineNumber]) { continue; }

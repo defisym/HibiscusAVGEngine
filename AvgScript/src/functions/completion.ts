@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
 
+import { currentLineNotComment } from '../lib/comment';
 import { atKeywordList, commandDocList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
 import { UpdateDubCompletion } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
-import { currentLineNotComment, FileType, getCommandParamFileType, getCompletionItemList, getSubStrings, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
+import { FileType, getCommandParamFileType, getCompletionItemList, getSubStrings, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
 import { codeLensProviderClass } from './codeLens';
 import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePathUpdated, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
-import { getLabelCache } from './label';
+import { labelCache } from './label';
 
 function completionValid(document: vscode.TextDocument, position: vscode.Position) {
 	let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
@@ -224,7 +225,7 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
 					return returnCompletion(scriptCompletions);
 				case FileType.frame:
 				case FileType.label:
-					let curCache = getLabelCache(document);
+					let curCache = labelCache.getDocumentCache(document);
 					return curCache.labelCompletions;
 
 				default:

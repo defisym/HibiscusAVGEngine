@@ -1,65 +1,71 @@
 import * as vscode from 'vscode';
 
+import { CacheInterface } from '../lib/cacheInterface';
+import { currentLineNotComment } from '../lib/comment';
 import { commandInfoList, InlayHintType } from '../lib/dict';
 import { iterateLines } from "../lib/iterateLines";
 import { regexRep } from '../lib/regExp';
-import { currentLineNotComment, getAllParams } from "../lib/utilities";
-
-// export let labelCompletions: vscode.CompletionItem[] = [];
-// export let labelJumpMap: Map<string, number> = new Map();
+import { getAllParams } from "../lib/utilities";
 
 class LabelInfo {
 	labelCompletions: vscode.CompletionItem[] = [];
 	labelJumpMap: Map<string, number> = new Map();
 }
 
-export let labelCache: Map<vscode.TextDocument, LabelInfo> = new Map();
+class LabelCache implements CacheInterface<LabelInfo> {
+	labelCache: Map<vscode.TextDocument, LabelInfo> = new Map();
 
-export function parseLabel(document: vscode.TextDocument) {
-	removeLabelCache(document);
-	labelCache.set(document, new LabelInfo());
+	parseDocument(document: vscode.TextDocument) {
+		this.removeDocumentCache(document);
+		this.labelCache.set(document, new LabelInfo());
 
-	const curCache = labelCache.get(document)!;
+		const curCache = this.labelCache.get(document)!;
 
-	iterateLines(document, (text, lineNumber
-		, lineStart, lineEnd
-		, firstLineNotComment) => {
-		if (text.matchStart(/(;.*)/gi)) {
-			let label = text.substring(text.indexOf(";") + 1);
-			let item: vscode.CompletionItem = new vscode.CompletionItem({
-				label: label
-				// , detail: fileNameSuffix
-				, description: "at line " + lineNumber
-			});
+		iterateLines(document, (text, lineNumber
+			, lineStart, lineEnd
+			, firstLineNotComment) => {
+			if (text.matchStart(/(;.*)/gi)) {
+				let label = text.substring(text.indexOf(";") + 1);
+				let item: vscode.CompletionItem = new vscode.CompletionItem({
+					label: label
+					// , detail: fileNameSuffix
+					, description: "at line " + lineNumber
+				});
 
-			item.kind = vscode.CompletionItemKind.Reference;
+				item.kind = vscode.CompletionItemKind.Reference;
 
-			item.insertText = label;
+				item.insertText = label;
 
-			curCache.labelCompletions.push(item);
-			curCache.labelJumpMap.set(label, lineNumber);
-		}
-	});
-}
-
-export function removeLabelCache(document: vscode.TextDocument) {
-	labelCache.delete(document);
-}
-
-export function getLabelCache(document: vscode.TextDocument) {
-	let curCache = labelCache.get(document);
-
-	if (curCache === undefined) {
-		parseLabel(document);
+				curCache.labelCompletions.push(item);
+				curCache.labelJumpMap.set(label, lineNumber);
+			}
+		});
 	}
 
-	curCache = labelCache.get(document)!;
+	removeDocumentCache(document: vscode.TextDocument) {
+		this.labelCache.delete(document);
+	}
+	updateDocumentCache(document: vscode.TextDocument,
+		change: readonly vscode.TextDocumentContentChangeEvent[]) {
+		this.removeDocumentCache(document);
+	}
+	getDocumentCache(document: vscode.TextDocument) {
+		let curCache = this.labelCache.get(document);
 
-	return curCache;
+		if (curCache === undefined) {
+			this.parseDocument(document);
+		}
+
+		curCache = this.labelCache.get(document)!;
+
+		return curCache;
+	}
 }
 
+export const labelCache = new LabelCache();
+
 export function getLabelPos(document: vscode.TextDocument, input: string) {
-	let curCache = getLabelCache(document);
+	let curCache = labelCache.getDocumentCache(document);
 
 	for (let i = 0; i < curCache.labelCompletions.length; i++) {
 		let label = curCache.labelCompletions[i].label;
@@ -80,7 +86,7 @@ export function getLabelPos(document: vscode.TextDocument, input: string) {
 }
 
 export function getLabelComment(document: vscode.TextDocument, input: string) {
-	let curCache = getLabelCache(document);
+	let curCache = labelCache.getDocumentCache(document);
 
 	for (let labelCompletion of curCache.labelCompletions) {
 		let label = labelCompletion.label;
@@ -100,7 +106,7 @@ export function getLabelComment(document: vscode.TextDocument, input: string) {
 }
 
 export function getLabelJumpMap(document: vscode.TextDocument) {
-	let curCache = getLabelCache(document);
+	let curCache = labelCache.getDocumentCache(document);
 
 	return curCache.labelJumpMap;
 }
@@ -149,7 +155,7 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
 					if (currentType === InlayHintType.Label) {
 						let curLabel = curParam;
 
-						let curCache = getLabelCache(document);
+						let curCache = labelCache.getDocumentCache(document);
 						curCache.labelJumpMap.forEach((line, label) => {
 							if (curLabel.iCmp(label)) {
 								let link = new vscode.Location(document.uri

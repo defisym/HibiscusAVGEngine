@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
+import { lineCommentCache } from '../lib/comment';
 import { currentLineDialogue } from '../lib/dialogue';
-import { getLineCommentCache } from '../lib/utilities';
 import { confPreview_AlwaysSendingMessage } from './command';
 import { basePath, basePathUpdated, projectConfig } from './file';
 
@@ -105,7 +105,7 @@ export class Previewer {
 		let bReached = false;
 		let bReachedBeforeText = false;
 
-		let curCache = getLineCommentCache(document);
+		let curCache = lineCommentCache.getDocumentCache(document);
 		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
 			if (curCache.comment[lineNumber]) { continue; }
 

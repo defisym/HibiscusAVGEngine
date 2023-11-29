@@ -4,11 +4,12 @@ import path = require('path');
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
+import { currentLineNotComment } from '../lib/comment';
 import { currentLineDialogue, DialogueStruct, parseDialogue } from '../lib/dialogue';
 import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
 import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
-import { currentLineNotComment, FileType } from '../lib/utilities';
+import { FileType } from '../lib/utilities';
 import { createWebviewPanel } from '../webview/_create';
 import { handleOnClickLink } from '../webview/_onClickLink';
 import { assetList_getWebviewContent } from '../webview/assetList';

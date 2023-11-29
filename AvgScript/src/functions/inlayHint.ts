@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
 
+import { lineCommentCache } from '../lib/comment';
 import { commandInfoList, inlayHintMap, InlayHintType } from '../lib/dict';
-import { getAllParams, getCommandParamFileType, getLineCommentCache } from '../lib/utilities';
+import { getAllParams, getCommandParamFileType } from '../lib/utilities';
 
 export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript', {
 	provideInlayHints(document: vscode.TextDocument, range: vscode.Range, token: vscode.CancellationToken) {
 		let hints: vscode.InlayHint[] = [];
 
-		let curCache = getLineCommentCache(document);
+		let curCache = lineCommentCache.getDocumentCache(document);
 
 		for (let lineNumber = range.start.line; lineNumber <= range.end.line; lineNumber++) {
 			if (curCache.comment[lineNumber]) { continue; }
@@ -16,7 +17,7 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
 
 			const text = praseResult[0];
 			if (text === undefined) { continue; }
-			
+
 			const lineStart = praseResult[1];
 			if (lineStart === undefined) { continue; }
 

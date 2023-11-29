@@ -11,7 +11,7 @@ import { Throttle } from '../lib/throttle';
 import { FileType, cropScript, fileExistsInFileList, getAllParams, getCommandParamFileType, imageStretched } from '../lib/utilities';
 import { dubError } from './codeLens';
 import { basePath, basePathUpdated, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
-import { getLabelCache } from './label';
+import { labelCache } from './label';
 
 export const diagnosticsCollection = vscode.languages.createDiagnosticCollection('AvgScript');
 const nonActiveLanguageDecorator = vscode.window.createTextEditorDecorationType({
@@ -433,7 +433,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 					}
 
 					case InlayHintType.Label: {
-						let curCache = getLabelCache(document);
+						let curCache = labelCache.getDocumentCache(document);
 						if (curCache.labelJumpMap.getValue(curParam) === undefined) {
 							diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
 								, "Invalid Label: " + curParam

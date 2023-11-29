@@ -3,9 +3,10 @@ import * as vscode from 'vscode';
 import { ImageProbe } from '@zerodeps/image-probe';
 import * as mm from 'music-metadata';
 
+import { currentLineNotComment } from '../lib/comment';
 import { DubParser } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
-import { FileType, cropScript, currentLineNotComment, getBuffer, getCommandParamFileType, getParamAtPosition, getSortTextByText, getUri, sleep, stringToEnglish } from '../lib/utilities';
+import { FileType, cropScript, getBuffer, getCommandParamFileType, getParamAtPosition, getSortTextByText, getUri, sleep, stringToEnglish } from '../lib/utilities';
 import { codeLensProviderClass } from './codeLens';
 import { commandBasePath, confBasePath } from './command';
 import { updateWatcher } from './watcher';

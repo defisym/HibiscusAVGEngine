@@ -8,7 +8,7 @@ import { diagnosticThrottle, diagnosticsCollection } from './functions/diagnosti
 import { fileDefinition } from './functions/file';
 import { hover, hoverFile } from './functions/hover';
 import { inlayHint } from './functions/inlayHint';
-import { labelDefinition, labelReference, removeLabelCache } from './functions/label';
+import { labelCache, labelDefinition, labelReference } from './functions/label';
 import { outline } from './functions/outline';
 import { rename } from './functions/rename';
 
@@ -18,8 +18,8 @@ import { codeLensProvider } from './functions/codeLens';
 import { drop } from './functions/drop';
 import { formatting } from './functions/formatting';
 import { previewer } from './functions/preview';
+import { lineCommentCache } from './lib/comment';
 import { throttle } from './lib/throttle';
-import { removeLineCommentCache } from './lib/utilities';
 
 export let activeEditor = vscode.window.activeTextEditor;
 export const outputChannel = vscode.window.createOutputChannel('AvgScript');
@@ -165,8 +165,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.workspace.onDidChangeTextDocument(event => {
 		// console.log("doc changed");
 
-		removeLineCommentCache(event.document);
-		removeLabelCache(event.document);
+		lineCommentCache.updateDocumentCache(event.document, event.contentChanges);
+		labelCache.updateDocumentCache(event.document, event.contentChanges);
 
 		throttle.triggerCallback(() => {
 			// console.log("trigger throttle parse :" + event.document.fileName);
@@ -181,8 +181,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	}, null, context.subscriptions);
 	vscode.workspace.onDidCloseTextDocument(document => {
 		diagnosticsCollection.delete(document.uri);
-		removeLineCommentCache(document);
-		removeLabelCache(document);
+		lineCommentCache.removeDocumentCache(document);
+		labelCache.removeDocumentCache(document);
 	}, null, context.subscriptions);
 	vscode.workspace.onDidSaveTextDocument(document => {
 	}, null, context.subscriptions);

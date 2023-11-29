@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 
+import { currentLineNotComment } from '../lib/comment';
 import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import {
-	commandDocList, dialogueTextElement, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
+    commandDocList, dialogueTextElement, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
 } from '../lib/dict';
-import { FileType, currentLineNotComment, getAllParams, getCommandParamFileType, getFileCompletionByType, getHoverContents, getParamAtPosition } from '../lib/utilities';
+import { FileType, getAllParams, getCommandParamFileType, getFileCompletionByType, getHoverContents, getParamAtPosition } from '../lib/utilities';
 import { fileListInitialized } from './file';
 import { getLabelComment } from './label';
 
