@@ -578,3 +578,7 @@ export function getSortTextByText(text: string) {
 export function getTextBySortText(sortText: string) {
 	return sortText.substring(sortText.indexOf(sortTextPrefixDelimiter) + 1);
 }
+
+export function deepCopy<T>(obj: T): T {
+	return JSON.parse(JSON.stringify(obj));
+}
