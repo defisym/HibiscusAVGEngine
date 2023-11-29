@@ -57,7 +57,7 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 	}
 
 	// iterate document with cache
-	iterateDocumentWithCache(document: vscode.TextDocument, cb: (lineInfo: LineInfo) => void) {
+	iterateDocumentCacheWithComment(document: vscode.TextDocument, cb: (lineInfo: LineInfo) => void) {
 		let curCache = this.getDocumentCache(document);
 		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
 			cb(curCache.lineInfo[lineNumber]);
@@ -65,7 +65,7 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 	}
 
 	// iterate document with cache
-	iterateDocumentWithoutCache(document: vscode.TextDocument, cb: (lineInfo: LineInfo) => void) {
+	iterateDocumentCacheWithoutComment(document: vscode.TextDocument, cb: (lineInfo: LineInfo) => void) {
 		let curCache = this.getDocumentCache(document);
 		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
 			if (curCache.comment[lineNumber]) { continue; }

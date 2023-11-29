@@ -77,7 +77,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 		dubError.delete(document.uri);
 		dubInfo.delete(document.uri);
 
-		lineCommentCache.iterateDocumentWithoutCache(document, (lineInfo) => {
+		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 			let text = lineInfo.textNoComment;
 			let lineNumber = lineInfo.lineNum;
 			let lineStart = lineInfo.lineStart;
@@ -311,7 +311,6 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
 				dubErrors!.push(curDubError);
 			} while (0);
-
 
 			// ------------
 			// Get dub info

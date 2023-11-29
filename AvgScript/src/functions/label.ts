@@ -20,7 +20,7 @@ class LabelCache implements CacheInterface<LabelInfo> {
 
 		const curCache = this.labelCache.get(document)!;
 
-		lineCommentCache.iterateDocumentWithoutCache(document, (lineInfo) => {
+		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 			let text = lineInfo.textNoComment;
 			let lineNumber = lineInfo.lineNum;
 			let lineStart = lineInfo.lineStart;
@@ -193,7 +193,7 @@ export const labelReference = vscode.languages.registerReferenceProvider(
 
 		let label = line.substring(line.indexOf(";") + 1);
 
-		lineCommentCache.iterateDocumentWithoutCache(document, (lineInfo) => {
+		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 			let text = lineInfo.textNoComment;
 			let lineNumber = lineInfo.lineNum;
 			let lineStart = lineInfo.lineStart;

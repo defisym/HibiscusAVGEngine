@@ -26,7 +26,7 @@ export const rename = vscode.languages.registerRenameProvider(
 				newName = newName + origin.substring(suffixPos);
 			}
 
-			lineCommentCache.iterateDocumentWithoutCache(document, (lineInfo) => {
+			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 				let text = lineInfo.textNoComment;
 				let lineNumber = lineInfo.lineNum;
 				let lineStart = lineInfo.lineStart;
