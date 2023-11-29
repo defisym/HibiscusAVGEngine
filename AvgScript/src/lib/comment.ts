@@ -1,11 +1,14 @@
 import * as vscode from "vscode";
 import { CacheInterface } from "./cacheInterface";
 import { iterateLinesWithComment, LineInfo } from "./iterateLines";
-import { ParseCommandResult } from './utilities';
 
-interface CommentCache {
-	comment: boolean[];
-	result: ParseCommandResult[];
+// text, lineStart, linePrefix, curPos(position - start), text lower
+export type ParseCommentResult = undefined[] | [string, number, string, number, string];
+
+class CommentCache {
+	comment: boolean[] = [];
+	result: ParseCommentResult[] = [];
+	lineInfo: LineInfo[] = [];
 }
 
 class LineCommentCache implements CacheInterface<CommentCache> {
@@ -13,12 +16,12 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 
 	parseDocument(document: vscode.TextDocument) {
 		this.removeDocumentCache(document);
-		this.lineCommentCache.set(document, { comment: [], result: [] });
+		this.lineCommentCache.set(document, new CommentCache());
 
 		const curCache = this.lineCommentCache.get(document)!;
 
 		iterateLinesWithComment(document, (lineInfo: LineInfo) => {
-			let parseResult: ParseCommandResult = [undefined, undefined, undefined, undefined];
+			let parseResult: ParseCommentResult = [undefined, undefined, undefined, undefined];
 
 			if (!lineInfo.lineIsComment) {
 				parseResult = [lineInfo.textNoComment.toLowerCase(),
@@ -30,6 +33,7 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 
 			curCache.comment.push(lineInfo.lineIsComment);
 			curCache.result.push(parseResult);
+			curCache.lineInfo.push(lineInfo);
 		});
 	}
 
@@ -51,12 +55,30 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 
 		return curCache;
 	}
+
+	// iterate document with cache
+	iterateDocumentWithCache(document: vscode.TextDocument, cb: (lineInfo: LineInfo) => void) {
+		let curCache = this.getDocumentCache(document);
+		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
+			cb(curCache.lineInfo[lineNumber]);
+		}
+	}
+
+	// iterate document with cache
+	iterateDocumentWithoutCache(document: vscode.TextDocument, cb: (lineInfo: LineInfo) => void) {
+		let curCache = this.getDocumentCache(document);
+		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
+			if (curCache.comment[lineNumber]) { continue; }
+			
+			cb(curCache.lineInfo[lineNumber]);
+		}
+	}
 }
 
 export const lineCommentCache = new LineCommentCache();
 
 export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position,
-	callback: (text: string) => void = (text: string) => { }): ParseCommandResult {
+	callback: (text: string) => void = (text: string) => { }): ParseCommentResult {
 	let curCache = lineCommentCache.getDocumentCache(document);
 
 	const curLine = position.line;

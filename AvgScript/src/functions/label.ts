@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
 
 import { CacheInterface } from '../lib/cacheInterface';
-import { currentLineNotComment } from '../lib/comment';
-import { commandInfoList, InlayHintType } from '../lib/dict';
-import { iterateLines } from "../lib/iterateLines";
+import { currentLineNotComment, lineCommentCache } from '../lib/comment';
+import { InlayHintType, commandInfoList } from '../lib/dict';
 import { regexRep } from '../lib/regExp';
 import { getAllParams } from "../lib/utilities";
 
@@ -21,9 +20,12 @@ class LabelCache implements CacheInterface<LabelInfo> {
 
 		const curCache = this.labelCache.get(document)!;
 
-		iterateLines(document, (text, lineNumber
-			, lineStart, lineEnd
-			, firstLineNotComment) => {
+		lineCommentCache.iterateDocumentWithoutCache(document, (lineInfo) => {
+			let text = lineInfo.textNoComment;
+			let lineNumber = lineInfo.lineNum;
+			let lineStart = lineInfo.lineStart;
+			let lineEnd = lineInfo.lineEnd;
+
 			if (text.matchStart(/(;.*)/gi)) {
 				let label = text.substring(text.indexOf(";") + 1);
 				let item: vscode.CompletionItem = new vscode.CompletionItem({
@@ -191,9 +193,12 @@ export const labelReference = vscode.languages.registerReferenceProvider(
 
 		let label = line.substring(line.indexOf(";") + 1);
 
-		iterateLines(document, (text, lineNumber
-			, lineStart, lineEnd
-			, firstLineNotComment) => {
+		lineCommentCache.iterateDocumentWithoutCache(document, (lineInfo) => {
+			let text = lineInfo.textNoComment;
+			let lineNumber = lineInfo.lineNum;
+			let lineStart = lineInfo.lineStart;
+			let lineEnd = lineInfo.lineEnd;
+
 			const params = getAllParams(text);
 			const paramNum = params.length - 1;
 

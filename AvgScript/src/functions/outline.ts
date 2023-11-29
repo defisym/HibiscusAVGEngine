@@ -1,90 +1,93 @@
 import * as vscode from 'vscode';
 import { currentLineLabel } from '../lib/dialogue';
 
-import { iterateLines } from "../lib/iterateLines";
+import { lineCommentCache } from '../lib/comment';
 import { beginRegex, endRegex } from '../lib/regExp';
 import { parseCommand } from '../lib/utilities';
 
 export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScript'
-    , {
-        provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken) {
-            let symbols: vscode.SymbolInformation[] = [];
+	, {
+		provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken) {
+			let symbols: vscode.SymbolInformation[] = [];
 
-            let prevSecName: string[] = [''];
-            let prevSecRangeStart: number[] = [];
+			let prevSecName: string[] = [''];
+			let prevSecRangeStart: number[] = [];
 
-            let inComment: boolean = false;
+			let inComment: boolean = false;
 
-            const labelRegex = /^;.*/gi;
+			const labelRegex = /^;.*/gi;
 
-            iterateLines(document, (text, lineNumber
-                , lineStart, lineEnd
-                , firstLineNotComment) => {
-                let item: vscode.SymbolInformation | undefined = undefined;
-                let match: RegExpMatchArray | null;
+			lineCommentCache.iterateDocumentWithoutCache(document, (lineInfo) => {
+				let text = lineInfo.textNoComment;
+				let lineNumber = lineInfo.lineNum;
+				let lineStart = lineInfo.lineStart;
+				let lineEnd = lineInfo.lineEnd;
 
-                do {
-                    if ((match = text.match(beginRegex)) !== null) {
-                        let beginName = text.substring("#Begin".length + 1).trim();
+				let item: vscode.SymbolInformation | undefined = undefined;
+				let match: RegExpMatchArray | null;
 
-                        prevSecName.push(beginName);
-                        prevSecRangeStart.push(lineNumber);
+				do {
+					if ((match = text.match(beginRegex)) !== null) {
+						let beginName = text.substring("#Begin".length + 1).trim();
 
-                        break;
-                    }
+						prevSecName.push(beginName);
+						prevSecRangeStart.push(lineNumber);
 
-                    if ((match = text.match(endRegex)) !== null) {
-                        if (prevSecName.length === 1) {
-                            return;
-                        }
+						break;
+					}
 
-                        let beginName = prevSecName.pop()!;
+					if ((match = text.match(endRegex)) !== null) {
+						if (prevSecName.length === 1) {
+							return;
+						}
 
-                        item = new vscode.SymbolInformation("Block: " + beginName
-                            , vscode.SymbolKind.Namespace
-                            , beginName
-                            , new vscode.Location(document.uri
-                                , new vscode.Range(
-                                    new vscode.Position(prevSecRangeStart.pop()!, 0)
-                                    , new vscode.Position(lineNumber, 0))));
+						let beginName = prevSecName.pop()!;
 
-                        break;
-                    }
+						item = new vscode.SymbolInformation("Block: " + beginName
+							, vscode.SymbolKind.Namespace
+							, beginName
+							, new vscode.Location(document.uri
+								, new vscode.Range(
+									new vscode.Position(prevSecRangeStart.pop()!, 0)
+									, new vscode.Position(lineNumber, 0))));
 
-                    if (currentLineLabel(text)) {
-                        let labelName = text.substring(text.indexOf(";") + 1);
+						break;
+					}
 
-                        item = new vscode.SymbolInformation("Label: " + labelName
-                            , vscode.SymbolKind.String
-                            , prevSecName[prevSecName.length - 1]
-                            , new vscode.Location(document.uri, new vscode.Position(lineNumber, 0)));
+					if (currentLineLabel(text)) {
+						let labelName = text.substring(text.indexOf(";") + 1);
 
-                        break;
-                    }
+						item = new vscode.SymbolInformation("Label: " + labelName
+							, vscode.SymbolKind.String
+							, prevSecName[prevSecName.length - 1]
+							, new vscode.Location(document.uri, new vscode.Position(lineNumber, 0)));
 
-                    const { params, commandWithPrefix, command, paramInfo } = parseCommand(text);
+						break;
+					}
 
-                    if (paramInfo === undefined) {
-                        return;
-                    }
+					const { params, commandWithPrefix, command, paramInfo } = parseCommand(text);
 
-                    if (paramInfo.outlineKeyword) {
-                        let keyWord = commandWithPrefix;
+					if (paramInfo === undefined) {
+						return;
+					}
 
-                        item = new vscode.SymbolInformation("KeyWord: " + /*keyWord*/text
-                            , vscode.SymbolKind.Function
-                            , prevSecName[prevSecName.length - 1]
-                            , new vscode.Location(document.uri, new vscode.Position(lineNumber, 0)));
+					if (paramInfo.outlineKeyword) {
+						let keyWord = commandWithPrefix;
 
-                        break;
-                    }
-                } while (0);
+						item = new vscode.SymbolInformation("KeyWord: " + /*keyWord*/text
+							, vscode.SymbolKind.Function
+							, prevSecName[prevSecName.length - 1]
+							, new vscode.Location(document.uri, new vscode.Position(lineNumber, 0)));
 
-                if (item !== undefined) {
-                    symbols.push(item);
-                }
-            });
+						break;
+					}
+				} while (0);
 
-            return symbols;
-        }
-    });
+				if (item !== undefined) {
+					symbols.push(item);
+				}
+			});
+
+			return symbols;
+		}
+	});

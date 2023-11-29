@@ -477,8 +477,6 @@ export function fileExistsInFileList(type: FileType, fileName: string) {
 	return fileListHasItem(filePath);
 }
 
-export type ParseCommandResult = undefined[] | [string, number, string, number, string];
-
 export function parseCommand(line: string) {
 	const params = getAllParams(line);
 

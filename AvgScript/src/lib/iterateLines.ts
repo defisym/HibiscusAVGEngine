@@ -5,127 +5,127 @@ import { iterateScripts } from './iterateScripts';
 import { getLangRegex } from './regExp';
 
 export interface LineInfo {
-    emptyLine: boolean,
+	emptyLine: boolean,
 
-    lineIsComment: boolean,
-    lineNotCurLanguage: boolean,
+	lineIsComment: boolean,
+	lineNotCurLanguage: boolean,
 
-    originText: string
-    textNoComment: string,
+	originText: string
+	textNoComment: string,
 
-    lineNum: number,
+	lineNum: number,
 
-    lineStart: number,
-    lineEnd: number,
+	lineStart: number,
+	lineEnd: number,
 
-    firstLineNotComment: number | undefined
+	firstLineNotComment: number | undefined
 }
 
 export function iterateLinesWithComment(document: vscode.TextDocument,
-    lineCallBack: (lineInfo: LineInfo) => void) {
-    let inComment: boolean = false;
+	lineCallBack: (lineInfo: LineInfo) => void) {
+	let inComment: boolean = false;
 
-    let beginRegex = /^#Begin/gi;
-    let endRegex = /^#End/gi;
-    let labelRegex = /^;.*/gi;
+	let beginRegex = /^#Begin/gi;
+	let endRegex = /^#End/gi;
+	let labelRegex = /^;.*/gi;
 
-    let commentRegex = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)|((?!\/\*)[^\/\*]*\*\/)/gi;
+	let commentRegex = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)|((?!\/\*)[^\/\*]*\*\/)/gi;
 
-    // line starts with // ( /*
-    // remove back
-    let commentRegexRepBack = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)/gi;
-    // line starts with ...*/
-    // remove beginning
-    let commentRegexRepFront = /((?!\/\*)[^\/\*]*\*\/)/gi;
-    // block //
-    let commentRegexEntire = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)\*\//gi;
+	// line starts with // ( /*
+	// remove back
+	let commentRegexRepBack = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)/gi;
+	// line starts with ...*/
+	// remove beginning
+	let commentRegexRepFront = /((?!\/\*)[^\/\*]*\*\/)/gi;
+	// block //
+	let commentRegexEntire = /(\/\/.*)|(\(.*)|(\/\*(?!\*\/)[^\*\/]*)\*\//gi;
 
-    let firstLineNotComment: number | undefined = undefined;
+	let firstLineNotComment: number | undefined = undefined;
 
-    const langReg = currentLocalCode !== undefined
-        ? getLangRegex(currentLocalCode)
-        : undefined;
+	const langReg = currentLocalCode !== undefined
+		? getLangRegex(currentLocalCode)
+		: undefined;
 
-    for (let i = 0; i < document.lineCount; ++i) {
-        const line = document.lineAt(i);
+	for (let i = 0; i < document.lineCount; ++i) {
+		const line = document.lineAt(i);
 
-        if (!line.isEmptyOrWhitespace) {
-            const text = line.text.replace(commentRegexEntire, "").trim();
+		if (!line.isEmptyOrWhitespace) {
+			const text = line.text.replace(commentRegexEntire, "").trim();
 
-            let textRemoveBack = text.replace(commentRegexRepBack, "").trim();
-            let textRemoveFront = text;
+			let textRemoveBack = text.replace(commentRegexRepBack, "").trim();
+			let textRemoveFront = text;
 
-            let textNoComment = textRemoveBack;
+			let textNoComment = textRemoveBack;
 
-            // TODO ABC /* */ ACB
-            if (inComment
-                && text.match(commentRegexRepFront)) {
-                inComment = false;
-                textRemoveFront = text.replace(commentRegexRepFront, "").trim();
-                textNoComment = textRemoveBack.replace(commentRegexRepFront, "").trim();
-            }
+			// TODO ABC /* */ ACB
+			if (inComment
+				&& text.match(commentRegexRepFront)) {
+				inComment = false;
+				textRemoveFront = text.replace(commentRegexRepFront, "").trim();
+				textNoComment = textRemoveBack.replace(commentRegexRepFront, "").trim();
+			}
 
-            if (!inComment
-                && textNoComment.length > 0) {
+			if (!inComment
+				&& textNoComment.length > 0) {
 
-                if (firstLineNotComment === undefined) {
-                    firstLineNotComment = i;
-                }
-            }
+				if (firstLineNotComment === undefined) {
+					firstLineNotComment = i;
+				}
+			}
 
-            const lineStart: number = line.firstNonWhitespaceCharacterIndex
-                + text.length - textRemoveFront.length;
-            const lineEnd: number = lineStart + textNoComment.length;
+			const lineStart: number = line.firstNonWhitespaceCharacterIndex
+				+ text.length - textRemoveFront.length;
+			const lineEnd: number = lineStart + textNoComment.length;
 
-            const bNotCurrentLanguage = langReg !== undefined
-                ? textNoComment.matchEntire(langReg)
-                : false;
+			const bNotCurrentLanguage = langReg !== undefined
+				? textNoComment.matchEntire(langReg)
+				: false;
 
-            lineCallBack(
-                {
-                    emptyLine: false,
+			lineCallBack(
+				{
+					emptyLine: false,
 
-                    lineIsComment: inComment || textNoComment.empty() || bNotCurrentLanguage,
-                    lineNotCurLanguage: bNotCurrentLanguage,
+					lineIsComment: inComment || textNoComment.empty() || bNotCurrentLanguage,
+					lineNotCurLanguage: bNotCurrentLanguage,
 
-                    originText: line.text,
-                    textNoComment: textNoComment,
+					originText: line.text,
+					textNoComment: textNoComment,
 
-                    lineNum: i,
+					lineNum: i,
 
-                    lineStart: lineStart,
-                    lineEnd: lineEnd,
+					lineStart: lineStart,
+					lineEnd: lineEnd,
 
-                    firstLineNotComment: firstLineNotComment
-                }
-            );
+					firstLineNotComment: firstLineNotComment
+				}
+			);
 
-            if (!inComment
-                && !text.match(/\*\//gi)
-                && text.match(/\/\*/gi)) {
-                inComment = true;;
-            }
-        } else {
-            lineCallBack(
-                {
-                    emptyLine: true,
+			if (!inComment
+				&& !text.match(/\*\//gi)
+				&& text.match(/\/\*/gi)) {
+				inComment = true;;
+			}
+		} else {
+			lineCallBack(
+				{
+					emptyLine: true,
 
-                    lineIsComment: false,
-                    lineNotCurLanguage: false,
+					lineIsComment: false,
+					lineNotCurLanguage: false,
 
-                    originText: line.text,
-                    textNoComment: '',
+					originText: line.text,
+					textNoComment: '',
 
-                    lineNum: i,
+					lineNum: i,
 
-                    lineStart: 0,
-                    lineEnd: line.text.length,
+					lineStart: 0,
+					lineEnd: line.text.length,
 
-                    firstLineNotComment: firstLineNotComment
-                }
-            );
-        }
-    }
+					firstLineNotComment: firstLineNotComment
+				}
+			);
+		}
+	}
 }
 
 // iterateLines(document, (text, lineNumber
@@ -134,44 +134,44 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 //     });
 
 export function iterateLines(document: vscode.TextDocument,
-    callBack: (text: string, lineNum: number,
-        lineStart: number, lineEnd: number,
-        firstLineNotComment: number) => void) {
-    iterateLinesWithComment(document, (info: LineInfo) => {
-        let { lineIsComment,
+	callBack: (text: string, lineNum: number,
+		lineStart: number, lineEnd: number,
+		firstLineNotComment: number) => void) {
+	iterateLinesWithComment(document, (info: LineInfo) => {
+		let { lineIsComment,
 
-            originText,
-            textNoComment,
+			originText,
+			textNoComment,
 
-            lineNum,
+			lineNum,
 
-            lineStart,
-            lineEnd,
+			lineStart,
+			lineEnd,
 
-            firstLineNotComment } = info;
+			firstLineNotComment } = info;
 
-        if (!lineIsComment) {
-            callBack(textNoComment, lineNum,
-                lineStart, lineEnd,
-                firstLineNotComment!);
-        }
-    });
+		if (!lineIsComment) {
+			callBack(textNoComment, lineNum,
+				lineStart, lineEnd,
+				firstLineNotComment!);
+		}
+	});
 }
 
 export async function iterateAllLines(callBack: (text: string, lineNum: number,
-    lineStart: number, lineEnd: number,
-    firstLineNotComment: number) => void) {
-    await iterateScripts((script: string, document: vscode.TextDocument) => { },
-        (initScript: string,
-            script: string,
-            line: string, lineNumber: number,
-            lineStart: number, lineEnd: number,
-            firstLineNotComment: number) => {
-            callBack(line, lineNumber,
-                lineStart, lineEnd,
-                firstLineNotComment);
-        },
-        (initScript: string,
-            script: string, lineNumber: number, line: string,
-            currentType: InlayHintType, currentParam: string) => { });
+	lineStart: number, lineEnd: number,
+	firstLineNotComment: number) => void) {
+	await iterateScripts((script: string, document: vscode.TextDocument) => { },
+		(initScript: string,
+			script: string,
+			line: string, lineNumber: number,
+			lineStart: number, lineEnd: number,
+			firstLineNotComment: number) => {
+			callBack(line, lineNumber,
+				lineStart, lineEnd,
+				firstLineNotComment);
+		},
+		(initScript: string,
+			script: string, lineNumber: number, line: string,
+			currentType: InlayHintType, currentParam: string) => { });
 };
