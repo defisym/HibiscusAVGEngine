@@ -4,9 +4,13 @@ import * as vscode from 'vscode';
 
 import * as mm from 'music-metadata';
 
-import { audio, audioDubsCompletions, currentLocalCode, getFullFilePath, projectConfig, projectFileInfoList } from "../functions/file";
-import { ScriptSettings } from "./settings";
-import { parseBoolean, parseCommand, stringToEnglish } from "./utilities";
+import { audio, audioDubsCompletions, basePath, currentLocalCode, getFullFilePath, projectConfig, projectFileInfoList } from "../functions/file";
+import { narrator } from '../webview/dubList';
+import { CacheInterface } from './cacheInterface';
+import { lineCommentCache } from './comment';
+import { currentLineDialogue, parseDialogue } from './dialogue';
+import { ScriptSettings, getSettings } from "./settings";
+import { cropScript, deepCopy, parseBoolean, parseCommand, stringToEnglish } from "./utilities";
 
 export class DubParser {
 	bHoldNowTalking = false;
@@ -187,7 +191,7 @@ export function UpdateDubCompletion(dubParser: DubParser) {
 			const subBegin = sub.substring(0, relativePrefix.length);
 
 			if (subBegin.iCmp(relativePrefix)) {
-				let localItem = JSON.parse(JSON.stringify(item));
+				let localItem = deepCopy(item);
 
 				const subName = sub.substring(relativePrefix.length);
 
@@ -202,3 +206,144 @@ export function UpdateDubCompletion(dubParser: DubParser) {
 
 	return localDubCompletion;
 }
+
+class DubCache {
+	dubParser: DubParser;
+	totalLine: number;
+
+	constructor(dubParser: DubParser, totalLine: number) {
+		this.dubParser = deepCopy(dubParser);
+		this.totalLine = totalLine;
+	}
+}
+
+export class DubParseCache implements CacheInterface<DubCache[]> {
+	dubParseCache = new Map<vscode.TextDocument, DubCache[]>();
+
+	parseDocument(document: vscode.TextDocument) {
+		this.removeDocumentCache(document);
+		this.dubParseCache.set(document, []);
+
+		const curCache = this.dubParseCache.get(document)!;
+
+		this.updateDocumentDub(document, (dp: DubParser, totalLine: number) => {
+			curCache.push(new DubCache(dp, totalLine));
+		});
+
+		return;
+	}
+
+	removeDocumentCache(document: vscode.TextDocument) {
+		this.dubParseCache.delete(document);
+	}
+	updateDocumentCache(document: vscode.TextDocument,
+		change: readonly vscode.TextDocumentContentChangeEvent[]) {
+		//TODO
+		this.removeDocumentCache(document);
+	}
+	getDocumentCache(document: vscode.TextDocument) {
+		let curCache = this.dubParseCache.get(document);
+
+		if (curCache === undefined) {
+			this.parseDocument(document);
+		}
+
+		curCache = this.dubParseCache.get(document)!;
+
+		return curCache;
+	}
+
+	updateDocumentDub(document: vscode.TextDocument,
+		cb: (dp: DubParser, totalLine: number) => void,
+		since: number = 0, dubState: DubParser | undefined = undefined) {
+		const settings = getSettings(document);
+		const bSettingsSideEffect = settings && settings.NoSideEffect;
+		let bNoSideEffect = bSettingsSideEffect;
+
+		let totalLineCount = 0;
+		let lineCountMap: Map<string, number> = new Map();
+
+		const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
+		if (dubState === undefined) {
+			dubState = new DubParser(curChapter);
+			dubState.parseSettings(settings);
+		} else {
+			dubState = deepCopy(dubState);
+		}
+
+		let curCache = lineCommentCache.getDocumentCache(document);
+		for (let idx = since; idx < curCache.comment.length; idx++) {
+			if (curCache.comment[idx]) { continue; }
+
+			const lineInfo = curCache.lineInfo[idx];
+
+			let text = lineInfo.textNoComment;
+			let lineNumber = lineInfo.lineNum;
+			let lineStart = lineInfo.lineStart;
+			let lineEnd = lineInfo.lineEnd;
+
+			// ----------
+			// Parse command
+			// ----------
+			if (!currentLineDialogue(text)) {
+				do {
+					if (!bSettingsSideEffect) { break; }
+					if (text.matchStart('#SideEffect')) {
+						bNoSideEffect = false;
+						break;
+					}
+					if (text.matchStart('#NoSideEffect')) {
+						bNoSideEffect = true;
+						break;
+					}
+				} while (false);
+
+				dubState.parseCommand(text);
+				dubState.afterPlay();
+
+				continue;
+			}
+
+			// ----------
+			// Parse dialogue
+			// ----------
+			const dialogueStruct = parseDialogue(text, text);
+			const range = new vscode.Range(new vscode.Position(lineNumber, lineStart),
+				new vscode.Position(lineNumber, lineEnd));
+
+			// total line count
+			const curTotalLineCount = totalLineCount;
+			totalLineCount++;
+			// depend on display name
+			let name = dialogueStruct.m_name;
+
+			if (name.empty()) {
+				name = narrator;
+			}
+
+			let lineCount = lineCountMap.get(name);
+
+			if (lineCount === undefined) {
+				lineCountMap.set(name, 0);
+				lineCount = lineCountMap.get(name);
+			}
+
+			if (lineCount === undefined) {
+				continue;
+			}
+
+			if (bNoSideEffect) {
+				lineCountMap.set(name, lineCount + 1);
+			}
+
+			// ----------
+			// Content
+			// ----------
+			dubState.updateState(name);
+			cb(dubState, curTotalLineCount);
+			dubState.afterPlay();
+		}
+	}
+}
+
+export const dubParseCache = new DubParseCache();
