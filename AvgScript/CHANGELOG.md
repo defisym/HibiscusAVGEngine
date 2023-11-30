@@ -6,6 +6,8 @@
   - speed up code lens by separate to provide & resolve
   - separate diagnostic routine
   - drag doesn't rely on code lens
+- add script process progress
+- fix list dub info typo
 
 ## 20231128
 
