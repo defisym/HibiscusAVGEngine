@@ -11,6 +11,7 @@
 - fix list dub info typo
 - show dub info in dub lines
 - internal name change only shows at the changed line
+- fix undefined is not iterable
 
 ## 20231128
 

@@ -3,7 +3,8 @@ import { CacheInterface } from "./cacheInterface";
 import { iterateLinesWithComment, LineInfo } from "./iterateLines";
 
 // text, lineStart, linePrefix, curPos(position - start), text lower
-export type ParseCommentResult = undefined[] | [string, number, string, number, string];
+export type ParseCommentResult = [undefined, undefined, undefined, undefined, undefined]
+	| [string, number, string, number, string];
 
 class CommentCache {
 	comment: boolean[] = [];
@@ -21,7 +22,7 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 		const curCache = this.lineCommentCache.get(document.uri)!;
 
 		iterateLinesWithComment(document, (lineInfo: LineInfo) => {
-			let parseResult: ParseCommentResult = [undefined, undefined, undefined, undefined];
+			let parseResult: ParseCommentResult = [undefined, undefined, undefined, undefined, undefined];
 
 			if (!lineInfo.lineIsComment) {
 				parseResult = [lineInfo.textNoComment.toLowerCase(),
@@ -69,7 +70,7 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 		let curCache = this.getDocumentCache(document);
 		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
 			if (curCache.comment[lineNumber]) { continue; }
-			
+
 			cb(curCache.lineInfo[lineNumber]);
 		}
 	}

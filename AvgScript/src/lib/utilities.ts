@@ -88,7 +88,13 @@ export function getCompletionList(type: FileType) {
 
 export function getFileCompletionByType(type: FileType, fileName: string) {
 	// correction to full path
-	let [corType, corFileName] = getCorrectPathAndType(type, fileName)!;
+	let ret = getCorrectPathAndType(type, fileName);
+
+	if (ret === undefined) {
+		return undefined;
+	}
+
+	let [corType, corFileName] = ret;
 
 	fileName = corFileName;
 	type = corType;
