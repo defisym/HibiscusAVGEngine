@@ -19,6 +19,7 @@ export interface LineInfo {
 	lineEnd: number,
 
 	firstLineNotComment: number | undefined
+	inComment: boolean
 }
 
 export function iterateLinesWithComment(document: vscode.TextDocument,
@@ -49,63 +50,7 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 	for (let i = 0; i < document.lineCount; ++i) {
 		const line = document.lineAt(i);
 
-		if (!line.isEmptyOrWhitespace) {
-			const text = line.text.replace(commentRegexEntire, "").trim();
-
-			let textRemoveBack = text.replace(commentRegexRepBack, "").trim();
-			let textRemoveFront = text;
-
-			let textNoComment = textRemoveBack;
-
-			// TODO ABC /* */ ACB
-			if (inComment
-				&& text.match(commentRegexRepFront)) {
-				inComment = false;
-				textRemoveFront = text.replace(commentRegexRepFront, "").trim();
-				textNoComment = textRemoveBack.replace(commentRegexRepFront, "").trim();
-			}
-
-			if (!inComment
-				&& textNoComment.length > 0) {
-
-				if (firstLineNotComment === undefined) {
-					firstLineNotComment = i;
-				}
-			}
-
-			const lineStart: number = line.firstNonWhitespaceCharacterIndex
-				+ text.length - textRemoveFront.length;
-			const lineEnd: number = lineStart + textNoComment.length;
-
-			const bNotCurrentLanguage = langReg !== undefined
-				? textNoComment.matchEntire(langReg)
-				: false;
-
-			lineCallBack(
-				{
-					emptyLine: false,
-
-					lineIsComment: inComment || textNoComment.empty() || bNotCurrentLanguage,
-					lineNotCurLanguage: bNotCurrentLanguage,
-
-					originText: line.text,
-					textNoComment: textNoComment,
-
-					lineNum: i,
-
-					lineStart: lineStart,
-					lineEnd: lineEnd,
-
-					firstLineNotComment: firstLineNotComment
-				}
-			);
-
-			if (!inComment
-				&& !text.match(/\*\//gi)
-				&& text.match(/\/\*/gi)) {
-				inComment = true;;
-			}
-		} else {
+		if (line.isEmptyOrWhitespace) {
 			lineCallBack(
 				{
 					emptyLine: true,
@@ -121,10 +66,70 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 					lineStart: 0,
 					lineEnd: line.text.length,
 
-					firstLineNotComment: firstLineNotComment
+					firstLineNotComment: firstLineNotComment,
+					inComment: inComment
 				}
 			);
+
+			continue;
 		}
+
+		const text = line.text.replace(commentRegexEntire, "").trim();
+
+		let textRemoveBack = text.replace(commentRegexRepBack, "").trim();
+		let textRemoveFront = text;
+
+		let textNoComment = textRemoveBack;
+
+		// TODO ABC /* */ ACB
+		if (inComment
+			&& text.match(commentRegexRepFront)) {
+			inComment = false;
+			textRemoveFront = text.replace(commentRegexRepFront, "").trim();
+			textNoComment = textRemoveBack.replace(commentRegexRepFront, "").trim();
+		}
+
+		if (!inComment
+			&& textNoComment.length > 0) {
+			if (firstLineNotComment === undefined) {
+				firstLineNotComment = i;
+			}
+		}
+
+		const lineStart: number = line.firstNonWhitespaceCharacterIndex
+			+ text.length - textRemoveFront.length;
+		const lineEnd: number = lineStart + textNoComment.length;
+
+		const bNotCurrentLanguage = langReg !== undefined
+			? textNoComment.matchEntire(langReg)
+			: false;
+
+		lineCallBack(
+			{
+				emptyLine: false,
+
+				lineIsComment: inComment || textNoComment.empty() || bNotCurrentLanguage,
+				lineNotCurLanguage: bNotCurrentLanguage,
+
+				originText: line.text,
+				textNoComment: textNoComment,
+
+				lineNum: i,
+
+				lineStart: lineStart,
+				lineEnd: lineEnd,
+
+				firstLineNotComment: firstLineNotComment,
+				inComment: inComment
+			}
+		);
+
+		if (!inComment
+			&& !text.match(/\*\//gi)
+			&& text.match(/\/\*/gi)) {
+			inComment = true;;
+		}
+
 	}
 }
 
