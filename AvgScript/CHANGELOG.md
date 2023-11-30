@@ -6,8 +6,11 @@
   - speed up code lens by separate to provide & resolve
   - separate diagnostic routine
   - drag doesn't rely on code lens
+  - file definition only parse dub when type is dub
 - add script process progress
 - fix list dub info typo
+- show dub info in dub lines
+- internal name change only shows at the changed line
 
 ## 20231128
 

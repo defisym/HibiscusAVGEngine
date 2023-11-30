@@ -7,6 +7,7 @@ import { activeEditor } from '../extension';
 import { currentLineNotComment } from '../lib/comment';
 import { currentLineDialogue, DialogueStruct, parseDialogue } from '../lib/dialogue';
 import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
+import { DubParser } from '../lib/dubs';
 import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
 import { FileType } from '../lib/utilities';
@@ -663,6 +664,7 @@ export const commandShowHibiscusDocument_impl = async () => {
 export let dubListPanel: vscode.WebviewPanel;
 export interface DubInfo {
 	dialogueStruct: DialogueStruct;
+	dubFileName: string | undefined;
 	script: string;
 	line: number;
 
@@ -693,9 +695,23 @@ export const commandGetDubList_impl = async () => {
 
 		let dubMap = new Map<string, DubInfo[]>();
 
+		let dubParser: DubParser | undefined = undefined;
+		let fileName: string | undefined = undefined;
+		let uri: vscode.Uri | undefined = undefined;
+		let webUri: vscode.Uri | undefined = undefined;
+
 		await iterateScripts(
 			(script: string, document: vscode.TextDocument) => {
 				progress.report({ increment: 0, message: "Parsing script " + script });
+				dubParser = DubParser.getDubParser(document);
+				fileName = getFullFileNameByType(FileType.script, script);
+
+				if (fileName === undefined) {
+					return;
+				}
+
+				uri = vscode.Uri.file(fileName);
+				webUri = dubListPanel.webview.asWebviewUri(vscode.Uri.file(fileName));
 			},
 			(initScript: string,
 				script: string,
@@ -703,18 +719,24 @@ export const commandGetDubList_impl = async () => {
 				lineStart: number, lineEnd: number,
 				firstLineNotComment: number) => {
 				if (!currentLineDialogue(line)) {
+					dubParser!.parseCommand(line);
+					dubParser!.afterPlay();
+
 					return;
 				}
 
 				const dialogueStruct = parseDialogue(line.toLocaleLowerCase(), line);
 
 				// depend on display name
-				// let name = dialogueStruct.m_namePart;
 				let name = dialogueStruct.m_name;
 
 				if (name.empty()) {
 					name = narrator;
 				}
+
+				dubParser!.updateState(name);
+				const dubFileName = dubParser!.getPlayFileName();
+				dubParser!.afterPlay();
 
 				let dubInfo = dubMap.getWithInit(name, []);
 
@@ -722,19 +744,18 @@ export const commandGetDubList_impl = async () => {
 					return;
 				}
 
-				let fileName = getFullFileNameByType(FileType.script, script);
-
 				if (fileName === undefined) {
 					return;
 				}
 
 				dubInfo.push({
 					dialogueStruct: dialogueStruct,
+					dubFileName: dubFileName,
 					script: script,
 					line: lineNumber,
 
-					uri: vscode.Uri.file(fileName),
-					webUri: dubListPanel.webview.asWebviewUri(vscode.Uri.file(fileName)),
+					uri: uri!,
+					webUri: webUri!,
 				});
 			},
 			(initScript: string

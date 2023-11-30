@@ -2,13 +2,13 @@
 
 import { DubInfo } from "../functions/command";
 import { cropScript } from "../lib/utilities";
-import { markdownParser, markDown_getLink, markDown_getMarkDownLevel, markDown_linkEscape, markDown_newLine } from "./_mdToHtml";
+import { markDown_getLink, markDown_getMarkDownLevel, markDown_linkEscape, markDown_newLine, markdownParser } from "./_mdToHtml";
 import { onClickLinkScript } from "./_onClickLink";
 
 export const narrator = '旁白';
 
 export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
-    const pageTemplate = `<!DOCTYPE html>
+	const pageTemplate = `<!DOCTYPE html>
                         <html lang="en">
                         
                         <head>
@@ -20,209 +20,213 @@ export function dubList_getWebviewContent(dubMap: Map<string, DubInfo[]>) {
                         <body>
                         {$BODY}
                         </body>`
-        + onClickLinkScript
-        + `</html>`;
+		+ onClickLinkScript
+		+ `</html>`;
 
-    let markdown = '';
+	let markdown = '';
 
-    let title = markDown_getMarkDownLevel(1)
-        + 'Dub List'
-        + markDown_newLine;
+	let title = markDown_getMarkDownLevel(1)
+		+ 'Dub List'
+		+ markDown_newLine;
 
-    // char title
-    const charListTitle = 'Character List';
-    let charList = markDown_getMarkDownLevel(2)
-        + charListTitle
-        + markDown_newLine
-        + "**<font color=red>One character may be displayed in different names</font>**"
-        + markDown_newLine
-        + "**<font color=red>Don't forget those lines when submitting script to CVs</font>**"
-        + markDown_newLine;
+	// char title
+	const charListTitle = 'Character List';
+	let charList = markDown_getMarkDownLevel(2)
+		+ charListTitle
+		+ markDown_newLine
+		+ "**<font color=red>One character may be displayed in different names</font>**"
+		+ markDown_newLine
+		+ "**<font color=red>Don't forget those lines when submitting script to CVs</font>**"
+		+ markDown_newLine;
 
-    const charListAppend = ',\t\t\t\t\t\t\t\t';
-    const charListWidth = 8;
-    let charListCount = 0;
+	const charListAppend = ',\t\t\t\t\t\t\t\t';
+	const charListWidth = 8;
+	let charListCount = 0;
 
-    const charListTitleLink = markDown_linkEscape(charListTitle);
+	const charListTitleLink = markDown_linkEscape(charListTitle);
 
-    dubMap.forEach((value: DubInfo[], key: string) => {
-        let checkInternal = (info: DubInfo) => {
-            let name = key !== narrator
-                ? info.dialogueStruct.m_name
-                : narrator;
-            let internalName = key !== narrator
-                ? info.dialogueStruct.m_namePartRaw
-                : narrator;
+	dubMap.forEach((value: DubInfo[], key: string) => {
+		let checkInternal = (info: DubInfo) => {
+			let name = key !== narrator
+				? info.dialogueStruct.m_name
+				: narrator;
+			let internalName = key !== narrator
+				? info.dialogueStruct.m_namePartRaw
+				: narrator;
 
-            // console.log(name, internalName);
+			// console.log(name, internalName);
 
-            // if (internalName !== name) {
-            //     console.log("diff");
-            // }
+			// if (internalName !== name) {
+			//     console.log("diff");
+			// }
 
-            return (internalName !== name
-                ? 'internal name: ' + '\`' + internalName + '\`' + ' '
-                : '');
-        };
+			return (internalName !== name
+				? 'internal name: ' + '\`' + internalName + '\`' + ' '
+				: '');
+		};
 
-        let oldInternal: undefined | string = undefined;
-        let bInternalChanged = false;
+		let wordCount = 0;
+		let diaContent = '';
 
-        for (const info of value) {
-            let internalName = key !== narrator
-                ? info.dialogueStruct.m_namePartRaw
-                : narrator;
+		let infoIndex = 0;
+		let curScript = '';
 
-            if (oldInternal === undefined) {
-                oldInternal = internalName;
-            }
+		const templateInfo = value[0];
 
-            if (oldInternal !== internalName) {
-                bInternalChanged = true;
+		const name = key !== narrator
+			? templateInfo.dialogueStruct.m_name
+			: narrator;
+		// const internalName = key !== narrator
+		//     ? templateInfo.dialogueStruct.m_namePartRaw
+		//     : narrator;
 
-                break;
-            }
-        }
+		// chapter title
+		const chapterListTitle = 'Chapter List' + ' ' + name;
+		let chapterList = markDown_getMarkDownLevel(3)
+			+ chapterListTitle
+			+ markDown_newLine;
 
-        let wordCount = 0;
-        let diaContent = '';
+		const chapterListAppend = ',\t\t\t\t\t\t\t\t';
+		const chapterListWidth = 5;
+		let chapterListCount = 0;
 
-        let infoIndex = 0;
-        let curScript = '';
+		const chapterListTitleLink = markDown_linkEscape(chapterListTitle);
 
-        const templateInfo = value[0];
+		let oldInternal: undefined | string = undefined;
+		let bInternalChanged = false;
+		let bLocalInternalChanged = false;
 
-        const name = key !== narrator
-            ? templateInfo.dialogueStruct.m_name
-            : narrator;
-        // const internalName = key !== narrator
-        //     ? templateInfo.dialogueStruct.m_namePartRaw
-        //     : narrator;
+		let chapterContent = '';
 
-        // chapter title
-        const chapterListTitle = 'Chapter List' + ' ' + name;
-        let chapterList = markDown_getMarkDownLevel(3)
-            + chapterListTitle
-            + markDown_newLine;
+		for (const info of value) {
+			if (curScript !== info.script) {
+				curScript = info.script;
+				infoIndex = 0;
 
-        const chapterListAppend = ',\t\t\t\t\t\t\t\t';
-        const chapterListWidth = 5;
-        let chapterListCount = 0;
+				// update chapter title link
+				const curScriptCrop = cropScript(curScript);
 
-        const chapterListTitleLink = markDown_linkEscape(chapterListTitle);
+				let chapterTitle = 'Script ' + curScriptCrop + ' ' + name;
 
-        let chapterContent = '';
+				const chapterLink = markDown_linkEscape('↩ ' + chapterTitle);
+				chapterList += markDown_getLink(curScriptCrop, '#' + chapterLink.toLowerCase());
+				chapterListCount++;
 
-        for (const info of value) {
-            if (curScript !== info.script) {
-                curScript = info.script;
-                infoIndex = 0;
+				if (chapterListCount >= chapterListWidth) {
+					chapterList += markDown_newLine;
+					chapterListCount = 0;
+				} else {
+					chapterList += chapterListAppend;
+				}
 
-                // update chapter title link
-                const curScriptCrop = cropScript(curScript);
+				chapterTitle = markDown_getLink('↩', '#' + chapterListTitleLink.toLowerCase())
+					+ ' '
+					+ chapterTitle;
 
-                let chapterTitle = 'Script ' + curScriptCrop + ' ' + name;
+				chapterContent += markDown_getMarkDownLevel(3)
+					+ chapterTitle;
+				chapterContent += markDown_newLine;
+			}
 
-                const chapterLink = markDown_linkEscape('↩ ' + chapterTitle);
-                chapterList += markDown_getLink(curScriptCrop, '#' + chapterLink.toLowerCase());
-                chapterListCount++;
+			const dia = info.dialogueStruct.m_dialoguePart;
+			wordCount += dia.length;
 
-                if (chapterListCount >= chapterListWidth) {
-                    chapterList += markDown_newLine;
-                    chapterListCount = 0;
-                } else {
-                    chapterList += chapterListAppend;
-                }
+			// check internal
+			let internalName = key !== narrator
+				? info.dialogueStruct.m_namePartRaw
+				: narrator;
 
-                chapterTitle = markDown_getLink('↩', '#' + chapterListTitleLink.toLowerCase())
-                    + ' '
-                    + chapterTitle;
+			if (oldInternal === undefined) {
+				oldInternal = internalName;
+			}
 
-                chapterContent += markDown_getMarkDownLevel(3)
-                    + chapterTitle;
-                chapterContent += markDown_newLine;
-            }
+			if (oldInternal !== internalName) {
+				bInternalChanged = true;
+				bLocalInternalChanged = true;
+			}
 
-            const dia = info.dialogueStruct.m_dialoguePart;
-            wordCount += dia.length;
+			if (bLocalInternalChanged) {
+				bLocalInternalChanged = false;
 
-            if (bInternalChanged) {
-                let internal = checkInternal(info);
+				let internal = 'internal name: ' + '\`' + internalName + '\`' + ' ';
 
-                chapterContent += internal !== ''
-                    ? markDown_getMarkDownLevel(3) + internal
-                    : '';
-                chapterContent += markDown_newLine;
-            }
+				chapterContent += internal !== ''
+					? markDown_getMarkDownLevel(3) + internal
+					: '';
+				chapterContent += markDown_newLine;
+			}
 
-            chapterContent += markDown_getLink('↪'
-                , info.uri + '#' + info.line.toString())
-                + ' '
-                + infoIndex.toString().padStart(Math.max(4, value.length.toString().length), '0')
-                + ' '
-                + dia;
-            chapterContent += markDown_newLine;
+			// add new line
+			chapterContent += markDown_getLink('↪'
+				, info.uri + '#' + info.line.toString())
+				+ ' '
+				+ infoIndex.toString().padStart(Math.max(4, value.length.toString().length), '0')
+				+ ' '
+				+ (info.dubFileName === undefined ? '🔇' : '🔊')
+				+ ' '
+				+ dia;
+			chapterContent += markDown_newLine;
 
-            infoIndex++;
-        }
+			infoIndex++;
+		}
 
-        const bChapterEndWithAppend = chapterList.trimRight().endsWith(chapterListAppend.trimRight());
-        diaContent += (bChapterEndWithAppend
-            ? chapterList.substring(0, chapterList.length - chapterListAppend.length)
-            : chapterList)
-            + markDown_newLine
-            + chapterContent;
+		const bChapterEndWithAppend = chapterList.trimRight().endsWith(chapterListAppend.trimRight());
+		diaContent += (bChapterEndWithAppend
+			? chapterList.substring(0, chapterList.length - chapterListAppend.length)
+			: chapterList)
+			+ markDown_newLine
+			+ chapterContent;
 
-        // update char title link
-        let charTitle = name + ': '
-            // + checkInternal(templateInfo)
-            + value.length.toString() + ' lines'
-            + ', '
-            + wordCount.toString() + ' words';
+		// update char title link
+		let charTitle = name + ': '
+			// + checkInternal(templateInfo)
+			+ value.length.toString() + ' lines'
+			+ ', '
+			+ wordCount.toString() + ' words';
 
-        const charTitleLink = markDown_linkEscape('↩ ' + charTitle);
+		const charTitleLink = markDown_linkEscape('↩ ' + charTitle);
 
-        charList += markDown_getLink(name, '#' + charTitleLink.toLowerCase());
-        charListCount++;
+		charList += markDown_getLink(name, '#' + charTitleLink.toLowerCase());
+		charListCount++;
 
-        if (charListCount >= charListWidth) {
-            charList += markDown_newLine;
-            charListCount = 0;
-        } else {
-            charList += charListAppend;
-        }
+		if (charListCount >= charListWidth) {
+			charList += markDown_newLine;
+			charListCount = 0;
+		} else {
+			charList += charListAppend;
+		}
 
-        charTitle = markDown_getLink('↩', '#' + charListTitleLink.toLowerCase())
-            + ' '
-            + charTitle;
+		charTitle = markDown_getLink('↩', '#' + charListTitleLink.toLowerCase())
+			+ ' '
+			+ charTitle;
 
-        markdown += markDown_getMarkDownLevel(2)
-            + charTitle
-            + markDown_newLine;
+		markdown += markDown_getMarkDownLevel(2)
+			+ charTitle
+			+ markDown_newLine;
 
-        if (bInternalChanged) {
-            markdown += "**<font color=red>Character's internal name changed</font>**";
-            markdown += markDown_newLine;
-            markdown += "**<font color=red>If it's not a temporary name like `???`, possibly due to incorrect binding</font>**";
-            markdown += markDown_newLine;
-            markdown += "**<font color=red>Please check the `HeadHint` part</font>**";
-            markdown += markDown_newLine;
-        }
+		if (bInternalChanged) {
+			markdown += "**<font color=red>Character's internal name changed</font>**";
+			markdown += markDown_newLine;
+			markdown += "**<font color=red>If it's not a temporary name like `???`, possibly due to incorrect binding</font>**";
+			markdown += markDown_newLine;
+			markdown += "**<font color=red>Please check the `HeadHint` part</font>**";
+			markdown += markDown_newLine;
+		}
 
-        markdown += diaContent;
-    });
+		markdown += diaContent;
+	});
 
-    const bCharEndWithAppend = charList.trimRight().endsWith(charListAppend.trimRight());
-    markdown = title
-        + (bCharEndWithAppend
-            ? charList.substring(0, charList.length - charListAppend.length)
-            : charList)
-        + markDown_newLine
-        + markdown;
+	const bCharEndWithAppend = charList.trimRight().endsWith(charListAppend.trimRight());
+	markdown = title
+		+ (bCharEndWithAppend
+			? charList.substring(0, charList.length - charListAppend.length)
+			: charList)
+		+ markDown_newLine
+		+ markdown;
 
-    const html = markdownParser(markdown);
+	const html = markdownParser(markdown);
 
-    let page = pageTemplate.replace('{$BODY}', html);
+	let page = pageTemplate.replace('{$BODY}', html);
 
-    return page;
+	return page;
 }

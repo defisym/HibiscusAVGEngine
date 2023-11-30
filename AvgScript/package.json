@@ -477,32 +477,32 @@
                     "when": "editorLangId == AvgScript"
                 },
                 {
-                    "group": "AvgScript.3_assets",
+                    "group": "AvgScript.4_dubs",
                     "command": "config.AvgScript.getDubList",
                     "when": "editorLangId == AvgScript"
                 },
                 {
-                    "group": "AvgScript.4_document",
+                    "group": "AvgScript.5_document",
                     "command": "config.AvgScript.showDialogueFormatHint",
                     "when": "editorLangId == AvgScript"
                 },
                 {
-                    "group": "AvgScript.4_document",
+                    "group": "AvgScript.5_document",
                     "command": "config.AvgScript.showHibiscusDocument",
                     "when": "editorLangId == AvgScript"
                 },
                 {
-                    "group": "AvgScript.5_script",
+                    "group": "AvgScript.6_script",
                     "command": "config.AvgScript.appendDialogue",
                     "when": "editorLangId == AvgScript"
                 },
                 {
-                    "group": "AvgScript.5_script",
+                    "group": "AvgScript.6_script",
                     "command": "config.AvgScript.replaceScript",
                     "when": "editorLangId == AvgScript || editorLangId == plaintext"
                 },
                 {
-                    "group": "AvgScript.5_script",
+                    "group": "AvgScript.6_script",
                     "command": "config.AvgScript.showJumpFlow",
                     "when": "editorLangId == AvgScript"
                 }
