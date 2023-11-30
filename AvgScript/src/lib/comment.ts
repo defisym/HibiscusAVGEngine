@@ -12,13 +12,13 @@ class CommentCache {
 }
 
 class LineCommentCache implements CacheInterface<CommentCache> {
-	lineCommentCache = new Map<vscode.TextDocument, CommentCache>();
+	lineCommentCache = new Map<vscode.Uri, CommentCache>();
 
 	parseDocument(document: vscode.TextDocument) {
 		this.removeDocumentCache(document);
-		this.lineCommentCache.set(document, new CommentCache());
+		this.lineCommentCache.set(document.uri, new CommentCache());
 
-		const curCache = this.lineCommentCache.get(document)!;
+		const curCache = this.lineCommentCache.get(document.uri)!;
 
 		iterateLinesWithComment(document, (lineInfo: LineInfo) => {
 			let parseResult: ParseCommentResult = [undefined, undefined, undefined, undefined];
@@ -38,20 +38,20 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 	}
 
 	removeDocumentCache(document: vscode.TextDocument) {
-		this.lineCommentCache.delete(document);
+		this.lineCommentCache.delete(document.uri);
 	}
 	updateDocumentCache(document: vscode.TextDocument,
 		change: readonly vscode.TextDocumentContentChangeEvent[]) {
 		this.removeDocumentCache(document);
 	}
 	getDocumentCache(document: vscode.TextDocument) {
-		let curCache = this.lineCommentCache.get(document);
+		let curCache = this.lineCommentCache.get(document.uri);
 
 		if (curCache === undefined) {
 			this.parseDocument(document);
 		}
 
-		curCache = this.lineCommentCache.get(document)!;
+		curCache = this.lineCommentCache.get(document.uri)!;
 
 		return curCache;
 	}
@@ -77,8 +77,7 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 
 export const lineCommentCache = new LineCommentCache();
 
-export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position,
-	callback: (text: string) => void = (text: string) => { }): ParseCommentResult {
+export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position): ParseCommentResult {
 	let curCache = lineCommentCache.getDocumentCache(document);
 
 	const curLine = position.line;
@@ -89,8 +88,6 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
 	if (bComment) {
 		return praseResult;
 	}
-
-	callback(praseResult[4]!);
 
 	let curPos = position.character - praseResult[1]!;
 	let curLinePrefix: string = praseResult[0]!.substring(0, curPos).trim();

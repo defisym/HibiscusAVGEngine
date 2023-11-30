@@ -12,13 +12,13 @@ class LabelInfo {
 }
 
 class LabelCache implements CacheInterface<LabelInfo> {
-	labelCache: Map<vscode.TextDocument, LabelInfo> = new Map();
+	labelCache: Map<vscode.Uri, LabelInfo> = new Map();
 
 	parseDocument(document: vscode.TextDocument) {
 		this.removeDocumentCache(document);
-		this.labelCache.set(document, new LabelInfo());
+		this.labelCache.set(document.uri, new LabelInfo());
 
-		const curCache = this.labelCache.get(document)!;
+		const curCache = this.labelCache.get(document.uri)!;
 
 		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 			let text = lineInfo.textNoComment;
@@ -45,20 +45,20 @@ class LabelCache implements CacheInterface<LabelInfo> {
 	}
 
 	removeDocumentCache(document: vscode.TextDocument) {
-		this.labelCache.delete(document);
+		this.labelCache.delete(document.uri);
 	}
 	updateDocumentCache(document: vscode.TextDocument,
 		change: readonly vscode.TextDocumentContentChangeEvent[]) {
 		this.removeDocumentCache(document);
 	}
 	getDocumentCache(document: vscode.TextDocument) {
-		let curCache = this.labelCache.get(document);
+		let curCache = this.labelCache.get(document.uri);
 
 		if (curCache === undefined) {
 			this.parseDocument(document);
 		}
 
-		curCache = this.labelCache.get(document)!;
+		curCache = this.labelCache.get(document.uri)!;
 
 		return curCache;
 	}

@@ -233,6 +233,16 @@ export class DubParser {
 			}
 		} while (0);
 	}
+
+	static getDubParser(document: vscode.TextDocument) {
+		const settings = getSettings(document);
+
+		const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
+		const dubState = new DubParser(curChapter);
+		dubState.parseSettings(settings);
+
+		return dubState;
+	}
 }
 
 export function UpdateDubCompletion(dubParser: DubParser) {
@@ -274,13 +284,13 @@ class DubCache {
 }
 
 export class DubParseCache implements CacheInterface<DubCache[]> {
-	dubParseCache = new Map<vscode.TextDocument, DubCache[]>();
+	dubParseCache = new Map<vscode.Uri, DubCache[]>();
 
 	parseDocument(document: vscode.TextDocument) {
 		this.removeDocumentCache(document);
-		this.dubParseCache.set(document, []);
+		this.dubParseCache.set(document.uri, []);
 
-		const curCache = this.dubParseCache.get(document)!;
+		const curCache = this.dubParseCache.get(document.uri)!;
 
 		this.updateDocumentDub(document, (dp: DubParser, lineNumber: number, dialogueStruct: DialogueStruct) => {
 			curCache.push(new DubCache(dp, lineNumber, dialogueStruct));
@@ -290,7 +300,7 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 	}
 
 	removeDocumentCache(document: vscode.TextDocument) {
-		this.dubParseCache.delete(document);
+		this.dubParseCache.delete(document.uri);
 	}
 	updateDocumentCache(document: vscode.TextDocument,
 		change: readonly vscode.TextDocumentContentChangeEvent[]) {
@@ -298,13 +308,13 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 		this.removeDocumentCache(document);
 	}
 	getDocumentCache(document: vscode.TextDocument) {
-		let curCache = this.dubParseCache.get(document);
+		let curCache = this.dubParseCache.get(document.uri);
 
 		if (curCache === undefined) {
 			this.parseDocument(document);
 		}
 
-		curCache = this.dubParseCache.get(document)!;
+		curCache = this.dubParseCache.get(document.uri)!;
 
 		return curCache;
 	}
@@ -313,7 +323,7 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 		let curCache = this.getDocumentCache(document);
 
 		for (const cache of curCache) {
-			if (cache.totalLine >= totalLine) {
+			if (cache.totalLine === totalLine) {
 				return cache;
 			}
 		}
@@ -324,14 +334,10 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 	updateDocumentDub(document: vscode.TextDocument,
 		cb: (dp: DubParser, lineNumber: number, dialogueStruct: DialogueStruct) => void,
 		since: number = 0, dubState: DubParser | undefined = undefined) {
-		const settings = getSettings(document);
-
-		const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
 		if (dubState === undefined) {
-			dubState = new DubParser(curChapter);
-			dubState.parseSettings(settings);
+			dubState = DubParser.getDubParser(document);
 		} else {
-			dubState = deepCopy(dubState);
+			dubState = dubState.copy();
 		}
 
 		let curCache = lineCommentCache.getDocumentCache(document);

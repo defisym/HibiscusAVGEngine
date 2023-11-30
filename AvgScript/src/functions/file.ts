@@ -4,9 +4,9 @@ import { ImageProbe } from '@zerodeps/image-probe';
 import * as mm from 'music-metadata';
 
 import { currentLineNotComment } from '../lib/comment';
-import { DubParser } from '../lib/dubs';
+import { DubParser, dubParseCache } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
-import { FileType, cropScript, getBuffer, getCommandParamFileType, getParamAtPosition, getSortTextByText, getUri, sleep, stringToEnglish } from '../lib/utilities';
+import { FileType, getBuffer, getCommandParamFileType, getParamAtPosition, getSortTextByText, getUri, sleep, stringToEnglish } from '../lib/utilities';
 import { codeLensProviderClass } from './codeLens';
 import { commandBasePath, confBasePath } from './command';
 import { updateWatcher } from './watcher';
@@ -905,17 +905,9 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
 		async provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
 			let definitions: vscode.Location[] = [];
 
-			const settings = getSettings(document);
-
 			if (!basePathUpdated) { return undefined; }
 
-			const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
-			let dubState = new DubParser(curChapter);
-			dubState.parseSettings(settings);
-
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position, (text) => {
-				dubState.parseCommand(text);
-			});
+			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
 			if (line === undefined) {
 				return undefined;
@@ -928,11 +920,32 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
 			}
 
 			if (getCommandParamFileType(linePrefix!) === FileType.dubs) {
-				if (settings && settings.NoSideEffect) {
-					fileName = dubState.getFileRelativePrefix() + fileName;
-				} else {
+				const settings = getSettings(document);
+
+				do {
+					if (settings && settings.NoSideEffect) {
+						let curCache = dubParseCache.getDocumentCache(document);
+						let dubState: DubParser | undefined = undefined;
+
+						for (const cache of curCache) {
+							if (cache.totalLine > position.line) {
+								break;
+							}
+
+							dubState = cache.dubParser;
+						}
+
+						if (dubState !== undefined) {
+							fileName = dubState.getFileRelativePrefix() + fileName;
+
+							break;
+						}
+					}
+
 					vscode.window.showInformationMessage("Cannot open file " + fileName + " if script has side effect");
-				}
+
+					return definitions;
+				} while (false);
 			}
 
 			const fileUri = getUri(linePrefix!, fileName);

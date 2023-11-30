@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { getCompletionList, getTextBySortText } from '../lib/utilities';
+import { codeLensProviderClass } from './codeLens';
 import { confAutoUpdate } from './command';
+import { diagnosticThrottle } from './diagnostic';
 import { basePath, fileListInitialized, getBasePathByType, getCompletionTypeByFileType, getPathType, projectFileInfoList, projectFileList, updateCompletion } from './file';
 
 let oldBasePath = '';
@@ -73,19 +75,19 @@ async function watcherAction(uris: readonly vscode.Uri[], opt: FileOperation) {
 
 		const type = getPathType(filePath);
 
-		if (type === undefined) { return; }
+		if (type === undefined) { continue; }
 
 		const basePath = getBasePathByType(type);
 
-		if (basePath === undefined) { return; }
+		if (basePath === undefined) { continue; }
 
 		const completionType = getCompletionTypeByFileType(type);
 
-		if (completionType === undefined) { return; }
+		if (completionType === undefined) { continue; }
 
 		const completionList = getCompletionList(type);
 
-		if (completionList === undefined) { return; }
+		if (completionList === undefined) { continue; }
 
 		switch (opt) {
 			case FileOperation.create:
@@ -108,5 +110,8 @@ async function watcherAction(uris: readonly vscode.Uri[], opt: FileOperation) {
 
 				break;
 		}
+
+		codeLensProviderClass.refresh();
+		diagnosticThrottle.triggerCallback(() => { }, true);
 	}
 }
