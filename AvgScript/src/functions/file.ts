@@ -220,8 +220,6 @@ export function getCorrectPathAndType(type: FileType, fileName: string): [FileTy
 	return [type, relativeFileName.substring(base.length + 1)];
 }
 
-
-
 // input should be full path
 // get file path type
 export function getPathType(fileName: string) {

@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
+import { lineCommentCache } from '../lib/comment';
 import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import { InlayHintType, ParamType, atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, internalImageID, internalKeywordList, settingsParamDocList, sharpKeywordList } from '../lib/dict';
 import { DubParser, dubDiagnostic } from '../lib/dubs';
-import { LineInfo, iterateLinesWithComment } from "../lib/iterateLines";
+import { LineInfo } from "../lib/iterateLines";
 import { regexHexColor, regexRep } from '../lib/regExp';
 import { ScriptSettings, getSettings, parseSettings } from '../lib/settings';
 import { Throttle } from '../lib/throttle';
@@ -53,7 +54,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 	let dubState = new DubParser(curChapter);
 	dubState.parseSettings(getSettings(document));
 
-	iterateLinesWithComment(document, (info: LineInfo) => {
+	lineCommentCache.iterateDocumentCacheWithComment(document, (info: LineInfo) => {
 		let { lineIsComment,
 
 			originText,

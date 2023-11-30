@@ -1,5 +1,12 @@
 # Change Log
 
+## 20231130
+
+- optimize dub operations
+  - speed up code lens by separate to provide & resolve
+  - separate diagnostic routine
+  - drag doesn't rely on code lens
+
 ## 20231128
 
 - cache comment parse result

@@ -2,10 +2,9 @@ import * as vscode from 'vscode';
 
 import { currentLineNotComment } from '../lib/comment';
 import { atKeywordList, commandDocList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
-import { UpdateDubCompletion } from '../lib/dubs';
+import { dubParseCache, UpdateDubCompletion } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
 import { FileType, getCommandParamFileType, getCompletionItemList, getSubStrings, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
-import { codeLensProviderClass } from './codeLens';
 import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePathUpdated, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCache } from './label';
@@ -207,9 +206,13 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
 					return returnCompletion(audioBgsCompletions);
 				case FileType.dubs: {
 					const settings = getSettings(document);
+					const dubState = dubParseCache.getDocumentCacheAt(document, position.line);
+
+					if (dubState === undefined) { return returnCompletion([]); }
+
 					return returnCompletion(
 						settings && settings.NoSideEffect
-							? UpdateDubCompletion(codeLensProviderClass.dubState)
+							? UpdateDubCompletion(dubState.dubParser)
 							: []);
 				}
 				case FileType.se:

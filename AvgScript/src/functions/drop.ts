@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
-import { DubInfo, codeLensProviderClass, dubInfo } from './codeLens';
+
+import { dubParseCache } from '../lib/dubs';
+import { codeLensProviderClass } from './codeLens';
+import { audio, currentLocalCode } from './file';
 
 const uriListMime = 'text/uri-list';
 
@@ -67,21 +70,14 @@ export const drop = vscode.languages.registerDocumentDropEditProvider('AvgScript
 		const filePath = uris[idx].path.right(1);
 
 		do {
-			const dubInfos = dubInfo.get(document.uri);
+			const dubCache = dubParseCache.getDocumentCacheAt(document, position.line);
 
-			if (dubInfos === undefined) {
-				break;
-			}
+			if (dubCache === undefined) { break; }
 
-			const idx = dubInfos.findIf((item: DubInfo) => {
-				return item.range.start.line === position.line;
-			});
+			const dubState = dubCache.dubParser;
 
-			if (idx === -1) {
-				break;
-			}
-
-			const target = dubInfos[idx].info;
+			const folder = audio + "dubs\\" + currentLocalCode + "\\" + dubState.dubChapter + "\\";
+			const target = folder + dubState.fileName + '.ogg';
 
 			vscode.workspace.fs.copy(vscode.Uri.file(filePath), vscode.Uri.file(target), { overwrite: true });
 			await codeLensProviderClass.refresh();

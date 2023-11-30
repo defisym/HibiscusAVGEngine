@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
+import { lineCommentCache } from '../lib/comment';
 import { currentLineDialogue, currentLineLabel } from '../lib/dialogue';
 import { commandListInitialized } from '../lib/dict';
-import { LineInfo, iterateLinesWithComment } from '../lib/iterateLines';
+import { LineInfo } from '../lib/iterateLines';
 import { parseCommand } from '../lib/utilities';
 import { confFormatRules_emptyLineAfterDialogue, confFormatRules_emptyLineBeforeComment, confFormatRules_emptyLineCommand, confFormatRules_emptyLineLabel, confFormatRules_formatEmptyLines, confFormatRules_removeEmptyLines } from './command';
 
@@ -68,8 +69,7 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
             return formatPreviousLineNotComment() && !previousLineInfo!.emptyLine && currentLineDialogue(previousLineInfo!.textNoComment);
         };
 
-        iterateLinesWithComment(document
-            , (info: LineInfo) => {
+		lineCommentCache.iterateDocumentCacheWithComment(document, (info: LineInfo) => {
                 let {
                     emptyLine,
 

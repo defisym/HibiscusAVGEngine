@@ -165,13 +165,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.workspace.onDidChangeTextDocument(event => {
 		// console.log("doc changed");
 
+		// put it here to let content that need exact update
+		// e.g., completion
 		lineCommentCache.updateDocumentCache(event.document, event.contentChanges);
 		labelCache.updateDocumentCache(event.document, event.contentChanges);
 
 		throttle.triggerCallback(() => {
 			// console.log("trigger throttle parse :" + event.document.fileName);
-			// parseLineComment(event.document);
-			// parseLabel(event.document);
 		}, true);
 		diagnosticThrottle.triggerCallback(() => { }, true);
 	}, null, context.subscriptions);
@@ -180,9 +180,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		const document = event;
 	}, null, context.subscriptions);
 	vscode.workspace.onDidCloseTextDocument(document => {
-		diagnosticsCollection.delete(document.uri);
 		lineCommentCache.removeDocumentCache(document);
 		labelCache.removeDocumentCache(document);
+
+		diagnosticsCollection.delete(document.uri);
 	}, null, context.subscriptions);
 	vscode.workspace.onDidSaveTextDocument(document => {
 	}, null, context.subscriptions);

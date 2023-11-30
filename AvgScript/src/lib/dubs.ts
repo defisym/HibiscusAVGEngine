@@ -8,7 +8,7 @@ import { audio, audioDubsCompletions, basePath, currentLocalCode, getFullFilePat
 import { narrator } from '../webview/dubList';
 import { CacheInterface } from './cacheInterface';
 import { lineCommentCache } from './comment';
-import { currentLineDialogue, parseDialogue } from './dialogue';
+import { DialogueStruct, currentLineDialogue, parseDialogue } from './dialogue';
 import { ScriptSettings, getSettings } from "./settings";
 import { cropScript, deepCopy, deepCopyMap, parseBoolean, parseCommand, stringToEnglish } from "./utilities";
 
@@ -30,6 +30,7 @@ export class DubParser {
 	bSettingsSideEffect: boolean = false;
 	bNoSideEffect: boolean = false;
 
+	curName = '';
 	fileName = 'NULL';
 
 	constructor(currentChapter: string) {
@@ -59,6 +60,7 @@ export class DubParser {
 		newObj.bSettingsSideEffect = this.bSettingsSideEffect;
 		newObj.bNoSideEffect = this.bNoSideEffect;
 
+		newObj.curName = this.curName;
 		newObj.fileName = this.fileName;
 
 		return newObj;
@@ -68,6 +70,8 @@ export class DubParser {
 		if (name.empty()) {
 			name = narrator;
 		}
+
+		this.curName = name;
 
 		this.totalLineCount++;
 		let lineCount = this.lineCountMap.getWithInit(name, 0);
@@ -260,10 +264,12 @@ export function UpdateDubCompletion(dubParser: DubParser) {
 class DubCache {
 	dubParser: DubParser;
 	totalLine: number;
+	dialogueStruct: DialogueStruct;
 
-	constructor(dubParser: DubParser, totalLine: number) {
+	constructor(dubParser: DubParser, totalLine: number, dialogueStruct: DialogueStruct) {
 		this.dubParser = dubParser.copy();
 		this.totalLine = totalLine;
+		this.dialogueStruct = deepCopy(dialogueStruct);
 	}
 }
 
@@ -276,8 +282,8 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 
 		const curCache = this.dubParseCache.get(document)!;
 
-		this.updateDocumentDub(document, (dp: DubParser, lineNumber: number) => {
-			curCache.push(new DubCache(dp, lineNumber));
+		this.updateDocumentDub(document, (dp: DubParser, lineNumber: number, dialogueStruct: DialogueStruct) => {
+			curCache.push(new DubCache(dp, lineNumber, dialogueStruct));
 		});
 
 		return;
@@ -303,8 +309,20 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 		return curCache;
 	}
 
+	getDocumentCacheAt(document: vscode.TextDocument, totalLine: number) {
+		let curCache = this.getDocumentCache(document);
+
+		for (const cache of curCache) {
+			if (cache.totalLine >= totalLine) {
+				return cache;
+			}
+		}
+
+		return undefined;
+	}
+
 	updateDocumentDub(document: vscode.TextDocument,
-		cb: (dp: DubParser, lineNumber: number) => void,
+		cb: (dp: DubParser, lineNumber: number, dialogueStruct: DialogueStruct) => void,
 		since: number = 0, dubState: DubParser | undefined = undefined) {
 		const settings = getSettings(document);
 
@@ -341,9 +359,6 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 			// Parse dialogue
 			// ----------
 			const dialogueStruct = parseDialogue(text, text);
-			const range = new vscode.Range(new vscode.Position(lineNumber, lineStart),
-				new vscode.Position(lineNumber, lineEnd));
-
 			// depend on display name
 			let name = dialogueStruct.m_name;
 
@@ -351,7 +366,7 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 			// Content
 			// ----------
 			dubState.updateState(name);
-			cb(dubState, lineNumber);
+			cb(dubState, lineNumber, dialogueStruct);
 			dubState.afterPlay();
 		}
 	}
@@ -390,7 +405,7 @@ export function dubDiagnostic(document: vscode.TextDocument): DubError[] {
 		let lineStart = lineInfo.lineStart;
 		let lineEnd = lineInfo.lineEnd;
 
-		const dialogueStruct = parseDialogue(text, text);
+		const dialogueStruct = dubCache.dialogueStruct;
 
 		const fileName = dubState.getPlayFileName();
 		const fileInfo = dubState.getPlayFileInfo(fileName);
