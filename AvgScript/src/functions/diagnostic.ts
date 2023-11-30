@@ -3,13 +3,12 @@ import * as vscode from 'vscode';
 import { activeEditor } from '../extension';
 import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import { InlayHintType, ParamType, atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, internalImageID, internalKeywordList, settingsParamDocList, sharpKeywordList } from '../lib/dict';
-import { DubParser } from '../lib/dubs';
+import { DubParser, dubDiagnostic } from '../lib/dubs';
 import { LineInfo, iterateLinesWithComment } from "../lib/iterateLines";
 import { regexHexColor, regexRep } from '../lib/regExp';
 import { ScriptSettings, getSettings, parseSettings } from '../lib/settings';
 import { Throttle } from '../lib/throttle';
 import { FileType, cropScript, fileExistsInFileList, getAllParams, getCommandParamFileType, imageStretched } from '../lib/utilities';
-import { dubError } from './codeLens';
 import { basePath, basePathUpdated, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
 import { labelCache } from './label';
 
@@ -597,9 +596,9 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 			, vscode.DiagnosticSeverity.Error));
 	}
 
-	const dubErrors = dubError.get(document.uri);
+	if (checkFile) {
+		const dubErrors = dubDiagnostic(document);
 
-	if (dubErrors !== undefined) {
 		for (const dubError of dubErrors) {
 			let info = "Dub file duration " + dubError.info + " than excepted";
 

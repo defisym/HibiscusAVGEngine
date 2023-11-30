@@ -10,7 +10,7 @@ import { CacheInterface } from './cacheInterface';
 import { lineCommentCache } from './comment';
 import { currentLineDialogue, parseDialogue } from './dialogue';
 import { ScriptSettings, getSettings } from "./settings";
-import { cropScript, deepCopy, parseBoolean, parseCommand, stringToEnglish } from "./utilities";
+import { cropScript, deepCopy, deepCopyMap, parseBoolean, parseCommand, stringToEnglish } from "./utilities";
 
 export class DubParser {
 	bHoldNowTalking = false;
@@ -24,6 +24,12 @@ export class DubParser {
 	NowTalking = -1;
 	SeparateDubID: Map<string, number> = new Map();
 
+	totalLineCount = -1;
+	lineCountMap: Map<string, number> = new Map();
+
+	bSettingsSideEffect: boolean = false;
+	bNoSideEffect: boolean = false;
+
 	fileName = 'NULL';
 
 	constructor(currentChapter: string) {
@@ -33,41 +39,76 @@ export class DubParser {
 		this.dubSequePrefix = '';
 	}
 
+	copy() {
+		let newObj = new DubParser(this.dubChapter);
+
+		newObj.bHoldNowTalking = this.bHoldNowTalking;
+
+		newObj.bDubSequence = this.bDubSequence;
+		newObj.bSeparateDubID = this.bSeparateDubID;
+
+		newObj.dubChapter = this.dubChapter;
+		newObj.dubSequePrefix = this.dubSequePrefix;
+
+		newObj.NowTalking = this.NowTalking;
+		newObj.SeparateDubID = deepCopyMap(this.SeparateDubID);
+
+		newObj.totalLineCount = this.totalLineCount;
+		newObj.lineCountMap = deepCopyMap(this.lineCountMap);
+
+		newObj.bSettingsSideEffect = this.bSettingsSideEffect;
+		newObj.bNoSideEffect = this.bNoSideEffect;
+
+		newObj.fileName = this.fileName;
+
+		return newObj;
+	}
+
 	updateState(name: string) {
-		if (this.bDubSequence) {
-			if (!this.bHoldNowTalking) {
-				if (!this.bSeparateDubID) {
-					this.NowTalking++;
-				}
-				else {
-					let separateDubID = this.SeparateDubID.get(name);
+		if (name.empty()) {
+			name = narrator;
+		}
 
-					if (separateDubID === undefined) {
-						this.SeparateDubID.set(name, -1);
-						separateDubID = this.SeparateDubID.get(name);
-					}
+		this.totalLineCount++;
+		let lineCount = this.lineCountMap.getWithInit(name, 0);
 
-					this.SeparateDubID.set(name, separateDubID! + 1);
-				}
+		if (lineCount !== undefined && this.bNoSideEffect) {
+			this.lineCountMap.set(name, lineCount + 1);
+		}
+
+		if (!this.bDubSequence) {
+			return;
+		}
+
+		if (!this.bHoldNowTalking) {
+			if (!this.bSeparateDubID) {
+				this.NowTalking++;
 			}
+			else {
+				let separateDubID = this.SeparateDubID.getWithInit(name, -1);
 
-			this.bHoldNowTalking = false;
-
-			if (this.fileName === 'NULL') {
-				let newName = this.dubSequePrefix;
-				newName += this.dubSequePrefix === '' ? '' : '_';
-
-				if (this.bSeparateDubID) {
-					let separateDubID = this.SeparateDubID.get(name);
-
-					newName += name + '_' + separateDubID!.toString();
-				} else {
-					newName += this.NowTalking.toString();
-				}
-
-				this.fileName = newName;
+				this.SeparateDubID.set(name, separateDubID! + 1);
 			}
 		}
+
+		this.bHoldNowTalking = false;
+
+		// auto sequence
+		if (this.fileName === 'NULL') {
+			let newName = this.dubSequePrefix;
+			newName += this.dubSequePrefix === '' ? '' : '_';
+
+			if (this.bSeparateDubID) {
+				let separateDubID = this.SeparateDubID.get(name);
+
+				newName += name + '_' + separateDubID!.toString();
+			} else {
+				newName += this.NowTalking.toString();
+			}
+
+			this.fileName = newName;
+		}
+
 	}
 	getFileRelativePrefix(localCode: string = currentLocalCode) {
 		return localCode + "\\" + this.dubChapter + '\\';
@@ -115,6 +156,7 @@ export class DubParser {
 		}
 
 		this.bSeparateDubID = settings.SeparateDubID;
+		this.bNoSideEffect = settings.NoSideEffect;
 	}
 
 	parseCommand(line: string) {
@@ -150,8 +192,6 @@ export class DubParser {
 
 				break;
 			}
-
-
 			if (command.iCmp('SeparateNTKChange')) {
 				const name = params[1];
 
@@ -177,6 +217,16 @@ export class DubParser {
 				break;
 			}
 
+			if (command.iCmp('SideEffect')) {
+				this.bNoSideEffect = false;
+
+				break;
+			}
+			if (command.iCmp('NoSideEffect')) {
+				this.bNoSideEffect = true;
+
+				break;
+			}
 		} while (0);
 	}
 }
@@ -212,7 +262,7 @@ class DubCache {
 	totalLine: number;
 
 	constructor(dubParser: DubParser, totalLine: number) {
-		this.dubParser = deepCopy(dubParser);
+		this.dubParser = dubParser.copy();
 		this.totalLine = totalLine;
 	}
 }
@@ -226,8 +276,8 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 
 		const curCache = this.dubParseCache.get(document)!;
 
-		this.updateDocumentDub(document, (dp: DubParser, totalLine: number) => {
-			curCache.push(new DubCache(dp, totalLine));
+		this.updateDocumentDub(document, (dp: DubParser, lineNumber: number) => {
+			curCache.push(new DubCache(dp, lineNumber));
 		});
 
 		return;
@@ -254,14 +304,9 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 	}
 
 	updateDocumentDub(document: vscode.TextDocument,
-		cb: (dp: DubParser, totalLine: number) => void,
+		cb: (dp: DubParser, lineNumber: number) => void,
 		since: number = 0, dubState: DubParser | undefined = undefined) {
 		const settings = getSettings(document);
-		const bSettingsSideEffect = settings && settings.NoSideEffect;
-		let bNoSideEffect = bSettingsSideEffect;
-
-		let totalLineCount = 0;
-		let lineCountMap: Map<string, number> = new Map();
 
 		const curChapter = cropScript(document.fileName.substring(basePath.length + 1));
 		if (dubState === undefined) {
@@ -286,18 +331,6 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 			// Parse command
 			// ----------
 			if (!currentLineDialogue(text)) {
-				do {
-					if (!bSettingsSideEffect) { break; }
-					if (text.matchStart('#SideEffect')) {
-						bNoSideEffect = false;
-						break;
-					}
-					if (text.matchStart('#NoSideEffect')) {
-						bNoSideEffect = true;
-						break;
-					}
-				} while (false);
-
 				dubState.parseCommand(text);
 				dubState.afterPlay();
 
@@ -311,39 +344,97 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 			const range = new vscode.Range(new vscode.Position(lineNumber, lineStart),
 				new vscode.Position(lineNumber, lineEnd));
 
-			// total line count
-			const curTotalLineCount = totalLineCount;
-			totalLineCount++;
 			// depend on display name
 			let name = dialogueStruct.m_name;
-
-			if (name.empty()) {
-				name = narrator;
-			}
-
-			let lineCount = lineCountMap.get(name);
-
-			if (lineCount === undefined) {
-				lineCountMap.set(name, 0);
-				lineCount = lineCountMap.get(name);
-			}
-
-			if (lineCount === undefined) {
-				continue;
-			}
-
-			if (bNoSideEffect) {
-				lineCountMap.set(name, lineCount + 1);
-			}
 
 			// ----------
 			// Content
 			// ----------
 			dubState.updateState(name);
-			cb(dubState, curTotalLineCount);
+			cb(dubState, lineNumber);
 			dubState.afterPlay();
 		}
 	}
 }
 
 export const dubParseCache = new DubParseCache();
+
+const durationPerWordSlow = (1.0 * 60 / 360);       // check shorter
+const durationPerWordFast = (1.0 * 60 / 120);       // check longer
+const durationRange = 0.5;
+const durationThreshold = 2.5;
+
+export interface DubInfo {
+	range: vscode.Range,
+	info: string,
+};
+
+export type DubError = DubInfo;
+
+export function dubDiagnostic(document: vscode.TextDocument): DubError[] {
+	const dubError: DubError[] = [];
+
+	const curCache = dubParseCache.getDocumentCache(document);
+	const commentCache = lineCommentCache.getDocumentCache(document);
+
+	if (curCache === undefined) { return dubError; }
+
+	for (let idx = 0; idx < curCache.length; idx++) {
+		const dubCache = curCache[idx];
+		const dubState = dubCache.dubParser;
+
+		const lineInfo = commentCache.lineInfo[dubCache.totalLine];
+
+		let text = lineInfo.textNoComment;
+		let lineNumber = lineInfo.lineNum;
+		let lineStart = lineInfo.lineStart;
+		let lineEnd = lineInfo.lineEnd;
+
+		const dialogueStruct = parseDialogue(text, text);
+
+		const fileName = dubState.getPlayFileName();
+		const fileInfo = dubState.getPlayFileInfo(fileName);
+
+		const range = new vscode.Range(new vscode.Position(lineNumber, lineStart),
+			new vscode.Position(lineNumber, lineEnd));
+
+		if (fileInfo === undefined) {
+			continue;
+		}
+
+		const duration = fileInfo.format.duration;
+
+		if (duration === undefined) {
+			continue;
+		}
+
+		if (duration < durationThreshold) {
+			continue;
+		}
+
+		let curDubError: DubError = {
+			range: range,
+			info: '',
+		};
+
+		const expectedDurationFast = dialogueStruct.m_dialoguePart.length * durationPerWordFast;
+
+		if (duration >= expectedDurationFast + durationRange) {
+			curDubError.info = 'longer';
+		}
+
+		const expectedDurationSlow = dialogueStruct.m_dialoguePart.length * durationPerWordSlow;
+
+		if (duration <= expectedDurationSlow - durationRange) {
+			curDubError.info = 'shorter';
+		}
+
+		if (curDubError.info === '') {
+			continue;
+		}
+
+		dubError.push(curDubError);
+	}
+
+	return dubError;
+}

@@ -1,13 +1,12 @@
 import * as vscode from 'vscode';
 import { lineCommentCache } from '../lib/comment';
 import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue';
-import { DubParser } from '../lib/dubs';
+import { DubParser, dubParseCache } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
 import { Throttle } from '../lib/throttle';
 import { cropScript, sleep } from '../lib/utilities';
 import { narrator } from '../webview/dubList';
 import { commandDeleteDub, commandUpdateDub, confCodeLens_ShowTotalLineCount } from './command';
-import { diagnosticUpdate } from './diagnostic';
 import { audio, basePath, basePathUpdated, currentLocalCode, fileListInitialized } from './file';
 
 const durationPerWordSlow = (1.0 * 60 / 360);       // check shorter
@@ -15,16 +14,13 @@ const durationPerWordFast = (1.0 * 60 / 120);       // check longer
 const durationRange = 0.5;
 const durationThreshold = 2.5;
 
-export interface DubError {
-	range: vscode.Range,
-	info: string,
-};
-export const dubError: Map<vscode.Uri, DubError[]> = new Map();
-
 export interface DubInfo {
 	range: vscode.Range,
 	info: string,
 };
+
+type DubError = DubInfo;
+
 export const dubInfo: Map<vscode.Uri, DubInfo[]> = new Map();
 
 export class CodelensProvider implements vscode.CodeLensProvider {
@@ -54,6 +50,8 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 	}
 
 	public provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
+		dubParseCache.parseDocument(document);
+
 		console.log("provide code lens");
 
 		let codeLenses: vscode.CodeLens[] = [];
@@ -74,8 +72,14 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 		this.dubState = new DubParser(curChapter);
 		this.dubState.parseSettings(settings);
 
-		dubError.delete(document.uri);
 		dubInfo.delete(document.uri);
+
+		
+		this.bUpdating = false;
+		this.bFirstRun = false;
+		
+		return codeLenses;
+
 
 		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 			let text = lineInfo.textNoComment;
@@ -260,58 +264,6 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 				codeLenses.push(codeLensDeleteDub);
 			} while (0);
 
-
-			// ------------
-			// Check dub length
-			// ------------
-			do {
-				const fileInfo = this.dubState.getPlayFileInfo(fileName);
-
-				if (fileInfo === undefined) {
-					break;
-				}
-
-				const duration = fileInfo.format.duration;
-
-				if (duration === undefined) {
-					break;
-				}
-
-				if (duration < durationThreshold) {
-					break;
-				}
-
-				let curDubError: DubError = {
-					range: range,
-					info: '',
-				};
-
-				const expectedDurationFast = dialogueStruct.m_dialoguePart.length * durationPerWordFast;
-
-				if (duration >= expectedDurationFast + durationRange) {
-					curDubError.info = 'longer';
-				}
-
-				const expectedDurationSlow = dialogueStruct.m_dialoguePart.length * durationPerWordSlow;
-
-				if (duration <= expectedDurationSlow - durationRange) {
-					curDubError.info = 'shorter';
-				}
-
-				if (curDubError.info === '') {
-					break;
-				}
-
-				let dubErrors = dubError.get(document.uri);
-
-				if (dubErrors === undefined) {
-					dubError.set(document.uri, []);
-					dubErrors = dubError.get(document.uri);
-				}
-
-				dubErrors!.push(curDubError);
-			} while (0);
-
 			// ------------
 			// Get dub info
 			// ------------
@@ -335,10 +287,6 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
 		this.bUpdating = false;
 		this.bFirstRun = false;
-
-		if (!dubError.get(document.uri)?.empty()) {
-			diagnosticUpdate();
-		}
 
 		console.log("provide code lens complete");
 

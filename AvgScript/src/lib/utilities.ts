@@ -582,3 +582,13 @@ export function getTextBySortText(sortText: string) {
 export function deepCopy<T>(obj: T): T {
 	return JSON.parse(JSON.stringify(obj));
 }
+
+export function deepCopyMap<K, V>(map: Map<K, V>): Map<K, V> {
+	let newMap: Map<K, V> = new Map();
+
+	for (let [key, value] of map) {
+		newMap.set(key, value);
+	}
+
+	return newMap;
+}
