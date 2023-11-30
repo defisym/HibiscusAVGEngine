@@ -4,51 +4,63 @@ import { comparator } from "./general";
 export { };
 
 declare global {
-    interface Map<K, V> {
-        getValue(item: K): V | undefined;
-        keyToArray(): K[];
-    }
+	interface Map<K, V> {
+		getValue(item: K): V | undefined;
+		getWithInit(item: K, init: V): V | undefined;
+		keyToArray(): K[];
+	}
 }
 
 const Terminate_Search = 0;
 
 // if type is string, then compare it ignore case
 Map.prototype.getValue = function <K, V>(item: K): V | undefined {
-    let ret: V | undefined = undefined;
+	let ret: V | undefined = undefined;
 
-    if (this === undefined || item === undefined) {
-        return undefined;
-    }
+	if (this === undefined || item === undefined) {
+		return undefined;
+	}
 
-    try {
-        this.forEach((value, key) => {
-            if (key === undefined) {
-                return;
-            }
+	try {
+		this.forEach((value, key) => {
+			if (key === undefined) {
+				return;
+			}
 
-            if (comparator(key, item)) {
-                ret = value;
+			if (comparator(key, item)) {
+				ret = value;
 
-                throw Terminate_Search;
-            }
-        });
-    } catch {
+				throw Terminate_Search;
+			}
+		});
+	} catch {
 
-    }
+	}
 
-    return ret;
+	return ret;
+};
+// get item with init
+Map.prototype.getWithInit = function <K, V>(item: K, init: V): V | undefined {
+	let value = this.get(item);
+
+	if (value === undefined) {
+		this.set(item, init);
+		value = this.get(item);
+	}
+
+	return value;
 };
 
 Map.prototype.keyToArray = function <K, V>(): K[] {
-    let ret: K[] = [];
-    
-    this.forEach((value, key) => {
-        if (key === undefined) {
-            return;
-        }
+	let ret: K[] = [];
 
-        ret.push(key);
-    });
-    
-    return ret;
+	this.forEach((value, key) => {
+		if (key === undefined) {
+			return;
+		}
+
+		ret.push(key);
+	});
+
+	return ret;
 };
