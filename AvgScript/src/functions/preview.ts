@@ -114,8 +114,8 @@ export class Previewer {
 		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
 			if (curCache.comment[lineNumber]) { continue; }
 
-			const praseResult = curCache.result[lineNumber];
-			const text = praseResult[0]!;
+			const parseResult = curCache.result[lineNumber];
+			const text = parseResult[0]!;
 
 			const bCurLineText = currentLineDialogue(text);
 

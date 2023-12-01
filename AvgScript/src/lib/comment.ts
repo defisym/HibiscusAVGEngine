@@ -84,14 +84,14 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
 	const curLine = position.line;
 
 	const bComment = curCache.comment[curLine];
-	const praseResult = curCache.result[curLine];
+	const parseResult = curCache.result[curLine];
 
 	if (bComment) {
-		return praseResult;
+		return parseResult;
 	}
 
-	let curPos = position.character - praseResult[1]!;
-	let curLinePrefix: string = praseResult[0]!.substring(0, curPos).trim();
+	let curPos = position.character - parseResult[1]!;
+	let curLinePrefix: string = parseResult[0]!.substring(0, curPos).trim();
 
-	return [praseResult[0]!, praseResult[1]!, curLinePrefix, curPos, praseResult[4]!];
+	return [parseResult[0]!, parseResult[1]!, curLinePrefix, curPos, parseResult[4]!];
 }

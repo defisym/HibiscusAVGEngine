@@ -14,12 +14,12 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
 		for (let lineNumber = range.start.line; lineNumber <= range.end.line; lineNumber++) {
 			if (curCache.comment[lineNumber]) { continue; }
 
-			const praseResult = curCache.result[lineNumber];
+			const parseResult = curCache.result[lineNumber];
 
-			const text = praseResult[0];
+			const text = parseResult[0];
 			if (text === undefined) { continue; }
 
-			const lineStart = praseResult[1];
+			const lineStart = parseResult[1];
 			if (lineStart === undefined) { continue; }
 
 			if (!currentLineCommand(text)) { continue; }

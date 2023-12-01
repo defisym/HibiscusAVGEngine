@@ -6,6 +6,12 @@
 - optimize string ignore case compare
 - clean up in webview
 - remove ffprobe
+- dub parser add function `parseLine` to simplify code
+- `parseDialogue` remove redundant param
+- fix code lens icon
+- use `currentLineCommand` to remove redundant code
+- optimize settings parse, remove double check
+- fix typo `prase` -> `parse`
 
 ## 20231130
 
