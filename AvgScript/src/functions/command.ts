@@ -14,7 +14,7 @@ import { FileType } from '../lib/utilities';
 import { createWebviewPanel } from '../webview/_create';
 import { handleOnClickLink } from '../webview/_onClickLink';
 import { assetList_getWebviewContent } from '../webview/assetList';
-import { dubList_getWebviewContent, narrator } from '../webview/dubList';
+import { dubList_getWebviewContent } from '../webview/dubList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { codeLensProviderClass } from './codeLens';
@@ -712,44 +712,27 @@ export const commandGetDubList_impl = async () => {
 				line: string, lineNumber: number,
 				lineStart: number, lineEnd: number,
 				firstLineNotComment: number) => {
-				if (!currentLineDialogue(line)) {
-					dubParser!.parseCommand(line);
-					dubParser!.afterPlay();
+				dubParser!.parseLine(line, (dp: DubParser, dialogueStruct: DialogueStruct) => {
+					if (fileName === undefined) {
+						return;
+					}
 
-					return;
-				}
+					const dubFileName = dp.getPlayFileName();
+					let dubInfo = dubMap.getWithInit(dp.curName, []);
 
-				const dialogueStruct = parseDialogue(line);
+					if (dubInfo === undefined) {
+						return;
+					}
 
-				// depend on display name
-				let name = dialogueStruct.m_name;
+					dubInfo.push({
+						dialogueStruct: dialogueStruct,
+						dubFileName: dubFileName,
+						script: script,
+						line: lineNumber,
 
-				if (name.empty()) {
-					name = narrator;
-				}
-
-				dubParser!.updateState(name);
-				const dubFileName = dubParser!.getPlayFileName();
-				dubParser!.afterPlay();
-
-				let dubInfo = dubMap.getWithInit(name, []);
-
-				if (dubInfo === undefined) {
-					return;
-				}
-
-				if (fileName === undefined) {
-					return;
-				}
-
-				dubInfo.push({
-					dialogueStruct: dialogueStruct,
-					dubFileName: dubFileName,
-					script: script,
-					line: lineNumber,
-
-					uri: uri!,
-					webUri: webUri!,
+						uri: uri!,
+						webUri: webUri!,
+					});
 				});
 			},
 			(initScript: string

@@ -379,29 +379,9 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 			let lineStart = lineInfo.lineStart;
 			let lineEnd = lineInfo.lineEnd;
 
-			// ----------
-			// Parse command
-			// ----------
-			if (!currentLineDialogue(text)) {
-				dubState.parseCommand(text);
-				dubState.afterPlay();
-
-				continue;
-			}
-
-			// ----------
-			// Parse dialogue
-			// ----------
-			const dialogueStruct = parseDialogue(text);
-			// depend on display name
-			let name = dialogueStruct.m_name;
-
-			// ----------
-			// Content
-			// ----------
-			dubState.updateState(name);
-			cb(dubState, lineNumber, dialogueStruct);
-			dubState.afterPlay();
+			dubState.parseLine(text,(dp: DubParser, dialogueStruct: DialogueStruct)=>{
+				cb(dp, lineNumber, dialogueStruct);
+			});			
 		}
 	}
 }
