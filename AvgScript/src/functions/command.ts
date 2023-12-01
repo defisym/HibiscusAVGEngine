@@ -602,7 +602,7 @@ export const commandAppendDialogue_impl = async () => {
 
 	// normal text
 	if (currentLineDialogue(line)) {
-		const dialogueStruct = parseDialogue(line, lineRaw!);
+		const dialogueStruct = parseDialogue(lineRaw!);
 
 		const curLineNew = lineRaw!.substring(0, linePrefix!.length);
 		let nextLine = lineRaw!.substring(linePrefix!.length);
@@ -719,7 +719,7 @@ export const commandGetDubList_impl = async () => {
 					return;
 				}
 
-				const dialogueStruct = parseDialogue(line.toLocaleLowerCase(), line);
+				const dialogueStruct = parseDialogue(line);
 
 				// depend on display name
 				let name = dialogueStruct.m_name;

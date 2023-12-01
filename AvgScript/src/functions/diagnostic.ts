@@ -566,7 +566,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 		if (currentLineDialogue(textNoComment) && projectConfig) {
 			const maxLength = parseInt(projectConfig.Debug.Debug_MaxLength);
-			const dialogueStruct = parseDialogue(textNoComment.toLocaleLowerCase(), textNoComment);
+			const dialogueStruct = parseDialogue(textNoComment);
 			if (dialogueStruct.m_dialoguePart.length > maxLength) {
 				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart + maxLength, lineNum, lineEnd)
 					, "Text maybe too long, expected less than " + maxLength.toString() + " characters"

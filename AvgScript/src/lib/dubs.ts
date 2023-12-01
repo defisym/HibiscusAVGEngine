@@ -250,7 +250,7 @@ export class DubParser {
 		// ----------
 		// Parse dialogue
 		// ----------
-		const dialogueStruct = parseDialogue(line, line);
+		const dialogueStruct = parseDialogue(line);
 		// depend on display name
 		let name = dialogueStruct.m_name;
 
@@ -392,7 +392,7 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 			// ----------
 			// Parse dialogue
 			// ----------
-			const dialogueStruct = parseDialogue(text, text);
+			const dialogueStruct = parseDialogue(text);
 			// depend on display name
 			let name = dialogueStruct.m_name;
 

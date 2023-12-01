@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { currentLineNotComment } from '../lib/comment';
 import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import {
-    commandDocList, dialogueTextElement, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
+	commandDocList, dialogueTextElement, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
 } from '../lib/dict';
 import { FileType, getAllParams, getCommandParamFileType, getFileCompletionByType, getHoverContents, getParamAtPosition } from '../lib/utilities';
 import { fileListInitialized } from './file';
@@ -39,7 +39,7 @@ export const hover = vscode.languages.registerHoverProvider('AvgScript', {
 
 		// normal text
 		if (currentLineDialogue(line)) {
-			const dialogueStruct = parseDialogue(line, lineRaw!);
+			const dialogueStruct = parseDialogue(lineRaw!);
 
 			// script
 			let curLine = `### 当前行(无格式)为{$Type}
