@@ -234,6 +234,34 @@ export class DubParser {
 		} while (0);
 	}
 
+	// parse line and use callback to pass current dub state
+	parseLine(line: string,
+		cb: (dp: DubParser, dialogueStruct: DialogueStruct) => void) {
+		// ----------
+		// Parse command
+		// ----------
+		if (!currentLineDialogue(line)) {
+			this.parseCommand(line);
+			this.afterPlay();
+
+			return;
+		}
+
+		// ----------
+		// Parse dialogue
+		// ----------
+		const dialogueStruct = parseDialogue(line, line);
+		// depend on display name
+		let name = dialogueStruct.m_name;
+
+		// ----------
+		// Content
+		// ----------
+		this.updateState(name);
+		cb(this, dialogueStruct);
+		this.afterPlay();
+	}
+
 	static getDubParser(document: vscode.TextDocument) {
 		const settings = getSettings(document);
 
