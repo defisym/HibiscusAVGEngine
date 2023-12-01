@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { lineCommentCache } from '../lib/comment';
+import { currentLineCommand } from '../lib/dialogue';
 import { commandInfoList, inlayHintMap, InlayHintType } from '../lib/dict';
 import { getAllParams, getCommandParamFileType } from '../lib/utilities';
 
@@ -21,7 +22,7 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
 			const lineStart = praseResult[1];
 			if (lineStart === undefined) { continue; }
 
-			if (!(text.startsWith("#") || text.startsWith("@"))) { continue; }
+			if (!currentLineCommand(text)) { continue; }
 
 			const params = getAllParams(text);
 			const command = params[0].substring(1);

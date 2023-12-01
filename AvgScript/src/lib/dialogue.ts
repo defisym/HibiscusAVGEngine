@@ -159,10 +159,14 @@ export function currentLineLabel(line: string) {
 	return line.startsWith(';');
 }
 
+export function currentLineCommand(line: string) {
+	return line.startsWith("#") || line.startsWith("@");
+}
+
 export function currentLineDialogue(line: string) {
 	return !line.empty()
-		&& !line.startsWith('@') && !line.startsWith('#')
-		&& !line.startsWith(';');
+		&& !currentLineCommand(line)
+		&& !currentLineLabel(line);
 }
 
 // dialogue

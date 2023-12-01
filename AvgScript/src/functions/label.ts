@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 import { CacheInterface } from '../lib/cacheInterface';
 import { currentLineNotComment, lineCommentCache } from '../lib/comment';
+import { currentLineCommand } from '../lib/dialogue';
 import { InlayHintType, commandInfoList } from '../lib/dict';
 import { regexRep } from '../lib/regExp';
 import { getAllParams } from "../lib/utilities";
@@ -127,8 +128,7 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
 			const params = getAllParams(line);
 			const paramNum = params.length - 1;
 
-			if (line.startsWith("#")
-				|| line.startsWith("@")) {
+			if (currentLineCommand(line)) {
 				const command = params[0].substring(1);
 				const paramDefinition = commandInfoList.getValue(command);
 
@@ -202,8 +202,7 @@ export const labelReference = vscode.languages.registerReferenceProvider(
 			const params = getAllParams(text);
 			const paramNum = params.length - 1;
 
-			if (text.startsWith("#")
-				|| text.startsWith("@")) {
+			if (currentLineCommand(text)) {
 				const command = params[0].substring(1);
 				const paramDefinition = commandInfoList.getValue(command);
 

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { lineCommentCache } from '../lib/comment';
-import { currentLineDialogue, parseDialogue } from '../lib/dialogue';
+import { currentLineCommand, currentLineDialogue, currentLineLabel, parseDialogue } from '../lib/dialogue';
 import { InlayHintType, ParamType, atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, internalImageID, internalKeywordList, settingsParamDocList, sharpKeywordList } from '../lib/dict';
 import { DubParser, dubDiagnostic } from '../lib/dubs';
 import { LineInfo } from "../lib/iterateLines";
@@ -79,7 +79,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 		}
 
 		// normal parse
-		if (textNoComment.startsWith(";")) {
+		if (currentLineLabel(textNoComment)) {
 			if (labels.includes(textNoComment)) {
 				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
 					, "Duplicated Label: " + textNoComment.substring(1)
@@ -91,9 +91,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 			labels.push(textNoComment);
 		}
 
-		if (textNoComment.startsWith("#")
-			|| textNoComment.startsWith("@")) {
-
+		if (currentLineCommand(textNoComment)) {
 			if (textNoComment.matchStart(/#Settings/gi)) {
 				let start = textNoComment.indexOf('=');
 				let params = textNoComment.substring(start + 1).split('|');

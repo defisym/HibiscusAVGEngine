@@ -4,6 +4,7 @@ import { ImageProbe } from '@zerodeps/image-probe';
 import * as mm from 'music-metadata';
 
 import { currentLineNotComment } from '../lib/comment';
+import { currentLineDialogue } from '../lib/dialogue';
 import { DubParser, dubParseCache } from '../lib/dubs';
 import { blankRegex } from '../lib/regExp';
 import { getSettings } from '../lib/settings';
@@ -386,9 +387,7 @@ export async function getFileInfo(filePath: string, type: CompletionType) {
 				for (let lineRaw of lines) {
 					let line = lineRaw.trim().replace(blankRegex, "");
 
-					if (line.length > 0
-						&& !line.startsWith("#")
-						&& !line.startsWith("@")) {
+					if (currentLineDialogue(line)) {
 						return "\n\n" + line;
 					}
 				}

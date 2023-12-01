@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { currentLineNotComment, lineCommentCache } from '../lib/comment';
+import { currentLineCommand, currentLineLabel } from '../lib/dialogue';
 import { getAllParams, getIndexOfDelimiter, getNumberOfParam, getParamAtPosition } from '../lib/utilities';
 
 export const rename = vscode.languages.registerRenameProvider(
@@ -32,13 +33,11 @@ export const rename = vscode.languages.registerRenameProvider(
 				let lineStart = lineInfo.lineStart;
 				let lineEnd = lineInfo.lineEnd;
 
-				if (text.startsWith("#")
-					|| text.startsWith("@")
-					|| text.startsWith(";")) {
+				if (currentLineCommand(text) || currentLineLabel(text)) {
 					const regex = new RegExp(originNoSuffix, "gi");
 					let contentStart: number = 0;
 
-					if (text.startsWith(";")) {
+					if (currentLineLabel(text)) {
 						contentStart = 1;
 					} else if (getNumberOfParam(text) !== 0) {
 						let delimiterPos = getIndexOfDelimiter(text, 0);
@@ -90,8 +89,7 @@ export const rename = vscode.languages.registerRenameProvider(
 			return edit;
 		};
 
-		if (line.startsWith("#")
-			|| line.startsWith("@")) {
+		if (currentLineCommand(line)) {
 			if (getNumberOfParam(linePrefix!) === 0) {
 				return undefined;
 			}
@@ -99,7 +97,7 @@ export const rename = vscode.languages.registerRenameProvider(
 			word = getParamAtPosition(line, curPos!)!;
 
 			return replaceToken(word);
-		} else if (line.startsWith(";")) {
+		} else if (currentLineLabel(line)) {
 			word = line.substring(line.indexOf(";") + 1);
 
 			return replaceToken(word);

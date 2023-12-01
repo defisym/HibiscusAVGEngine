@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 import { pinyin } from 'pinyin-pro';
 import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListHasItem, getCorrectPathAndType, getFullFileNameByType, graphicCGCompletions, graphicCharactersCompletions, graphicFXCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from '../functions/file';
+import { currentLineCommand } from './dialogue';
 import { InlayHintType, commandInfoList, deprecatedKeywordList, docList, internalKeywordList } from './dict';
 import { beginRegex, endRegex } from './regExp';
 
@@ -241,7 +242,7 @@ export function lineIncludeDelimiter(src: string): boolean {
 
 export function lineValidForCommandCompletion(src: string): boolean {
 	let include = lineIncludeDelimiter(src);
-	let startWith = (src.startsWith("@") || src.startsWith("#"));
+	let startWith = currentLineCommand(src);
 	let endWith = (src.endsWith("@") || src.endsWith("#"));
 
 	if (include) {
