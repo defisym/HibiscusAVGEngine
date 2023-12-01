@@ -144,7 +144,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	// File Updated
 	//--------------------
 
-
 	diagnosticThrottle.triggerCallback(() => { }, true);
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {

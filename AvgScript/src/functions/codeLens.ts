@@ -29,7 +29,7 @@ class CodeLensEx extends vscode.CodeLens {
 	}
 }
 
-export class CodelensProvider implements vscode.CodeLensProvider {
+class CodelensProvider implements vscode.CodeLensProvider {
 	private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
 	public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
 

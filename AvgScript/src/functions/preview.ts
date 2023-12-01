@@ -25,6 +25,11 @@ export class Previewer {
 		return now.getTime();
 	}
 
+	constructor(period: number = 500) {
+		setInterval(() => {
+			this.updatePreview();
+		}, period);
+	}
 	debugUpdate(bState: boolean) {
 		this.bDebugging = bState;
 	}
@@ -149,10 +154,3 @@ export class Previewer {
 }
 
 export const previewer = new Previewer();
-
-function refreshPreview() {
-	previewer.updatePreview();
-}
-
-setInterval(refreshPreview, 500);
-

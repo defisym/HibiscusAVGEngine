@@ -120,7 +120,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 				}
 
 				if (!settingsParsed) {
-					settings = parseSettings(textNoComment)!;
+					settings = parseSettings(textNoComment, true)!;
 
 					if (settings) {
 						if (settings.LiteMode) {

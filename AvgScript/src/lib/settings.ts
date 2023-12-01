@@ -24,15 +24,18 @@ export interface ScriptSettings {
 	EraseAtEOF: boolean,
 }
 
-export function parseSettings(line: string) {
-	let params = getAllParams(line);
+// bChecked: current line is settings, not need to check again inside here
+export function parseSettings(line: string, bChecked: boolean = false) {
+	if (!bChecked) {
+		let params = getAllParams(line);
 
-	if (!params[0].iCmp('#Settings')) {
-		return undefined;
+		if (!params[0].iCmp('#Settings')) {
+			return undefined;
+		}
 	}
 
-	let start = line.indexOf('=');
-	params = line.substring(start + 1).split('|');
+	const start = line.indexOf('=');
+	const params = line.substring(start + 1).split('|');
 
 	let settings: ScriptSettings = {
 		LangSwitchAble: false,
@@ -139,7 +142,6 @@ export function parseSettings(line: string) {
 				break;
 			}
 		} while (0);
-
 	}
 
 	return settings;
@@ -155,7 +157,7 @@ export function getSettings(document: vscode.TextDocument): ScriptSettings | und
 		const text = praseResult[0]!;
 
 		if (text.matchStart(/#Settings/gi)) {
-			return parseSettings(text);
+			return parseSettings(text, true)!;
 		}
 	}
 
