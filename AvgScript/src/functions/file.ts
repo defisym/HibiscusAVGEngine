@@ -343,36 +343,39 @@ export async function getFileInfo(filePath: string, type: CompletionType) {
 					+ "`" + (metadata.format.bitrate! / 1000).toFixed() + "kbps`\t"
 					+ getDuration(metadata.format.duration!);
 			case CompletionType.video:
-				try {
-					const ffprobe = require('ffprobe');
-					const ffprobeStatic = require('ffprobe-static');
+				// You cannot run child process to call ffprobe in browser
+				// try {
+				// 	const ffprobe = require('ffprobe');
+				// 	const ffprobeStatic = require('ffprobe-static');
 
-					const infos = (await ffprobe(filePath, { path: ffprobeStatic.path })).streams;
+				// 	const infos = (await ffprobe(filePath, { path: ffprobeStatic.path })).streams;
 
-					for (const info of infos) {
-						const codecType = info.codec_type;
-						if (codecType !== undefined && codecType === "video") {
-							projectFileInfoList.set(filePath, info);
+				// 	for (const info of infos) {
+				// 		const codecType = info.codec_type;
+				// 		if (codecType !== undefined && codecType === "video") {
+				// 			projectFileInfoList.set(filePath, info);
 
-							return "Width: `" + info.width.toString()
-								+ "` Height: `" + info.height.toString()
-								+ "`\t"
-								+ getDuration(info.duration!);
-						}
-					}
+				// 			return "Width: `" + info.width.toString()
+				// 				+ "` Height: `" + info.height.toString()
+				// 				+ "`\t"
+				// 				+ getDuration(info.duration!);
+				// 		}
+				// 	}
 
-					const noVideoStream = 'No video stream';
-					projectFileInfoList.set(filePath, noVideoStream);
+				// 	const noVideoStream = 'No video stream';
+				// 	projectFileInfoList.set(filePath, noVideoStream);
 
-					return noVideoStream;
-				} catch (err) {
-					// console.log(err);
+				// 	return noVideoStream;
+				// } catch (err) {
+				// 	// console.log(err);
 
-					const noFFMpegInfo = 'No FFMpeg detected';
-					projectFileInfoList.set(filePath, noFFMpegInfo);
+				// 	const noFFMpegInfo = 'No FFMpeg detected';
+				// 	projectFileInfoList.set(filePath, noFFMpegInfo);
 
-					return noFFMpegInfo;
-				}
+				// 	return noFFMpegInfo;
+				// }
+
+				return "Video file";
 			case CompletionType.animation:
 				return "Animation file";
 			case CompletionType.script:

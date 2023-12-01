@@ -5,6 +5,7 @@
 - optimize file list search
 - optimize string ignore case compare
 - clean up in webview
+- remove ffprobe
 
 ## 20231130
 
