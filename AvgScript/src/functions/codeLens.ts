@@ -191,7 +191,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
 				if (fileName === undefined) {
 					codeLens.command = {
-						title: "删除语音 🔊: 无语音文件",
+						title: "删除语音 🗑️: 无语音文件",
 						tooltip: "当前行无对应的语音文件",
 						command: "",
 					};
