@@ -5,6 +5,7 @@ import * as mm from 'music-metadata';
 
 import { currentLineNotComment } from '../lib/comment';
 import { DubParser, dubParseCache } from '../lib/dubs';
+import { blankRegex } from '../lib/regExp';
 import { getSettings } from '../lib/settings';
 import { FileType, getBuffer, getCommandParamFileType, getParamAtPosition, getSortTextByText, getUri, sleep, stringToEnglish } from '../lib/utilities';
 import { codeLensProviderClass } from './codeLens';
@@ -27,9 +28,9 @@ export async function waitForFileListInit() {
 		vscode.window.showInformationMessage('Waiting for file scanning complete');
 	}
 
-	do {
+	while (!fileListInitialized) {
 		await sleep(50);
-	} while (!fileListInitialized);
+	}
 }
 
 // settings
@@ -282,8 +283,18 @@ export function getFileListItem(filePath: string) {
 		let [itemPath, itemType] = item;
 
 		// file list item is full path
-		return filePath.iCmp(itemPath) ||
-			filePath.iCmp(removeExt(itemPath));
+		const itemPathLength = itemPath.length;
+		const filePathLength = filePath.length;
+
+		if (itemPathLength < filePathLength) {
+			return false;
+		}
+
+		if (itemPathLength > filePathLength) {
+			return filePath.iCmp(removeExt(itemPath));
+		}
+
+		return filePath.iCmp(itemPath);
 	});
 
 	return idx !== -1
@@ -332,24 +343,40 @@ export async function getFileInfo(filePath: string, type: CompletionType) {
 					+ "`" + (metadata.format.bitrate! / 1000).toFixed() + "kbps`\t"
 					+ getDuration(metadata.format.duration!);
 			case CompletionType.video:
-				const ffprobe = require('ffprobe');
-				const ffprobeStatic = require('ffprobe-static');
-				const bNoFFMpeg = ffprobeStatic.path !== undefined;
-				const noFFMpegInfo = 'No FFMpeg detected';
+				try {
+					const ffprobe = require('ffprobe');
+					const ffprobeStatic = require('ffprobe-static');
 
-				const info = bNoFFMpeg
-					? (await ffprobe(filePath, { path: ffprobeStatic.path })).streams[0]
-					: { width: noFFMpegInfo, height: noFFMpegInfo, duration: noFFMpegInfo };
+					const infos = (await ffprobe(filePath, { path: ffprobeStatic.path })).streams;
 
-				projectFileInfoList.set(filePath, info);
+					for (const info of infos) {
+						const codecType = info.codec_type;
+						if (codecType !== undefined && codecType === "video") {
+							projectFileInfoList.set(filePath, info);
 
-				return "Width: `" + info.width.toString() + "` Height: `" + info.height.toString() + "`\t"
-					+ getDuration(info.duration!);
+							return "Width: `" + info.width.toString()
+								+ "` Height: `" + info.height.toString()
+								+ "`\t"
+								+ getDuration(info.duration!);
+						}
+					}
+
+					const noVideoStream = 'No video stream';
+					projectFileInfoList.set(filePath, noVideoStream);
+
+					return noVideoStream;
+				} catch (err) {
+					// console.log(err);
+
+					const noFFMpegInfo = 'No FFMpeg detected';
+					projectFileInfoList.set(filePath, noFFMpegInfo);
+
+					return noFFMpegInfo;
+				}
 			case CompletionType.animation:
 				return "Animation file";
 			case CompletionType.script:
 				const commentRegex = new RegExp("(\\/\\*(.|[\r\n])*?\\*\\/)|(\\/\\/[^\r\n]*)|(\\([^\r\n]*)|Lang\\[(?!" + currentLocalCode + ").*\\].*", "gi");
-				const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
 				const string = (await getBuffer(filePath)).toString('utf-8').replace(commentRegex, "");
 				const lines = string.split('\r\n');
 

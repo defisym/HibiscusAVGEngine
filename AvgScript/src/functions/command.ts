@@ -362,11 +362,8 @@ export const commandGetAssetsList_impl = async () => {
 				}
 			});
 
-		// update display
-		progress.report({ increment: 10, message: "Creating scripts..." });
-
 		// And set its HTML content
-		progress.report({ increment: 10, message: "Generating webview..." });
+		progress.report({ increment: 20, message: "Generating webview..." });
 		assetsListPanel.webview.html = assetList_getWebviewContent(assets, unusedFileList);
 
 		assetsListPanel.webview.onDidReceiveMessage(async (message: any) => {
@@ -489,11 +486,8 @@ export const commandShowJumpFlow_impl = async () => {
 				}
 			});
 
-		// update display
-		progress.report({ increment: 10, message: "Creating scripts..." });
-
 		// And set its HTML content
-		progress.report({ increment: 10, message: "Generating webview..." });
+		progress.report({ increment: 20, message: "Generating webview..." });
 		jumpFlowPanel.webview.html = jumpFlow_getWebviewContent(jumpTable);
 
 		// done
@@ -762,11 +756,8 @@ export const commandGetDubList_impl = async () => {
 				, script: string, lineNumber: number, line: string
 				, currentType: InlayHintType, currentParam: string) => { });
 
-		// update display
-		progress.report({ increment: 10, message: "Creating scripts..." });
-
 		// And set its HTML content
-		progress.report({ increment: 10, message: "Generating webview..." });
+		progress.report({ increment: 20, message: "Generating webview..." });
 		dubListPanel.webview.html = dubList_getWebviewContent(dubMap);
 
 		dubListPanel.webview.onDidReceiveMessage(async (message: any) => {

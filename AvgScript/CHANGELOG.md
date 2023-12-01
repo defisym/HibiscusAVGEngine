@@ -1,5 +1,11 @@
 # Change Log
 
+## 20231201
+
+- optimize file list search
+- optimize string ignore case compare
+- clean up in webview
+
 ## 20231130
 
 - optimize dub operations

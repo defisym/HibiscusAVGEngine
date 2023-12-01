@@ -113,7 +113,8 @@ String.prototype.empty = function () {
 };
 
 String.prototype.iCmp = function (str: string) {
-	return this.toLowerCase() === str.toLowerCase();
+	return this.length === str.length
+		&& this.toLowerCase() === str.toLowerCase();
 };
 
 String.prototype.after = function (str: string) {

@@ -144,7 +144,7 @@ export class DubParser {
 				fullFileName = this.getFilePrefix(fallback) + this.fileName;
 				ret = getFullFilePath(fullFileName);
 			}
-		} catch (error) {
+		} catch (err) {
 
 		}
 
