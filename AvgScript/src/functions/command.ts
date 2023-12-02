@@ -7,7 +7,7 @@ import { activeEditor } from '../extension';
 import { currentLineNotComment } from '../lib/comment';
 import { currentLineDialogue, DialogueStruct, parseDialogue } from '../lib/dialogue';
 import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
-import { DubParser } from '../lib/dubs';
+import { dubMapping, DubParser } from '../lib/dubs';
 import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
 import { FileType } from '../lib/utilities';
@@ -784,7 +784,8 @@ export const commandUpdateDub_impl = async (document: vscode.TextDocument, dialo
 
 	previousUri = vscode.Uri.file(path.dirname(src));
 
-	vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
+	// vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
+	dubMapping.updateDub(document, target, src);
 
 	return;
 };

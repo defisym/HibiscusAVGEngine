@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import { lineCommentCache } from '../lib/comment';
 import { AppendType, currentLineDialogue } from '../lib/dialogue';
-import { dubParseCache } from '../lib/dubs';
+import { dubMapping, dubParseCache } from '../lib/dubs';
 import { Throttle } from '../lib/throttle';
 import { cropScript } from '../lib/utilities';
-import { commandDeleteDub, commandUpdateDub, confCodeLens_ShowTotalLineCount } from './command';
+import { commandDeleteDub, commandUpdateDub, confCodeLens_ShowTotalLineCount, confDub_EnableDubMapping } from './command';
 import { basePath, basePathUpdated, fileListInitialized } from './file';
 
 enum CodeLensExType {
@@ -12,6 +12,7 @@ enum CodeLensExType {
 	fileName,
 	play,
 	delete,
+	source,
 }
 
 class CodeLensEx extends vscode.CodeLens {
@@ -74,6 +75,10 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.fileName, range));
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.play, range));
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.delete, range));
+
+				if (vscode.workspace.getConfiguration().get<boolean>(confDub_EnableDubMapping, false)) {
+					codeLenses.push(new CodeLensEx(document, CodeLensExType.source, range));
+				}
 			}
 		});
 
@@ -208,6 +213,48 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				};
 
 				break;
+			}
+			case CodeLensExType.source: {
+				if (!fileListInitialized) {
+					codeLens.command = {
+						title: "源文件: 更新文件中...",
+						tooltip: "等待文件列表刷新",
+						command: "",
+					};
+
+					break;
+				}
+
+				const fileName = dubState.getPlayFileName();
+
+				if (fileName === undefined) {
+					codeLens.command = {
+						title: "源文件: 无语音文件",
+						tooltip: "当前行无对应的语音文件",
+						command: "",
+					};
+
+					break;
+				}
+
+				const source = dubMapping.getDubMapping(document, fileName);
+
+				if (source === undefined) {
+					codeLens.command = {
+						title: "源文件: 无语音源文件",
+						tooltip: "当前行无对应的语音源文件",
+						command: "",
+					};
+
+					break;
+				}
+
+				codeLens.command = {
+					title: "源文件",
+					tooltip: "点击播放当前行对应的语音源文件",
+					command: "vscode.open",
+					arguments: [vscode.Uri.file(source), vscode.ViewColumn.Beside]
+				};
 			}
 		}
 

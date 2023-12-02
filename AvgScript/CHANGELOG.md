@@ -4,6 +4,8 @@
 
 - remove redundant code lens refresh
   - dub file delete / update / drop will trigger watcher, which will trigger code lens, so it's redundant to trigger it again in other parts
+- dub mapping
+  - quick navigate to source file
 
 ## 20231201
 

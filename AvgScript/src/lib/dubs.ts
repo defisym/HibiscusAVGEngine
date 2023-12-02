@@ -4,13 +4,14 @@ import * as vscode from 'vscode';
 
 import * as mm from 'music-metadata';
 
-import { audio, audioDubsCompletions, basePath, currentLocalCode, getFullFilePath, projectConfig, projectFileInfoList } from "../functions/file";
+import { confDub_EnableDubMapping } from '../functions/command';
+import { audio, audioDubsCompletions, basePath, currentLocalCode, fileListInitialized, getFullFilePath, projectConfig, projectFileInfoList, scriptPath } from "../functions/file";
 import { narrator } from '../webview/dubList';
 import { CacheInterface } from './cacheInterface';
 import { lineCommentCache } from './comment';
 import { DialogueStruct, currentLineDialogue, parseDialogue } from './dialogue';
 import { ScriptSettings, getSettings } from "./settings";
-import { cropScript, deepCopy, deepCopyMap, parseBoolean, parseCommand, stringToEnglish } from "./utilities";
+import { cropScript, deepCopy, deepCopyMap, parseBoolean, parseCommand, replacer, reviver, stringToEnglish } from "./utilities";
 
 export class DubParser {
 	bHoldNowTalking = false;
@@ -465,3 +466,85 @@ export function dubDiagnostic(document: vscode.TextDocument): DubError[] {
 
 	return dubError;
 }
+
+import TextEncodingPolyfill = require('text-encoding');
+
+class DubMapping {
+	dubMap = new Map<string, Map<string, string>>();
+	bUpdated = false;
+
+	private getDocumentMapping(document: vscode.TextDocument) {
+		const enableDubMapping = vscode.workspace.getConfiguration().get<boolean>(confDub_EnableDubMapping, false);
+
+		if (!enableDubMapping) { return undefined; }
+
+		const fileName = document.fileName.substring(scriptPath.length + 1);
+
+		const curMapping = this.dubMap.getWithInit(fileName.toLowerCase(), new Map());
+
+		if (curMapping === undefined) { return undefined; }
+
+		return curMapping;
+	}
+
+	constructor(period: number = 500) {
+		setInterval(() => {
+			this.saveFile();
+		}, period);
+	}
+
+	updateDub(document: vscode.TextDocument, target: string, src: string) {
+		// workspace update will trigger codelens refresh, do nothing here
+		vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
+
+		const curMapping = this.getDocumentMapping(document);
+
+		if (curMapping === undefined) { return; }
+
+		curMapping.set(target.substring(basePath.length + 1).toLowerCase(), src);
+
+		this.bUpdated = true;
+	}
+	getDubMapping(document: vscode.TextDocument, target: string) {
+		const curMapping = this.getDocumentMapping(document);
+
+		if (curMapping === undefined) { return undefined; }
+
+		return curMapping.get(target.substring(basePath.length + 1).toLowerCase());
+	}
+
+	async loadFile() {
+		try {
+			const path = basePath + "\\..\\DubMapping.map";
+			const byteArray = await vscode.workspace.fs.readFile(vscode.Uri.file(path));
+
+			const data = new TextEncodingPolyfill.TextDecoder().decode(byteArray);
+
+			this.dubMap = JSON.parse(data, reviver);
+
+			this.bUpdated = false;
+		} catch (err) {
+			console.log(err);
+		}
+	}
+	async saveFile() {
+		try {
+			if (!fileListInitialized) { return; }
+
+			if (!this.bUpdated) { return; }
+
+			const data = JSON.stringify(this.dubMap, replacer);
+
+			const path = basePath + "\\..\\DubMapping.map";
+			const byteArray = new TextEncodingPolyfill.TextEncoder().encode(data);
+
+			await vscode.workspace.fs.writeFile(vscode.Uri.file(path), byteArray);
+
+			this.bUpdated = false;
+		} catch (err) {
+			console.log(err);
+		}
+	}
+}
+
+export const dubMapping = new DubMapping();

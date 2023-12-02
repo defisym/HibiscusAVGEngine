@@ -551,6 +551,7 @@
 		"@types/marked": "^4.0.8",
 		"@types/mocha": "^9.0.0",
 		"@types/node": "14.x",
+		"@types/text-encoding": "^0.0.39",
 		"@types/vscode": "^1.78.0",
 		"@typescript-eslint/eslint-plugin": "^5.1.0",
 		"@typescript-eslint/parser": "^5.1.0",
@@ -578,6 +579,7 @@
 		"marked": "^4.2.12",
 		"music-metadata": "^7.12.3",
 		"path": "^0.12.7",
-		"pinyin-pro": "^3.10.0"
+		"pinyin-pro": "^3.10.0",
+		"text-encoding": "^0.7.0"
 	}
 }

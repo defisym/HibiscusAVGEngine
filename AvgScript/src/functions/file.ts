@@ -5,7 +5,7 @@ import * as mm from 'music-metadata';
 
 import { currentLineNotComment } from '../lib/comment';
 import { currentLineDialogue } from '../lib/dialogue';
-import { DubParser, dubParseCache } from '../lib/dubs';
+import { DubParser, dubMapping, dubParseCache } from '../lib/dubs';
 import { blankRegex } from '../lib/regExp';
 import { getSettings } from '../lib/settings';
 import { FileType, getBuffer, getCommandParamFileType, getParamAtPosition, getSortTextByText, getUri, sleep, stringToEnglish } from '../lib/utilities';
@@ -676,6 +676,8 @@ export async function updateFileList(progress: vscode.Progress<{
 	currentLocalCodeDefinition = localization.Definition;
 	currentLocalCodeDisplay = currentLocalCodeDefinition[
 		"LanguageDisplayName_" + currentLocalCode];
+
+	dubMapping.loadFile();
 
 	// ------------------------
 	// Update file list		

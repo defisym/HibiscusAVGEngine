@@ -158,7 +158,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			// parseLabel(editor.document);
 		});
 		diagnosticThrottle.triggerCallback(() => { });
-
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {

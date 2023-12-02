@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { dubParseCache } from '../lib/dubs';
+import { dubMapping, dubParseCache } from '../lib/dubs';
 import { audio, currentLocalCode } from './file';
 
 const uriListMime = 'text/uri-list';
@@ -78,8 +78,8 @@ export const drop = vscode.languages.registerDocumentDropEditProvider('AvgScript
 			const folder = audio + "dubs\\" + currentLocalCode + "\\" + dubState.dubChapter + "\\";
 			const target = folder + dubState.fileName + '.ogg';
 
-			// workspace update will trigger codelens refresh, do nothing here
-			vscode.workspace.fs.copy(vscode.Uri.file(filePath), vscode.Uri.file(target), { overwrite: true });
+			// vscode.workspace.fs.copy(vscode.Uri.file(filePath), vscode.Uri.file(target), { overwrite: true });
+			dubMapping.updateDub(document, target, filePath);
 
 			return emptyDropEdit;
 		} while (0);
