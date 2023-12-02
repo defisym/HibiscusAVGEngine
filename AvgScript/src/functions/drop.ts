@@ -1,12 +1,14 @@
 import * as vscode from 'vscode';
 
 import { dubMapping, dubParseCache } from '../lib/dubs';
-import { audio, currentLocalCode } from './file';
+import { audio, currentLocalCode, fileListUpdating } from './file';
 
 const uriListMime = 'text/uri-list';
 
 export const drop = vscode.languages.registerDocumentDropEditProvider('AvgScript', {
 	async provideDocumentDropEdits(document: vscode.TextDocument, position: vscode.Position, dataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): Promise<vscode.DocumentDropEdit | undefined> {
+		if (fileListUpdating()) { return; }
+
 		// MIME types
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
 		const emptyDropEdit = new vscode.DocumentDropEdit("");

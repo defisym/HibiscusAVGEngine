@@ -10,6 +10,7 @@ import { basePath, basePathUpdated, fileListInitialized } from './file';
 enum CodeLensExType {
 	lineInfo,
 	fileName,
+	waitingForUpdate,
 	play,
 	delete,
 	source,
@@ -60,6 +61,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 		if (!basePathUpdated) { return codeLenses; }
 
 		dubParseCache.getDocumentCache(document);
+		const bEnableDubMapping = vscode.workspace.getConfiguration().get<boolean>(confDub_EnableDubMapping, false);
 		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 			let text = lineInfo.textNoComment;
 			let lineNumber = lineInfo.lineNum;
@@ -73,10 +75,17 @@ class CodelensProvider implements vscode.CodeLensProvider {
 			if (currentLineDialogue(text)) {
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.lineInfo, range));
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.fileName, range));
+
+				if (!fileListInitialized) {
+					codeLenses.push(new CodeLensEx(document, CodeLensExType.waitingForUpdate, range));
+
+					return;
+				}
+
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.play, range));
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.delete, range));
 
-				if (vscode.workspace.getConfiguration().get<boolean>(confDub_EnableDubMapping, false)) {
+				if (bEnableDubMapping) {
 					codeLenses.push(new CodeLensEx(document, CodeLensExType.source, range));
 				}
 			}
@@ -134,7 +143,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				const dialogueStruct = dubCache.dialogueStruct;
 
 				codeLens.command = {
-					title: "对应语音文件名: "
+					title: "对应语音文件: "
 						+ (dubState.dubChapter.iCmp(curChapter)
 							? ''
 							: dubState.dubChapter + '\\')
@@ -148,24 +157,24 @@ class CodelensProvider implements vscode.CodeLensProvider {
 						dubState.fileName
 					]
 				};
+
+				break;
+			}
+			case CodeLensExType.waitingForUpdate: {
+				codeLens.command = {
+					title: "更新文件中...",
+					tooltip: "等待文件列表刷新",
+					command: "",
+				};
+
 				break;
 			}
 			case CodeLensExType.play: {
-				if (!fileListInitialized) {
-					codeLens.command = {
-						title: "播放语音 🔊: 更新文件中...",
-						tooltip: "等待文件列表刷新",
-						command: "",
-					};
-
-					break;
-				}
-
 				const fileName = dubState.getPlayFileName();
 
 				if (fileName === undefined) {
 					codeLens.command = {
-						title: "播放语音 🔊: 无语音文件",
+						title: "播放 🔊: 🔇",
 						tooltip: "当前行无对应的语音文件",
 						command: "",
 					};
@@ -174,7 +183,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				}
 
 				codeLens.command = {
-					title: "播放语音 🔊",
+					title: "播放 🔊",
 					tooltip: "点击播放当前行对应的语音文件",
 					command: "vscode.open",
 					arguments: [vscode.Uri.file(fileName), vscode.ViewColumn.Beside]
@@ -183,21 +192,11 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				break;
 			}
 			case CodeLensExType.delete: {
-				if (!fileListInitialized) {
-					codeLens.command = {
-						title: "删除语音 🗑️: 更新文件中...",
-						tooltip: "等待文件列表刷新",
-						command: "",
-					};
-
-					break;
-				}
-
 				const fileName = dubState.getPlayFileName();
 
 				if (fileName === undefined) {
 					codeLens.command = {
-						title: "删除语音 🗑️: 无语音文件",
+						title: "删除 🗑️: 🔇",
 						tooltip: "当前行无对应的语音文件",
 						command: "",
 					};
@@ -206,7 +205,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				}
 
 				codeLens.command = {
-					title: "删除语音 🗑️",
+					title: "删除 🗑️",
 					tooltip: "点击删除当前行对应的语音文件",
 					command: commandDeleteDub,
 					arguments: [fileName]
@@ -215,21 +214,11 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				break;
 			}
 			case CodeLensExType.source: {
-				if (!fileListInitialized) {
-					codeLens.command = {
-						title: "源文件: 更新文件中...",
-						tooltip: "等待文件列表刷新",
-						command: "",
-					};
-
-					break;
-				}
-
 				const fileName = dubState.getPlayFileName();
 
 				if (fileName === undefined) {
 					codeLens.command = {
-						title: "源文件: 无语音文件",
+						title: "源 🔗: 🔇",
 						tooltip: "当前行无对应的语音文件",
 						command: "",
 					};
@@ -241,7 +230,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 
 				if (source === undefined) {
 					codeLens.command = {
-						title: "源文件: 无语音源文件",
+						title: "源 🔗: ⛔",
 						tooltip: "当前行无对应的语音源文件",
 						command: "",
 					};
@@ -250,7 +239,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				}
 
 				codeLens.command = {
-					title: "源文件",
+					title: "源 🔗",
 					tooltip: "点击播放当前行对应的语音源文件",
 					command: "vscode.open",
 					arguments: [vscode.Uri.file(source), vscode.ViewColumn.Beside]

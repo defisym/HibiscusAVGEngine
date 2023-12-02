@@ -23,12 +23,20 @@ import path = require("path");
 let fileListInitFirstRun = true;
 export let fileListInitialized = false;
 
-export async function waitForFileListInit() {
-	// wait for file refresh
+export function fileListUpdating() {
 	if (!fileListInitialized) {
 		vscode.window.showInformationMessage('Waiting for file scanning complete');
+
+		return true;
 	}
 
+	return false;
+}
+
+export async function waitForFileListInit() {
+	fileListUpdating();
+
+	// wait for file refresh
 	while (!fileListInitialized) {
 		await sleep(50);
 	}

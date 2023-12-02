@@ -19,7 +19,7 @@ import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { updateAtCompletionList, updateSharpCompletionList } from './completion';
 import { diagnosticUpdate, refreshFileDiagnostics } from './diagnostic';
-import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -758,6 +758,8 @@ export const commandGetDubList_impl = async () => {
 let previousUri: vscode.Uri | undefined = undefined;
 
 export const commandUpdateDub_impl = async (document: vscode.TextDocument, dialogue: string, chapter: string, fileName: string) => {
+	if (fileListUpdating()) { return; }
+
 	const clipLength = 20;
 
 	let options: vscode.OpenDialogOptions = {
@@ -791,6 +793,8 @@ export const commandUpdateDub_impl = async (document: vscode.TextDocument, dialo
 };
 
 export const commandDeleteDub_impl = (targetFile: string) => {
+	if (fileListUpdating()) { return; }
+
 	const target = targetFile;
 
 	vscode.workspace.fs.delete(vscode.Uri.file(target), { recursive: false, useTrash: true });
