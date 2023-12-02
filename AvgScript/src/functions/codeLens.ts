@@ -111,7 +111,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 						? appendTypeText
 						: typeText);
 
-				let showTotalLineCount = vscode.workspace.getConfiguration().get<boolean>(confCodeLens_ShowTotalLineCount, false);
+				const showTotalLineCount = vscode.workspace.getConfiguration().get<boolean>(confCodeLens_ShowTotalLineCount, false);
 				const totalLineInfo = showTotalLineCount ?
 					'[' + dubState.totalLineCount.toString() + ']'
 					: '';
@@ -137,6 +137,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 					tooltip: "点击指定当前行对应的语音文件，将拷贝选定文件至对应路径，并重命名为对应语音文件名",
 					command: commandUpdateDub,
 					arguments: [
+						document,
 						dialogueStruct.m_dialoguePart,
 						dubState.dubChapter,
 						dubState.fileName

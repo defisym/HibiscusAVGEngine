@@ -17,7 +17,6 @@ import { assetList_getWebviewContent } from '../webview/assetList';
 import { dubList_getWebviewContent } from '../webview/dubList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
-import { codeLensProviderClass } from './codeLens';
 import { updateAtCompletionList, updateSharpCompletionList } from './completion';
 import { diagnosticUpdate, refreshFileDiagnostics } from './diagnostic';
 import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
@@ -32,6 +31,7 @@ export const confReplaceScript: string = "conf.AvgScript.replaceScript";
 
 export const confPreview_AlwaysSendingMessage: string = "conf.AvgScript.preview.alwaysSendingMessage";
 export const confCodeLens_ShowTotalLineCount: string = "conf.AvgScript.codeLens.totalLineCount";
+export const confDub_EnableDubMapping: string = "conf.AvgScript.dub.dubMapping";
 
 export const confFormatRules_emptyLineAfterDialogue: string = "conf.AvgScript.formatRules.emptyLineAfterDialogue";
 export const confFormatRules_emptyLineBeforeComment: string = "conf.AvgScript.formatRules.emptyLineBeforeComment";
@@ -757,7 +757,7 @@ export const commandGetDubList_impl = async () => {
 
 let previousUri: vscode.Uri | undefined = undefined;
 
-export const commandUpdateDub_impl = async (dialogue: string, chapter: string, fileName: string) => {
+export const commandUpdateDub_impl = async (document: vscode.TextDocument, dialogue: string, chapter: string, fileName: string) => {
 	const clipLength = 20;
 
 	let options: vscode.OpenDialogOptions = {
@@ -786,17 +786,13 @@ export const commandUpdateDub_impl = async (dialogue: string, chapter: string, f
 
 	vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
 
-	await codeLensProviderClass.refresh();
-
 	return;
 };
 
-export const commandDeleteDub_impl = async (targetFile: string) => {
+export const commandDeleteDub_impl = (targetFile: string) => {
 	const target = targetFile;
 
 	vscode.workspace.fs.delete(vscode.Uri.file(target), { recursive: false, useTrash: true });
-
-	await codeLensProviderClass.refresh();
 
 	return;
 };

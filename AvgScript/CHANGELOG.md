@@ -1,5 +1,10 @@
 # Change Log
 
+## 20231202
+
+- remove redundant code lens refresh
+  - dub file delete / update / drop will trigger watcher, which will trigger code lens, so it's redundant to trigger it again in other parts
+
 ## 20231201
 
 - optimize file list search

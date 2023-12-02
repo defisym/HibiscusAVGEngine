@@ -918,15 +918,15 @@ export async function updateFileList(progress: vscode.Progress<{
 
 	await generateCompletionList(scriptFileList, scriptCompletions, scriptPath, CompletionType.script);
 
-	progress.report({ increment: 0, message: "Refresh code lens" });
-
 	fileListInitialized = true;
-	await codeLensProviderClass.refresh();
-
 	fileListInitFirstRun = false;
 
-	progress.report({ increment: 0, message: "Done" });
+	progress.report({ increment: 0, message: "Refresh code lens" });
 
+	// watcher didn't start here, so refresh is needed
+	codeLensProviderClass.refresh();
+
+	progress.report({ increment: 0, message: "Done" });
 }
 
 export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgScript',

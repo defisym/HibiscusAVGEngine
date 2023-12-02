@@ -311,7 +311,7 @@ class DubCache {
 	}
 }
 
-export class DubParseCache implements CacheInterface<DubCache[]> {
+class DubParseCache implements CacheInterface<DubCache[]> {
 	dubParseCache = new Map<vscode.Uri, DubCache[]>();
 
 	parseDocument(document: vscode.TextDocument) {
@@ -379,9 +379,9 @@ export class DubParseCache implements CacheInterface<DubCache[]> {
 			let lineStart = lineInfo.lineStart;
 			let lineEnd = lineInfo.lineEnd;
 
-			dubState.parseLine(text,(dp: DubParser, dialogueStruct: DialogueStruct)=>{
+			dubState.parseLine(text, (dp: DubParser, dialogueStruct: DialogueStruct) => {
 				cb(dp, lineNumber, dialogueStruct);
-			});			
+			});
 		}
 	}
 }
@@ -393,12 +393,10 @@ const durationPerWordFast = (1.0 * 60 / 120);       // check longer
 const durationRange = 0.5;
 const durationThreshold = 2.5;
 
-export interface DubInfo {
+interface DubError {
 	range: vscode.Range,
 	info: string,
 };
-
-export type DubError = DubInfo;
 
 export function dubDiagnostic(document: vscode.TextDocument): DubError[] {
 	const dubError: DubError[] = [];

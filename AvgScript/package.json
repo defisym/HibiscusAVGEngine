@@ -1,577 +1,583 @@
 {
-    "name": "avgscript",
-    "displayName": "Avg Script",
-    "description": "Hibiscus AVG Engine AvgScript Support for VS Code",
-    "version": "0.0.0",
-    "publisher": "Defisym",
-    "repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
-    "homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
-    "icon_comment": "ignore this warning as using webpack",
-    "icon": "media/AvgScript.png",
-    "main_comment_1": "./out/extension.js faster, debugging -> Run Extension",
-    "main_comment_2": "./dist/extension.js slower, releasing -> Run WebPack",
-    "main": "./dist/extension.js",
-    "engines": {
-        "vscode": "^1.78.0"
-    },
-    "categories": [
-        "Programming Languages",
-        "Debuggers",
-        "Snippets",
-        "Linters",
-        "Themes"
-    ],
-    "_extensionDependencies": [
-        "sukumo28.wav-preview"
-    ],
-    "contributes": {
-        "keybindings": [
-            {
-                "command": "config.AvgScript.replaceScript",
-                "key": "Ctrl+Shift+Alt+R",
-                "when": "editorLangId == AvgScript"
-            },
-            {
-                "command": "config.AvgScript.appendDialogue",
-                "key": "Ctrl+Shift+Alt+A",
-                "when": "editorLangId == AvgScript"
-            },
-            {
-                "command": "config.AvgScript.showDialogueFormatHint",
-                "key": "Ctrl+Shift+Alt+F",
-                "when": "editorLangId == AvgScript"
-            },
-            {
-                "command": "config.AvgScript.showHibiscusDocument",
-                "key": "Ctrl+Shift+Alt+D",
-                "when": "editorLangId == AvgScript"
-            }
-        ],
-        "languages": [
-            {
-                "id": "AvgScript",
-                "aliases": [
-                    "Avg Script",
-                    "AvgScript"
-                ],
-                "extensions": [
-                    ".asc"
-                ],
-                "configuration": "./language-configuration.json",
-                "icon": {
-                    "light": "media/AvgScript.png",
-                    "dark": "media/AvgScript.png"
-                }
-            }
-        ],
-        "grammars": [
-            {
-                "language": "AvgScript",
-                "scopeName": "source.avgscript",
-                "path": "./syntaxes/AvgScript.tmLanguage.json"
-            },
-            {
-                "scopeName": "markdown.AvgScript.codeblock",
-                "path": "./syntaxes/AvgScript.markdown.json",
-                "_injectTo": [
-                    "text.html.markdown",
-                    "meta.embedded.block.AvgScript",
-                    "markup.fenced_code.block.markdown"
-                ],
-                "injectTo": [
-                    "text.html.markdown"
-                ],
-                "embeddedLanguages": {
-                    "meta.embedded.block.AvgScript": "AvgScript"
-                }
-            }
-        ],
-        "snippets": [
-            {
-                "language": "AvgScript",
-                "path": "./snippets/snippets.json"
-            }
-        ],
-        "themes": [
-            {
-                "label": "AvgScript",
-                "uiTheme": "vs-dark",
-                "path": "./themes/AvgScript-color-theme.json"
-            }
-        ],
-        "configuration": [
-            {
-                "id": "AvgScript",
-                "title": "AvgScript",
-                "order": 2,
-                "properties": {
-                    "conf.AvgScript.basePath": {
-                        "type": "string",
-                        "order": 0,
-                        "description": "Absolute path of main program"
-                    },
-                    "conf.AvgScript.autoUpdate": {
-                        "type": "boolean",
-                        "order": 0,
-                        "description": "Auto update file list if files in basePath have changed",
-                        "default": "true"
-                    },
-                    "conf.AvgScript.commandExtension": {
-                        "type": "array",
-                        "order": 1,
-                        "description": "Command extension",
-                        "items": {
-                            "required": [
-                                "prefix",
-                                "command",
-                                "minParam",
-                                "maxParam",
-                                "paramType"
-                            ],
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                                "prefix": {
-                                    "enum": [
-                                        "@",
-                                        "#"
-                                    ],
-                                    "description": "Command prefix"
-                                },
-                                "command": {
-                                    "type": "string",
-                                    "description": "Command"
-                                },
-                                "minParam": {
-                                    "type": "integer",
-                                    "description": "min available param",
-                                    "minimum": 0
-                                },
-                                "maxParam": {
-                                    "type": "integer",
-                                    "description": "max available param",
-                                    "minimum": 0
-                                },
-                                "description": {
-                                    "type": "array",
-                                    "description": "Command description",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                "paramType": {
-                                    "type": "array",
-                                    "description": "Type of each param",
-                                    "items": {
-                                        "enum": [
-                                            "String",
-                                            "Number",
-                                            "Boolean",
-                                            "Volume",
-                                            "ObjType",
-                                            "Color",
-                                            "File",
-                                            "Any"
-                                        ]
-                                    }
-                                },
-                                "required": {
-                                    "type": "array",
-                                    "description": "required",
-                                    "items": {
-                                        "type": "array",
-                                        "description": "available items",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "inlayHint": {
-                                    "type": "array",
-                                    "description": "Inlay hint type of each param",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                "inlayHintAdd": {
-                                    "type": "array",
-                                    "description": "inlay hint addition",
-                                    "items": {
-                                        "type": "array",
-                                        "description": "available items",
-                                        "items": {
-                                            "type": "object",
-                                            "required": [
-                                                "key",
-                                                "value"
-                                            ],
-                                            "properties": {
-                                                "key": {
-                                                    "type": "string"
-                                                },
-                                                "value": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "outlineKeyword": {
-                                    "type": "boolean",
-                                    "description": "outline keyword"
-                                },
-                                "treatAsOneParam": {
-                                    "type": "boolean",
-                                    "description": "Treat as one param"
-                                },
-                                "internal": {
-                                    "type": "boolean",
-                                    "description": "Internal command"
-                                },
-                                "deprecated": {
-                                    "type": "boolean",
-                                    "description": "Deprecated"
-                                },
-                                "VNModeOnly": {
-                                    "type": "boolean",
-                                    "description": "VNMode only"
-                                },
-                                "NonVNModeOnly": {
-                                    "type": "boolean",
-                                    "description": "Non VNMode only"
-                                },
-                                "indentIn": {
-                                    "type": "boolean",
-                                    "description": "add indent"
-                                },
-                                "indentOut": {
-                                    "type": "boolean",
-                                    "description": "remove indent"
-                                },
-                                "emptyLineBefore": {
-                                    "type": "boolean",
-                                    "description": "insert empty line before"
-                                },
-                                "emptyLineAfter": {
-                                    "type": "boolean",
-                                    "description": "insert empty line after"
-                                }
-                            }
-                        }
-                    },
-                    "conf.AvgScript.replaceScript": {
-                        "type": "array",
-                        "order": 2,
-                        "description": "Regex used to replace script",
-                        "items": {
-                            "required": [
-                                "regex",
-                                "repStr"
-                            ],
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                                "regex": {
-                                    "type": "string",
-                                    "description": "Regex used to replace script"
-                                },
-                                "repStr": {
-                                    "type": "string",
-                                    "description": "string to replace"
-                                }
-                            }
-                        }
-                    },
-                    "conf.AvgScript.preview.alwaysSendingMessage": {
-                        "type": "boolean",
-                        "order": 2,
-                        "description": "always sending preview message even not debugging",
-                        "default": "false"
-                    },
-                    "conf.AvgScript.codeLens.totalLineCount": {
-                        "type": "boolean",
-                        "order": 2,
-                        "description": "Show total line count in code lens",
-                        "default": "false"
-                    },
-                    "conf.AvgScript.formatRules.emptyLineAfterDialogue": {
-                        "type": "boolean",
-                        "order": 3,
-                        "description": "insert empty line after dialogue",
-                        "default": true
-                    },
-                    "conf.AvgScript.formatRules.emptyLineBeforeComment": {
-                        "type": "boolean",
-                        "order": 3,
-                        "description": "insert empty line before comment",
-                        "default": true
-                    },
-                    "conf.AvgScript.formatRules.emptyLineLabel": {
-                        "type": "boolean",
-                        "order": 3,
-                        "description": "insert empty line around labels",
-                        "default": true
-                    },
-                    "conf.AvgScript.formatRules.emptyLineCommand": {
-                        "type": "boolean",
-                        "order": 3,
-                        "description": "insert empty line according to command prop",
-                        "default": true
-                    },
-                    "conf.AvgScript.formatRules.removeEmptyLines": {
-                        "type": "boolean",
-                        "order": 3,
-                        "description": "remove two or more consecutive empty lines",
-                        "default": true
-                    },
-                    "conf.AvgScript.formatRules.formatEmptyLines": {
-                        "type": "boolean",
-                        "order": 3,
-                        "description": "delete blank characters in empty lines",
-                        "default": true
-                    }
-                }
-            }
-        ],
-        "commands": [
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.basePath",
-                "title": "Set base path",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Base Path"
-            },
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.refreshAssets",
-                "title": "Refresh Assets information",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Refresh Assets"
-            },
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.updateCommandExtension",
-                "title": "Update command extension",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Command Extension"
-            },
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.getAssetsList",
-                "title": "List assets used in project",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Assets List"
-            },
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.showJumpFlow",
-                "title": "Show the jump flow in project",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Jump Flow",
-                "enablement": "false"
-            },
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.replaceScript",
-                "title": "Generate basic script",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Generate Script"
-            },
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.appendDialogue",
-                "title": "Append Dialogue",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Append Dialogue"
-            },
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.showDialogueFormatHint",
-                "title": "Show Dialogue Format Hint",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Format Hint"
-            },
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.showHibiscusDocument",
-                "title": "Show Hibiscus Document",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Document"
-            },
-            {
-                "category": "AvgScript",
-                "command": "config.AvgScript.getDubList",
-                "title": "List lines of characters",
-                "icon": "media/AvgScript.png",
-                "shortTitle": "Dub List"
-            }
-        ],
-        "menus": {
-            "commandPalette": [
-                {
-                    "command": "config.AvgScript.basePath",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "command": "config.AvgScript.refreshAssets",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "command": "config.AvgScript.updateCommandExtension",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "command": "config.AvgScript.getAssetsList",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "command": "config.AvgScript.showJumpFlow",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "command": "config.AvgScript.replaceScript",
-                    "when": "editorLangId == AvgScript || editorLangId == plaintext"
-                },
-                {
-                    "command": "config.AvgScript.appendDialogue",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "command": "config.AvgScript.showDialogueFormatHint",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "command": "config.AvgScript.showHibiscusDocument",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "command": "config.AvgScript.getDubList",
-                    "when": "editorLangId == AvgScript"
-                }
-            ],
-            "editor/context": [
-                {
-                    "submenu": "AvgScript.Menu",
-                    "group": "AvgScript"
-                }
-            ],
-            "AvgScript.Menu": [
-                {
-                    "group": "AvgScript.1_basic",
-                    "command": "config.AvgScript.basePath",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "group": "AvgScript.2_command",
-                    "command": "config.AvgScript.updateCommandExtension",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "group": "AvgScript.3_assets",
-                    "command": "config.AvgScript.refreshAssets",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "group": "AvgScript.3_assets",
-                    "command": "config.AvgScript.getAssetsList",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "group": "AvgScript.4_dubs",
-                    "command": "config.AvgScript.getDubList",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "group": "AvgScript.5_document",
-                    "command": "config.AvgScript.showDialogueFormatHint",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "group": "AvgScript.5_document",
-                    "command": "config.AvgScript.showHibiscusDocument",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "group": "AvgScript.6_script",
-                    "command": "config.AvgScript.appendDialogue",
-                    "when": "editorLangId == AvgScript"
-                },
-                {
-                    "group": "AvgScript.6_script",
-                    "command": "config.AvgScript.replaceScript",
-                    "when": "editorLangId == AvgScript || editorLangId == plaintext"
-                },
-                {
-                    "group": "AvgScript.6_script",
-                    "command": "config.AvgScript.showJumpFlow",
-                    "when": "editorLangId == AvgScript"
-                }
-            ]
-        },
-        "submenus": [
-            {
-                "id": "AvgScript.Menu",
-                "label": "AvgScript",
-                "icon": "media/AvgScript.png"
-            }
-        ],
-        "debuggers": [
-            {
-                "type": "AvgScript",
-                "label": "AvgScript Debugger",
-                "languages": [
-                    "AvgScript"
-                ]
-            }
-        ]
-    },
-    "activationEvents": [
-        "onDebug:AvgScript"
-    ],
-    "scripts": {
-        "vscode:prepublish": "set NODE_ENV=production&&npm run package",
-        "webpack": "webpack --mode development",
-        "webpack-dev": "webpack --mode development --watch",
-        "package": "webpack --mode production --devtool hidden-source-map",
-        "test-compile": "tsc -p ./",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "pretest": "npm run compile && npm run lint",
-        "lint": "eslint src --ext ts",
-        "test": "node ./out/test/runTest.js"
-    },
-    "devDependencies": {
-        "@types/glob": "^7.1.4",
-        "@types/marked": "^4.0.8",
-        "@types/mocha": "^9.0.0",
-        "@types/node": "14.x",
-        "@types/vscode": "^1.78.0",
-        "@typescript-eslint/eslint-plugin": "^5.1.0",
-        "@typescript-eslint/parser": "^5.1.0",
-        "@vscode/test-electron": "^1.6.2",
-        "@zerodeps/image-probe": "^0.2.0",
-        "copy-webpack-plugin": "^11.0.0",
-        "esbuild": "^0.14.39",
-        "eslint": "^8.1.0",
-        "glob": "^7.1.7",
-        "ini": "^3.0.0",
-        "japanese": "^1.1.0",
-        "mocha": "^9.1.3",
-        "music-metadata": "^7.12.3",
-        "pinyin-pro": "^3.10.0",
-        "remove-files-webpack-plugin": "^1.5.0",
-        "ts-loader": "^9.3.0",
-        "typescript": "^4.4.4",
-        "webpack": "^5.76.0",
-        "webpack-cli": "^4.9.2"
-    },
-    "dependencies": {
-        "@zerodeps/image-probe": "^0.2.0",
-        "ini": "^3.0.0",
-        "japanese": "^1.1.0",
-        "marked": "^4.2.12",
-        "music-metadata": "^7.12.3",
-        "path": "^0.12.7",
-        "pinyin-pro": "^3.10.0"
-    }
+	"name": "avgscript",
+	"displayName": "Avg Script",
+	"description": "Hibiscus AVG Engine AvgScript Support for VS Code",
+	"version": "0.0.0",
+	"publisher": "Defisym",
+	"repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
+	"homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
+	"icon_comment": "ignore this warning as using webpack",
+	"icon": "media/AvgScript.png",
+	"main_comment_1": "./out/extension.js faster, debugging -> Run Extension",
+	"main_comment_2": "./dist/extension.js slower, releasing -> Run WebPack",
+	"main": "./dist/extension.js",
+	"engines": {
+		"vscode": "^1.78.0"
+	},
+	"categories": [
+		"Programming Languages",
+		"Debuggers",
+		"Snippets",
+		"Linters",
+		"Themes"
+	],
+	"_extensionDependencies": [
+		"sukumo28.wav-preview"
+	],
+	"contributes": {
+		"keybindings": [
+			{
+				"command": "config.AvgScript.replaceScript",
+				"key": "Ctrl+Shift+Alt+R",
+				"when": "editorLangId == AvgScript"
+			},
+			{
+				"command": "config.AvgScript.appendDialogue",
+				"key": "Ctrl+Shift+Alt+A",
+				"when": "editorLangId == AvgScript"
+			},
+			{
+				"command": "config.AvgScript.showDialogueFormatHint",
+				"key": "Ctrl+Shift+Alt+F",
+				"when": "editorLangId == AvgScript"
+			},
+			{
+				"command": "config.AvgScript.showHibiscusDocument",
+				"key": "Ctrl+Shift+Alt+D",
+				"when": "editorLangId == AvgScript"
+			}
+		],
+		"languages": [
+			{
+				"id": "AvgScript",
+				"aliases": [
+					"Avg Script",
+					"AvgScript"
+				],
+				"extensions": [
+					".asc"
+				],
+				"configuration": "./language-configuration.json",
+				"icon": {
+					"light": "media/AvgScript.png",
+					"dark": "media/AvgScript.png"
+				}
+			}
+		],
+		"grammars": [
+			{
+				"language": "AvgScript",
+				"scopeName": "source.avgscript",
+				"path": "./syntaxes/AvgScript.tmLanguage.json"
+			},
+			{
+				"scopeName": "markdown.AvgScript.codeblock",
+				"path": "./syntaxes/AvgScript.markdown.json",
+				"_injectTo": [
+					"text.html.markdown",
+					"meta.embedded.block.AvgScript",
+					"markup.fenced_code.block.markdown"
+				],
+				"injectTo": [
+					"text.html.markdown"
+				],
+				"embeddedLanguages": {
+					"meta.embedded.block.AvgScript": "AvgScript"
+				}
+			}
+		],
+		"snippets": [
+			{
+				"language": "AvgScript",
+				"path": "./snippets/snippets.json"
+			}
+		],
+		"themes": [
+			{
+				"label": "AvgScript",
+				"uiTheme": "vs-dark",
+				"path": "./themes/AvgScript-color-theme.json"
+			}
+		],
+		"configuration": [
+			{
+				"id": "AvgScript",
+				"title": "AvgScript",
+				"order": 2,
+				"properties": {
+					"conf.AvgScript.basePath": {
+						"type": "string",
+						"order": 0,
+						"description": "Absolute path of main program"
+					},
+					"conf.AvgScript.autoUpdate": {
+						"type": "boolean",
+						"order": 0,
+						"description": "Auto update file list if files in basePath have changed",
+						"default": "true"
+					},
+					"conf.AvgScript.commandExtension": {
+						"type": "array",
+						"order": 1,
+						"description": "Command extension",
+						"items": {
+							"required": [
+								"prefix",
+								"command",
+								"minParam",
+								"maxParam",
+								"paramType"
+							],
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"prefix": {
+									"enum": [
+										"@",
+										"#"
+									],
+									"description": "Command prefix"
+								},
+								"command": {
+									"type": "string",
+									"description": "Command"
+								},
+								"minParam": {
+									"type": "integer",
+									"description": "min available param",
+									"minimum": 0
+								},
+								"maxParam": {
+									"type": "integer",
+									"description": "max available param",
+									"minimum": 0
+								},
+								"description": {
+									"type": "array",
+									"description": "Command description",
+									"items": {
+										"type": "string"
+									}
+								},
+								"paramType": {
+									"type": "array",
+									"description": "Type of each param",
+									"items": {
+										"enum": [
+											"String",
+											"Number",
+											"Boolean",
+											"Volume",
+											"ObjType",
+											"Color",
+											"File",
+											"Any"
+										]
+									}
+								},
+								"required": {
+									"type": "array",
+									"description": "required",
+									"items": {
+										"type": "array",
+										"description": "available items",
+										"items": {
+											"type": "string"
+										}
+									}
+								},
+								"inlayHint": {
+									"type": "array",
+									"description": "Inlay hint type of each param",
+									"items": {
+										"type": "string"
+									}
+								},
+								"inlayHintAdd": {
+									"type": "array",
+									"description": "inlay hint addition",
+									"items": {
+										"type": "array",
+										"description": "available items",
+										"items": {
+											"type": "object",
+											"required": [
+												"key",
+												"value"
+											],
+											"properties": {
+												"key": {
+													"type": "string"
+												},
+												"value": {
+													"type": "string"
+												}
+											}
+										}
+									}
+								},
+								"outlineKeyword": {
+									"type": "boolean",
+									"description": "outline keyword"
+								},
+								"treatAsOneParam": {
+									"type": "boolean",
+									"description": "Treat as one param"
+								},
+								"internal": {
+									"type": "boolean",
+									"description": "Internal command"
+								},
+								"deprecated": {
+									"type": "boolean",
+									"description": "Deprecated"
+								},
+								"VNModeOnly": {
+									"type": "boolean",
+									"description": "VNMode only"
+								},
+								"NonVNModeOnly": {
+									"type": "boolean",
+									"description": "Non VNMode only"
+								},
+								"indentIn": {
+									"type": "boolean",
+									"description": "add indent"
+								},
+								"indentOut": {
+									"type": "boolean",
+									"description": "remove indent"
+								},
+								"emptyLineBefore": {
+									"type": "boolean",
+									"description": "insert empty line before"
+								},
+								"emptyLineAfter": {
+									"type": "boolean",
+									"description": "insert empty line after"
+								}
+							}
+						}
+					},
+					"conf.AvgScript.replaceScript": {
+						"type": "array",
+						"order": 2,
+						"description": "Regex used to replace script",
+						"items": {
+							"required": [
+								"regex",
+								"repStr"
+							],
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"regex": {
+									"type": "string",
+									"description": "Regex used to replace script"
+								},
+								"repStr": {
+									"type": "string",
+									"description": "string to replace"
+								}
+							}
+						}
+					},
+					"conf.AvgScript.preview.alwaysSendingMessage": {
+						"type": "boolean",
+						"order": 2,
+						"description": "always sending preview message even not debugging",
+						"default": "false"
+					},
+					"conf.AvgScript.codeLens.totalLineCount": {
+						"type": "boolean",
+						"order": 2,
+						"description": "show total line count in code lens",
+						"default": "false"
+					},
+					"conf.AvgScript.dub.dubMapping": {
+						"type": "boolean",
+						"order": 2,
+						"description": "save the source of dub file",
+						"default": "false"
+					},
+					"conf.AvgScript.formatRules.emptyLineAfterDialogue": {
+						"type": "boolean",
+						"order": 3,
+						"description": "insert empty line after dialogue",
+						"default": true
+					},
+					"conf.AvgScript.formatRules.emptyLineBeforeComment": {
+						"type": "boolean",
+						"order": 3,
+						"description": "insert empty line before comment",
+						"default": true
+					},
+					"conf.AvgScript.formatRules.emptyLineLabel": {
+						"type": "boolean",
+						"order": 3,
+						"description": "insert empty line around labels",
+						"default": true
+					},
+					"conf.AvgScript.formatRules.emptyLineCommand": {
+						"type": "boolean",
+						"order": 3,
+						"description": "insert empty line according to command prop",
+						"default": true
+					},
+					"conf.AvgScript.formatRules.removeEmptyLines": {
+						"type": "boolean",
+						"order": 3,
+						"description": "remove two or more consecutive empty lines",
+						"default": true
+					},
+					"conf.AvgScript.formatRules.formatEmptyLines": {
+						"type": "boolean",
+						"order": 3,
+						"description": "delete blank characters in empty lines",
+						"default": true
+					}
+				}
+			}
+		],
+		"commands": [
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.basePath",
+				"title": "Set base path",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Base Path"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.refreshAssets",
+				"title": "Refresh Assets information",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Refresh Assets"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.updateCommandExtension",
+				"title": "Update command extension",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Command Extension"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.getAssetsList",
+				"title": "List assets used in project",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Assets List"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.showJumpFlow",
+				"title": "Show the jump flow in project",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Jump Flow",
+				"enablement": "false"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.replaceScript",
+				"title": "Generate basic script",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Generate Script"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.appendDialogue",
+				"title": "Append Dialogue",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Append Dialogue"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.showDialogueFormatHint",
+				"title": "Show Dialogue Format Hint",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Format Hint"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.showHibiscusDocument",
+				"title": "Show Hibiscus Document",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Document"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.getDubList",
+				"title": "List lines of characters",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Dub List"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "config.AvgScript.basePath",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"command": "config.AvgScript.refreshAssets",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"command": "config.AvgScript.updateCommandExtension",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"command": "config.AvgScript.getAssetsList",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"command": "config.AvgScript.showJumpFlow",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"command": "config.AvgScript.replaceScript",
+					"when": "editorLangId == AvgScript || editorLangId == plaintext"
+				},
+				{
+					"command": "config.AvgScript.appendDialogue",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"command": "config.AvgScript.showDialogueFormatHint",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"command": "config.AvgScript.showHibiscusDocument",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"command": "config.AvgScript.getDubList",
+					"when": "editorLangId == AvgScript"
+				}
+			],
+			"editor/context": [
+				{
+					"submenu": "AvgScript.Menu",
+					"group": "AvgScript"
+				}
+			],
+			"AvgScript.Menu": [
+				{
+					"group": "AvgScript.1_basic",
+					"command": "config.AvgScript.basePath",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"group": "AvgScript.2_command",
+					"command": "config.AvgScript.updateCommandExtension",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"group": "AvgScript.3_assets",
+					"command": "config.AvgScript.refreshAssets",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"group": "AvgScript.3_assets",
+					"command": "config.AvgScript.getAssetsList",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"group": "AvgScript.4_dubs",
+					"command": "config.AvgScript.getDubList",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"group": "AvgScript.5_document",
+					"command": "config.AvgScript.showDialogueFormatHint",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"group": "AvgScript.5_document",
+					"command": "config.AvgScript.showHibiscusDocument",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"group": "AvgScript.6_script",
+					"command": "config.AvgScript.appendDialogue",
+					"when": "editorLangId == AvgScript"
+				},
+				{
+					"group": "AvgScript.6_script",
+					"command": "config.AvgScript.replaceScript",
+					"when": "editorLangId == AvgScript || editorLangId == plaintext"
+				},
+				{
+					"group": "AvgScript.6_script",
+					"command": "config.AvgScript.showJumpFlow",
+					"when": "editorLangId == AvgScript"
+				}
+			]
+		},
+		"submenus": [
+			{
+				"id": "AvgScript.Menu",
+				"label": "AvgScript",
+				"icon": "media/AvgScript.png"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "AvgScript",
+				"label": "AvgScript Debugger",
+				"languages": [
+					"AvgScript"
+				]
+			}
+		]
+	},
+	"activationEvents": [
+		"onDebug:AvgScript"
+	],
+	"scripts": {
+		"vscode:prepublish": "set NODE_ENV=production&&npm run package",
+		"webpack": "webpack --mode development",
+		"webpack-dev": "webpack --mode development --watch",
+		"package": "webpack --mode production --devtool hidden-source-map",
+		"test-compile": "tsc -p ./",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.4",
+		"@types/marked": "^4.0.8",
+		"@types/mocha": "^9.0.0",
+		"@types/node": "14.x",
+		"@types/vscode": "^1.78.0",
+		"@typescript-eslint/eslint-plugin": "^5.1.0",
+		"@typescript-eslint/parser": "^5.1.0",
+		"@vscode/test-electron": "^1.6.2",
+		"@zerodeps/image-probe": "^0.2.0",
+		"copy-webpack-plugin": "^11.0.0",
+		"esbuild": "^0.14.39",
+		"eslint": "^8.1.0",
+		"glob": "^7.1.7",
+		"ini": "^3.0.0",
+		"japanese": "^1.1.0",
+		"mocha": "^9.1.3",
+		"music-metadata": "^7.12.3",
+		"pinyin-pro": "^3.10.0",
+		"remove-files-webpack-plugin": "^1.5.0",
+		"ts-loader": "^9.3.0",
+		"typescript": "^4.4.4",
+		"webpack": "^5.76.0",
+		"webpack-cli": "^4.9.2"
+	},
+	"dependencies": {
+		"@zerodeps/image-probe": "^0.2.0",
+		"ini": "^3.0.0",
+		"japanese": "^1.1.0",
+		"marked": "^4.2.12",
+		"music-metadata": "^7.12.3",
+		"path": "^0.12.7",
+		"pinyin-pro": "^3.10.0"
+	}
 }
