@@ -3,10 +3,9 @@
 import * as vscode from 'vscode';
 
 import { RefInfo } from "../functions/command";
-import { getFullFileNameByType, nonePreview } from "../functions/file";
-import { FileType, fileTypeMap } from "../lib/utilities";
+import { FileType, fileTypeMap, getFullFileNameByType, nonePreview } from "../functions/file";
 import { html_getHyperLink } from "./_hyperLink";
-import { markdownParser, markDown_getMarkDownLevel, markDown_newLine } from './_mdToHtml';
+import { markDown_getMarkDownLevel, markDown_newLine, markdownParser } from './_mdToHtml';
 import { onClickLinkScript } from "./_onClickLink";
 
 export function assetList_getWebviewContent(assets: Map<string, RefInfo>, unusedFileList: string[]) {

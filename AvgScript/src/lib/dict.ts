@@ -7,7 +7,6 @@ import { easing_inlayHintAddition_funcName, easing_inlayHintAddition_funcNameMap
 import { object_objectType, object_objectTypeMap } from './objectType';
 import { sleep } from './utilities';
 
-
 export let sharpKeywordList: string[] = [];
 export let atKeywordList: string[] = [];
 export let keywordList: string[] = [];

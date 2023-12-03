@@ -4,11 +4,11 @@ import { colorProvider } from './functions/color';
 import { assetsListPanel, commandAppendDialogue, commandAppendDialogue_impl, commandBasePath, commandBasePath_impl, commandDeleteDub, commandDeleteDub_impl, commandGetAssetsList, commandGetAssetsList_impl, commandGetDubList, commandGetDubList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl, commandShowHibiscusDocument, commandShowHibiscusDocument_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl, commandUpdateDub, commandUpdateDub_impl, dubListPanel, formatHintPanel, jumpFlowPanel } from './functions/command';
 import { atCommands, fileName, fileSuffix, langPrefix, required, settingsParam, sharpCommands } from './functions/completion';
 import { debuggerFactory, debuggerProvider, debuggerTracker } from './functions/debugger';
-import { diagnosticsCollection, onUpdate, triggerUpdate } from './functions/diagnostic';
+import { diagnosticThrottle, diagnosticsCollection } from './functions/diagnostic';
 import { fileDefinition } from './functions/file';
 import { hover, hoverFile } from './functions/hover';
 import { inlayHint } from './functions/inlayHint';
-import { labelDefinition, labelReference } from './functions/label';
+import { labelCache, labelDefinition, labelReference } from './functions/label';
 import { outline } from './functions/outline';
 import { rename } from './functions/rename';
 
@@ -18,6 +18,8 @@ import { codeLensProvider } from './functions/codeLens';
 import { drop } from './functions/drop';
 import { formatting } from './functions/formatting';
 import { previewer } from './functions/preview';
+import { lineCommentCache } from './lib/comment';
+import { throttle } from './lib/throttle';
 
 export let activeEditor = vscode.window.activeTextEditor;
 export const outputChannel = vscode.window.createOutputChannel('AvgScript');
@@ -56,7 +58,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Init Command
 	//--------------------
 
-	vscode.commands.executeCommand(commandUpdateCommandExtension);
+	// make sure command info list is valid
+	await vscode.commands.executeCommand(commandUpdateCommandExtension);
 	vscode.commands.executeCommand(commandRefreshAssets);
 
 	//--------------------
@@ -141,28 +144,46 @@ export async function activate(context: vscode.ExtensionContext) {
 	// File Updated
 	//--------------------
 
-	onUpdate();
+	diagnosticThrottle.triggerCallback(() => { }, true);
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {
 		activeEditor = editor;
-		if (editor) {
+		if (!editor) { return; }
+
+		throttle.triggerCallback(() => {
+			// console.log("trigger parse :" + editor.document.fileName);
+
 			previewer.docUpdated();
-			triggerUpdate();
-		}
+			// parseLineComment(editor.document);
+			// parseLabel(editor.document);
+		});
+		diagnosticThrottle.triggerCallback(() => { });
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {
-		if (activeEditor && event.document === activeEditor.document) {
-			previewer.docUpdated();
-			triggerUpdate(true);
-		}
-	}, null, context.subscriptions);
-	vscode.workspace.onDidCloseTextDocument(document => {
-		diagnosticsCollection.delete(document.uri);
+		// console.log("doc changed");
+
+		// put it here to let content that need exact update
+		// e.g., completion
+		lineCommentCache.updateDocumentCache(event.document, event.contentChanges);
+		labelCache.updateDocumentCache(event.document, event.contentChanges);
+
+		throttle.triggerCallback(() => {
+			// console.log("trigger throttle parse :" + event.document.fileName);
+		}, true);
+		diagnosticThrottle.triggerCallback(() => { }, true);
 	}, null, context.subscriptions);
 
+	vscode.workspace.onDidOpenTextDocument((event) => {
+		const document = event;
+	}, null, context.subscriptions);
+	vscode.workspace.onDidCloseTextDocument(document => {
+		lineCommentCache.removeDocumentCache(document);
+		labelCache.removeDocumentCache(document);
+
+		diagnosticsCollection.delete(document.uri);
+	}, null, context.subscriptions);
 	vscode.workspace.onDidSaveTextDocument(document => {
-		// previewer.updatePreview();
 	}, null, context.subscriptions);
 }
 

@@ -1,95 +1,101 @@
 import * as vscode from 'vscode';
 
+import { lineCommentCache } from '../lib/comment';
+import { currentLineCommand } from '../lib/dialogue';
 import { commandInfoList, inlayHintMap, InlayHintType } from '../lib/dict';
-import { iterateLines } from "../lib/iterateLines";
-import { getAllParams, getCommandType } from '../lib/utilities';
+import { getAllParams, getCommandParamFileType } from '../lib/utilities';
 
 export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript', {
-    provideInlayHints(document: vscode.TextDocument, range: vscode.Range, token: vscode.CancellationToken) {
-        let hints: vscode.InlayHint[] = [];
+	provideInlayHints(document: vscode.TextDocument, range: vscode.Range, token: vscode.CancellationToken) {
+		let hints: vscode.InlayHint[] = [];
 
-        iterateLines(document, (text, lineNumber
-            , lineStart, lineEnd
-            , firstLineNotComment) => {
-            if (lineNumber >= range.start.line
-                && lineNumber <= range.end.line) {
-                if (text.startsWith("#")
-                    || text.startsWith("@")) {
-                    const params = getAllParams(text);
-                    const command = params[0].substring(1);
-                    const paramNum = params.length - 1;
-                    const paramDefinition = commandInfoList.getValue(command);;
+		let curCache = lineCommentCache.getDocumentCache(document);
 
-                    let contentStart: number = lineStart + command.length + 1;
+		for (let lineNumber = range.start.line; lineNumber <= range.end.line; lineNumber++) {
+			if (curCache.comment[lineNumber]) { continue; }
 
-                    if (paramDefinition === undefined) {
-                        return;
-                    }
+			const parseResult = curCache.result[lineNumber];
 
-                    const paramInlayHintType = paramDefinition.inlayHintType;
+			const text = parseResult[0];
+			if (text === undefined) { continue; }
 
-                    if (paramInlayHintType === undefined) {
-                        return;
-                    }
+			const lineStart = parseResult[1];
+			if (lineStart === undefined) { continue; }
 
-                    let curLinePrefix = params[0];
+			if (!currentLineCommand(text)) { continue; }
 
-                    for (let j = 1; j < params.length; j++) {
-                        let curParam = params[j];
-                        let currentInlayHintType: number = paramInlayHintType[j - 1];
+			const params = getAllParams(text);
+			const command = params[0].substring(1);
+			const paramNum = params.length - 1;
+			const paramDefinition = commandInfoList.getValue(command);;
 
-                        curLinePrefix = curLinePrefix + ":" + curParam;
-                        const commandType = getCommandType(curLinePrefix);
+			let contentStart: number = lineStart + command.length + 1;
 
-                        if (currentInlayHintType === InlayHintType.ColorHex) {
-                            if (j !== params.length - 1) {
-                                currentInlayHintType = InlayHintType.ColorRGB_R;
-                            }
-                        }
+			if (paramDefinition === undefined) {
+				continue;
+			}
 
-                        const currentInlayHint = inlayHintMap.get(currentInlayHintType);
+			const paramInlayHintType = paramDefinition.inlayHintType;
 
-                        contentStart++;
+			if (paramInlayHintType === undefined) {
+				continue;
+			}
 
+			let curLinePrefix = params[0];
 
-                        let extraInlayHintInfo = undefined;
+			for (let j = 1; j < params.length; j++) {
+				let curParam = params[j];
+				let currentInlayHintType: number = paramInlayHintType[j - 1];
 
-                        if (paramDefinition.inlayHintAddition !== undefined) {
-                            const curAddition = paramDefinition.inlayHintAddition[j - 1];
+				curLinePrefix = curLinePrefix + ":" + curParam;
+				const commandType = getCommandParamFileType(curLinePrefix);
 
-                            if (curAddition !== undefined) {
-                                extraInlayHintInfo = getExtraInlayHintInfo(curAddition, curParam);
-                            }
-                        }
+				if (currentInlayHintType === InlayHintType.ColorHex) {
+					if (j !== params.length - 1) {
+						currentInlayHintType = InlayHintType.ColorRGB_R;
+					}
+				}
 
-                        if (currentInlayHint !== undefined) {
-                            let hint = new vscode.InlayHint(new vscode.Position(lineNumber, contentStart)
-                                , currentInlayHint
-                                + (extraInlayHintInfo === undefined
-                                    ? ''
-                                    : '(' + extraInlayHintInfo + ')')
-                                + ":"
-                                , vscode.InlayHintKind.Parameter);
+				const currentInlayHint = inlayHintMap.get(currentInlayHintType);
 
-                            hints.push(hint);
-                        }
+				contentStart++;
 
-                        contentStart += curParam.length;
-                    }
-                }
-            }
-        });
+				let extraInlayHintInfo = undefined;
 
-        return hints;
-    }
+				if (paramDefinition.inlayHintAddition !== undefined) {
+					const curAddition = paramDefinition.inlayHintAddition[j - 1];
+
+					if (curAddition !== undefined) {
+						extraInlayHintInfo = getExtraInlayHintInfo(curAddition, curParam);
+					}
+				}
+
+				if (currentInlayHint !== undefined) {
+					let hint = new vscode.InlayHint(new vscode.Position(lineNumber, contentStart)
+						, currentInlayHint
+						+ (extraInlayHintInfo === undefined
+							? ''
+							: '(' + extraInlayHintInfo + ')')
+						+ ":"
+						, vscode.InlayHintKind.Parameter);
+
+					hints.push(hint);
+				}
+
+				contentStart += curParam.length;
+			}
+		}
+
+		return hints;
+	}
 });
 
 export const extraInlayHintInfoInvalid = 'Invalid';
 
 export function getExtraInlayHintInfo(additionHint: Map<string, string>, param: string) {
-    const ret = additionHint.getValue(param);
+	const ret = additionHint.getValue(param);
 
-    return ret === undefined
-        ? extraInlayHintInfoInvalid
-        : ret;
+	return ret === undefined
+		? extraInlayHintInfoInvalid
+		: ret;
 }

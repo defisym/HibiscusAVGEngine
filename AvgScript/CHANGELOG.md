@@ -1,5 +1,62 @@
 # Change Log
 
+## 20231203
+
+- add cache for file list searching
+- optimize watcher update, remove redundant refresh
+- refactor codes to make it more organized and readable
+- optimize diagnostic routine
+
+## 20231202
+
+- remove redundant code lens refresh
+  - dub file delete / update / drop will trigger watcher, which will trigger code lens, so it's redundant to trigger it again in other parts
+- dub mapping
+  - quick navigate to source file
+- use shorter codelens title
+
+## 20231201
+
+- optimize file list search
+- optimize string ignore case compare
+- clean up in webview
+- remove ffprobe
+- dub parser add function `parseLine` to simplify code
+- `parseDialogue` remove redundant param
+- fix code lens icon
+- use `currentLineCommand` to remove redundant code
+- optimize settings parse, remove double check
+- fix typo `prase` -> `parse`
+
+## 20231130
+
+- optimize dub operations
+  - speed up code lens by separate to provide & resolve
+  - separate diagnostic routine
+  - drag doesn't rely on code lens
+  - file definition only parse dub when type is dub
+- add script process progress
+- fix list dub info typo
+- show dub info in dub lines
+- internal name change only shows at the changed line
+- fix undefined is not iterable
+
+## 20231128
+
+- cache comment parse result
+- optimize inlay hints using parse result
+- optimize setting parse
+- optimize preview parse
+- optimize label parse
+- merge diagnostic & decoration
+- fix scanning may suck due to exception in code lens
+- add protection for dub fallback
+- use throttle to handle update
+
+## 20231127
+
+- optimize watcher, now will only update changed files, instead of trigger full refresh
+
 ## 20231126
 
 - fix incorrect path returned when two file have the same prefix

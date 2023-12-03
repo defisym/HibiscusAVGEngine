@@ -1,107 +1,108 @@
 import * as vscode from 'vscode';
 
-import { iterateLines } from "../lib/iterateLines";
-import { currentLineNotComment, getAllParams, getIndexOfDelimiter, getNumberOfParam, getParamAtPosition } from '../lib/utilities';
+import { currentLineNotComment, lineCommentCache } from '../lib/comment';
+import { currentLineCommand, currentLineLabel } from '../lib/dialogue';
+import { getAllParams, getIndexOfDelimiter, getNumberOfParam, getParamAtPosition } from '../lib/utilities';
 
 export const rename = vscode.languages.registerRenameProvider(
-    'AvgScript', {
-    provideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string, token: vscode.CancellationToken) {
-        const edit = new vscode.WorkspaceEdit();
+	'AvgScript', {
+	provideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string, token: vscode.CancellationToken) {
+		const edit = new vscode.WorkspaceEdit();
 
-        let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+		let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
 
-        if (line === undefined) {
-            return undefined;
-        }
+		if (line === undefined) {
+			return undefined;
+		}
 
-        let word: string;
+		let word: string;
 
-        let replaceToken = (origin: string) => {
-            const suffixPos = origin.lastIndexOf('.');
-            let originNoSuffix: string = origin;
-            let originHasSuffix = suffixPos !== -1;
+		let replaceToken = (origin: string) => {
+			const suffixPos = origin.lastIndexOf('.');
+			let originNoSuffix: string = origin;
+			let originHasSuffix = suffixPos !== -1;
 
-            if (originHasSuffix) {
-                originNoSuffix = origin.substring(0, suffixPos);
-                newName = newName + origin.substring(suffixPos);
-            }
+			if (originHasSuffix) {
+				originNoSuffix = origin.substring(0, suffixPos);
+				newName = newName + origin.substring(suffixPos);
+			}
 
-            iterateLines(document, (text, lineNumber
-                , lineStart, lineEnd
-                , firstLineNotComment) => {
-                if (text.startsWith("#")
-                    || text.startsWith("@")
-                    || text.startsWith(";")) {
-                    const regex = new RegExp(originNoSuffix, "gi");
-                    let contentStart: number = 0;
+			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
+				let text = lineInfo.textNoComment;
+				let lineNumber = lineInfo.lineNum;
+				let lineStart = lineInfo.lineStart;
+				let lineEnd = lineInfo.lineEnd;
 
-                    if (text.startsWith(";")) {
-                        contentStart = 1;
-                    } else if (getNumberOfParam(text) !== 0) {
-                        let delimiterPos = getIndexOfDelimiter(text, 0);
+				if (currentLineCommand(text) || currentLineLabel(text)) {
+					const regex = new RegExp(originNoSuffix, "gi");
+					let contentStart: number = 0;
 
-                        if (delimiterPos === -1) {
-                            return;
-                        }
+					if (currentLineLabel(text)) {
+						contentStart = 1;
+					} else if (getNumberOfParam(text) !== 0) {
+						let delimiterPos = getIndexOfDelimiter(text, 0);
 
-                        contentStart = delimiterPos + 1;
-                    } else {
-                        return;
-                    }
+						if (delimiterPos === -1) {
+							return;
+						}
 
-                    let params = getAllParams(text.substring(contentStart));
-                    let startPos = lineStart + contentStart;
+						contentStart = delimiterPos + 1;
+					} else {
+						return;
+					}
 
-                    for (let i = 0; i < params.length; i++) {
-                        let curParam = params[i];
+					let params = getAllParams(text.substring(contentStart));
+					let startPos = lineStart + contentStart;
 
-                        const curSuffixPos = curParam.lastIndexOf('.');
-                        let curHasSuffix = curSuffixPos !== -1;
+					for (let i = 0; i < params.length; i++) {
+						let curParam = params[i];
 
-                        let match = curParam.match(regex);
-                        if (match) {
-                            if (!originHasSuffix
-                                && !curHasSuffix
-                                && match[0] !== curParam) {
-                                continue;
-                            }
+						const curSuffixPos = curParam.lastIndexOf('.');
+						let curHasSuffix = curSuffixPos !== -1;
 
-                            let endPos = startPos
-                                + (curHasSuffix
-                                    ? curParam.length
-                                    : match[0].length);
+						let match = curParam.match(regex);
+						if (match) {
+							if (!originHasSuffix
+								&& !curHasSuffix
+								&& match[0] !== curParam) {
+								continue;
+							}
 
-                            edit.replace(document.uri
-                                , new vscode.Range(lineNumber
-                                    , startPos
-                                    , lineNumber
-                                    , endPos)
-                                , newName);
-                        }
+							let endPos = startPos
+								+ (curHasSuffix
+									? curParam.length
+									: match[0].length);
 
-                        startPos += curParam.length;
-                    }
-                }
-            });
+							edit.replace(document.uri
+								, new vscode.Range(lineNumber
+									, startPos
+									, lineNumber
+									, endPos)
+								, newName);
+						}
 
-            return edit;
-        };
+						startPos += curParam.length;
+					}
+				}
+			});
 
-        if (line.startsWith("#")
-            || line.startsWith("@")) {
-            if (getNumberOfParam(linePrefix!) === 0) {
-                return undefined;
-            }
+			return edit;
+		};
 
-            word = getParamAtPosition(line, curPos!)!;
+		if (currentLineCommand(line)) {
+			if (getNumberOfParam(linePrefix!) === 0) {
+				return undefined;
+			}
 
-            return replaceToken(word);
-        } else if (line.startsWith(";")) {
-            word = line.substring(line.indexOf(";") + 1);
+			word = getParamAtPosition(line, curPos!)!;
 
-            return replaceToken(word);
-        }
+			return replaceToken(word);
+		} else if (currentLineLabel(line)) {
+			word = line.substring(line.indexOf(";") + 1);
 
-        return undefined;
-    }
+			return replaceToken(word);
+		}
+
+		return undefined;
+	}
 });

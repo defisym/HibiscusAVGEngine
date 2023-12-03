@@ -6,6 +6,8 @@ export const beginRegex = /^#Begin/gi;
 export const endRegex = /^#End/gi;
 export const keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(.*JMP.*)|(#SkipAnchor|#Ret|#StopFF|#StopFastForward))/gi;
 
+export const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
+
 export const langFilter = /(Lang\[[^\[\]]*\])(.*)/gi;
 
 export function getLangRegex(localCode: string) {

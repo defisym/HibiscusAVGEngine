@@ -42,7 +42,7 @@ export async function iterateScripts(
     let scripts: [string, ReferScript][] = [[initScript, { script: "Settings", line: -1 }]];
     let scannedScripts: string[] = [];
 
-    let praseScript = async (scripts: [string, ReferScript][]) => {
+    let parseScript = async (scripts: [string, ReferScript][]) => {
         let referredScripts: [string, ReferScript][] = [];
 
         let getScriptFullPath = (script: string) => {
@@ -130,9 +130,9 @@ export async function iterateScripts(
         if (referredScripts.length === 0) {
             return;
         } else {
-            await praseScript(referredScripts);
+            await parseScript(referredScripts);
         }
     };
 
-    await praseScript(scripts);
+    await parseScript(scripts);
 }

@@ -1,10 +1,14 @@
 import * as vscode from 'vscode';
-import { DubInfo, codeLensProviderClass, dubInfo } from './codeLens';
+
+import { dubMapping, dubParseCache } from '../lib/dubs';
+import { audio, currentLocalCode, fileListUpdating } from './file';
 
 const uriListMime = 'text/uri-list';
 
 export const drop = vscode.languages.registerDocumentDropEditProvider('AvgScript', {
 	async provideDocumentDropEdits(document: vscode.TextDocument, position: vscode.Position, dataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): Promise<vscode.DocumentDropEdit | undefined> {
+		if (fileListUpdating()) { return; }
+
 		// MIME types
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
 		const emptyDropEdit = new vscode.DocumentDropEdit("");
@@ -67,24 +71,17 @@ export const drop = vscode.languages.registerDocumentDropEditProvider('AvgScript
 		const filePath = uris[idx].path.right(1);
 
 		do {
-			const dubInfos = dubInfo.get(document.uri);
+			const dubCache = dubParseCache.getDocumentCacheAt(document, position.line);
 
-			if (dubInfos === undefined) {
-				break;
-			}
+			if (dubCache === undefined) { break; }
 
-			const idx = dubInfos.findIf((item: DubInfo) => {
-				return item.range.start.line === position.line;
-			});
+			const dubState = dubCache.dubParser;
 
-			if (idx === -1) {
-				break;
-			}
+			const folder = audio + "dubs\\" + currentLocalCode + "\\" + dubState.dubChapter + "\\";
+			const target = folder + dubState.fileName + '.ogg';
 
-			const target = dubInfos[idx].info;
-
-			vscode.workspace.fs.copy(vscode.Uri.file(filePath), vscode.Uri.file(target), { overwrite: true });
-			await codeLensProviderClass.refresh();
+			// vscode.workspace.fs.copy(vscode.Uri.file(filePath), vscode.Uri.file(target), { overwrite: true });
+			dubMapping.updateDub(document, target, filePath);
 
 			return emptyDropEdit;
 		} while (0);
