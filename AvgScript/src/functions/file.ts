@@ -829,7 +829,11 @@ export async function addFile(filePath: string) {
 
 	const { basePath, completionType, completionList } = completionInfo;
 
-	projectFileList.push([filePath, vscode.FileType.File]);
+	projectFileList.push([filePath, vscode.FileType.File]);	
+	projectFileListCache.removeIf((key, value) => {
+		return value.filePath === undefined;
+	});
+
 	await updateCompletion(filePath, completionList, basePath, completionType);
 
 	return true;
@@ -845,13 +849,11 @@ export function removeFile(filePath: string) {
 	projectFileList.removeIf((item) => {
 		return filePath.iCmp(item[0]);
 	});
-
 	projectFileListCache.removeIf((key, value) => {
 		return value.filePath !== undefined && value.filePath.iCmp(filePath);
 	});
 
 	projectFileInfoList.delete(filePath);
-
 	completionList.removeIf((item) => {
 		if (item.sortText === undefined) { return false; }
 
