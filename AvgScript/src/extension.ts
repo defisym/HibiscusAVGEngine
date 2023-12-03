@@ -18,6 +18,7 @@ import { codeLensProvider } from './functions/codeLens';
 import { drop } from './functions/drop';
 import { formatting } from './functions/formatting';
 import { previewer } from './functions/preview';
+import { semanticProvider } from './functions/semantic';
 import { lineCommentCache } from './lib/comment';
 import { throttle } from './lib/throttle';
 
@@ -139,6 +140,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	//--------------------
 
 	context.subscriptions.push(drop);
+
+	//--------------------
+	// Semantic
+	//--------------------
+
+	context.subscriptions.push(semanticProvider);
 
 	//--------------------
 	// File Updated
