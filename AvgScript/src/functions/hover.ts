@@ -3,10 +3,10 @@ import * as vscode from 'vscode';
 import { currentLineNotComment } from '../lib/comment';
 import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue';
 import {
-	commandDocList, dialogueTextElement, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
+	commandDocList, dialogueTextElement, docList, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
 } from '../lib/dict';
-import { FileType, getAllParams, getCommandParamFileType, getFileCompletionByType, getHoverContents, getParamAtPosition } from '../lib/utilities';
-import { fileListInitialized } from './file';
+import { getAllParams, getCommandParamFileType, getParamAtPosition } from '../lib/utilities';
+import { FileType, fileListInitialized, getFileCompletionByType } from './file';
 import { getLabelComment } from './label';
 
 export const hover = vscode.languages.registerHoverProvider('AvgScript', {
@@ -137,3 +137,18 @@ export const hoverFile = vscode.languages.registerHoverProvider('AvgScript', {
 		}
 	}
 });
+
+function getHoverContents(item: string, commentList: docList) {
+	let ret: vscode.MarkdownString[] = [];
+	let comment = commentList.getValue(item);
+
+	if (comment === undefined) {
+		ret.push(new vscode.MarkdownString("该项暂无说明"));
+	} else {
+		for (let j = 0; j < comment.length; j++) {
+			ret.push(new vscode.MarkdownString(comment[j]));
+		}
+	}
+
+	return ret;
+}

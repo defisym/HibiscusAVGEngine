@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
-import { getCompletionList, getTextBySortText } from '../lib/utilities';
 import { codeLensProviderClass } from './codeLens';
 import { confAutoUpdate } from './command';
 import { diagnosticThrottle } from './diagnostic';
-import { basePath, fileListInitialized, getBasePathByType, getCompletionTypeByFileType, getPathType, projectFileInfoList, projectFileList, updateCompletion } from './file';
+import { addFile, basePath, fileListInitialized, removeFile } from './file';
 
 let oldBasePath = '';
 
@@ -70,48 +69,29 @@ async function watcherAction(uris: readonly vscode.Uri[], opt: FileOperation) {
 		return;
 	}
 
+	let bUpdated = false;
+
 	for (const uri of uris) {
 		const filePath = uri.fsPath;
 
-		const type = getPathType(filePath);
-
-		if (type === undefined) { continue; }
-
-		const basePath = getBasePathByType(type);
-
-		if (basePath === undefined) { continue; }
-
-		const completionType = getCompletionTypeByFileType(type);
-
-		if (completionType === undefined) { continue; }
-
-		const completionList = getCompletionList(type);
-
-		if (completionList === undefined) { continue; }
-
 		switch (opt) {
-			case FileOperation.create:
-				projectFileList.push([filePath, vscode.FileType.File]);
-				await updateCompletion(filePath, completionList, basePath, completionType);
+			case FileOperation.create: {
+				const bResult = await addFile(filePath);
+				bUpdated = bUpdated || bResult;
 
 				break;
-			case FileOperation.delete:
-				projectFileList.removeIf((item) => {
-					return filePath.iCmp(item[0]);
-				});
-
-				projectFileInfoList.delete(filePath);
-
-				completionList.removeIf((item) => {
-					if (item.sortText === undefined) { return false; }
-
-					return filePath.iCmp(getTextBySortText(item.sortText));
-				});
+			}
+			case FileOperation.delete: {
+				const bResult = removeFile(filePath);
+				bUpdated = bUpdated || bResult;
 
 				break;
+			}
 		}
-
-		codeLensProviderClass.refresh();
-		diagnosticThrottle.triggerCallback(() => { }, true);
 	}
+
+	if (!bUpdated) { return; }
+
+	codeLensProviderClass.refresh();
+	diagnosticThrottle.triggerCallback(() => { }, true);
 }

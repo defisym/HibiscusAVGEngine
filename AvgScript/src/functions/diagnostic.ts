@@ -9,8 +9,8 @@ import { LineInfo } from "../lib/iterateLines";
 import { regexHexColor, regexRep } from '../lib/regExp';
 import { ScriptSettings, getSettings, parseSettings } from '../lib/settings';
 import { Throttle } from '../lib/throttle';
-import { FileType, cropScript, fileExistsInFileList, getAllParams, getCommandParamFileType, imageStretched } from '../lib/utilities';
-import { basePath, basePathUpdated, currentLocalCode, currentLocalCodeDisplay, fileListInitialized, getFileInfoInternal, getFullFileNameByType, projectConfig } from './file';
+import { cropScript, getAllParams, getCommandParamFileType, imageStretched } from '../lib/utilities';
+import { FileType, basePath, basePathUpdated, currentLocalCode, currentLocalCodeDisplay, fileExistsInFileList, fileListInitialized, getFileInfoFromInfoList, getFullFileNameByType, projectConfig } from './file';
 import { labelCache } from './label';
 
 export const diagnosticsCollection = vscode.languages.createDiagnosticCollection('AvgScript');
@@ -507,7 +507,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 							break;
 						}
 
-						const data = getFileInfoInternal(filePath);
+						const data = getFileInfoFromInfoList(filePath);
 
 						if (data === undefined) {
 							break;

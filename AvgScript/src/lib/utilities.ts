@@ -1,14 +1,15 @@
 import * as vscode from 'vscode';
 
 import { pinyin } from 'pinyin-pro';
-import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioDubsCompletions, audioSECompletions, fileListHasItem, getCorrectPathAndType, getFullFileNameByType, graphicCGCompletions, graphicCharactersCompletions, graphicFXCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from '../functions/file';
-import { currentLineCommand } from './dialogue';
-import { InlayHintType, commandInfoList, deprecatedKeywordList, docList, internalKeywordList } from './dict';
+import { FileType } from '../functions/file';
+import { InlayHintType, commandInfoList } from './dict';
 import { beginRegex, endRegex } from './regExp';
 
 import path = require('path');
 
-const delimiter = ['=', ':'];
+// ---------------
+// General
+// ---------------
 
 // add pinyin & romanize
 export function stringToEnglish(str: string) {
@@ -30,82 +31,48 @@ export function sleep(ms: number) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function getBuffer(filePath: string) {
-	return Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.file(filePath)));
+export function deepCopy<T>(obj: T): T {
+	return JSON.parse(JSON.stringify(obj));
 }
 
-export async function getFileStat(filePath: string) {
-	try {
-		return await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
-	} catch {
-		return undefined;
+export function deepCopyMap<K, V>(map: Map<K, V>): Map<K, V> {
+	let newMap: Map<K, V> = new Map();
+
+	for (let [key, value] of map) {
+		newMap.set(key, value);
+	}
+
+	return newMap;
+}
+
+// for map serialization
+export function replacer(key: any, value: any) {
+	if (value instanceof Map) {
+		return {
+			dataType: 'Map',
+			value: Array.from(value.entries()), // or with spread: value: [...value]
+		};
+	} else {
+		return value;
 	}
 }
 
-export function getCompletion(name: string, fileList: vscode.CompletionItem[]) {
-	name = name.toLowerCase();
-
-	for (let file of fileList) {
-		let element = file.insertText?.toString().toLowerCase()!;
-
-		if (element?.startsWith(name)) {
-			return file;
+// for map de-serialization
+export function reviver(key: any, value: any) {
+	if (typeof value === 'object' && value !== null) {
+		if (value.dataType === 'Map') {
+			return new Map(value.value);
 		}
-	};
-
-	return undefined;
-}
-
-export function getCompletionList(type: FileType) {
-	switch (type) {
-		case FileType.fx:
-			return graphicFXCompletions;
-		case FileType.characters:
-			return graphicCharactersCompletions;
-		case FileType.ui:
-			return graphicUICompletions;
-		case FileType.cg:
-			return graphicCGCompletions;
-		case FileType.patternFade:
-			return graphicPatternFadeCompletions;
-		case FileType.bgm:
-			return audioBgmCompletions;
-		case FileType.bgs:
-			return audioBgsCompletions;
-		case FileType.dubs:
-			return audioDubsCompletions;
-		case FileType.se:
-			return audioSECompletions;
-		case FileType.video:
-			return videoCompletions;
-		case FileType.animation:
-			return animationCompletions;
-		case FileType.script:
-			return scriptCompletions;
-		default:
-			return undefined;
-	}
-}
-
-export function getFileCompletionByType(type: FileType, fileName: string) {
-	// correction to full path
-	let ret = getCorrectPathAndType(type, fileName);
-
-	if (ret === undefined) {
-		return undefined;
 	}
 
-	let [corType, corFileName] = ret;
-
-	fileName = corFileName;
-	type = corType;
-
-	const completionList = getCompletionList(type);
-
-	if (completionList === undefined) { return undefined; }
-
-	return getCompletion(fileName, completionList);
+	return value;
 }
+
+// ---------------
+// Delimiter
+// ---------------
+
+const delimiter = ['=', ':'];
 
 export function getLastIndexOfDelimiter(src: string, position: number) {
 	let ret = -1;
@@ -133,17 +100,17 @@ export function getIndexOfDelimiter(src: string, position: number) {
 	return ret;
 }
 
-// position: position to start search
-export function getParamAtPosition(src: string, position: number) {
-	let start = getLastIndexOfDelimiter(src, position);
-	let end = getIndexOfDelimiter(src, position);
-
-	if (start === -1 || end === -1) {
-		return undefined;
+export function lineIncludeDelimiter(src: string): boolean {
+	for (let i = 0; i < src.length; i++) {
+		if (delimiter.includes(src[i])) {
+			return true;
+		}
 	}
-	return src.substring(start + 1, end);
+
+	return false;
 }
 
+// split string to several substrings by delimiter
 export function getSubStrings(src: string, delimiters: string[]) {
 	let subStr: string[] = [];
 
@@ -171,6 +138,22 @@ export function getSubStrings(src: string, delimiters: string[]) {
 	subStr.pop();
 
 	return subStr;
+}
+
+// ---------------
+// Param
+// ---------------
+
+// position: position to start search
+export function getParamAtPosition(src: string, position: number) {
+	let start = getLastIndexOfDelimiter(src, position);
+	let end = getIndexOfDelimiter(src, position);
+
+	if (start === -1 || end === -1) {
+		return undefined;
+	}
+
+	return src.substring(start + 1, end);
 }
 
 export function getAllParams(src: string) {
@@ -229,143 +212,6 @@ export function getNumberOfParam(src: string, countLast: boolean = false): numbe
 
 	return count;
 }
-
-export function lineIncludeDelimiter(src: string): boolean {
-	for (let i = 0; i < src.length; i++) {
-		if (delimiter.includes(src[i])) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-export function lineValidForCommandCompletion(src: string): boolean {
-	let include = lineIncludeDelimiter(src);
-	let startWith = currentLineCommand(src);
-	let endWith = (src.endsWith("@") || src.endsWith("#"));
-
-	if (include) {
-		return false;
-	}
-
-	if (startWith) {
-		const noPrefix = src.substring(1);
-
-		if (noPrefix.includes("@") || noPrefix.includes("#")) {
-			return false;
-		}
-
-		return true;
-	}
-
-	if (src.empty()) {
-		return true;
-	}
-
-	return false;
-}
-
-export function getCommentList(item: string, commentList: docList): string[] | undefined {
-	return commentList.getValue(item);
-}
-
-export function getCompletionItem(item: string, commentList: docList) {
-	let itemCompletion = new vscode.CompletionItem(item, vscode.CompletionItemKind.Method);
-
-	itemCompletion.detail = "说明";
-	itemCompletion.documentation = new vscode.MarkdownString();
-
-	let comment = getCommentList(item, commentList);
-
-	if (comment === undefined) {
-		itemCompletion.documentation.appendMarkdown("该项暂无说明");
-	} else {
-		for (let j = 0; j < comment.length; j++) {
-			itemCompletion.documentation.appendMarkdown(comment[j] + "\n\n");
-		}
-	}
-
-	return itemCompletion;
-}
-
-export function getCompletionItemList(src: string[], commentList: docList) {
-	let ret: vscode.CompletionItem[] = [];
-
-	for (let i = 0; i < src.length; i++) {
-		let completionItem = getCompletionItem(src[i], commentList);
-
-		if (completionItem === undefined) {
-			continue;
-		}
-
-		if (deprecatedKeywordList.hasValue(src[i])
-			|| internalKeywordList.hasValue(src[i])) {
-			completionItem.tags = [vscode.CompletionItemTag.Deprecated];
-		}
-
-		ret.push(completionItem);
-	}
-
-	return ret;
-}
-
-export function getHoverContents(item: string, commentList: docList) {
-	let ret: vscode.MarkdownString[] = [];
-	let comment = getCommentList(item, commentList);
-
-	if (comment === undefined) {
-		ret.push(new vscode.MarkdownString("该项暂无说明"));
-	} else {
-		for (let j = 0; j < comment.length; j++) {
-			ret.push(new vscode.MarkdownString(comment[j]));
-		}
-	}
-
-	return ret;
-}
-
-export enum FileType {
-	inValid,
-
-	fx,
-	characters,
-	ui,
-	cg,
-	patternFade,
-
-	audio,
-	bgm,
-	bgs,
-	dubs,
-	se,
-
-	video,
-
-	script,
-	frame,
-	label,
-
-	animation,
-};
-
-export const fileTypeMap = new Map<number, string>([
-	[FileType.inValid, "无效"],
-	[FileType.fx, "特效"],
-	[FileType.characters, "人物立绘"],
-	[FileType.ui, "UI"],
-	[FileType.cg, "CG"],
-	[FileType.patternFade, "过渡纹理"],
-	[FileType.bgm, "BGM"],
-	[FileType.bgs, "BGS"],
-	[FileType.dubs, "语音"],
-	[FileType.se, "音效"],
-	[FileType.video, "视频"],
-	[FileType.script, "脚本"],
-	[FileType.frame, "场景"],
-	[FileType.label, "标签"],
-	[FileType.animation, "动画"],
-]);
 
 // get current param's file type
 // function will parse command and return last param's type
@@ -451,38 +297,21 @@ export function getCommandParamFileType(linePrefix: string) {
 	return FileType.inValid;
 }
 
-export function getFilePathFromCompletion(linePrefix: string, fileName: string) {
-	let sortText = getFileCompletionByType(getCommandParamFileType(linePrefix), fileName)?.sortText;
-
-	if (sortText === undefined) {
-		return undefined;
+export function parseBoolean(param: string): boolean {
+	if (param.iCmp('On')) {
+		return true;
 	}
 
-	const filePath = getTextBySortText(sortText);
-
-	return filePath;
-}
-
-export function getUri(linePrefix: string, fileName: string) {
-	let filePath = getFilePathFromCompletion(linePrefix, fileName);
-
-	if (filePath === undefined) {
-		return undefined;
-	}
-
-	return vscode.Uri.file(filePath);
-};
-
-export function fileExistsInFileList(type: FileType, fileName: string) {
-	// return getFileNameByType(type, fileName) !== undefined;
-	let filePath = getFullFileNameByType(type, fileName);
-
-	if (filePath === undefined) {
+	if (param.iCmp('Off')) {
 		return false;
 	}
 
-	return fileListHasItem(filePath);
+	return parseInt(param) !== 0;
 }
+
+// ---------------
+// Command
+// ---------------
 
 export function parseCommand(line: string) {
 	const params = getAllParams(line);
@@ -494,6 +323,10 @@ export function parseCommand(line: string) {
 
 	return { params, commandWithPrefix, command, paramInfo };
 }
+
+// ---------------
+// Image
+// ---------------
 
 export interface ImageSize {
 	width: number,
@@ -522,6 +355,10 @@ export function imageStretched(originSize: ImageSize, targetSize: ImageSize, tol
 
 	return Math.abs(diff) > tolerance;
 }
+
+// ---------------
+// Script
+// ---------------
 
 export async function jumpToDocument(uri: vscode.Uri, line: number) {
 	if (Number.isNaN(line)) {
@@ -553,18 +390,6 @@ export async function jumpToDocument(uri: vscode.Uri, line: number) {
 		, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
 }
 
-export function parseBoolean(param: string): boolean {
-	if (param.iCmp('On')) {
-		return true;
-	}
-
-	if (param.iCmp('Off')) {
-		return false;
-	}
-
-	return parseInt(param) !== 0;
-}
-
 export function scriptEndWithExt(curScript: string) {
 	return curScript.substring(curScript.length - 4).iCmp('.asc');
 }
@@ -573,50 +398,4 @@ export function cropScript(curScript: string) {
 	return scriptEndWithExt(curScript)
 		? curScript.substring(0, curScript.length - 4)
 		: curScript;
-}
-
-// const sortTextPrefixDelimiter = '\t\t';
-const sortTextPrefixDelimiter = '|';
-
-export function getSortTextByText(text: string) {
-	return text.length.toString() + sortTextPrefixDelimiter + text;
-}
-
-export function getTextBySortText(sortText: string) {
-	return sortText.substring(sortText.indexOf(sortTextPrefixDelimiter) + 1);
-}
-
-export function deepCopy<T>(obj: T): T {
-	return JSON.parse(JSON.stringify(obj));
-}
-
-export function deepCopyMap<K, V>(map: Map<K, V>): Map<K, V> {
-	let newMap: Map<K, V> = new Map();
-
-	for (let [key, value] of map) {
-		newMap.set(key, value);
-	}
-
-	return newMap;
-}
-
-export function replacer(key: any, value: any) {
-	if (value instanceof Map) {
-		return {
-			dataType: 'Map',
-			value: Array.from(value.entries()), // or with spread: value: [...value]
-		};
-	} else {
-		return value;
-	}
-}
-
-export function reviver(key: any, value: any) {
-	if (typeof value === 'object' && value !== null) {
-		if (value.dataType === 'Map') {
-			return new Map(value.value);
-		}
-	}
-	
-	return value;
 }

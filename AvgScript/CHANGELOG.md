@@ -1,5 +1,11 @@
 # Change Log
 
+## 20231203
+
+- add cache for file list searching
+- optimize watcher update, remove redundant refresh
+- refactor codes to make it more organized and readable
+
 ## 20231202
 
 - remove redundant code lens refresh

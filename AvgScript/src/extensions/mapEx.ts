@@ -8,6 +8,7 @@ declare global {
 		getValue(item: K): V | undefined;
 		getWithInit(item: K, init: V): V | undefined;
 		keyToArray(): K[];
+		removeIf(cmp: (key: K, value: V) => boolean): boolean;
 	}
 }
 
@@ -63,4 +64,17 @@ Map.prototype.keyToArray = function <K, V>(): K[] {
 	});
 
 	return ret;
+};
+
+Map.prototype.removeIf = function <K, V>(cmp: (key: K, value: V) => boolean): boolean {
+	let bRemoved = false;
+
+	for (let [key, value] of this) {
+		if (cmp(key, value)) {
+			bRemoved = true;
+			this.delete(key);
+		}
+	}
+
+	return bRemoved;
 };

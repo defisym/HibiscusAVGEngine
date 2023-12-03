@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 
 import { currentLineNotComment } from '../lib/comment';
-import { atKeywordList, commandDocList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
+import { currentLineCommand } from '../lib/dialogue';
+import { atKeywordList, commandDocList, deprecatedKeywordList, docList, internalKeywordList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
 import { dubParseCache, UpdateDubCompletion } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
-import { FileType, getCommandParamFileType, getCompletionItemList, getSubStrings, lineValidForCommandCompletion, parseCommand } from '../lib/utilities';
-import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePathUpdated, fileListInitialized, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
+import { getCommandParamFileType, getSubStrings, lineIncludeDelimiter, parseCommand } from '../lib/utilities';
+import { animationCompletions, audioBgmCompletions, audioBgsCompletions, audioSECompletions, basePathUpdated, fileListInitialized, FileType, graphicCGCompletions, graphicCharactersCompletions, graphicPatternFadeCompletions, graphicUICompletions, scriptCompletions, videoCompletions } from './file';
 import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCache } from './label';
 
@@ -311,3 +312,72 @@ export const required = vscode.languages.registerCompletionItemProvider(
 	},
 	'=', ':'
 );
+
+// ---------------
+// Completion
+// ---------------
+
+function lineValidForCommandCompletion(src: string): boolean {
+	let include = lineIncludeDelimiter(src);
+	let startWith = currentLineCommand(src);
+	let endWith = (src.endsWith("@") || src.endsWith("#"));
+
+	if (include) {
+		return false;
+	}
+
+	if (startWith) {
+		const noPrefix = src.substring(1);
+
+		if (noPrefix.includes("@") || noPrefix.includes("#")) {
+			return false;
+		}
+
+		return true;
+	}
+
+	if (src.empty()) {
+		return true;
+	}
+
+	return false;
+}
+function getCompletionItem(item: string, commentList: docList) {
+	let itemCompletion = new vscode.CompletionItem(item, vscode.CompletionItemKind.Method);
+
+	itemCompletion.detail = "说明";
+	itemCompletion.documentation = new vscode.MarkdownString();
+
+	let comment = commentList.getValue(item);
+
+	if (comment === undefined) {
+		itemCompletion.documentation.appendMarkdown("该项暂无说明");
+	} else {
+		for (let j = 0; j < comment.length; j++) {
+			itemCompletion.documentation.appendMarkdown(comment[j] + "\n\n");
+		}
+	}
+
+	return itemCompletion;
+}
+function getCompletionItemList(src: string[], commentList: docList) {
+	let ret: vscode.CompletionItem[] = [];
+
+	for (let i = 0; i < src.length; i++) {
+		let completionItem = getCompletionItem(src[i], commentList);
+
+		if (completionItem === undefined) {
+			continue;
+		}
+
+		if (deprecatedKeywordList.hasValue(src[i])
+			|| internalKeywordList.hasValue(src[i])) {
+			completionItem.tags = [vscode.CompletionItemTag.Deprecated];
+		}
+
+		ret.push(completionItem);
+	}
+
+	return ret;
+}
+

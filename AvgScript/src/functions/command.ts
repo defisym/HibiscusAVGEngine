@@ -10,7 +10,6 @@ import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, Inlay
 import { dubMapping, DubParser } from '../lib/dubs';
 import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
-import { FileType } from '../lib/utilities';
 import { createWebviewPanel } from '../webview/_create';
 import { handleOnClickLink } from '../webview/_onClickLink';
 import { assetList_getWebviewContent } from '../webview/assetList';
@@ -19,7 +18,7 @@ import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { updateAtCompletionList, updateSharpCompletionList } from './completion';
 import { diagnosticUpdate, refreshFileDiagnostics } from './diagnostic';
-import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, FileType, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
