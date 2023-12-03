@@ -4,13 +4,13 @@ import { activeEditor } from '../extension';
 import { lineCommentCache } from '../lib/comment';
 import { currentLineCommand, currentLineDialogue, currentLineLabel, parseDialogue } from '../lib/dialogue';
 import { InlayHintType, ParamType, atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, internalImageID, internalKeywordList, settingsParamDocList, sharpKeywordList } from '../lib/dict';
-import { DubParser, dubDiagnostic } from '../lib/dubs';
+import { DubCache, dubDiagnostic, dubParseCache } from '../lib/dubs';
 import { LineInfo } from "../lib/iterateLines";
 import { regexHexColor, regexRep } from '../lib/regExp';
-import { ScriptSettings, getSettings, parseSettings } from '../lib/settings';
+import { ScriptSettings, parseSettings } from '../lib/settings';
 import { Throttle } from '../lib/throttle';
-import { cropScript, getAllParams, getCommandParamFileType, imageStretched } from '../lib/utilities';
-import { FileType, basePath, basePathUpdated, currentLocalCode, currentLocalCodeDisplay, fileExistsInFileList, fileListInitialized, getFileInfoFromInfoList, getFullFileNameByType, projectConfig } from './file';
+import { getAllParams, getCommandParamFileType, imageStretched } from '../lib/utilities';
+import { FileType, basePathUpdated, currentLocalCode, currentLocalCodeDisplay, fileExistsInFileList, fileListInitialized, getFileInfoFromInfoList, getFullFileNameByType, projectConfig } from './file';
 import { labelCache } from './label';
 
 export const diagnosticsCollection = vscode.languages.createDiagnosticCollection('AvgScript');
@@ -20,9 +20,8 @@ const nonActiveLanguageDecorator = vscode.window.createTextEditorDecorationType(
 let decoOpt: vscode.DecorationOptions[] = [];
 
 function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = false) {
-	if (commandListInitialized === false) {
-		return;
-	}
+	if (!commandListInitialized) { return; }
+	if (!basePathUpdated) { return; }
 
 	if (document.languageId !== 'AvgScript') {
 		diagnosticsCollection.delete(document.uri);
@@ -46,13 +45,23 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 	decoOpt = [];
 
-	if (!basePathUpdated) { return; }
+	// let dubState = DubParser.getDubParser(document);
+	let curDubCache:DubCache[]|undefined = undefined;
+	let curDubCacheIndex = 0;
+	
+	if (checkFile) {
+		curDubCache = dubParseCache.getDocumentCache(document);
+		const dubErrors = dubDiagnostic(document);
 
-	const curChapter = fileListInitialized
-		? cropScript(document.fileName.substring(basePath.length + 1))
-		: '';
-	let dubState = new DubParser(curChapter);
-	dubState.parseSettings(getSettings(document));
+		for (const dubError of dubErrors) {
+			let info = "Dub file duration " + dubError.info + " than excepted";
+
+			diagnostics.push(new vscode.Diagnostic(dubError.range
+				, info
+				, vscode.DiagnosticSeverity.Information
+			));
+		}
+	}
 
 	lineCommentCache.iterateDocumentCacheWithComment(document, (info: LineInfo) => {
 		let { lineIsComment,
@@ -89,6 +98,8 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 			}
 
 			labels.push(textNoComment);
+
+			return;
 		}
 
 		if (currentLineCommand(textNoComment)) {
@@ -176,13 +187,27 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 				return;
 			}
 
-			dubState.parseCommand(textNoComment);
-
 			const params = getAllParams(textNoComment);
 			const prefix = params[0][0];
 			const command = params[0].substring(1);
 			const paramNum = params.length - 1;
 			const paramDefinition = commandInfoList.getValue(command);
+
+			// unknown command, return
+			if (paramDefinition === undefined) {
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
+					, "Undocumented Command: " + params[0]
+					, vscode.DiagnosticSeverity.Information));
+
+				return;
+			}
+
+			if ((prefix === '@' && sharpKeywordList.hasValue(command))
+				|| (prefix === '#' && atKeywordList.hasValue(command))) {
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineStart + 1)
+					, "Wrong Command Prefix: " + params[0]
+					, vscode.DiagnosticSeverity.Error));
+			}
 
 			let contentStart: number = lineStart + command.length + 1;
 
@@ -194,39 +219,8 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 			if (deprecatedKeywordList.hasValue(command)) {
 				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, contentStart)
-					, "Deprecated Command: " + params[0]
+					, "User Shouldn't Use Deprecated Command: " + params[0]
 					, vscode.DiagnosticSeverity.Warning));
-			}
-
-			let checkImageID = false;
-			let checkPos = 0;
-
-			enum ImageBehavior {
-				create,
-				destroy
-			}
-
-			let imageBehavior;
-
-			// check internal ID for @Char
-			if (params[0].matchEntire(/(@Char|@Character)/gi)) {
-				checkImageID = true;
-				imageBehavior = ImageBehavior.create;
-				checkPos = 2;
-			}
-
-			if (params[0].matchEntire(/(@CD|@CharDispose)/gi)) {
-				checkImageID = true;
-				imageBehavior = ImageBehavior.destroy;
-				checkPos = 1;
-			}
-
-			if (paramDefinition === undefined) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
-					, "Undocumented Command: " + params[0]
-					, vscode.DiagnosticSeverity.Information));
-
-				return;
 			}
 
 			if (!bVNMode && paramDefinition.VNModeOnly) {
@@ -241,13 +235,26 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 					, vscode.DiagnosticSeverity.Warning));
 			}
 
-			if ((prefix === '@' && sharpKeywordList.hasValue(command))
-				|| (prefix === '#' && atKeywordList.hasValue(command))) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineStart + 1)
-					, "Wrong Command Prefix: " + params[0]
-					, vscode.DiagnosticSeverity.Error));
+			// check internal ID
+			enum ImageBehavior {
+				create,
+				destroy
+			}
 
-				return;
+			let imageBehavior;
+			let checkImageID = false;
+			let checkPos = 0;
+
+			if (params[0].matchEntire(/(@Char|@Character)/gi)) {
+				checkImageID = true;
+				imageBehavior = ImageBehavior.create;
+				checkPos = 2;
+			}
+
+			if (params[0].matchEntire(/(@CD|@CharDispose)/gi)) {
+				checkImageID = true;
+				imageBehavior = ImageBehavior.destroy;
+				checkPos = 1;
 			}
 
 			// Check param valid
@@ -263,6 +270,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 			let curLinePrefix = params[0];
 
 			for (let j = 1; j < params.length; j++) {
+				// too much param, return
 				if (!treatAsOneParam && j > paramNumMax) {
 					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, lineEnd)
 						, "Too Many Params"
@@ -281,20 +289,51 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 				contentStart++;
 
+				// replace, don't check, continue
 				if (curParam.match(regexRep)) {
+					contentStart += curParam.length;
 					continue;
 				}
 
-				if (checkImageID
-					&& checkPos === j) {
-					const availableBehavior = internalImageID.get(parseInt(curParam));
+				// unexpected param, don't need follow check, continue
+				if (paramDefinition.required !== undefined) {
+					const curRequired = paramDefinition.required[j - 1];
 
-					if (availableBehavior !== undefined
-						&& ((imageBehavior === ImageBehavior.create && !availableBehavior.Create)
-							|| (imageBehavior === ImageBehavior.destroy && !availableBehavior.Destroy))) {
-						diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
-							, "Cannot Use Internal ID"
-							, vscode.DiagnosticSeverity.Error));
+					if (curRequired !== undefined && !curRequired.empty()) {
+						if (!curRequired.includes(curParam)) {
+							diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
+								, "Unexpected Param"
+								, vscode.DiagnosticSeverity.Error));
+
+							contentStart += curParam.length;
+							continue;
+						}
+					}
+				}
+
+				if (checkImageID && checkPos === j) {
+					const availableBehavior = internalImageID.get(parseInt(curParam));
+					if (availableBehavior !== undefined) {
+						switch (imageBehavior) {
+							case ImageBehavior.create: {
+								if (!availableBehavior.Create) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
+										, "Cannot Be Created Using Internal ID " + curParam
+										, vscode.DiagnosticSeverity.Error));
+								}
+
+								break;
+							}
+							case ImageBehavior.destroy: {
+								if (!availableBehavior.Destroy) {
+									diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
+										, "Cannot Be Destroyed Using Internal ID " + curParam
+										, vscode.DiagnosticSeverity.Error));
+								}
+
+								break;
+							}
+						}
 					}
 				}
 
@@ -313,8 +352,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 					case ParamType.ZeroOne:
 						let curParamVal = parseInt(curParam);
 
-						if (curParamVal !== 0
-							&& curParamVal !== 1) {
+						if (curParamVal !== 0 && curParamVal !== 1) {
 							diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
 								, "Invalid ZeroOne Param: " + curParam
 								, vscode.DiagnosticSeverity.Error));
@@ -323,8 +361,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 						break;
 					case ParamType.Boolean:
 						if (!curParam.isNumber()
-							&& (!curParam.iCmp("on")
-								&& !curParam.iCmp("off"))) {
+							&& (!curParam.iCmp("on") && !curParam.iCmp("off"))) {
 							diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
 								, "Invalid Option: " + curParam
 								, vscode.DiagnosticSeverity.Error));
@@ -384,13 +421,21 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 						break;
 					case ParamType.File:
+						if (!checkFile) { break; }
+
 						const commandType = getCommandParamFileType(curLinePrefix);
 
 						let fileParam = curParam;
 
 						if (commandType === FileType.dubs) {
 							if (settings && settings.NoSideEffect) {
-								fileParam = dubState.getFileRelativePrefix() + fileParam;
+								while (curDubCache![curDubCacheIndex].totalLine < lineNum) {
+									curDubCacheIndex++;
+								}
+
+								let curDubState = curDubCache![curDubCacheIndex].dubParser;
+
+								fileParam = curDubState.getFileRelativePrefix() + fileParam;
 							} else {
 								diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
 									, "Cannot diagnostic file " + curParam + " if script has side effect"
@@ -398,11 +443,9 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 								break;
 							}
-
 						}
 
-						if (checkFile
-							&& !fileExistsInFileList(commandType, fileParam)) {
+						if (!fileExistsInFileList(commandType, fileParam)) {
 							diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
 								, "File " + curParam + " Not Exist"
 								, vscode.DiagnosticSeverity.Warning));
@@ -538,18 +581,6 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 				}
 
-				if (paramDefinition.required !== undefined) {
-					const curRequired = paramDefinition.required[j - 1];
-
-					if (curRequired !== undefined && !curRequired.empty()) {
-						if (!curRequired.includes(curParam)) {
-							diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, contentStart, lineNum, contentStart + curParam.length)
-								, "Unexpected Param"
-								, vscode.DiagnosticSeverity.Error));
-						}
-					}
-				}
-
 				contentStart += curParam.length;
 			}
 
@@ -557,9 +588,9 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineEnd, lineNum, lineEnd)
 					, "Too Few Params"
 					, vscode.DiagnosticSeverity.Warning));
-
-				return;
 			}
+
+			return;
 		}
 
 		if (currentLineDialogue(textNoComment) && projectConfig) {
@@ -570,6 +601,8 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 					, "Text maybe too long, expected less than " + maxLength.toString() + " characters"
 					, vscode.DiagnosticSeverity.Warning));
 			}
+
+			return;
 		}
 	});
 
@@ -595,22 +628,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 			, vscode.DiagnosticSeverity.Error));
 	}
 
-	if (checkFile) {
-		const dubErrors = dubDiagnostic(document);
-
-		for (const dubError of dubErrors) {
-			let info = "Dub file duration " + dubError.info + " than excepted";
-
-			diagnostics.push(new vscode.Diagnostic(dubError.range
-				, info
-				, vscode.DiagnosticSeverity.Warning
-			));
-		}
-	}
-
 	diagnosticsCollection.set(document.uri, diagnostics);
-
-	return;
 }
 
 //--------------------

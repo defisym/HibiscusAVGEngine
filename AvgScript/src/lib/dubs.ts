@@ -300,7 +300,7 @@ export function UpdateDubCompletion(dubParser: DubParser) {
 	return localDubCompletion;
 }
 
-class DubCache {
+export class DubCache {
 	dubParser: DubParser;
 	totalLine: number;
 	dialogueStruct: DialogueStruct;

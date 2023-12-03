@@ -5,6 +5,7 @@
 - add cache for file list searching
 - optimize watcher update, remove redundant refresh
 - refactor codes to make it more organized and readable
+- optimize diagnostic routine
 
 ## 20231202
 
