@@ -4,6 +4,7 @@
 
 - fix lang prefix didn't taken into account
 - fix lang decoration not updated until edit doc
+- fix duplicated diagnostics
 
 ## 20231203
 

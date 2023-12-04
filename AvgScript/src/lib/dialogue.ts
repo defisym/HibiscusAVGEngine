@@ -168,6 +168,18 @@ export function currentLineDialogue(line: string) {
 		&& !currentLineLabel(line);
 }
 
+export enum LineType {
+	label,
+	command,
+	dialogue,
+}
+
+export function currentLineType(line: string) {
+	if (currentLineLabel(line)) { return LineType.label; }
+	if (currentLineCommand(line)) { return LineType.command; }
+	if (!line.empty()) { return LineType.dialogue; }
+}
+
 // dialogue
 export enum AppendType {
 	none = 0,
