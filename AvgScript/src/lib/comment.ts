@@ -24,12 +24,14 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 		iterateLinesWithComment(document, (lineInfo: LineInfo) => {
 			let parseResult: ParseCommentResult = [undefined, undefined, undefined, undefined, undefined];
 
+			const result = lineInfo.textNoCommentAndLangPrefix;
+
 			if (!lineInfo.lineIsComment) {
-				parseResult = [lineInfo.textNoComment.toLowerCase(),
+				parseResult = [result.toLowerCase(),
 				lineInfo.lineStart,
 					"",
 				-1,
-				lineInfo.textNoComment];
+				result];
 			}
 
 			curCache.comment.push(lineInfo.lineIsComment);

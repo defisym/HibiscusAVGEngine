@@ -10,8 +10,12 @@ export const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
 
 export const langFilter = /(Lang\[[^\[\]]*\])(.*)/gi;
 
-export function getLangRegex(localCode: string) {
-    const langReg = new RegExp("Lang\\[(?!" + localCode + ").*\\].*", "gi");
+export function removeLangPrefix(line: string) {
+	return line.replace(langFilter, '$2');
+}
 
-    return langReg;
+export function getLangRegex(localCode: string) {
+	const langReg = new RegExp("Lang\\[(?!" + localCode + ").*\\].*", "gi");
+
+	return langReg;
 }

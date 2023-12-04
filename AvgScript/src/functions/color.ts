@@ -15,7 +15,7 @@ export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
 			let colors: vscode.ColorInformation[] = [];
 
 			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
-				let text = lineInfo.textNoComment;
+				let text = lineInfo.textNoCommentAndLangPrefix;
 				let lineNumber = lineInfo.lineNum;
 				let lineStart = lineInfo.lineStart;
 				let lineEnd = lineInfo.lineEnd;

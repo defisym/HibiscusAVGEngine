@@ -28,7 +28,7 @@ export const rename = vscode.languages.registerRenameProvider(
 			}
 
 			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
-				let text = lineInfo.textNoComment;
+				let text = lineInfo.textNoCommentAndLangPrefix;
 				let lineNumber = lineInfo.lineNum;
 				let lineStart = lineInfo.lineStart;
 				let lineEnd = lineInfo.lineEnd;

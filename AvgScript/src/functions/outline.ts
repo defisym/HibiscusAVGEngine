@@ -18,7 +18,7 @@ export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScrip
 			const labelRegex = /^;.*/gi;
 
 			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
-				let text = lineInfo.textNoComment;
+				let text = lineInfo.textNoCommentAndLangPrefix;
 				let lineNumber = lineInfo.lineNum;
 				let lineStart = lineInfo.lineStart;
 				let lineEnd = lineInfo.lineEnd;

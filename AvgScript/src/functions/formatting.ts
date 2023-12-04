@@ -66,7 +66,7 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
         };
 
         let formatPreviousLineDialogue = () => {
-            return formatPreviousLineNotComment() && !previousLineInfo!.emptyLine && currentLineDialogue(previousLineInfo!.textNoComment);
+            return formatPreviousLineNotComment() && !previousLineInfo!.emptyLine && currentLineDialogue(previousLineInfo!.textNoCommentAndLangPrefix);
         };
 
 		lineCommentCache.iterateDocumentCacheWithComment(document, (info: LineInfo) => {
@@ -77,6 +77,7 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
 
                     originText,
                     textNoComment,
+					textNoCommentAndLangPrefix,
 
                     lineNum,
 
@@ -113,7 +114,7 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
 
                         if (!formatPreviousLineDialogue()
                             && !previousLineInfo!.emptyLine) {
-                            const previousTextNoComment = previousLineInfo!.textNoComment;
+                            const previousTextNoComment = previousLineInfo!.textNoCommentAndLangPrefix;
                             const { params, commandWithPrefix, command, paramInfo } = parseCommand(previousTextNoComment);
 
                             if ((paramInfo !== undefined && paramInfo.emptyLineAfter)
@@ -125,11 +126,11 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
                         if (!newLineAfter
                             && !newLineForDia
                             && !previousLineInfo!.emptyLine) {
-                            const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoComment);
+                            const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoCommentAndLangPrefix);
 
 
                             if ((paramInfo && paramInfo.emptyLineBefore)
-                                || (emptyLineLabel && currentLineLabel(textNoComment))) {
+                                || (emptyLineLabel && currentLineLabel(textNoCommentAndLangPrefix))) {
                                 formatNewLine(true);
                             }
                         }
@@ -152,7 +153,7 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
                     resetFlags();
 
                     if (!lineIsComment) {
-                        if (currentLineDialogue(textNoComment)) {
+                        if (currentLineDialogue(textNoCommentAndLangPrefix)) {
                             formatEmptyLine();
                             formatIndent();
                         }
@@ -163,7 +164,7 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
                                 formatNewLine();
                             }
 
-                            const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoComment);
+                            const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoCommentAndLangPrefix);
 
                             if (paramInfo && paramInfo.indentOut) {
                                 indentLevel--;

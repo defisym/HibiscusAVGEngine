@@ -1,4 +1,3 @@
-import { langFilter } from "./regExp";
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const FORMAT_IGNORE_UNKNOWN = 0b00000001;
@@ -195,7 +194,7 @@ export interface DialogueStruct {
 
 // pass the original string (aka. not to lower) to display correct name
 export function parseDialogue(lineRaw: string): DialogueStruct {
-	lineRaw = lineRaw.replace(langFilter, '$2');
+	// lineRaw = removeLangPrefix(lineRaw);
 
 	let bDialogue = false;
 	let bNoNamePart = false;

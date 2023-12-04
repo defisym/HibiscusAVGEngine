@@ -63,7 +63,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 		dubParseCache.getDocumentCache(document);
 		const bEnableDubMapping = vscode.workspace.getConfiguration().get<boolean>(confDub_EnableDubMapping, false);
 		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
-			let text = lineInfo.textNoComment;
+			let text = lineInfo.textNoCommentAndLangPrefix;
 			let lineNumber = lineInfo.lineNum;
 			let lineStart = lineInfo.lineStart;
 			let lineEnd = lineInfo.lineEnd;

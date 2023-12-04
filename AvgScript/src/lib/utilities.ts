@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { pinyin } from 'pinyin-pro';
 import { FileType } from '../functions/file';
 import { InlayHintType, commandInfoList } from './dict';
-import { beginRegex, endRegex } from './regExp';
+import { beginRegex, endRegex, removeLangPrefix } from './regExp';
 
 import path = require('path');
 
@@ -156,7 +156,12 @@ export function getParamAtPosition(src: string, position: number) {
 	return src.substring(start + 1, end);
 }
 
-export function getAllParams(src: string) {
+export function getAllParams(src: string, bNoLangPrefix: boolean = true) {
+	if (!bNoLangPrefix) {
+		src = removeLangPrefix(src);
+		bNoLangPrefix = true;
+	}
+
 	if ((src.match(beginRegex) !== null) || (src.match(endRegex) !== null)) {
 		let appendDelimiter = delimiter.concat([' ']);
 

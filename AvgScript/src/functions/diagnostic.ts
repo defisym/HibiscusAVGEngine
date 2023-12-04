@@ -68,6 +68,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 			originText,
 			textNoComment,
+			textNoCommentAndLangPrefix,
 
 			lineNum,
 
@@ -88,24 +89,24 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 		}
 
 		// normal parse
-		if (currentLineLabel(textNoComment)) {
-			if (labels.includes(textNoComment)) {
+		if (currentLineLabel(textNoCommentAndLangPrefix)) {
+			if (labels.includes(textNoCommentAndLangPrefix)) {
 				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
-					, "Duplicated Label: " + textNoComment.substring(1)
+					, "Duplicated Label: " + textNoCommentAndLangPrefix.substring(1)
 					, vscode.DiagnosticSeverity.Warning));
 
 				return;
 			}
 
-			labels.push(textNoComment);
+			labels.push(textNoCommentAndLangPrefix);
 
 			return;
 		}
 
-		if (currentLineCommand(textNoComment)) {
-			if (textNoComment.matchStart(/#Settings/gi)) {
-				let start = textNoComment.indexOf('=');
-				let params = textNoComment.substring(start + 1).split('|');
+		if (currentLineCommand(textNoCommentAndLangPrefix)) {
+			if (textNoCommentAndLangPrefix.matchStart(/#Settings/gi)) {
+				let start = textNoCommentAndLangPrefix.indexOf('=');
+				let params = textNoCommentAndLangPrefix.substring(start + 1).split('|');
 
 				start += lineStart;
 
@@ -131,7 +132,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 				}
 
 				if (!settingsParsed) {
-					settings = parseSettings(textNoComment, true)!;
+					settings = parseSettings(textNoCommentAndLangPrefix, true)!;
 
 					if (settings) {
 						if (settings.LiteMode) {
@@ -155,24 +156,24 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 				return;
 			}
 
-			if (textNoComment.matchStart(/#EOF/gi)) {
+			if (textNoCommentAndLangPrefix.matchStart(/#EOF/gi)) {
 				EOF = true;
 
 				return;
 			}
 
-			if (textNoComment.matchStart(/(#CJMP|#JMPCha|#FJMP|#JMPFra)/gi)) {
+			if (textNoCommentAndLangPrefix.matchStart(/(#CJMP|#JMPCha|#FJMP|#JMPFra)/gi)) {
 				nextJMP = true;
 			}
 
-			if (textNoComment.matchStart(/#Begin/gi)) {
+			if (textNoCommentAndLangPrefix.matchStart(/#Begin/gi)) {
 				blockCount++;
 				blockPos.push(new vscode.Range(lineNum, lineStart, lineNum, lineEnd));
 
 				return;
 			}
 
-			if (textNoComment.matchStart(/#End/gi)) {
+			if (textNoCommentAndLangPrefix.matchStart(/#End/gi)) {
 				if (blockCount === 0) {
 					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
 						, "End Without Begin"
@@ -187,7 +188,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 				return;
 			}
 
-			const params = getAllParams(textNoComment);
+			const params = getAllParams(textNoCommentAndLangPrefix);
 			const prefix = params[0][0];
 			const command = params[0].substring(1);
 			const paramNum = params.length - 1;
@@ -593,9 +594,9 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 			return;
 		}
 
-		if (currentLineDialogue(textNoComment) && projectConfig) {
+		if (currentLineDialogue(textNoCommentAndLangPrefix) && projectConfig) {
 			const maxLength = parseInt(projectConfig.Debug.Debug_MaxLength);
-			const dialogueStruct = parseDialogue(textNoComment);
+			const dialogueStruct = parseDialogue(textNoCommentAndLangPrefix);
 			if (dialogueStruct.m_dialoguePart.length > maxLength) {
 				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart + maxLength, lineNum, lineEnd)
 					, "Text maybe too long, expected less than " + maxLength.toString() + " characters"
