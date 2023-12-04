@@ -65,6 +65,9 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 
 		return curCache;
 	}
+	clearDocumentCache() {
+		this.lineCommentCache.clear();
+	}
 
 	// iterate document with cache
 	iterateDocumentCacheWithComment(document: vscode.TextDocument, cb: (lineInfo: LineInfo) => void) {

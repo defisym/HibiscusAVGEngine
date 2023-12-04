@@ -17,7 +17,7 @@ import { dubList_getWebviewContent } from '../webview/dubList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { updateAtCompletionList, updateSharpCompletionList } from './completion';
-import { diagnosticUpdate, refreshFileDiagnostics } from './diagnostic';
+import { diagnosticThrottle } from './diagnostic';
 import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, FileType, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
@@ -88,7 +88,6 @@ export const commandBasePath_impl = async () => {
 		cancellable: false
 	}, async (progress, token) => {
 		await updateFileList(progress);
-		refreshFileDiagnostics();
 	});
 };
 
@@ -103,11 +102,10 @@ export const commandRefreshAssets_impl = async () => {
 		cancellable: false
 	}, async (progress, token) => {
 		await updateFileList(progress);
-		refreshFileDiagnostics();
 	});
 };
 
-export const commandUpdateCommandExtension_impl = async () => {
+export const commandUpdateCommandExtension_impl = (bRefreshDiagnostic: boolean = true) => {
 	// reset list to base
 	resetList();
 
@@ -226,7 +224,9 @@ export const commandUpdateCommandExtension_impl = async () => {
 	updateAtCompletionList();
 
 	// update diagnostic
-	diagnosticUpdate();
+	if (bRefreshDiagnostic) {
+		diagnosticThrottle.triggerCallback(() => { }, true);
+	}
 };
 
 export let assetsListPanel: vscode.WebviewPanel;

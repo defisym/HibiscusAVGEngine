@@ -59,7 +59,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	//--------------------
 
 	// make sure command info list is valid
-	await vscode.commands.executeCommand(commandUpdateCommandExtension);
+	await vscode.commands.executeCommand(commandUpdateCommandExtension,false);
 	vscode.commands.executeCommand(commandRefreshAssets);
 
 	//--------------------
@@ -144,20 +144,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	// File Updated
 	//--------------------
 
-	diagnosticThrottle.triggerCallback(() => { }, true);
-
 	vscode.window.onDidChangeActiveTextEditor(editor => {
 		activeEditor = editor;
 		if (!editor) { return; }
 
+		previewer.docUpdated();
+
 		throttle.triggerCallback(() => {
 			// console.log("trigger parse :" + editor.document.fileName);
-
-			previewer.docUpdated();
-			// parseLineComment(editor.document);
-			// parseLabel(editor.document);
 		});
-		diagnosticThrottle.triggerCallback(() => { });
+		diagnosticThrottle.triggerCallback();
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {

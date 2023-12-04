@@ -45,7 +45,6 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 	decoOpt = [];
 
-	// let dubState = DubParser.getDubParser(document);
 	let curDubCache: DubCache[] | undefined = undefined;
 	let curDubCacheIndex = 0;
 
@@ -648,16 +647,8 @@ function diagnosticUpdateCore(checkFile: boolean = false) {
 	activeEditor.setDecorations(nonActiveLanguageDecorator, decoOpt);
 }
 
-export function refreshFileDiagnostics() {
-	diagnosticUpdateCore(true);
-}
-
-export function diagnosticUpdate() {
-	diagnosticUpdateCore(fileListInitialized);
-}
-
 export const diagnosticThrottle = new Throttle();
 
 diagnosticThrottle.addCallback(() => {
-	diagnosticUpdate();
+	diagnosticUpdateCore(fileListInitialized);
 });

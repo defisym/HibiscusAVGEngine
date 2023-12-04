@@ -333,7 +333,6 @@ class DubParseCache implements CacheInterface<DubCache[]> {
 	}
 	updateDocumentCache(document: vscode.TextDocument,
 		change: readonly vscode.TextDocumentContentChangeEvent[]) {
-		//TODO
 		this.removeDocumentCache(document);
 	}
 	getDocumentCache(document: vscode.TextDocument) {
@@ -346,6 +345,9 @@ class DubParseCache implements CacheInterface<DubCache[]> {
 		curCache = this.dubParseCache.get(document.uri)!;
 
 		return curCache;
+	}
+	clearDocumentCache() {
+		this.dubParseCache.clear();
 	}
 
 	getDocumentCacheAt(document: vscode.TextDocument, totalLine: number) {

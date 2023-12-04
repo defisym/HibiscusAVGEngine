@@ -63,6 +63,9 @@ class LabelCache implements CacheInterface<LabelInfo> {
 
 		return curCache;
 	}
+	clearDocumentCache() {
+		this.labelCache.clear();
+	}
 }
 
 export const labelCache = new LabelCache();
