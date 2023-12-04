@@ -196,7 +196,7 @@ export const labelReference = vscode.languages.registerReferenceProvider(
 		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 			let text = lineInfo.textNoCommentAndLangPrefix;
 			let lineNumber = lineInfo.lineNum;
-			let lineStart = lineInfo.lineStart;
+			let lineStart = lineInfo.lineStart + lineInfo.langPrefixLength;
 			let lineEnd = lineInfo.lineEnd;
 
 			const params = getAllParams(text);

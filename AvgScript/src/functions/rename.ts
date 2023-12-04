@@ -30,7 +30,7 @@ export const rename = vscode.languages.registerRenameProvider(
 			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 				let text = lineInfo.textNoCommentAndLangPrefix;
 				let lineNumber = lineInfo.lineNum;
-				let lineStart = lineInfo.lineStart;
+				let lineStart = lineInfo.lineStart+ lineInfo.langPrefixLength;
 				let lineEnd = lineInfo.lineEnd;
 
 				if (currentLineCommand(text) || currentLineLabel(text)) {

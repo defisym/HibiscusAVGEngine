@@ -28,10 +28,10 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 
 			if (!lineInfo.lineIsComment) {
 				parseResult = [result.toLowerCase(),
-				lineInfo.lineStart,
+				lineInfo.lineStart + lineInfo.langPrefixLength,
 					"",
 				-1,
-				result];
+					result];
 			}
 
 			curCache.comment.push(lineInfo.lineIsComment);
