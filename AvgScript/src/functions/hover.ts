@@ -5,6 +5,7 @@ import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue'
 import {
 	commandDocList, dialogueTextElement, docList, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
 } from '../lib/dict';
+import { langFilter } from '../lib/regExp';
 import { getAllParams, getCommandParamFileType, getParamAtPosition } from '../lib/utilities';
 import { FileType, fileListInitialized, getFileCompletionByType } from './file';
 import { getLabelComment } from './label';
@@ -17,29 +18,31 @@ export const hover = vscode.languages.registerHoverProvider('AvgScript', {
 			return undefined;
 		}
 
-		let [line, lineStart, linePrefix, curPos, lineRaw] = currentLineNotComment(document, position);
+		const parseCommentResult = currentLineNotComment(document, position);
 
-		if (line === undefined) {
+		if (parseCommentResult === undefined) {
 			return undefined;
 		}
 
-		let word: string = document.getText(range).toLowerCase();
+		let { line, lineStart, linePrefix, curPos, lineRaw, langPrefixLength } = parseCommentResult;
 
-		// settings
-		if (line.startsWith('#Settings='.toLowerCase())) {
+		let word: string = document.getText(range).toLowerCase();
+		const lineLower = line.toLowerCase();
+		// settings		
+		if (line.matchStart(/#Settings/gi)) {
 			return new vscode.Hover(getHoverContents(word, settingsParamDocList));
 		}
 
 		// language prefix
-		if (line.startsWith('Lang'.toLowerCase())
-			// the length of language code (ZH) is 2
-			&& curPos! <= 'Lang[ZH]'.length) {
+		const array = [...lineRaw.matchAll(langFilter)];
+
+		if (array.length !== 0 && curPos + langPrefixLength <= array[0][1].length) {
 			return new vscode.Hover(getHoverContents(word, langDocList));
 		}
 
 		// normal text
 		if (currentLineDialogue(line)) {
-			const dialogueStruct = parseDialogue(lineRaw!);
+			const dialogueStruct = parseDialogue(line);
 
 			// script
 			let curLine = `### 当前行(无格式)为{$Type}
@@ -107,11 +110,13 @@ export const hoverFile = vscode.languages.registerHoverProvider('AvgScript', {
 			return undefined;
 		}
 
-		let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+		const parseCommentResult = currentLineNotComment(document, position);
 
-		if (line === undefined) {
+		if (parseCommentResult === undefined) {
 			return undefined;
 		}
+
+		let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 		let fileName = getParamAtPosition(line, curPos!);
 

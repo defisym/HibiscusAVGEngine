@@ -12,19 +12,15 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
 		let curCache = lineCommentCache.getDocumentCache(document);
 
 		for (let lineNumber = range.start.line; lineNumber <= range.end.line; lineNumber++) {
-			if (curCache.comment[lineNumber]) { continue; }
+			const lineInfo = curCache.lineInfo[lineNumber];
+			if (lineInfo.lineIsComment && !lineInfo.lineNotCurLanguage) { continue; }
 
-			const parseResult = curCache.result[lineNumber];
+			const line = lineInfo.textNoCommentAndLangPrefix;
+			const lineStart = lineInfo.lineStart + lineInfo.langPrefixLength;
 
-			const text = parseResult[0];
-			if (text === undefined) { continue; }
+			if (!currentLineCommand(line)) { continue; }
 
-			const lineStart = parseResult[1];
-			if (lineStart === undefined) { continue; }
-
-			if (!currentLineCommand(text)) { continue; }
-
-			const params = getAllParams(text);
+			const params = getAllParams(line);
 			const command = params[0].substring(1);
 			const paramNum = params.length - 1;
 			const paramDefinition = commandInfoList.getValue(command);;

@@ -46,9 +46,9 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 	decoOpt = [];
 
 	// let dubState = DubParser.getDubParser(document);
-	let curDubCache:DubCache[]|undefined = undefined;
+	let curDubCache: DubCache[] | undefined = undefined;
 	let curDubCacheIndex = 0;
-	
+
 	if (checkFile) {
 		curDubCache = dubParseCache.getDocumentCache(document);
 		const dubErrors = dubDiagnostic(document);
@@ -69,6 +69,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 			originText,
 			textNoComment,
 			textNoCommentAndLangPrefix,
+			langPrefixLength,
 
 			lineNum,
 
@@ -84,14 +85,16 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 			decoOpt.push(decoration);
 		}
 
-		if (lineIsComment) {
+		if (lineIsComment && !info.lineNotCurLanguage) {
 			return;
 		}
+
+		const lineStartWithLangPrefix = lineStart + langPrefixLength;
 
 		// normal parse
 		if (currentLineLabel(textNoCommentAndLangPrefix)) {
 			if (labels.includes(textNoCommentAndLangPrefix)) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, lineEnd)
 					, "Duplicated Label: " + textNoCommentAndLangPrefix.substring(1)
 					, vscode.DiagnosticSeverity.Warning));
 
@@ -108,7 +111,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 				let start = textNoCommentAndLangPrefix.indexOf('=');
 				let params = textNoCommentAndLangPrefix.substring(start + 1).split('|');
 
-				start += lineStart;
+				start += lineStartWithLangPrefix;
 
 				for (let settingsParam of params) {
 					let cutSettingsParam = settingsParam;
@@ -126,7 +129,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 				}
 
 				if (lineNum !== firstLineNotComment) {
-					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, lineEnd)
 						, "Settings Not At First Line"
 						, vscode.DiagnosticSeverity.Error));
 				}
@@ -146,7 +149,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 				}
 
 				if (settingsParsed) {
-					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, lineEnd)
 						, "Duplicated Setting"
 						, vscode.DiagnosticSeverity.Error));
 				}
@@ -168,14 +171,14 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 			if (textNoCommentAndLangPrefix.matchStart(/#Begin/gi)) {
 				blockCount++;
-				blockPos.push(new vscode.Range(lineNum, lineStart, lineNum, lineEnd));
+				blockPos.push(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, lineEnd));
 
 				return;
 			}
 
 			if (textNoCommentAndLangPrefix.matchStart(/#End/gi)) {
 				if (blockCount === 0) {
-					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, lineEnd)
 						, "End Without Begin"
 						, vscode.DiagnosticSeverity.Warning));
 
@@ -196,7 +199,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 			// unknown command, return
 			if (paramDefinition === undefined) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, lineEnd)
 					, "Undocumented Command: " + params[0]
 					, vscode.DiagnosticSeverity.Information));
 
@@ -205,33 +208,33 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 			if ((prefix === '@' && sharpKeywordList.hasValue(command))
 				|| (prefix === '#' && atKeywordList.hasValue(command))) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineStart + 1)
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, lineStartWithLangPrefix + 1)
 					, "Wrong Command Prefix: " + params[0]
 					, vscode.DiagnosticSeverity.Error));
 			}
 
-			let contentStart: number = lineStart + command.length + 1;
+			let contentStart: number = lineStartWithLangPrefix + command.length + 1;
 
 			if (internalKeywordList.hasValue(command)) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, contentStart)
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, contentStart)
 					, "User Shouldn't Use Internal Command: " + params[0]
 					, vscode.DiagnosticSeverity.Error));
 			}
 
 			if (deprecatedKeywordList.hasValue(command)) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, contentStart)
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, contentStart)
 					, "User Shouldn't Use Deprecated Command: " + params[0]
 					, vscode.DiagnosticSeverity.Warning));
 			}
 
 			if (!bVNMode && paramDefinition.VNModeOnly) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, lineEnd)
 					, "Using VNMode Exclusive command in Non VNMode"
 					, vscode.DiagnosticSeverity.Warning));
 			}
 
 			if (bVNMode && paramDefinition.NonVNModeOnly) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart, lineNum, lineEnd)
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix, lineNum, lineEnd)
 					, "Using Non VNMode Exclusive command in VNMode"
 					, vscode.DiagnosticSeverity.Warning));
 			}
@@ -598,7 +601,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 			const maxLength = parseInt(projectConfig.Debug.Debug_MaxLength);
 			const dialogueStruct = parseDialogue(textNoCommentAndLangPrefix);
 			if (dialogueStruct.m_dialoguePart.length > maxLength) {
-				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStart + maxLength, lineNum, lineEnd)
+				diagnostics.push(new vscode.Diagnostic(new vscode.Range(lineNum, lineStartWithLangPrefix + maxLength, lineNum, lineEnd)
 					, "Text maybe too long, expected less than " + maxLength.toString() + " characters"
 					, vscode.DiagnosticSeverity.Warning));
 			}
