@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { CacheInterface } from '../lib/cacheInterface';
 import { currentLineNotComment, lineCommentCache } from '../lib/comment';
-import { currentLineCommand } from '../lib/dialogue';
+import { currentLineCommand, currentLineLabel } from '../lib/dialogue';
 import { InlayHintType, commandInfoList } from '../lib/dict';
 import { regexRep } from '../lib/regExp';
 import { getAllParams } from "../lib/utilities";
@@ -119,11 +119,13 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
 		provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
 			let definitions: vscode.Location[] = [];
 
-			let [line, lineStart, curLinePrefix, curPos] = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position);
 
-			if (line === undefined) {
+			if (parseCommentResult === undefined) {
 				return undefined;
 			}
+
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 			const params = getAllParams(line);
 			const paramNum = params.length - 1;
@@ -181,13 +183,15 @@ export const labelReference = vscode.languages.registerReferenceProvider(
 	provideReferences(document: vscode.TextDocument, position: vscode.Position, context: vscode.ReferenceContext, token: vscode.CancellationToken) {
 		let references: vscode.Location[] = [];
 
-		let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+		const parseCommentResult = currentLineNotComment(document, position);
 
-		if (line === undefined) {
+		if (parseCommentResult === undefined) {
 			return undefined;
 		}
 
-		if (line[0] !== ';') {
+		let { line, lineStart, linePrefix, curPos } = parseCommentResult;
+
+		if (currentLineLabel(line)) {
 			return undefined;
 		}
 

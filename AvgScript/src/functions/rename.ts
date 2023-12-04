@@ -9,11 +9,13 @@ export const rename = vscode.languages.registerRenameProvider(
 	provideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string, token: vscode.CancellationToken) {
 		const edit = new vscode.WorkspaceEdit();
 
-		let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+		const parseCommentResult = currentLineNotComment(document, position);
 
-		if (line === undefined) {
+		if (parseCommentResult === undefined) {
 			return undefined;
 		}
+
+		let { line, lineStart, linePrefix, curPos} = parseCommentResult;
 
 		let word: string;
 
@@ -30,7 +32,7 @@ export const rename = vscode.languages.registerRenameProvider(
 			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
 				let text = lineInfo.textNoCommentAndLangPrefix;
 				let lineNumber = lineInfo.lineNum;
-				let lineStart = lineInfo.lineStart+ lineInfo.langPrefixLength;
+				let lineStart = lineInfo.lineStart + lineInfo.langPrefixLength;
 				let lineEnd = lineInfo.lineEnd;
 
 				if (currentLineCommand(text) || currentLineLabel(text)) {

@@ -11,11 +11,13 @@ import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCache } from './label';
 
 function completionValid(document: vscode.TextDocument, position: vscode.Position) {
-	let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+	const parseCommentResult = currentLineNotComment(document, position);
 
-	if (line === undefined) {
+	if (parseCommentResult === undefined) {
 		return false;
 	}
+
+	let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 	if (!lineValidForCommandCompletion(linePrefix!)) {
 		return false;
@@ -64,13 +66,16 @@ export const settingsParam = vscode.languages.registerCompletionItemProvider(
 	'AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position);
 
-			if (line === undefined) {
+			if (parseCommentResult === undefined) {
 				return undefined;
 			}
 
-			if (!linePrefix!.startsWith('#Settings='.toLowerCase())) {
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
+
+
+			if (!linePrefix!.toLowerCase().startsWith('#Settings='.toLowerCase())) {
 				return undefined;
 			}
 
@@ -112,11 +117,13 @@ export const fileSuffix = vscode.languages.registerCompletionItemProvider(
 	'AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position);
 
-			if (line === undefined) {
+			if (parseCommentResult === undefined) {
 				return undefined;
 			}
+
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 			switch (getCommandParamFileType(linePrefix!)) {
 				case FileType.inValid:
@@ -171,10 +178,13 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 			if (!basePathUpdated) { return undefined; }
+			const parseCommentResult = currentLineNotComment(document, position);
 
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			if (parseCommentResult === undefined) {
+				return undefined;
+			}
 
-			if (line === undefined) { return undefined; }
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 			let returnCompletion = (completion: vscode.CompletionItem[]) => {
 				if (!fileListInitialized) {
@@ -244,11 +254,13 @@ export const required = vscode.languages.registerCompletionItemProvider(
 	'AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position);
 
-			if (line === undefined) {
+			if (parseCommentResult === undefined) {
 				return undefined;
 			}
+
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 			const { params, commandWithPrefix, command, paramInfo } = parseCommand(linePrefix!);
 

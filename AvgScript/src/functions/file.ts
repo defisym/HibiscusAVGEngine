@@ -1261,11 +1261,13 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
 
 			if (!basePathUpdated) { return undefined; }
 
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position);
 
-			if (line === undefined) {
+			if (parseCommentResult === undefined) {
 				return undefined;
 			}
+
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 			let fileName = getParamAtPosition(line, curPos!);
 
