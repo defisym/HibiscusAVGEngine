@@ -79,7 +79,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 		// decorate
 		if (info.lineNotCurLanguage) {
-			const decoration = { range: new vscode.Range(lineNum, lineStart, lineNum, lineEnd), hoverMessage: "非当前语言: " + currentLocalCodeDisplay + currentLocalCode };
+			const decoration = { range: new vscode.Range(lineNum, lineStart, lineNum, lineEnd), hoverMessage: "非当前语言: " + currentLocalCodeDisplay + " " + currentLocalCode };
 
 			decoOpt.push(decoration);
 		}

@@ -124,10 +124,8 @@ export function currentLineNotComment(document: vscode.TextDocument, position: v
 			? LineCommentCache.getParseResultFromLineInfo(lineInfo)
 			: parseResult!;
 
-	let { line, lineStart, linePrefix, curPos, lineRaw } = parseResult;
-
 	parseResult.curPos = position.character - parseResult.lineStart;
-	parseResult.linePrefix = parseResult.line.substring(0, curPos).trim();
+	parseResult.linePrefix = parseResult.line.substring(0, parseResult.curPos).trim();
 
 	return parseResult;
 }
