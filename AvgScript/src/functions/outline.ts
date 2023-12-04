@@ -5,8 +5,8 @@ import { lineCommentCache } from '../lib/comment';
 import { beginRegex, endRegex } from '../lib/regExp';
 import { parseCommand } from '../lib/utilities';
 
-export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScript'
-	, {
+export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScript',
+	{
 		provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken) {
 			let symbols: vscode.SymbolInformation[] = [];
 

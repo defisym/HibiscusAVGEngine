@@ -1281,7 +1281,7 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
 
 			if (!basePathUpdated) { return undefined; }
 
-			const parseCommentResult = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
 			if (parseCommentResult === undefined) {
 				return undefined;

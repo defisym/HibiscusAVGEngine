@@ -11,7 +11,7 @@ import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCache } from './label';
 
 function completionValid(document: vscode.TextDocument, position: vscode.Position) {
-	const parseCommentResult = currentLineNotComment(document, position);
+	const parseCommentResult = currentLineNotComment(document, position, true);
 
 	if (parseCommentResult === undefined) {
 		return false;
@@ -32,8 +32,7 @@ export function updateSharpCompletionList() {
 	sharpCompletionList = getCompletionItemList(sharpKeywordList, commandDocList);
 }
 
-export const sharpCommands = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const sharpCommands = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 			if (!completionValid(document, position)) { return undefined; }
@@ -50,8 +49,7 @@ export function updateAtCompletionList() {
 	atCompletionList = getCompletionItemList(atKeywordList, commandDocList);
 }
 
-export const atCommands = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const atCommands = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 			if (!completionValid(document, position)) { return undefined; }
@@ -62,11 +60,10 @@ export const atCommands = vscode.languages.registerCompletionItemProvider(
 	'@' // triggered whenever a '@' is being typed
 );
 
-export const settingsParam = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const settingsParam = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			const parseCommentResult = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
 			if (parseCommentResult === undefined) {
 				return undefined;
@@ -74,8 +71,7 @@ export const settingsParam = vscode.languages.registerCompletionItemProvider(
 
 			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
-
-			if (!linePrefix!.toLowerCase().startsWith('#Settings='.toLowerCase())) {
+			if (!linePrefix.matchStart(/#Settings/gi)) {
 				return undefined;
 			}
 
@@ -95,8 +91,7 @@ export const settingsParam = vscode.languages.registerCompletionItemProvider(
 	'=', '|'
 );
 
-export const langPrefix = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const langPrefix = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 			const line = document.lineAt(position).text.trim().toLowerCase();
@@ -113,11 +108,10 @@ export const langPrefix = vscode.languages.registerCompletionItemProvider(
 	},
 );
 
-export const fileSuffix = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const fileSuffix = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			const parseCommentResult = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
 			if (parseCommentResult === undefined) {
 				return undefined;
@@ -173,12 +167,11 @@ export const fileSuffix = vscode.languages.registerCompletionItemProvider(
 	'.'
 );
 
-export const fileName = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const fileName = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 			if (!basePathUpdated) { return undefined; }
-			const parseCommentResult = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
 			if (parseCommentResult === undefined) {
 				return undefined;
@@ -250,11 +243,10 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
 	'=', ':'
 );
 
-export const required = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const required = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			const parseCommentResult = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
 			if (parseCommentResult === undefined) {
 				return undefined;

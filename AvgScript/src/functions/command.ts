@@ -590,7 +590,7 @@ export const commandAppendDialogue_impl = async () => {
 	const documentLineAt = document.lineAt(cursor.line).text;
 	const documentLineLength = documentLineAt.length;
 
-	const parseCommentResult = currentLineNotComment(document, cursor);
+	const parseCommentResult = currentLineNotComment(document, cursor, true);
 
 	if (parseCommentResult === undefined) {
 		return undefined;

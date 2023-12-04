@@ -122,7 +122,7 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
 		provideDefinition(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
 			let definitions: vscode.Location[] = [];
 
-			const parseCommentResult = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
 			if (parseCommentResult === undefined) {
 				return undefined;
@@ -181,74 +181,74 @@ export const labelDefinition = vscode.languages.registerDefinitionProvider('AvgS
 		}
 	});
 
-export const labelReference = vscode.languages.registerReferenceProvider(
-	'AvgScript', {
-	provideReferences(document: vscode.TextDocument, position: vscode.Position, context: vscode.ReferenceContext, token: vscode.CancellationToken) {
-		let references: vscode.Location[] = [];
+export const labelReference = vscode.languages.registerReferenceProvider('AvgScript',
+	{
+		provideReferences(document: vscode.TextDocument, position: vscode.Position, context: vscode.ReferenceContext, token: vscode.CancellationToken) {
+			let references: vscode.Location[] = [];
 
-		const parseCommentResult = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
-		if (parseCommentResult === undefined) {
-			return undefined;
-		}
-
-		let { line, lineStart, linePrefix, curPos } = parseCommentResult;
-
-		if (currentLineLabel(line)) {
-			return undefined;
-		}
-
-		let label = line.substring(line.indexOf(";") + 1);
-
-		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
-			let text = lineInfo.textNoCommentAndLangPrefix;
-			let lineNumber = lineInfo.lineNum;
-			let lineStart = lineInfo.lineStart + lineInfo.langPrefixLength;
-			let lineEnd = lineInfo.lineEnd;
-
-			const params = getAllParams(text);
-			const paramNum = params.length - 1;
-
-			if (currentLineCommand(text)) {
-				const command = params[0].substring(1);
-				const paramDefinition = commandInfoList.getValue(command);
-
-				if (paramDefinition === undefined) {
-					return;
-				}
-
-				const paramFormat = paramDefinition.inlayHintType;
-
-				if (paramFormat === undefined) {
-					return;
-				}
-
-				let contentStart: number = lineStart + command.length + 1;
-
-				for (let j = 1; j < params.length; j++) {
-					let curParam = params[j];
-					let currentType = paramFormat[j - 1];
-
-					contentStart++;
-
-					if (curParam.match(regexRep)) {
-						continue;
-					}
-
-					if (currentType === InlayHintType.Label) {
-						if (curParam.iCmp(label)) {
-							let link = new vscode.Location(document.uri
-								, new vscode.Position(lineNumber, 0));
-
-							references.push(link);
-						}
-					}
-
-					contentStart += curParam.length;
-				}
+			if (parseCommentResult === undefined) {
+				return undefined;
 			}
-		});
 
-		return references;
-	}
-});
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
+
+			if (currentLineLabel(line)) {
+				return undefined;
+			}
+
+			let label = line.substring(line.indexOf(";") + 1);
+
+			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
+				let text = lineInfo.textNoCommentAndLangPrefix;
+				let lineNumber = lineInfo.lineNum;
+				let lineStart = lineInfo.lineStart + lineInfo.langPrefixLength;
+				let lineEnd = lineInfo.lineEnd;
+
+				const params = getAllParams(text);
+				const paramNum = params.length - 1;
+
+				if (currentLineCommand(text)) {
+					const command = params[0].substring(1);
+					const paramDefinition = commandInfoList.getValue(command);
+
+					if (paramDefinition === undefined) {
+						return;
+					}
+
+					const paramFormat = paramDefinition.inlayHintType;
+
+					if (paramFormat === undefined) {
+						return;
+					}
+
+					let contentStart: number = lineStart + command.length + 1;
+
+					for (let j = 1; j < params.length; j++) {
+						let curParam = params[j];
+						let currentType = paramFormat[j - 1];
+
+						contentStart++;
+
+						if (curParam.match(regexRep)) {
+							continue;
+						}
+
+						if (currentType === InlayHintType.Label) {
+							if (curParam.iCmp(label)) {
+								let link = new vscode.Location(document.uri
+									, new vscode.Position(lineNumber, 0));
+
+								references.push(link);
+							}
+						}
+
+						contentStart += curParam.length;
+					}
+				}
+			});
+
+			return references;
+		}
+	});
