@@ -42,14 +42,7 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 			let parseResult: ParseCommentResult | undefined = undefined;
 
 			if (!lineInfo.lineIsComment) {
-				parseResult = {
-					line: lineInfo.textNoCommentAndLangPrefix,
-					linePrefix: "",
-					lineRaw: lineInfo.textNoComment,
-					lineStart: lineInfo.lineStart + lineInfo.langPrefixLength,
-					curPos: -1,
-					langPrefixLength: lineInfo.langPrefixLength
-				};
+				parseResult = LineCommentCache.getParseResultFromLineInfo(lineInfo);
 			}
 
 			curCache.comment.push(lineInfo.lineIsComment);
