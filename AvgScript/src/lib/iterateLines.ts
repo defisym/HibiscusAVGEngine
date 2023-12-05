@@ -121,7 +121,6 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 				textNoCommentAndLangPrefix: textNoCommentAndLangPrefix,
 				langPrefixLength: textNoComment.length - textNoCommentAndLangPrefix.length,
 
-
 				lineNum: i,
 
 				lineStart: lineStart,

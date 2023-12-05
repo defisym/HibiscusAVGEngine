@@ -172,12 +172,15 @@ export enum LineType {
 	label,
 	command,
 	dialogue,
+	invalid,
 }
 
 export function currentLineType(line: string) {
 	if (currentLineLabel(line)) { return LineType.label; }
 	if (currentLineCommand(line)) { return LineType.command; }
 	if (!line.empty()) { return LineType.dialogue; }
+	
+	return LineType.invalid;
 }
 
 // dialogue
