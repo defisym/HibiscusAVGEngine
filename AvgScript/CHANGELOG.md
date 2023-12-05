@@ -1,5 +1,9 @@
 # Change Log
 
+## 20231205
+
+- semantic highlight
+
 ## 20231204
 
 - fix lang prefix didn't taken into account
