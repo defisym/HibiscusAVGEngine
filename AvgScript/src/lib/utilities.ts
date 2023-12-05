@@ -162,13 +162,18 @@ export function getAllParams(src: string, bNoLangPrefix: boolean = true) {
 		bNoLangPrefix = true;
 	}
 
-	if ((src.match(beginRegex) !== null) || (src.match(endRegex) !== null)) {
-		let appendDelimiter = delimiter.concat([' ']);
+	let appendDelimiter = delimiter;
 
-		return getSubStrings(src, appendDelimiter);
+	if (src.matchStart(/#Settings/gi)) {
+		appendDelimiter = delimiter.concat(['|']);
 	}
 
-	return getSubStrings(src, delimiter);
+	// if ((src.match(beginRegex) !== null) || (src.match(endRegex) !== null)) {
+	if (src.matchStart(beginRegex) || src.matchStart(endRegex)) {
+		appendDelimiter = delimiter.concat([' ']);
+	}
+
+	return getSubStrings(src, appendDelimiter);
 }
 
 // position: Nth param
