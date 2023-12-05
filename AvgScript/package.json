@@ -18,11 +18,7 @@
 		"Programming Languages",
 		"Debuggers",
 		"Snippets",
-		"Linters",
-		"Themes"
-	],
-	"_extensionDependencies": [
-		"sukumo28.wav-preview"
+		"Linters"
 	],
 	"contributes": {
 		"keybindings": [
@@ -68,7 +64,7 @@
 			{
 				"language": "AvgScript",
 				"scopeName": "source.avgscript",
-				"path": "./syntaxes/AvgScript.tmLanguage.json"
+				"path": "./syntaxes/AvgScript.tmLanguageSematic.json"
 			},
 			{
 				"scopeName": "markdown.AvgScript.codeblock",
@@ -91,14 +87,7 @@
 				"language": "AvgScript",
 				"path": "./snippets/snippets.json"
 			}
-		],
-		"themes": [
-			{
-				"label": "AvgScript",
-				"uiTheme": "vs-dark",
-				"path": "./themes/AvgScript-color-theme.json"
-			}
-		],
+		],		
 		"configuration": [
 			{
 				"id": "AvgScript",
@@ -339,6 +328,68 @@
 				}
 			}
 		],
+		"configurationDefaults": {
+			"editor.semanticHighlighting.enabled": true,
+			"editor.semanticTokenColorCustomizations": {
+				"enabled": true,
+				"rules": {
+					"comments": {
+						"fontStyle": "italic",
+						"foreground": "#6A9955"
+					},
+					"labels": {
+						"fontStyle": "bold",
+						"foreground": "#FFFFFF"
+					},
+					"operators": {
+						"foreground": "#FF0000"
+					},
+					"params": {
+						"foreground": "#ff9e9e"
+					},
+					"numbers_dec": {
+						"foreground": "#B5CEA8"
+					},
+					"numbers_hex": {
+						"foreground": "#B5CEA8"
+					},
+					"keywords_region": {
+						"fontStyle": "bold",
+						"foreground": "#0000FF"
+					},
+					"keywords_system": {
+						"foreground": "#FF0080"
+					},
+					"keywords_values": {
+						"foreground": "#8000FF"
+					},
+					"keywords_dialogue": {
+						"foreground": "#FF8000"
+					},
+					"keywords_media": {
+						"foreground": "#B5B500"
+					},
+					"keywords_effect": {
+						"foreground": "#FF8080"
+					},
+					"keywords_preobj": {
+						"foreground": "#8080FF"
+					},
+					"dialogue_name": {
+						"foreground": "#ff80b1"
+					},
+					"dialogue_dialogue": {
+						"foreground": "#8080FF"
+					},
+					"language_prefix": {
+						"foreground": "#fffd80"
+					},
+					"language_region": {
+						"foreground": "#99ff80"
+					}
+				}
+			}
+		},
 		"commands": [
 			{
 				"category": "AvgScript",
