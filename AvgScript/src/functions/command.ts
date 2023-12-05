@@ -17,7 +17,7 @@ import { dubList_getWebviewContent } from '../webview/dubList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { updateAtCompletionList, updateSharpCompletionList } from './completion';
-import { diagnosticUpdate, refreshFileDiagnostics } from './diagnostic';
+import { diagnosticThrottle } from './diagnostic';
 import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, FileType, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
@@ -88,7 +88,6 @@ export const commandBasePath_impl = async () => {
 		cancellable: false
 	}, async (progress, token) => {
 		await updateFileList(progress);
-		refreshFileDiagnostics();
 	});
 };
 
@@ -103,11 +102,10 @@ export const commandRefreshAssets_impl = async () => {
 		cancellable: false
 	}, async (progress, token) => {
 		await updateFileList(progress);
-		refreshFileDiagnostics();
 	});
 };
 
-export const commandUpdateCommandExtension_impl = async () => {
+export const commandUpdateCommandExtension_impl = (bRefreshDiagnostic: boolean = true) => {
 	// reset list to base
 	resetList();
 
@@ -226,7 +224,9 @@ export const commandUpdateCommandExtension_impl = async () => {
 	updateAtCompletionList();
 
 	// update diagnostic
-	diagnosticUpdate();
+	if (bRefreshDiagnostic) {
+		diagnosticThrottle.triggerCallback(() => { }, true);
+	}
 };
 
 export let assetsListPanel: vscode.WebviewPanel;
@@ -590,21 +590,24 @@ export const commandAppendDialogue_impl = async () => {
 	const documentLineAt = document.lineAt(cursor.line).text;
 	const documentLineLength = documentLineAt.length;
 
-	let [line, lineStart, linePrefix, curPos, lineRaw] = currentLineNotComment(document, cursor);
+	const parseCommentResult = currentLineNotComment(document, cursor, true);
 
-	if (line === undefined) {
+	if (parseCommentResult === undefined) {
 		return undefined;
 	}
 
-	const spaceLength = documentLineLength - lineRaw!.length;
+	let { line, lineStart, linePrefix, curPos, lineRaw } = parseCommentResult;
+
+	const spaceLength = documentLineLength - lineRaw.length;
 	let indentString = documentLineAt.substring(0, spaceLength);
 
 	// normal text
 	if (currentLineDialogue(line)) {
-		const dialogueStruct = parseDialogue(lineRaw!);
+		const dialogueStruct = parseDialogue(line);
+		const langPrefix = lineRaw.substring(0, lineRaw.length - line.length);
 
-		const curLineNew = lineRaw!.substring(0, linePrefix!.length);
-		let nextLine = lineRaw!.substring(linePrefix!.length);
+		const curLineNew = line.substring(0, linePrefix.length);
+		let nextLine = line.substring(linePrefix.length);
 
 		nextLine = (!dialogueStruct.m_namePartEmpty
 			? "$" + dialogueStruct.m_namePartRaw + ":"
@@ -615,8 +618,9 @@ export const commandAppendDialogue_impl = async () => {
 		await activeEditor.edit((editBuilder: vscode.TextEditorEdit) => {
 			editBuilder.replace(new vscode.Range(cursor.line, 0
 				, cursor.line, documentLineLength)
-				, indentString + curLineNew);
-			editBuilder.insert(new vscode.Position(cursor.line + 1, 0), indentString + nextLine);
+				, indentString + langPrefix + curLineNew);
+			editBuilder.insert(new vscode.Position(cursor.line + 1, 0)
+				, indentString + langPrefix + nextLine);
 		}, editOptions);
 
 		return;

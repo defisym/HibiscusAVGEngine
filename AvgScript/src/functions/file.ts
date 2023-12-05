@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 
 import { ImageProbe } from '@zerodeps/image-probe';
+import * as iniParser from 'ini';
 import * as mm from 'music-metadata';
 
-import { currentLineNotComment } from '../lib/comment';
+import { currentLineNotComment, lineCommentCache } from '../lib/comment';
 import { currentLineDialogue } from '../lib/dialogue';
 import { DubParser, dubMapping, dubParseCache } from '../lib/dubs';
 import { blankRegex } from '../lib/regExp';
@@ -11,6 +12,8 @@ import { getSettings } from '../lib/settings';
 import { getCommandParamFileType, getParamAtPosition, sleep, stringToEnglish } from '../lib/utilities';
 import { codeLensProviderClass } from './codeLens';
 import { commandBasePath, confBasePath } from './command';
+import { diagnosticThrottle } from './diagnostic';
+import { labelCache } from './label';
 import { updateWatcher } from './watcher';
 
 // file
@@ -829,7 +832,7 @@ export async function addFile(filePath: string) {
 
 	const { basePath, completionType, completionList } = completionInfo;
 
-	projectFileList.push([filePath, vscode.FileType.File]);	
+	projectFileList.push([filePath, vscode.FileType.File]);
 	projectFileListCache.removeIf((key, value) => {
 		return value.filePath === undefined;
 	});
@@ -891,7 +894,6 @@ export async function updateBasePath(newPath: string | undefined = undefined, bP
 		newPath = newPath.substring(0, newPath.length - 1);
 	}
 
-
 	// exist
 	if (!await fileExistsOnDisk(newPath)) {
 		return popUp();
@@ -942,10 +944,11 @@ export async function updateFileList(progress: vscode.Progress<{
 	progress.report({ increment: 0, message: "Updating file list..." });
 
 	if (!await updateBasePath()) {
+		progress.report({ increment: 0, message: "Updating base path..." });
 		await vscode.commands.executeCommand(commandBasePath);
 	}
 
-	// Update config
+	dubMapping.loadFile();
 
 	// ------
 	// Step 2
@@ -953,11 +956,31 @@ export async function updateFileList(progress: vscode.Progress<{
 
 	progress.report({ increment: 0, message: "Updating settings..." });
 
-	let iniParser = require('ini');
-	let encoding: BufferEncoding = 'utf-8';
-
-	let configPath = basePath + "\\..\\settings\\settings.ini";
+	const encoding: BufferEncoding = 'utf-8';
+	const configPath = basePath + "\\..\\settings\\settings.ini";
 	projectConfig = iniParser.parse((await getBuffer(configPath)).toString(encoding));
+
+	progress.report({ increment: 0, message: "Updating LocalSettings..." });
+
+	const newLocalCode = projectConfig.Display.Language;
+
+	if (newLocalCode !== currentLocalCode) {
+		currentLocalCode = newLocalCode;
+
+		progress.report({ increment: 0, message: "LocalSettings Changed..." });
+
+		const localizationPath = basePath + "\\..\\localization\\Localization.dat";
+		const localization = iniParser.parse((await getBuffer(localizationPath)).toString(encoding));
+
+		currentLocalCodeDefinition = localization.Definition;
+		currentLocalCodeDisplay = currentLocalCodeDefinition[
+			"LanguageDisplayName_" + currentLocalCode];
+
+		// language code changed, refresh
+		lineCommentCache.clearDocumentCache();
+		dubParseCache.clearDocumentCache();
+		labelCache.clearDocumentCache();
+	}
 
 	// ------
 	// Step 3
@@ -965,16 +988,8 @@ export async function updateFileList(progress: vscode.Progress<{
 
 	progress.report({ increment: incrementPerStep, message: "Updating LocalSettings..." });
 
-	currentLocalCode = projectConfig.Display.Language;
-
-	let localizationPath = basePath + "\\..\\localization\\Localization.dat";
-	let localization = iniParser.parse((await getBuffer(localizationPath)).toString(encoding));
-
-	currentLocalCodeDefinition = localization.Definition;
-	currentLocalCodeDisplay = currentLocalCodeDefinition[
-		"LanguageDisplayName_" + currentLocalCode];
-
-	dubMapping.loadFile();
+	// provide diagnostic here, as file scanning may take a long time
+	diagnosticThrottle.triggerCallback(() => { }, true);
 
 	// ------------------------
 	// Update file list		
@@ -1003,15 +1018,15 @@ export async function updateFileList(progress: vscode.Progress<{
 	// ------
 
 	progress.report({ increment: incrementPerStep, message: "Updating FX fileList..." });
-	let graphicFXFileList = await getDirFileListRecursively(graphicFXPath);
+	const graphicFXFileList = await getDirFileListRecursively(graphicFXPath);
 	progress.report({ increment: incrementPerStep, message: "Updating CG fileList..." });
-	let graphicCGFileList = await getDirFileListRecursively(graphicCGPath);
+	const graphicCGFileList = await getDirFileListRecursively(graphicCGPath);
 	progress.report({ increment: incrementPerStep, message: "Updating UI fileList..." });
-	let graphicUIFileList = await getDirFileListRecursively(graphicUIPath);
+	const graphicUIFileList = await getDirFileListRecursively(graphicUIPath);
 	progress.report({ increment: incrementPerStep, message: "Updating PatternFade fileList..." });
-	let graphicPatternFadeFileList = await getDirFileListRecursively(graphicPatternFadePath);
+	const graphicPatternFadeFileList = await getDirFileListRecursively(graphicPatternFadePath);
 	progress.report({ increment: incrementPerStep, message: "Updating Characters fileList..." });
-	let graphicCharactersFileList = await getDirFileListRecursively(graphicCharactersPath);
+	const graphicCharactersFileList = await getDirFileListRecursively(graphicCharactersPath);
 
 	// ------------
 	// Audio
@@ -1035,13 +1050,13 @@ export async function updateFileList(progress: vscode.Progress<{
 	// ------
 
 	progress.report({ increment: incrementPerStep, message: "Updating BGM fileList..." });
-	let audioBgmFileList = await getDirFileListRecursively(audioBgmPath);
+	const audioBgmFileList = await getDirFileListRecursively(audioBgmPath);
 	progress.report({ increment: incrementPerStep, message: "Updating BGS fileList..." });
-	let audioBgsFileList = await getDirFileListRecursively(audioBgsPath);
+	const audioBgsFileList = await getDirFileListRecursively(audioBgsPath);
 	progress.report({ increment: incrementPerStep, message: "Updating Dubs fileList..." });
-	let audioDubsFileList = await getDirFileListRecursively(audioDubsPath);
+	const audioDubsFileList = await getDirFileListRecursively(audioDubsPath);
 	progress.report({ increment: incrementPerStep, message: "Updating SE fileList..." });
-	let audioSEFileList = await getDirFileListRecursively(audioSEPath);
+	const audioSEFileList = await getDirFileListRecursively(audioSEPath);
 
 	// ------------
 	// Video
@@ -1055,7 +1070,7 @@ export async function updateFileList(progress: vscode.Progress<{
 
 	videoPath = basePath + "\\Assets\\Movies";
 
-	let videoFileList = await getDirFileListRecursively(videoPath);
+	const videoFileList = await getDirFileListRecursively(videoPath);
 
 	// ------------
 	// Animation
@@ -1069,7 +1084,7 @@ export async function updateFileList(progress: vscode.Progress<{
 
 	animationPath = basePath + "\\Assets\\Animation";
 
-	let animationFileList = await getDirFileListRecursively(animationPath);
+	const animationFileList = await getDirFileListRecursively(animationPath);
 
 	// ------------
 	// Script
@@ -1083,7 +1098,7 @@ export async function updateFileList(progress: vscode.Progress<{
 
 	scriptPath = basePath + "\\dialogue";
 
-	let scriptFileList = await getDirFileListRecursively(scriptPath);
+	const scriptFileList = await getDirFileListRecursively(scriptPath);
 
 	// ------------------------
 	// Update completion list		
@@ -1217,6 +1232,10 @@ export async function updateFileList(progress: vscode.Progress<{
 
 	await generateCompletionList(scriptFileList, scriptCompletions, scriptPath, CompletionType.script);
 
+	// ------------
+	// After
+	// ------------
+
 	fileListInitialized = true;
 	fileListInitFirstRun = false;
 
@@ -1224,6 +1243,7 @@ export async function updateFileList(progress: vscode.Progress<{
 
 	// watcher didn't start here, so refresh is needed
 	codeLensProviderClass.refresh();
+	diagnosticThrottle.triggerCallback(() => { }, true);
 
 	progress.report({ increment: 0, message: "Done" });
 }
@@ -1261,11 +1281,13 @@ export const fileDefinition = vscode.languages.registerDefinitionProvider('AvgSc
 
 			if (!basePathUpdated) { return undefined; }
 
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
-			if (line === undefined) {
+			if (parseCommentResult === undefined) {
 				return undefined;
 			}
+
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 			let fileName = getParamAtPosition(line, curPos!);
 

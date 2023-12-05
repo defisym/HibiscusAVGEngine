@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { currentLocalCode } from '../functions/file';
 import { InlayHintType } from './dict';
 import { iterateScripts } from './iterateScripts';
-import { getLangRegex } from './regExp';
+import { getLangRegex, removeLangPrefix } from './regExp';
 
 export interface LineInfo {
 	emptyLine: boolean,
@@ -12,6 +12,8 @@ export interface LineInfo {
 
 	originText: string
 	textNoComment: string,
+	textNoCommentAndLangPrefix: string,
+	langPrefixLength: number
 
 	lineNum: number,
 
@@ -60,6 +62,8 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 
 					originText: line.text,
 					textNoComment: '',
+					textNoCommentAndLangPrefix: '',
+					langPrefixLength: 0,
 
 					lineNum: i,
 
@@ -103,6 +107,7 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 		const bNotCurrentLanguage = langReg !== undefined
 			? textNoComment.matchEntire(langReg)
 			: false;
+		const textNoCommentAndLangPrefix = removeLangPrefix(textNoComment);
 
 		lineCallBack(
 			{
@@ -113,6 +118,9 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 
 				originText: line.text,
 				textNoComment: textNoComment,
+				textNoCommentAndLangPrefix: textNoCommentAndLangPrefix,
+				langPrefixLength: textNoComment.length - textNoCommentAndLangPrefix.length,
+
 
 				lineNum: i,
 
@@ -147,6 +155,7 @@ export function iterateLines(document: vscode.TextDocument,
 
 			originText,
 			textNoComment,
+			textNoCommentAndLangPrefix,
 
 			lineNum,
 
@@ -156,7 +165,7 @@ export function iterateLines(document: vscode.TextDocument,
 			firstLineNotComment } = info;
 
 		if (!lineIsComment) {
-			callBack(textNoComment, lineNum,
+			callBack(textNoCommentAndLangPrefix, lineNum,
 				lineStart, lineEnd,
 				firstLineNotComment!);
 		}

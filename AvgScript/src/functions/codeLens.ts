@@ -63,7 +63,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 		dubParseCache.getDocumentCache(document);
 		const bEnableDubMapping = vscode.workspace.getConfiguration().get<boolean>(confDub_EnableDubMapping, false);
 		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
-			let text = lineInfo.textNoComment;
+			let text = lineInfo.textNoCommentAndLangPrefix;
 			let lineNumber = lineInfo.lineNum;
 			let lineStart = lineInfo.lineStart;
 			let lineEnd = lineInfo.lineEnd;
@@ -72,7 +72,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				new vscode.Position(lineNumber, lineEnd));
 
 			// resolve by the push order
-			if (currentLineDialogue(text)) {
+			if (currentLineDialogue(text) && !lineInfo.lineNotCurLanguage) {
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.lineInfo, range));
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.fileName, range));
 
@@ -102,7 +102,15 @@ class CodelensProvider implements vscode.CodeLensProvider {
 
 		const dubCache = dubParseCache.getDocumentCacheAt(document, line);
 
-		if (dubCache === undefined) { return undefined; }
+		if (dubCache === undefined) {
+			codeLens.command = {
+				title: "无语音信息",
+				tooltip: "当前行无语音信息",
+				command: "",
+			};
+
+			return codeLens;
+		}
 
 		const dubState = dubCache.dubParser;
 

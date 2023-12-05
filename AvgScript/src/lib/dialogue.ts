@@ -1,4 +1,3 @@
-import { langFilter } from "./regExp";
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const FORMAT_IGNORE_UNKNOWN = 0b00000001;
@@ -169,6 +168,18 @@ export function currentLineDialogue(line: string) {
 		&& !currentLineLabel(line);
 }
 
+export enum LineType {
+	label,
+	command,
+	dialogue,
+}
+
+export function currentLineType(line: string) {
+	if (currentLineLabel(line)) { return LineType.label; }
+	if (currentLineCommand(line)) { return LineType.command; }
+	if (!line.empty()) { return LineType.dialogue; }
+}
+
 // dialogue
 export enum AppendType {
 	none = 0,
@@ -195,7 +206,7 @@ export interface DialogueStruct {
 
 // pass the original string (aka. not to lower) to display correct name
 export function parseDialogue(lineRaw: string): DialogueStruct {
-	lineRaw = lineRaw.replace(langFilter, '$2');
+	// lineRaw = removeLangPrefix(lineRaw);
 
 	let bDialogue = false;
 	let bNoNamePart = false;

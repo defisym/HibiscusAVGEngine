@@ -1,5 +1,11 @@
 # Change Log
 
+## 20231204
+
+- fix lang prefix didn't taken into account
+- fix lang decoration not updated until edit doc
+- fix duplicated diagnostics
+
 ## 20231203
 
 - add cache for file list searching

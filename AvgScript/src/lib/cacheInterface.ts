@@ -7,4 +7,5 @@ export interface CacheInterface<Cache> {
 	updateDocumentCache(document: vscode.TextDocument,
 		change: readonly vscode.TextDocumentContentChangeEvent[]): void;
 	getDocumentCache(document: vscode.TextDocument): Cache;
+	clearDocumentCache(): void;
 }

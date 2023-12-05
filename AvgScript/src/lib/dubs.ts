@@ -333,7 +333,6 @@ class DubParseCache implements CacheInterface<DubCache[]> {
 	}
 	updateDocumentCache(document: vscode.TextDocument,
 		change: readonly vscode.TextDocumentContentChangeEvent[]) {
-		//TODO
 		this.removeDocumentCache(document);
 	}
 	getDocumentCache(document: vscode.TextDocument) {
@@ -346,6 +345,9 @@ class DubParseCache implements CacheInterface<DubCache[]> {
 		curCache = this.dubParseCache.get(document.uri)!;
 
 		return curCache;
+	}
+	clearDocumentCache() {
+		this.dubParseCache.clear();
 	}
 
 	getDocumentCacheAt(document: vscode.TextDocument, totalLine: number) {
@@ -375,7 +377,7 @@ class DubParseCache implements CacheInterface<DubCache[]> {
 
 			const lineInfo = curCache.lineInfo[idx];
 
-			let text = lineInfo.textNoComment;
+			let text = lineInfo.textNoCommentAndLangPrefix;
 			let lineNumber = lineInfo.lineNum;
 			let lineStart = lineInfo.lineStart;
 			let lineEnd = lineInfo.lineEnd;
@@ -413,7 +415,7 @@ export function dubDiagnostic(document: vscode.TextDocument): DubError[] {
 
 		const lineInfo = commentCache.lineInfo[dubCache.totalLine];
 
-		let text = lineInfo.textNoComment;
+		let text = lineInfo.textNoCommentAndLangPrefix;
 		let lineNumber = lineInfo.lineNum;
 		let lineStart = lineInfo.lineStart;
 		let lineEnd = lineInfo.lineEnd;

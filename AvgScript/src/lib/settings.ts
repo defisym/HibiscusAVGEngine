@@ -153,11 +153,12 @@ export function getSettings(document: vscode.TextDocument): ScriptSettings | und
 	for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
 		if (curCache.comment[lineNumber]) { continue; }
 
-		const parseResult = curCache.result[lineNumber];
-		const text = parseResult[0]!;
+		const parseResult = curCache.result[lineNumber]!;
 
-		if (text.matchStart(/#Settings/gi)) {
-			return parseSettings(text, true)!;
+		let { line, lineStart, linePrefix, curPos } = parseResult;
+
+		if (line.matchStart(/#Settings/gi)) {
+			return parseSettings(line, true)!;
 		}
 	}
 
