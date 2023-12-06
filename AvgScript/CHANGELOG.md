@@ -1,5 +1,11 @@
 # Change Log
 
+## 20231206
+
+- tweak semantic logic
+- default syntax highlight color
+- remove theme files
+
 ## 20231205
 
 - semantic highlight

@@ -5,28 +5,17 @@ Hibiscus AVG Engine AvgScript Support for VS Code
 ## Features
 
 - Syntax Highlight
+- Semantic Highlight
 - Inlay Hints
 - Diagnostics
 - Completion
 - Formatting
+- Code Lens
 - Snippets
+- Outline
+- Rename
 - Hover
 - Color
-
-## Requirements
-
-- Removed as VScode now officially support audio playback natively: ~~[Audio-Preview by sukumo28](https://marketplace.visualstudio.com/items?itemName=sukumo28.wav-preview)~~
-
-## Extension Settings
-
-- `conf.AvgScript.basePath`
-  - *Absolute path of main program*
-
-- `conf.AvgScript.commandExtension`
-  - *Command extension*
-
-- `conf.AvgScript.replaceScript`
-  - *Regex used to replace script*
 
 ## Known Issues
 

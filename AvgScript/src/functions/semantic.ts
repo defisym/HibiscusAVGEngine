@@ -7,7 +7,11 @@ import { regexHexColor, regexNumber } from '../lib/regExp';
 import { keyWordDialogue, keyWordEffect, keyWordMedia, keyWordPreobj, keyWordRegion, keyWordSystem, keyWordValues } from '../lib/semanticRegex';
 import { getAllParams } from '../lib/utilities';
 
-const tokenLegend = ['comments', 'labels', 'operators', 'params', 'numbers_dec', 'numbers_hex', 'keyword', 'keywords_region', 'keywords_system', 'keywords_values', 'keywords_dialogue', 'keywords_media', 'keywords_effect', 'keywords_preobj', 'dialogue_name', 'dialogue_dialogue', 'language_prefix', 'language_region'];
+const tokenLegend = ['comments', 'labels', 'operators', 'params',
+	'numbers_dec', 'numbers_hex',
+	'keyword', 'keywords_region', 'keywords_system', 'keywords_values', 'keywords_dialogue', 'keywords_media', 'keywords_effect', 'keywords_preobj', 'keywords_undefined',
+	'dialogue_name', 'dialogue_dialogue',
+	'language_prefix', 'language_region'];
 const tokenLegendMap = new Map<string, number>();
 
 tokenLegend.forEach((tokenType, index) => {
@@ -94,17 +98,19 @@ function parseLine(lineInfo: LineInfo, document: vscode.TextDocument, builder: v
 	const noLangPrefixLength = lineInfo.textNoCommentAndLangPrefix.length;
 	const operators = ['=', '|', ':', '/n', '\\n', '$', '&', '<', '>', '[', ']'];
 
-	let highlightOperator = (start: number, content: string) => {
+	let highlightOperator = (start: number, content: string, defaultTokenType: number | undefined = undefined) => {
 		const tokenType = tokenLegendMap.get('operators')!;
 
 		for (let lineOffset = 0; lineOffset < content.length; lineOffset++) {
 			const curChar = content.charAt(lineOffset);
 
-			if (operators.includes(curChar)) {
-				builder.push(line,
-					start + lineOffset, 1,
-					tokenType);
-			}
+			const curTokenType = operators.includes(curChar) ? tokenType : defaultTokenType;
+
+			if (curTokenType === undefined) { continue; }
+
+			builder.push(line,
+				start + lineOffset, 1,
+				curTokenType);
 		}
 	};
 
@@ -118,15 +124,6 @@ function parseLine(lineInfo: LineInfo, document: vscode.TextDocument, builder: v
 		}
 		case LineType.dialogue: {
 			highlightOperator(noLangPrefixStart, lineInfo.textNoCommentAndLangPrefix);
-			// for (let lineOffset = 0; lineOffset < noLangPrefixLength; lineOffset++) {
-			// 	const curChar = lineInfo.textNoCommentAndLangPrefix.charAt(lineOffset);
-
-			// 	if (operators.includes(curChar)) {
-			// 		builder.push(line,
-			// 			noLangPrefixStart + lineOffset, 1,
-			// 			tokenLegendMap.get('operators')!);
-			// 	}
-			// }
 
 			break;
 		}
@@ -202,7 +199,7 @@ function parseLine(lineInfo: LineInfo, document: vscode.TextDocument, builder: v
 
 				builder.push(line,
 					noLangPrefixStart, commandWithPrefixLength,
-					tokenLegendMap.get('keyword')!);
+					tokenLegendMap.get('keywords_undefined')!);
 			} while (false);
 
 			// each param
@@ -218,8 +215,6 @@ function parseLine(lineInfo: LineInfo, document: vscode.TextDocument, builder: v
 				const curParam = params[paramIdx];
 				const curParamLength = curParam.length;
 
-				highlightOperator(noLangPrefixStart + lineOffset, curParam);
-
 				if (curParam.matchEntire(regexNumber)) {
 					builder.push(line,
 						noLangPrefixStart + lineOffset, curParamLength,
@@ -232,9 +227,7 @@ function parseLine(lineInfo: LineInfo, document: vscode.TextDocument, builder: v
 						tokenLegendMap.get('numbers_hex')!);
 				}
 
-				builder.push(line,
-					noLangPrefixStart + lineOffset, curParamLength,
-					tokenLegendMap.get('params')!);
+				highlightOperator(noLangPrefixStart + lineOffset, curParam, tokenLegendMap.get('params')!);
 
 				lineOffset += curParamLength;
 			}
