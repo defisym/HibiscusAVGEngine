@@ -2,7 +2,7 @@
 	"name": "avgscript",
 	"displayName": "Avg Script",
 	"description": "Hibiscus AVG Engine AvgScript Support for VS Code",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"publisher": "Defisym",
 	"repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
 	"homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
@@ -16,13 +16,10 @@
 	},
 	"categories": [
 		"Programming Languages",
+		"Formatters",
 		"Debuggers",
 		"Snippets",
-		"Linters",
-		"Themes"
-	],
-	"_extensionDependencies": [
-		"sukumo28.wav-preview"
+		"Linters"
 	],
 	"contributes": {
 		"keybindings": [
@@ -68,6 +65,7 @@
 			{
 				"language": "AvgScript",
 				"scopeName": "source.avgscript",
+				"_path": "./syntaxes/AvgScript.tmLanguageSematic.json",
 				"path": "./syntaxes/AvgScript.tmLanguage.json"
 			},
 			{
@@ -90,13 +88,6 @@
 			{
 				"language": "AvgScript",
 				"path": "./snippets/snippets.json"
-			}
-		],
-		"themes": [
-			{
-				"label": "AvgScript",
-				"uiTheme": "vs-dark",
-				"path": "./themes/AvgScript-color-theme.json"
 			}
 		],
 		"configuration": [
@@ -339,6 +330,193 @@
 				}
 			}
 		],
+		"configurationDefaults": {
+			"editor.semanticHighlighting.enabled": true,
+			"editor.semanticTokenColorCustomizations": {
+				"enabled": true,
+				"rules": {
+					"comments": {
+						"fontStyle": "italic",
+						"foreground": "#6A9955"
+					},
+					"labels": {
+						"fontStyle": "bold",
+						"foreground": "#FFFFFF"
+					},
+					"operators": {
+						"foreground": "#FF0000"
+					},
+					"params": {
+						"foreground": "#ff9e9e"
+					},
+					"numbers_dec": {
+						"foreground": "#B5CEA8"
+					},
+					"numbers_hex": {
+						"foreground": "#B5CEA8"
+					},
+					"keywords_region": {
+						"fontStyle": "bold",
+						"foreground": "#0000FF"
+					},
+					"keywords_system": {
+						"foreground": "#FF0080"
+					},
+					"keywords_values": {
+						"foreground": "#8000FF"
+					},
+					"keywords_dialogue": {
+						"foreground": "#FF8000"
+					},
+					"keywords_media": {
+						"foreground": "#B5B500"
+					},
+					"keywords_effect": {
+						"foreground": "#FF8080"
+					},
+					"keywords_preobj": {
+						"foreground": "#8080FF"
+					},
+					"keywords_undefined": {
+						"foreground": "#569CD6"
+					},
+					"dialogue_name": {
+						"foreground": "#ff80b1"
+					},
+					"dialogue_dialogue": {
+						"foreground": "#8080FF"
+					},
+					"language_prefix": {
+						"foreground": "#fffd80"
+					},
+					"language_region": {
+						"foreground": "#99ff80"
+					}
+				}
+			},
+			"editor.tokenColorCustomizations": {
+				"textMateRules": [
+					{
+						"scope": "comment.block.AvgScript",
+						"settings": {
+							"fontStyle": "italic",
+							"foreground": "#6A9955"
+						}
+					},
+					{
+						"scope": "comment.singleline.AvgScript",
+						"settings": {
+							"fontStyle": "italic",
+							"foreground": "#6A9955"
+						}
+					},
+					{
+						"scope": "labels.AvgScript",
+						"settings": {
+							"fontStyle": "bold",
+							"foreground": "#FFFFFF"
+						}
+					},
+					{
+						"scope": "operators.AvgScript",
+						"settings": {
+							"foreground": "#FF0000"
+						}
+					},
+					{
+						"scope": "params.AvgScript",
+						"settings": {
+							"foreground": "#ff9e9e"
+						}
+					},
+					{
+						"scope": "numbers.dec.AvgScript",
+						"settings": {
+							"foreground": "#B5CEA8"
+						}
+					},
+					{
+						"scope": "numbers.hex.AvgScript",
+						"settings": {
+							"foreground": "#B5CEA8"
+						}
+					},
+					{
+						"scope": "keyword.region.AvgScript",
+						"settings": {
+							"fontStyle": "bold",
+							"foreground": "#0000FF"
+						}
+					},
+					{
+						"scope": "keyword.system.AvgScript",
+						"settings": {
+							"foreground": "#FF0080"
+						}
+					},
+					{
+						"scope": "keyword.values.AvgScript",
+						"settings": {
+							"foreground": "#8000FF"
+						}
+					},
+					{
+						"scope": "keyword.dialogue.AvgScript",
+						"settings": {
+							"foreground": "#FF8000"
+						}
+					},
+					{
+						"scope": "keyword.media.AvgScript",
+						"settings": {
+							"foreground": "#B5B500"
+						}
+					},
+					{
+						"scope": "keyword.effect.AvgScript",
+						"settings": {
+							"foreground": "#FF8080"
+						}
+					},
+					{
+						"scope": "keyword.preobj.AvgScript",
+						"settings": {
+							"foreground": "#8080FF"
+						}
+					},
+					{
+						"scope": "keyword.undefined.AvgScript",
+						"settings": {
+							"foreground": "#569CD6"
+						}
+					},
+					{
+						"scope": "name.dialogue.AvgScript",
+						"settings": {
+							"foreground": "#ff80b1"
+						}
+					},
+					{
+						"scope": "dialogue.dialogue.AvgScript",
+						"settings": {
+							"foreground": "#8080FF"
+						}
+					},
+					{
+						"scope": "language.prefix.AvgScript",
+						"settings": {
+							"foreground": "#fffd80"
+						}
+					},
+					{
+						"scope": "language.region.AvgScript",
+						"settings": {
+							"foreground": "#99ff80"
+						}
+					}
+				]
+			}
+		},
 		"commands": [
 			{
 				"category": "AvgScript",

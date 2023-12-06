@@ -1,5 +1,15 @@
 # Change Log
 
+## 20231206
+
+- tweak semantic logic
+- default syntax highlight color
+- remove theme files
+
+## 20231205
+
+- semantic highlight
+
 ## 20231204
 
 - fix lang prefix didn't taken into account

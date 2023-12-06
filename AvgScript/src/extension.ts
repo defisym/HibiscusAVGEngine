@@ -18,6 +18,7 @@ import { codeLensProvider } from './functions/codeLens';
 import { drop } from './functions/drop';
 import { formatting } from './functions/formatting';
 import { previewer } from './functions/preview';
+import { rangeSemanticProvider, semanticProvider } from './functions/semantic';
 import { lineCommentCache } from './lib/comment';
 import { throttle } from './lib/throttle';
 
@@ -59,7 +60,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	//--------------------
 
 	// make sure command info list is valid
-	await vscode.commands.executeCommand(commandUpdateCommandExtension,false);
+	await vscode.commands.executeCommand(commandUpdateCommandExtension, false);
 	vscode.commands.executeCommand(commandRefreshAssets);
 
 	//--------------------
@@ -139,6 +140,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	//--------------------
 
 	context.subscriptions.push(drop);
+
+	//--------------------
+	// Semantic
+	//--------------------
+
+	context.subscriptions.push(rangeSemanticProvider);
+	context.subscriptions.push(semanticProvider);
 
 	//--------------------
 	// File Updated
