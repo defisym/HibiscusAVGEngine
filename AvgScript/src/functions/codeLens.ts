@@ -45,6 +45,12 @@ class CodelensProvider implements vscode.CodeLensProvider {
 		vscode.workspace.onDidCloseTextDocument(document => {
 			dubParseCache.removeDocumentCache(document);
 		});
+		
+		vscode.workspace.onDidChangeConfiguration((event) => {
+			if (event.affectsConfiguration(confDub_EnableDubMapping)) {
+				this.refresh();
+			};
+		});
 	}
 
 	public refresh() {

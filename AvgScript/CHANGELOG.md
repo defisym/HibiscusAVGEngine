@@ -4,6 +4,7 @@
 
 - use dict instead of regex to get semantic keyword type
 - file info & file list cache not reset when refreshing file list
+- auto refresh code lens if dub mapping config changed
 
 ## 20231206
 
