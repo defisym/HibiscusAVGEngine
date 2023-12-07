@@ -1,15 +1,14 @@
 import * as vscode from 'vscode';
 import { lineCommentCache } from '../lib/comment';
 import { LineType, currentLineType } from '../lib/dialogue';
-import { commandInfoList } from '../lib/dict';
+import { KeywordType, commandInfoList } from '../lib/dict';
 import { LineInfo } from '../lib/iterateLines';
 import { regexHexColor, regexNumber } from '../lib/regExp';
-import { keyWordDialogue, keyWordEffect, keyWordMedia, keyWordPreobj, keyWordRegion, keyWordSystem, keyWordValues } from '../lib/semanticRegex';
 import { getAllParams } from '../lib/utilities';
 
 const tokenLegend = ['comments', 'labels', 'operators', 'params',
 	'numbers_dec', 'numbers_hex',
-	'keyword', 'keywords_region', 'keywords_system', 'keywords_values', 'keywords_dialogue', 'keywords_media', 'keywords_effect', 'keywords_preobj', 'keywords_undefined',
+	'keywords_region', 'keywords_system', 'keywords_values', 'keywords_dialogue', 'keywords_media', 'keywords_effect', 'keywords_preobj', 'keywords_undefined',
 	'dialogue_name', 'dialogue_dialogue',
 	'language_prefix', 'language_region'];
 const tokenLegendMap = new Map<string, number>();
@@ -140,67 +139,39 @@ function parseLine(lineInfo: LineInfo, document: vscode.TextDocument, builder: v
 			const commandWithPrefixLength = commandWithPrefix.length;
 
 			// command
-			do {
-				if (commandWithPrefix.matchStart(keyWordRegion)) {
-					builder.push(line,
-						noLangPrefixStart, commandWithPrefixLength,
-						tokenLegendMap.get('keywords_region')!);
+			const keywordType = paramDefinition !== undefined
+				? paramDefinition.keywordType
+				: undefined;
 
+			let tokenType = tokenLegendMap.get('keywords_undefined')!;
+
+			switch (keywordType) {
+				case KeywordType.Region:
+					tokenType = tokenLegendMap.get('keywords_region')!;
 					break;
-				}
-
-				if (commandWithPrefix.matchStart(keyWordSystem)) {
-					builder.push(line,
-						noLangPrefixStart, commandWithPrefixLength,
-						tokenLegendMap.get('keywords_system')!);
-
+				case KeywordType.System:
+					tokenType = tokenLegendMap.get('keywords_system')!;
 					break;
-				}
-
-				if (commandWithPrefix.matchStart(keyWordValues)) {
-					builder.push(line,
-						noLangPrefixStart, commandWithPrefixLength,
-						tokenLegendMap.get('keywords_values')!);
-
+				case KeywordType.Values:
+					tokenType = tokenLegendMap.get('keywords_values')!;
 					break;
-				}
-
-				if (commandWithPrefix.matchStart(keyWordDialogue)) {
-					builder.push(line,
-						noLangPrefixStart, commandWithPrefixLength,
-						tokenLegendMap.get('keywords_dialogue')!);
-
+				case KeywordType.Dialogue:
+					tokenType = tokenLegendMap.get('keywords_dialogue')!;
 					break;
-				}
-
-				if (commandWithPrefix.matchStart(keyWordMedia)) {
-					builder.push(line,
-						noLangPrefixStart, commandWithPrefixLength,
-						tokenLegendMap.get('keywords_media')!);
-
+				case KeywordType.Media:
+					tokenType = tokenLegendMap.get('keywords_media')!;
 					break;
-				}
-
-				if (commandWithPrefix.matchStart(keyWordEffect)) {
-					builder.push(line,
-						noLangPrefixStart, commandWithPrefixLength,
-						tokenLegendMap.get('keywords_effect')!);
-
+				case KeywordType.Effect:
+					tokenType = tokenLegendMap.get('keywords_effect')!;
 					break;
-				}
-
-				if (commandWithPrefix.matchStart(keyWordPreobj)) {
-					builder.push(line,
-						noLangPrefixStart, commandWithPrefixLength,
-						tokenLegendMap.get('keywords_preobj')!);
-
+				case KeywordType.Preobj:
+					tokenType = tokenLegendMap.get('keywords_preobj')!;
 					break;
-				}
+			}
 
-				builder.push(line,
-					noLangPrefixStart, commandWithPrefixLength,
-					tokenLegendMap.get('keywords_undefined')!);
-			} while (false);
+			builder.push(line,
+				noLangPrefixStart, commandWithPrefixLength,
+				tokenType);
 
 			// each param
 			let lineOffset = commandWithPrefixLength;

@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 import { activeEditor } from '../extension';
 import { currentLineNotComment } from '../lib/comment';
 import { currentLineDialogue, DialogueStruct, parseDialogue } from '../lib/dialogue';
-import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
+import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, KeywordTypeMap, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
 import { dubMapping, DubParser } from '../lib/dubs';
 import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
@@ -119,6 +119,7 @@ export const commandUpdateCommandExtension_impl = (bRefreshDiagnostic: boolean =
 		interface CommandExt extends ParamInfo {
 			// basic
 			command: string,
+			keywordTypeStr?: string,
 
 			// diagnostic
 			paramType: string[],
@@ -156,6 +157,11 @@ export const commandUpdateCommandExtension_impl = (bRefreshDiagnostic: boolean =
 			// processing
 			paramInfo.minParam = Math.max(0, commandExtItem.minParam);
 			paramInfo.maxParam = Math.max(paramInfo.minParam, commandExtItem.maxParam);
+
+			// convert to index
+			if (commandExtItem.keywordTypeStr !== undefined) {
+				paramInfo.keywordType = KeywordTypeMap.get(commandExtItem.keywordTypeStr);
+			}
 
 			// convert to index
 			let paramType = commandExtItem.paramType;

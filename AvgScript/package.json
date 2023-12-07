@@ -129,6 +129,21 @@
 									],
 									"description": "Command prefix"
 								},
+								"keywordTypeStr": {
+									"type": "string",
+									"description": "keyword Type",
+									"items": {
+										"enum": [
+											"Region",
+											"System",
+											"Values",
+											"Dialogue",
+											"Media",
+											"Effect",
+											"Preobj"
+										]
+									}
+								},
 								"command": {
 									"type": "string",
 									"description": "Command"
