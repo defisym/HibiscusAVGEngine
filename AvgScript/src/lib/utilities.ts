@@ -381,14 +381,16 @@ export async function jumpToDocument(uri: vscode.Uri, line: number) {
 	}
 
 	const doc = await vscode.workspace.openTextDocument(uri);
-	const text = doc.lineAt(line).text;
+	const textLine = doc.lineAt(line);
+	const textStart = textLine.firstNonWhitespaceCharacterIndex;
+	const textLength = textLine.text.length;
 
-	const range = new vscode.Range(line, 0
-		, line, text.length);
-	const selection = new vscode.Selection(line, 0
-		, line, text.length);
+	const range = new vscode.Range(line, textStart
+		, line, textLength);
+	const selection = new vscode.Selection(line, textStart
+		, line, textLength);
 
-	const editor = await vscode.window.showTextDocument(uri, {
+	const editor = await vscode.window.showTextDocument(doc, {
 		viewColumn: vscode.ViewColumn.Beside,
 		// viewColumn: vscode.window.activeTextEditor === undefined || vscode.window.activeTextEditor.viewColumn === undefined
 		//     ? vscode.ViewColumn.Beside
