@@ -1,5 +1,10 @@
 # Change Log
 
+## 20231207
+
+- use dict instead of regex to get semantic keyword type
+- file info & file list cache not reset when refreshing file list
+
 ## 20231206
 
 - tweak semantic logic
