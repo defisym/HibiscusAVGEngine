@@ -1104,10 +1104,13 @@ export async function updateFileList(progress: vscode.Progress<{
 	// Update completion list		
 	// ------------------------
 
+	// reset file list & info & cache
 	projectFileList = [];
 	projectFileList = projectFileList.concat(graphicFXFileList, graphicCGFileList, graphicUIFileList, graphicPatternFadeFileList, graphicCharactersFileList
 		, audioBgmFileList, audioBgsFileList, audioDubsFileList, audioSEFileList
 		, videoFileList, animationFileList, scriptFileList);
+	projectFileListCache.clear();
+	projectFileInfoList.clear();
 
 	let generateCompletionList = async (fileList: [string, vscode.FileType][]
 		, completions: vscode.CompletionItem[]
