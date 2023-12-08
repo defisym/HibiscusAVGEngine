@@ -6,6 +6,8 @@
   - due to the limitation of web env, cannot get clipboard contents that is not text, so you need to use `Ctrl + Shift + C` to copy file path then paste into dialogue line
 - Cache line type instead of calculate it every time
 - find if document is already opened when opening document
+- fix lang prefix follows empty char break parsing
+- fix not current language line with empty char at start treat as comment in semantic parsing
 
 ## 20231207
 
