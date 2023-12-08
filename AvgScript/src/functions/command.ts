@@ -823,7 +823,7 @@ export const commandPasteDub_impl = async () => {
 	try {
 		// make sure file is valid
 		await mm.parseBuffer(await getBuffer(filePath));
-		if (dubMapping.updatePositionDub(activeEditor.document, position, filePath)) {
+		if (!dubMapping.updatePositionDub(activeEditor.document, position, filePath)) {
 			vscode.window.showErrorMessage('Current line has no dub info');
 		}
 	} catch (err) {

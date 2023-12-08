@@ -608,6 +608,13 @@
 				"title": "List lines of characters",
 				"icon": "media/AvgScript.png",
 				"shortTitle": "Dub List"
+			},
+			{
+				"category": "AvgScript",
+				"command": "config.AvgScript.pasteDub",
+				"title": "Paste path as dub",
+				"icon": "media/AvgScript.png",
+				"shortTitle": "Paste Dub"
 			}
 		],
 		"menus": {
