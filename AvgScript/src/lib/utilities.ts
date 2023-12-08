@@ -370,32 +370,51 @@ export function imageStretched(originSize: ImageSize, targetSize: ImageSize, tol
 // Script
 // ---------------
 
-export async function jumpToDocument(uri: vscode.Uri, line: number) {
-	if (Number.isNaN(line)) {
-		const editor = await vscode.window.showTextDocument(uri
-			, {
-				viewColumn: vscode.ViewColumn.Beside
-			});
-		editor.revealRange(new vscode.Range(0, 0, 0, 0)
-			, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+// find if document is already opened
+export async function getDocumentByUri(uri: vscode.Uri) {
+	const documents = vscode.workspace.textDocuments;
+
+	let doc: vscode.TextDocument | undefined = undefined;
+	const cmpUri = uri.toString();
+
+	for (const document of documents) {
+		if (document.uri.toString() === cmpUri) {
+			doc = document;
+
+			break;
+		}
 	}
 
-	const doc = await vscode.workspace.openTextDocument(uri);
-	const textLine = doc.lineAt(line);
+	if (doc === undefined) {
+		doc = await vscode.workspace.openTextDocument(uri);
+	}
+
+	return doc;
+}
+
+// get range of a line
+function getLineRange(document: vscode.TextDocument, line: number) {
+	const textLine = document.lineAt(line);
 	const textStart = textLine.firstNonWhitespaceCharacterIndex;
 	const textLength = textLine.text.length;
 
 	const range = new vscode.Range(line, textStart
 		, line, textLength);
-	const selection = new vscode.Selection(line, textStart
-		, line, textLength);
+
+	return range;
+}
+
+export async function jumpToDocument(uri: vscode.Uri, line: number) {
+	const bInvalidLine = Number.isNaN(line);
+
+	const doc = await getDocumentByUri(uri);
+	const range = bInvalidLine
+		? new vscode.Range(0, 0, 0, 0)
+		: getLineRange(doc, line);
 
 	const editor = await vscode.window.showTextDocument(doc, {
 		viewColumn: vscode.ViewColumn.Beside,
-		// viewColumn: vscode.window.activeTextEditor === undefined || vscode.window.activeTextEditor.viewColumn === undefined
-		//     ? vscode.ViewColumn.Beside
-		//     : vscode.window.activeTextEditor.viewColumn + 1,
-		selection: selection,
+		selection: bInvalidLine ? undefined : range,
 	});
 
 	editor.revealRange(range

@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 
 import { projectConfig, scriptPath } from '../functions/file';
-import { commandInfoList, InlayHintType } from './dict';
+import { InlayHintType, commandInfoList } from './dict';
 import { iterateLines } from './iterateLines';
-import { getAllParams, jumpToDocument, scriptEndWithExt, sleep } from './utilities';
+import { getAllParams, getDocumentByUri, jumpToDocument, scriptEndWithExt, sleep } from './utilities';
 
 // await iterateScripts((script: string, document: vscode.TextDocument) => { },
 //     (initScript: string,
@@ -61,7 +61,7 @@ export async function iterateScripts(
             let document: vscode.TextDocument | undefined = undefined;
 
             try {
-                document = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
+                document = await getDocumentByUri(vscode.Uri.file(filePath));
             } catch (err) {
                 vscode.window.showErrorMessage(referScript.script
                     + ' referred invalid script ' + script

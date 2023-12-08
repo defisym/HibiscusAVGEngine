@@ -17,10 +17,19 @@ export const onClickLinkScript = `
 `;
 
 export async function handleOnClickLink(message: any) {
-    if (message.command === "open") {
-        const uri = vscode.Uri.parse(message.link);
-        const line = parseInt(uri.fragment);
+	if (message.command === "open") {
+		let link: string = message.link;
 
-        jumpToDocument(uri, line);
-    }
+		const idx = link.lastIndexOf('#');
+		const bNoLineInfo = idx === -1;
+
+		const line = !bNoLineInfo
+			? parseInt(link.substring(idx + 1))
+			: NaN;
+		const uri = vscode.Uri.parse(!bNoLineInfo
+			? link.substring(0, idx)
+			: link);
+
+		jumpToDocument(uri, line);
+	}
 }
