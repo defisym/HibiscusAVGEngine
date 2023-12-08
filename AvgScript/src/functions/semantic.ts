@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { lineCommentCache } from '../lib/comment';
-import { LineType, currentLineType } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 import { KeywordType, commandInfoList } from '../lib/dict';
 import { LineInfo } from '../lib/iterateLines';
 import { regexHexColor, regexNumber } from '../lib/regExp';
@@ -92,7 +92,7 @@ function parseLine(lineInfo: LineInfo, document: vscode.TextDocument, builder: v
 			tokenLegendMap.get('operators')!);
 	}
 
-	const lineType = currentLineType(lineInfo.textNoCommentAndLangPrefix);
+	const lineType = lineInfo.lineType;
 	const noLangPrefixStart = lineInfo.lineStart + lineInfo.langPrefixLength;
 	const noLangPrefixLength = lineInfo.textNoCommentAndLangPrefix.length;
 	const operators = ['=', '|', ':', '/n', '\\n', '$', '&', '<', '>', '[', ']'];

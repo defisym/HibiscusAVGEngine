@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { currentLineNotComment } from '../lib/comment';
-import { currentLineCommand } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 import { atKeywordList, commandDocList, deprecatedKeywordList, docList, internalKeywordList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
 import { dubParseCache, UpdateDubCompletion } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
@@ -17,9 +17,9 @@ function completionValid(document: vscode.TextDocument, position: vscode.Positio
 		return false;
 	}
 
-	let { line, lineStart, linePrefix, curPos } = parseCommentResult;
+	let { line, lineStart, linePrefix, lineType, curPos } = parseCommentResult;
 
-	if (!lineValidForCommandCompletion(linePrefix!)) {
+	if (!lineValidForCommandCompletion(linePrefix, lineType)) {
 		return false;
 	}
 
@@ -321,9 +321,9 @@ export const required = vscode.languages.registerCompletionItemProvider('AvgScri
 // Completion
 // ---------------
 
-function lineValidForCommandCompletion(src: string): boolean {
+function lineValidForCommandCompletion(src: string, lineType: LineType): boolean {
 	let include = lineIncludeDelimiter(src);
-	let startWith = currentLineCommand(src);
+	let startWith = lineType === LineType.command;
 	let endWith = (src.endsWith("@") || src.endsWith("#"));
 
 	if (include) {

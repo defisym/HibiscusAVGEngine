@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { currentLineLabel } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 
 import { lineCommentCache } from '../lib/comment';
 import { beginRegex, endRegex } from '../lib/regExp';
@@ -54,8 +54,8 @@ export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScrip
 						break;
 					}
 
-					if (currentLineLabel(text)) {
-						let labelName = text.substring(text.indexOf(";") + 1);
+					if (lineInfo.lineType === LineType.label) {
+						let labelName = text.substring(1);
 
 						item = new vscode.SymbolInformation("Label: " + labelName
 							, vscode.SymbolKind.String

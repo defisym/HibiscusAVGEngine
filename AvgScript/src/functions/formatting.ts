@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { lineCommentCache } from '../lib/comment';
-import { currentLineDialogue, currentLineLabel } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 import { commandListInitialized } from '../lib/dict';
 import { LineInfo } from '../lib/iterateLines';
 import { parseCommand } from '../lib/utilities';
@@ -66,7 +66,8 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
 		};
 
 		let formatPreviousLineDialogue = () => {
-			return formatPreviousLineNotComment() && !previousLineInfo!.emptyLine && currentLineDialogue(previousLineInfo!.textNoCommentAndLangPrefix);
+			return formatPreviousLineNotComment() && !previousLineInfo!.emptyLine &&
+				previousLineInfo!.lineType === LineType.dialogue;
 		};
 
 		lineCommentCache.iterateDocumentCacheWithComment(document, (info: LineInfo) => {
@@ -118,19 +119,19 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
 						const { params, commandWithPrefix, command, paramInfo } = parseCommand(previousTextNoComment);
 
 						if ((paramInfo !== undefined && paramInfo.emptyLineAfter)
-							|| (emptyLineLabel && currentLineLabel(previousTextNoComment))) {
+							|| (emptyLineLabel && previousLineInfo!.lineType === LineType.label)) {
 							newLineAfter = true;
 							formatNewLine(true);
 						}
 					}
+
 					if (!newLineAfter
 						&& !newLineForDia
 						&& !previousLineInfo!.emptyLine) {
 						const { params, commandWithPrefix, command, paramInfo } = parseCommand(textNoCommentAndLangPrefix);
 
-
 						if ((paramInfo && paramInfo.emptyLineBefore)
-							|| (emptyLineLabel && currentLineLabel(textNoCommentAndLangPrefix))) {
+							|| (emptyLineLabel && info.lineType === LineType.label)) {
 							formatNewLine(true);
 						}
 					}
@@ -153,7 +154,7 @@ class DocumentFormatter implements vscode.DocumentFormattingEditProvider {
 				resetFlags();
 
 				if (!lineIsComment && !info.lineNotCurLanguage) {
-					if (currentLineDialogue(textNoCommentAndLangPrefix)) {
+					if (info.lineType === LineType.dialogue) {
 						formatEmptyLine();
 						formatIndent();
 					}

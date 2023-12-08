@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { currentLocalCode } from '../functions/file';
+import { LineType, currentLineType } from './dialogue';
 import { InlayHintType } from './dict';
 import { iterateScripts } from './iterateScripts';
 import { getLangRegex, removeLangPrefix } from './regExp';
@@ -7,6 +8,7 @@ import { getLangRegex, removeLangPrefix } from './regExp';
 export interface LineInfo {
 	emptyLine: boolean,
 
+	lineType: LineType,
 	lineIsComment: boolean,
 	lineNotCurLanguage: boolean,
 
@@ -57,6 +59,7 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 				{
 					emptyLine: true,
 
+					lineType: LineType.invalid,
 					lineIsComment: false,
 					lineNotCurLanguage: false,
 
@@ -113,6 +116,7 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 			{
 				emptyLine: false,
 
+				lineType: currentLineType(textNoCommentAndLangPrefix),
 				lineIsComment: inComment || textNoComment.empty() || bNotCurrentLanguage,
 				lineNotCurLanguage: bNotCurrentLanguage,
 

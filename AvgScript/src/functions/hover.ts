@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { currentLineNotComment } from '../lib/comment';
-import { AppendType, currentLineDialogue, parseDialogue } from '../lib/dialogue';
+import { AppendType, LineType, parseDialogue } from '../lib/dialogue';
 import {
 	commandDocList, dialogueTextElement, docList, langDocList, narratorTextElement, narratorTextPlain, normalTextDoc, settingsParamDocList
 } from '../lib/dict';
@@ -21,7 +21,7 @@ export const hover = vscode.languages.registerHoverProvider('AvgScript',
 
 			if (parseCommentResult === undefined) { return undefined; }
 
-			let { line, lineStart, linePrefix, curPos, lineRaw, langPrefixLength } = parseCommentResult;
+			let { line, lineStart, linePrefix, curPos, lineRaw, lineType, langPrefixLength } = parseCommentResult;
 
 			let word: string = document.getText(range).toLowerCase();
 
@@ -38,7 +38,7 @@ export const hover = vscode.languages.registerHoverProvider('AvgScript',
 			}
 
 			// normal text
-			if (currentLineDialogue(line)) {
+			if (lineType === LineType.dialogue) {
 				const dialogueStruct = parseDialogue(line);
 
 				// script

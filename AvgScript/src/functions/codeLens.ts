@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { lineCommentCache } from '../lib/comment';
-import { AppendType, currentLineDialogue } from '../lib/dialogue';
+import { AppendType, LineType } from '../lib/dialogue';
 import { dubMapping, dubParseCache } from '../lib/dubs';
 import { Throttle } from '../lib/throttle';
 import { cropScript } from '../lib/utilities';
@@ -45,7 +45,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 		vscode.workspace.onDidCloseTextDocument(document => {
 			dubParseCache.removeDocumentCache(document);
 		});
-		
+
 		vscode.workspace.onDidChangeConfiguration((event) => {
 			if (event.affectsConfiguration(confDub_EnableDubMapping)) {
 				this.refresh();
@@ -78,7 +78,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				new vscode.Position(lineNumber, lineEnd));
 
 			// resolve by the push order
-			if (currentLineDialogue(text) && !lineInfo.lineNotCurLanguage) {
+			if (lineInfo.lineType === LineType.dialogue && !lineInfo.lineNotCurLanguage) {
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.lineInfo, range));
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.fileName, range));
 

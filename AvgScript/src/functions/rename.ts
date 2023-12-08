@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { currentLineNotComment, lineCommentCache } from '../lib/comment';
-import { currentLineCommand, currentLineLabel } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 import { getAllParams, getIndexOfDelimiter, getNumberOfParam, getParamAtPosition } from '../lib/utilities';
 
 export const rename = vscode.languages.registerRenameProvider('AvgScript',
@@ -15,7 +15,7 @@ export const rename = vscode.languages.registerRenameProvider('AvgScript',
 				return undefined;
 			}
 
-			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
+			let { line, lineStart, linePrefix, lineType, curPos } = parseCommentResult;
 
 			let word: string;
 
@@ -35,11 +35,13 @@ export const rename = vscode.languages.registerRenameProvider('AvgScript',
 					let lineStart = lineInfo.lineStart + lineInfo.langPrefixLength;
 					let lineEnd = lineInfo.lineEnd;
 
-					if (currentLineCommand(text) || currentLineLabel(text)) {
+					const lineType = lineInfo.lineType;
+
+					if (lineType === LineType.command || lineType === LineType.label) {
 						const regex = new RegExp(originNoSuffix, "gi");
 						let contentStart: number = 0;
 
-						if (currentLineLabel(text)) {
+						if (lineType === LineType.label) {
 							contentStart = 1;
 						} else if (getNumberOfParam(text) !== 0) {
 							let delimiterPos = getIndexOfDelimiter(text, 0);
@@ -91,7 +93,7 @@ export const rename = vscode.languages.registerRenameProvider('AvgScript',
 				return edit;
 			};
 
-			if (currentLineCommand(line)) {
+			if (lineType === LineType.command) {
 				if (getNumberOfParam(linePrefix!) === 0) {
 					return undefined;
 				}
@@ -99,7 +101,7 @@ export const rename = vscode.languages.registerRenameProvider('AvgScript',
 				word = getParamAtPosition(line, curPos!)!;
 
 				return replaceToken(word);
-			} else if (currentLineLabel(line)) {
+			} else if (lineType === LineType.label) {
 				word = line.substring(line.indexOf(";") + 1);
 
 				return replaceToken(word);

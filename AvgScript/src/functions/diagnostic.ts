@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { lineCommentCache } from '../lib/comment';
-import { LineType, currentLineType, parseDialogue } from '../lib/dialogue';
+import { LineType, parseDialogue } from '../lib/dialogue';
 import { InlayHintType, ParamType, atKeywordList, commandInfoList, commandListInitialized, deprecatedKeywordList, internalImageID, internalKeywordList, settingsParamDocList, sharpKeywordList } from '../lib/dict';
 import { DubCache, dubDiagnostic, dubParseCache } from '../lib/dubs';
 import { LineInfo } from "../lib/iterateLines";
@@ -95,7 +95,7 @@ function updateDiagnostics(document: vscode.TextDocument, checkFile: boolean = f
 
 		const lineStartWithLangPrefix = lineStart + langPrefixLength;
 
-		const lineType = currentLineType(textNoCommentAndLangPrefix);
+		const lineType = info.lineType;
 
 		switch (lineType) {
 			case LineType.label: {

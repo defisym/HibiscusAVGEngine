@@ -6,9 +6,9 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { currentLineNotComment } from '../lib/comment';
-import { currentLineDialogue, DialogueStruct, parseDialogue } from '../lib/dialogue';
-import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, KeywordTypeMap, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
-import { dubMapping, DubParser } from '../lib/dubs';
+import { DialogueStruct, LineType, parseDialogue } from '../lib/dialogue';
+import { GetDefaultParamInfo, InlayHintType, KeywordTypeMap, ParamInfo, ParamTypeMap, commandInfoList, generateList, inlayHintMap, resetList } from '../lib/dict';
+import { DubParser, dubMapping } from '../lib/dubs';
 import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
 import { createWebviewPanel } from '../webview/_create';
@@ -19,7 +19,7 @@ import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { updateAtCompletionList, updateSharpCompletionList } from './completion';
 import { diagnosticThrottle } from './diagnostic';
-import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, FileType, getBuffer, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, removePathQuote, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { FileType, audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, getBuffer, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, removePathQuote, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -605,13 +605,13 @@ export const commandAppendDialogue_impl = async () => {
 		return undefined;
 	}
 
-	let { line, lineStart, linePrefix, curPos, lineRaw } = parseCommentResult;
+	let { line, lineStart, linePrefix, lineType, curPos, lineRaw } = parseCommentResult;
 
 	const spaceLength = documentLineLength - lineRaw.length;
 	let indentString = documentLineAt.substring(0, spaceLength);
 
 	// normal text
-	if (currentLineDialogue(line)) {
+	if (lineType === LineType.dialogue) {
 		const dialogueStruct = parseDialogue(line);
 		const langPrefix = lineRaw.substring(0, lineRaw.length - line.length);
 
@@ -724,7 +724,7 @@ export const commandGetDubList_impl = async () => {
 				line: string, lineNumber: number,
 				lineStart: number, lineEnd: number,
 				firstLineNotComment: number) => {
-				dubParser!.parseLine(line, (dp: DubParser, dialogueStruct: DialogueStruct) => {
+				dubParser!.parseLine(line, undefined, (dp: DubParser, dialogueStruct: DialogueStruct) => {
 					if (fileName === undefined) {
 						return;
 					}
@@ -798,7 +798,6 @@ export const commandUpdateDub_impl = async (document: vscode.TextDocument, dialo
 
 	previousUri = vscode.Uri.file(path.dirname(src));
 
-	// vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
 	dubMapping.updateDub(document, target, src);
 
 	return;

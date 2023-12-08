@@ -4,6 +4,7 @@
 
 - `Ctrl + Shift + V` to paste path as dub file
   - due to the limitation of web env, cannot get clipboard contents that is not text, so you need to use `Ctrl + Shift + C` to copy file path then paste into dialogue line
+- Cache line type instead of calculate it every time
 
 ## 20231207
 

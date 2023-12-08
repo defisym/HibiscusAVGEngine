@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { lineCommentCache } from '../lib/comment';
-import { currentLineCommand } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 import { commandInfoList, inlayHintMap, InlayHintType } from '../lib/dict';
 import { getAllParams, getCommandParamFileType } from '../lib/utilities';
 
@@ -19,7 +19,7 @@ export const inlayHint = vscode.languages.registerInlayHintsProvider('AvgScript'
 				const line = lineInfo.textNoCommentAndLangPrefix;
 				const lineStart = lineInfo.lineStart + lineInfo.langPrefixLength;
 
-				if (!currentLineCommand(line)) { continue; }
+				if (lineInfo.lineType !== LineType.command) { continue; }
 
 				const params = getAllParams(line);
 				const command = params[0].substring(1);

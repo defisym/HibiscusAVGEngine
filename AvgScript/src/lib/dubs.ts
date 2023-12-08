@@ -9,7 +9,7 @@ import { audio, audioDubsCompletions, basePath, currentLocalCode, fileListInitia
 import { narrator } from '../webview/dubList';
 import { CacheInterface } from './cacheInterface';
 import { lineCommentCache } from './comment';
-import { DialogueStruct, currentLineDialogue, parseDialogue } from './dialogue';
+import { DialogueStruct, LineType, currentLineType, parseDialogue } from './dialogue';
 import { ScriptSettings, getSettings } from "./settings";
 import { cropScript, deepCopy, deepCopyMap, parseBoolean, parseCommand, replacer, reviver, stringToEnglish } from "./utilities";
 
@@ -236,12 +236,19 @@ export class DubParser {
 	}
 
 	// parse line and use callback to pass current dub state
-	parseLine(line: string,
+	parseLine(line: string, lineType: LineType | undefined,
 		cb: (dp: DubParser, dialogueStruct: DialogueStruct) => void) {
+		// ----------
+		// Parse line type
+		// ----------
+		if (lineType === undefined) {
+			lineType = currentLineType(line);
+		}
+
 		// ----------
 		// Parse command
 		// ----------
-		if (!currentLineDialogue(line)) {
+		if (lineType === LineType.command) {
 			this.parseCommand(line);
 			this.afterPlay();
 
@@ -251,6 +258,10 @@ export class DubParser {
 		// ----------
 		// Parse dialogue
 		// ----------
+		if (lineType !== LineType.dialogue) {
+			return;
+		}
+
 		const dialogueStruct = parseDialogue(line);
 		// depend on display name
 		let name = dialogueStruct.m_name;
@@ -382,9 +393,10 @@ class DubParseCache implements CacheInterface<DubCache[]> {
 			let lineStart = lineInfo.lineStart;
 			let lineEnd = lineInfo.lineEnd;
 
-			dubState.parseLine(text, (dp: DubParser, dialogueStruct: DialogueStruct) => {
-				cb(dp, lineNumber, dialogueStruct);
-			});
+			dubState.parseLine(text, lineInfo.lineType,
+				(dp: DubParser, dialogueStruct: DialogueStruct) => {
+					cb(dp, lineNumber, dialogueStruct);
+				});
 		}
 	}
 }

@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { CacheInterface } from "./cacheInterface";
+import { LineType } from "./dialogue";
 import { iterateLinesWithComment, LineInfo } from "./iterateLines";
 
 // text, lineStart, linePrefix, curPos(position - start), text lower
@@ -8,6 +9,7 @@ export interface ParseCommentResult {
 	linePrefix: string
 	lineRaw: string
 	lineStart: number
+	lineType: LineType
 	curPos: number
 	langPrefixLength: number
 };
@@ -27,6 +29,7 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 			linePrefix: "",
 			lineRaw: lineInfo.textNoComment,
 			lineStart: lineInfo.lineStart + lineInfo.langPrefixLength,
+			lineType: lineInfo.lineType,
 			curPos: -1,
 			langPrefixLength: lineInfo.langPrefixLength
 		};
