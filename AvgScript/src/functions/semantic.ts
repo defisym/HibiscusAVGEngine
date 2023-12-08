@@ -30,7 +30,7 @@ function parseLine(lineInfo: LineInfo, document: vscode.TextDocument, builder: v
 	const lineEnd = lineLength;
 
 	// line has comment
-	if (lineInfo.originText.length !== lineInfo.textNoComment.length) {
+	if (lineInfo.originText.trim().length !== lineInfo.textNoComment.length) {
 		// entire line is comment, continue
 		if (lineInfo.lineIsComment) {
 			builder.push(line,
