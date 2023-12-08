@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
-import { dubMapping, dubParseCache } from '../lib/dubs';
-import { audio, currentLocalCode, fileListUpdating } from './file';
+import { dubMapping } from '../lib/dubs';
+import { fileListUpdating } from './file';
 
 const uriListMime = 'text/uri-list';
 
@@ -71,23 +71,9 @@ export const drop = vscode.languages.registerDocumentDropEditProvider('AvgScript
 			// remove slash
 			const filePath = uris[idx].path.right(1);
 
-			do {
-				const dubCache = dubParseCache.getDocumentCacheAt(document, position.line);
-
-				if (dubCache === undefined) { break; }
-
-				const dubState = dubCache.dubParser;
-
-				const folder = audio + "dubs\\" + currentLocalCode + "\\" + dubState.dubChapter + "\\";
-				const target = folder + dubState.fileName + '.ogg';
-
-				// vscode.workspace.fs.copy(vscode.Uri.file(filePath), vscode.Uri.file(target), { overwrite: true });
-				dubMapping.updateDub(document, target, filePath);
-
-				return emptyDropEdit;
-			} while (0);
-
-			vscode.window.showErrorMessage('No dub info');
+			if (!dubMapping.updatePositionDub(document, position, filePath)) {
+				vscode.window.showErrorMessage('Current line has no dub info');
+			}
 
 			return emptyDropEdit;
 		}

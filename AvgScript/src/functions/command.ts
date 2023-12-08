@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import path = require('path');
+import * as mm from 'music-metadata';
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
@@ -18,7 +19,7 @@ import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { updateAtCompletionList, updateSharpCompletionList } from './completion';
 import { diagnosticThrottle } from './diagnostic';
-import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, FileType, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, FileType, getBuffer, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, removePathQuote, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -55,6 +56,8 @@ export const commandGetDubList: string = "config.AvgScript.getDubList";
 
 export const commandUpdateDub: string = "config.AvgScript.updateDub";
 export const commandDeleteDub: string = "config.AvgScript.deleteDub";
+
+export const commandPasteDub: string = "config.AvgScript.pasteDub";
 
 export const commandBasePath_impl = async () => {
 	// 1) Getting the value
@@ -809,4 +812,21 @@ export const commandDeleteDub_impl = (targetFile: string) => {
 	vscode.workspace.fs.delete(vscode.Uri.file(target), { recursive: false, useTrash: true });
 
 	return;
+};
+
+export const commandPasteDub_impl = async () => {
+	if (activeEditor === undefined) { return; }
+
+	const position = activeEditor.selection.active;
+	const filePath = removePathQuote(await vscode.env.clipboard.readText());
+
+	try {
+		// make sure file is valid
+		await mm.parseBuffer(await getBuffer(filePath));
+		if (dubMapping.updatePositionDub(activeEditor.document, position, filePath)) {
+			vscode.window.showErrorMessage('Current line has no dub info');
+		}
+	} catch (err) {
+		vscode.window.showInformationMessage('Invalid file: ' + filePath);
+	}
 };

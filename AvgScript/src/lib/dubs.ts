@@ -495,6 +495,21 @@ class DubMapping {
 		}, period);
 	}
 
+	updatePositionDub(document: vscode.TextDocument, position: vscode.Position, src: string) {
+		const dubCache = dubParseCache.getDocumentCacheAt(document, position.line);
+
+		if (dubCache === undefined) { return false; }
+
+		const dubState = dubCache.dubParser;
+
+		const folder = audio + "dubs\\" + currentLocalCode + "\\" + dubState.dubChapter + "\\";
+		const target = folder + dubState.fileName + '.ogg';
+
+		this.updateDub(document, target, src);
+
+		return true;
+	}
+
 	updateDub(document: vscode.TextDocument, target: string, src: string) {
 		// workspace update will trigger codelens refresh, do nothing here
 		vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
@@ -507,6 +522,7 @@ class DubMapping {
 
 		this.bUpdated = true;
 	}
+
 	getDubMapping(document: vscode.TextDocument, target: string) {
 		const curMapping = this.getDocumentMapping(document);
 

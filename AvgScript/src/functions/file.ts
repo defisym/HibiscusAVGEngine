@@ -870,6 +870,18 @@ export function removeFile(filePath: string) {
 // Refresh File List
 // ---------------
 
+export function removePathQuote(filePath: string) {
+	// remove ''/""
+	while (filePath.startsWith("\'") || filePath.startsWith("\"")) {
+		filePath = filePath.substring(1);
+	}
+	while (filePath.endsWith("\'") || filePath.endsWith("\"")) {
+		filePath = filePath.substring(0, filePath.length - 1);
+	}
+
+	return filePath;
+}
+
 // pass undefined -> update from config
 export async function updateBasePath(newPath: string | undefined = undefined, bPopUp: boolean = true) {
 	// popup
@@ -887,12 +899,7 @@ export async function updateBasePath(newPath: string | undefined = undefined, bP
 	}
 
 	// remove ''/""
-	while (newPath.startsWith("\'") || newPath.startsWith("\"")) {
-		newPath = newPath.substring(1);
-	}
-	while (newPath.endsWith("\'") || newPath.endsWith("\"")) {
-		newPath = newPath.substring(0, newPath.length - 1);
-	}
+	newPath = removePathQuote(newPath);
 
 	// exist
 	if (!await fileExistsOnDisk(newPath)) {

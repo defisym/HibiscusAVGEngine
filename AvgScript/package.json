@@ -2,7 +2,7 @@
 	"name": "avgscript",
 	"displayName": "Avg Script",
 	"description": "Hibiscus AVG Engine AvgScript Support for VS Code",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"publisher": "Defisym",
 	"repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
 	"homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
@@ -31,7 +31,7 @@
 			{
 				"command": "config.AvgScript.appendDialogue",
 				"key": "Ctrl+Shift+Alt+A",
-				"when": "editorLangId == AvgScript"
+				"when": "editorTextFocus && editorLangId == AvgScript"
 			},
 			{
 				"command": "config.AvgScript.showDialogueFormatHint",
@@ -42,6 +42,11 @@
 				"command": "config.AvgScript.showHibiscusDocument",
 				"key": "Ctrl+Shift+Alt+D",
 				"when": "editorLangId == AvgScript"
+			},
+			{
+				"command": "config.AvgScript.pasteDub",
+				"key": "Ctrl+Shift+V",
+				"when": "editorTextFocus && editorLangId == AvgScript"
 			}
 		],
 		"languages": [
@@ -681,6 +686,11 @@
 					"when": "editorLangId == AvgScript"
 				},
 				{
+					"group": "AvgScript.4_dubs",
+					"command": "config.AvgScript.pasteDub",
+					"when": "editorTextFocus && editorLangId == AvgScript"
+				},
+				{
 					"group": "AvgScript.5_document",
 					"command": "config.AvgScript.showDialogueFormatHint",
 					"when": "editorLangId == AvgScript"
@@ -693,7 +703,7 @@
 				{
 					"group": "AvgScript.6_script",
 					"command": "config.AvgScript.appendDialogue",
-					"when": "editorLangId == AvgScript"
+					"when": "editorTextFocus && editorLangId == AvgScript"
 				},
 				{
 					"group": "AvgScript.6_script",

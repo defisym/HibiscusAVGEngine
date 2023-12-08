@@ -1,5 +1,10 @@
 # Change Log
 
+## 20231208
+
+- `Ctrl + Shift + V` to paste path as dub file
+  - due to the limitation of web env, cannot get clipboard contents that is not text, so you need to use `Ctrl + Shift + C` to copy file path then paste into dialogue line
+
 ## 20231207
 
 - use dict instead of regex to get semantic keyword type
