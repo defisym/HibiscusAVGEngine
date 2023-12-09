@@ -9,7 +9,7 @@ import { audio, audioDubsCompletions, basePath, currentLocalCode, fileListInitia
 import { narrator } from '../webview/dubList';
 import { CacheInterface } from './cacheInterface';
 import { lineCommentCache } from './comment';
-import { DialogueStruct, currentLineDialogue, parseDialogue } from './dialogue';
+import { DialogueStruct, LineType, currentLineType, parseDialogue } from './dialogue';
 import { ScriptSettings, getSettings } from "./settings";
 import { cropScript, deepCopy, deepCopyMap, parseBoolean, parseCommand, replacer, reviver, stringToEnglish } from "./utilities";
 
@@ -236,12 +236,19 @@ export class DubParser {
 	}
 
 	// parse line and use callback to pass current dub state
-	parseLine(line: string,
+	parseLine(line: string, lineType: LineType | undefined,
 		cb: (dp: DubParser, dialogueStruct: DialogueStruct) => void) {
+		// ----------
+		// Parse line type
+		// ----------
+		if (lineType === undefined) {
+			lineType = currentLineType(line);
+		}
+
 		// ----------
 		// Parse command
 		// ----------
-		if (!currentLineDialogue(line)) {
+		if (lineType === LineType.command) {
 			this.parseCommand(line);
 			this.afterPlay();
 
@@ -251,6 +258,10 @@ export class DubParser {
 		// ----------
 		// Parse dialogue
 		// ----------
+		if (lineType !== LineType.dialogue) {
+			return;
+		}
+
 		const dialogueStruct = parseDialogue(line);
 		// depend on display name
 		let name = dialogueStruct.m_name;
@@ -333,7 +344,6 @@ class DubParseCache implements CacheInterface<DubCache[]> {
 	}
 	updateDocumentCache(document: vscode.TextDocument,
 		change: readonly vscode.TextDocumentContentChangeEvent[]) {
-		//TODO
 		this.removeDocumentCache(document);
 	}
 	getDocumentCache(document: vscode.TextDocument) {
@@ -346,6 +356,9 @@ class DubParseCache implements CacheInterface<DubCache[]> {
 		curCache = this.dubParseCache.get(document.uri)!;
 
 		return curCache;
+	}
+	clearDocumentCache() {
+		this.dubParseCache.clear();
 	}
 
 	getDocumentCacheAt(document: vscode.TextDocument, totalLine: number) {
@@ -375,14 +388,15 @@ class DubParseCache implements CacheInterface<DubCache[]> {
 
 			const lineInfo = curCache.lineInfo[idx];
 
-			let text = lineInfo.textNoComment;
+			let text = lineInfo.textNoCommentAndLangPrefix;
 			let lineNumber = lineInfo.lineNum;
 			let lineStart = lineInfo.lineStart;
 			let lineEnd = lineInfo.lineEnd;
 
-			dubState.parseLine(text, (dp: DubParser, dialogueStruct: DialogueStruct) => {
-				cb(dp, lineNumber, dialogueStruct);
-			});
+			dubState.parseLine(text, lineInfo.lineType,
+				(dp: DubParser, dialogueStruct: DialogueStruct) => {
+					cb(dp, lineNumber, dialogueStruct);
+				});
 		}
 	}
 }
@@ -413,7 +427,7 @@ export function dubDiagnostic(document: vscode.TextDocument): DubError[] {
 
 		const lineInfo = commentCache.lineInfo[dubCache.totalLine];
 
-		let text = lineInfo.textNoComment;
+		let text = lineInfo.textNoCommentAndLangPrefix;
 		let lineNumber = lineInfo.lineNum;
 		let lineStart = lineInfo.lineStart;
 		let lineEnd = lineInfo.lineEnd;
@@ -493,6 +507,21 @@ class DubMapping {
 		}, period);
 	}
 
+	updatePositionDub(document: vscode.TextDocument, position: vscode.Position, src: string) {
+		const dubCache = dubParseCache.getDocumentCacheAt(document, position.line);
+
+		if (dubCache === undefined) { return false; }
+
+		const dubState = dubCache.dubParser;
+
+		const folder = audio + "dubs\\" + currentLocalCode + "\\" + dubState.dubChapter + "\\";
+		const target = folder + dubState.fileName + '.ogg';
+
+		this.updateDub(document, target, src);
+
+		return true;
+	}
+
 	updateDub(document: vscode.TextDocument, target: string, src: string) {
 		// workspace update will trigger codelens refresh, do nothing here
 		vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
@@ -505,6 +534,7 @@ class DubMapping {
 
 		this.bUpdated = true;
 	}
+
 	getDubMapping(document: vscode.TextDocument, target: string) {
 		const curMapping = this.getDocumentMapping(document);
 

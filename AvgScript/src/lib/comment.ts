@@ -1,19 +1,39 @@
 import * as vscode from "vscode";
 import { CacheInterface } from "./cacheInterface";
+import { LineType } from "./dialogue";
 import { iterateLinesWithComment, LineInfo } from "./iterateLines";
 
 // text, lineStart, linePrefix, curPos(position - start), text lower
-export type ParseCommentResult = [undefined, undefined, undefined, undefined, undefined]
-	| [string, number, string, number, string];
+export interface ParseCommentResult {
+	line: string,
+	linePrefix: string
+	lineRaw: string
+	lineStart: number
+	lineType: LineType
+	curPos: number
+	langPrefixLength: number
+};
 
 class CommentCache {
 	comment: boolean[] = [];
-	result: ParseCommentResult[] = [];
+	result: (ParseCommentResult | undefined)[] = [];
 	lineInfo: LineInfo[] = [];
 }
 
 class LineCommentCache implements CacheInterface<CommentCache> {
 	lineCommentCache = new Map<vscode.Uri, CommentCache>();
+
+	static getParseResultFromLineInfo(lineInfo: LineInfo): ParseCommentResult {
+		return {
+			line: lineInfo.textNoCommentAndLangPrefix,
+			linePrefix: "",
+			lineRaw: lineInfo.textNoComment,
+			lineStart: lineInfo.lineStart + lineInfo.langPrefixLength,
+			lineType: lineInfo.lineType,
+			curPos: -1,
+			langPrefixLength: lineInfo.langPrefixLength
+		};
+	}
 
 	parseDocument(document: vscode.TextDocument) {
 		this.removeDocumentCache(document);
@@ -22,14 +42,10 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 		const curCache = this.lineCommentCache.get(document.uri)!;
 
 		iterateLinesWithComment(document, (lineInfo: LineInfo) => {
-			let parseResult: ParseCommentResult = [undefined, undefined, undefined, undefined, undefined];
+			let parseResult: ParseCommentResult | undefined = undefined;
 
 			if (!lineInfo.lineIsComment) {
-				parseResult = [lineInfo.textNoComment.toLowerCase(),
-				lineInfo.lineStart,
-					"",
-				-1,
-				lineInfo.textNoComment];
+				parseResult = LineCommentCache.getParseResultFromLineInfo(lineInfo);
 			}
 
 			curCache.comment.push(lineInfo.lineIsComment);
@@ -56,6 +72,9 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 
 		return curCache;
 	}
+	clearDocumentCache() {
+		this.lineCommentCache.clear();
+	}
 
 	// iterate document with cache
 	iterateDocumentCacheWithComment(document: vscode.TextDocument, cb: (lineInfo: LineInfo) => void) {
@@ -69,7 +88,9 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 	iterateDocumentCacheWithoutComment(document: vscode.TextDocument, cb: (lineInfo: LineInfo) => void) {
 		let curCache = this.getDocumentCache(document);
 		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
-			if (curCache.comment[lineNumber]) { continue; }
+			// if (curCache.comment[lineNumber]) { continue; }
+			const lineInfo = curCache.lineInfo[lineNumber];
+			if (lineInfo.lineIsComment && !lineInfo.lineNotCurLanguage) { continue; }
 
 			cb(curCache.lineInfo[lineNumber]);
 		}
@@ -78,20 +99,29 @@ class LineCommentCache implements CacheInterface<CommentCache> {
 
 export const lineCommentCache = new LineCommentCache();
 
-export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position): ParseCommentResult {
+export function currentLineNotComment(document: vscode.TextDocument, position: vscode.Position,
+	bGetNotCurrentLanguage: boolean = false): ParseCommentResult | undefined {
 	let curCache = lineCommentCache.getDocumentCache(document);
 
 	const curLine = position.line;
 
 	const bComment = curCache.comment[curLine];
-	const parseResult = curCache.result[curLine];
+	const lineInfo = curCache.lineInfo[curLine];
+	let parseResult = curCache.result[curLine];
 
-	if (bComment) {
+	const bGetNotCurrentLanguageResult = (bGetNotCurrentLanguage && lineInfo.lineNotCurLanguage);
+
+	if (bComment && !bGetNotCurrentLanguageResult) {
 		return parseResult;
 	}
 
-	let curPos = position.character - parseResult[1]!;
-	let curLinePrefix: string = parseResult[0]!.substring(0, curPos).trim();
+	parseResult =
+		bGetNotCurrentLanguageResult
+			? LineCommentCache.getParseResultFromLineInfo(lineInfo)
+			: parseResult!;
 
-	return [parseResult[0]!, parseResult[1]!, curLinePrefix, curPos, parseResult[4]!];
+	parseResult.curPos = position.character - parseResult.lineStart;
+	parseResult.linePrefix = parseResult.line.substring(0, parseResult.curPos).trim();
+
+	return parseResult;
 }

@@ -576,9 +576,30 @@ export interface ID {
 	param?: number,
 }
 
+export enum KeywordType {
+	Region,
+	System,
+	Values,
+	Dialogue,
+	Media,
+	Effect,
+	Preobj,
+}
+
+export const KeywordTypeMap = new Map<string, KeywordType>([
+	['Region', KeywordType.Region],
+	['System', KeywordType.System],
+	['Values', KeywordType.Values],
+	['Dialogue', KeywordType.Dialogue],
+	['Media', KeywordType.Media],
+	['Effect', KeywordType.Effect],
+	['Preobj', KeywordType.Preobj],
+]);
+
 export interface ParamInfo {
 	// basic
 	prefix: string;
+	keywordType?: KeywordType;
 	minParam: number;
 	maxParam: number;
 	description: string[];
@@ -637,14 +658,17 @@ export function GetDefaultParamInfo(): ParamInfo {
 
 // base list
 export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
-	//----------
+	//--------------------
 	// Sharp
-	//----------
+	//--------------------
 
+	//-----------------
 	// keywords_region
+	//-----------------
 
 	["Begin", {
 		prefix: "#"
+		, keywordType: KeywordType.Region
 		, minParam: 0, maxParam: 0
 		, description: ["代码块开始/结束标志，允许你在编辑器中将代码段折叠，在引擎内部无任何效果"]
 		, type: []
@@ -654,6 +678,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["End", {
 		prefix: "#"
+		, keywordType: KeywordType.Region
 		, minParam: 0, maxParam: 0
 		, description: ["代码块开始/结束标志，允许你在编辑器中将代码段折叠，在引擎内部无任何效果"]
 		, type: []
@@ -662,9 +687,13 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, emptyLineAfter: true
 	}],
 
+	//-----------------
 	// keywords_system
+	//-----------------
+
 	["Error", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#Error=ErrorPic.png"
 			, "内部指令，当引擎报错时会显示`Data\Graphic\_Sys`下对应的错误提示`ErrorPic.png`"]
@@ -673,6 +702,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["NULL", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["空指令，用于指令转译"]
 		, type: []
@@ -680,6 +710,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["HandlePreload", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["内部指令，用于处理脚本定义的预载行为"]
 		, type: []
@@ -687,6 +718,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["HandleErase", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["内部指令，用于处理脚本定义的清理行为"]
 		, type: []
@@ -695,18 +727,21 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["UnSkipAble", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["读取到该指令后，当前章节无法使用跳过按钮/快捷键跳过"]
 		, type: []
 	}],
 	["SkipAble", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["允许当前使用跳过按钮/快捷键跳过，用于取消`#UnSkipAble`"]
 		, type: []
 	}],
 	["SGO", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 2, maxParam: 2
 		, description: ["\t#SGO=XOffset:YOffset"
 			, "\t#SetGlobalOffset=XOffset:YOffset"
@@ -717,6 +752,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["SetGlobalOffset", undefined],
 	["TransitionSpeed", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#TransitionSpeed=Value"
 			, "更改不透明度叠化速度，默认为`10`"
@@ -726,6 +762,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["SeparateTransitionSpeed", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 3, maxParam: 3
 		, description: ["\t#SeparateTransitionSpeed=ID:Type:Value"
 			, "更改对象叠化速度，默认为`10`，参数设定为`default`可重置默认值"
@@ -745,24 +782,28 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["ForceTransition", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["该指令会截取当前窗口，并按照`TransitionSpeed`指定的速度进行淡出，用于为无法创建叠化的指令(如`@Order`、`#DefineRGB`等)强制添加叠化"]
 		, type: []
 	}],
 	["Save", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["保存中断存档"]
 		, type: []
 	}],
 	["Debug", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["调试模式下无叠化显示调试参数"]
 		, type: []
 	}],
 	["DebugOff", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["调试模式下无叠化关闭调试参数"]
 		, type: []
@@ -770,6 +811,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["RefreshRGB", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["内部指令，将RGB刷新为指定的值"]
 		, type: []
@@ -777,18 +819,21 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["StashRGB", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["缓存当前RGB值"]
 		, type: []
 	}],
 	["RestoreRGB", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["将RGB指定为缓存的值"]
 		, type: []
 	}],
 	["DisableRGB", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#DisableRGB=ID",
 			"指定图像对象不受RGB参数影响"]
@@ -797,6 +842,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["EnableRGB", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#EnableRGB=ID",
 			"指定图像对象受到RGB参数影响"]
@@ -806,6 +852,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["DefineRGB", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#DefineRGB=R:G:B"
 			, "\t#DefineRGB=#FFFFFF"
@@ -815,6 +862,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["TransitionRGB", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#TransitionRGB=R:G:B"
 			, "\t#TransitionRGB=#FFFFFF"
@@ -825,6 +873,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["MSG", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#MSG=Message"
 			, "仅调试模式下可用，于调试输出中输出Message"]
@@ -833,6 +882,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["MSGRAW", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["\t#MSGRAW"
 			, "内部指令，仅调试模式下可用，于调试输出中输出内部变量，用于回避字符转义"]
@@ -842,12 +892,14 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["MSGClear", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["仅调试模式下可用，清空调试输出，在翻页时会自动调用"]
 		, type: []
 	}],
 	["StopFF", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 1
 		, description: ["\t#StopFF=IgnoreDebug"
 			, "解析至该语句后，快进将会在下一句文本处停止"
@@ -858,20 +910,24 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, emptyLineBefore: true
 	}],
 	["StopFastForward", undefined],
-	["DisableUI", {
+
+	["HideUI", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
-		, description: ["禁用UI"]
+		, description: ["无叠化，隐藏菜单与快捷栏，会自动转译`#DisableUI`"]
 		, type: []
 	}],
-	["EnableUI", {
+	["ShowUI", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
-		, description: ["启用UI"]
+		, description: ["无叠化，重新显示菜单与快捷栏，会自动转译`#EnableUI`"]
 		, type: []
 	}],
 	["UpdateUICoord", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 1
 		, description: ["\t#UpdateUICoord=Forced:CoordOnly"
 			, "相对对话框更新UI坐标，`Forced = 1`时强制更新，`CoordOnly = 1`时不更新不透明度"]
@@ -879,21 +935,24 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, inlayHintType: [InlayHintType.Force]
 		, internal: true
 	}],
-	["HideUI", {
+	["DisableUI", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
-		, description: ["无叠化，隐藏菜单与快捷栏，会自动转译`#DisableUI`"]
+		, description: ["禁用UI"]
 		, type: []
 	}],
-	["ShowUI", {
+	["EnableUI", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
-		, description: ["无叠化，重新显示菜单与快捷栏，会自动转译`#EnableUI`"]
+		, description: ["启用UI"]
 		, type: []
 	}],
 
 	["FNT", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["强制无叠化，强制无叠化状态在解析到文本后重置为关闭"]
 		, type: []
@@ -902,6 +961,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["FNTO", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["关闭强制无叠化"]
 		, type: []
@@ -910,6 +970,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Eval", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#Eval=CommandToEval"
 			, "执行`CommandToEval"]
@@ -920,24 +981,29 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["SideEffect", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["当声明脚本无副作用时，断言此行下方的行具有副作用"]
 		, type: []
 	}],
 	["NoSideEffect", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["当声明脚本无副作用时，断言此行下方的行不具有副作用"]
 		, type: []
 	}],
 	["EOF", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["文件尾标志，普通模式下解析到该指令即返回报错信息`脚本文件结尾必须为有效跳转`，`Lite`模式下则为执行完成标记"]
 		, type: []
 	}],
+
 	["WaitGeneral", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 1
 		, description: ["\t#WaitGeneral=Time"
 			, "等待指令的公共调用，处理初始化、等待时间与状态机"]
@@ -948,6 +1014,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["W", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 1
 		, description: ["\t#W=2000"
 			, "\t#Wait=2000"
@@ -959,9 +1026,9 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, emptyLineAfter: true
 	}],
 	["Wait", undefined],
-
 	["FW", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 1
 		, description: ["\t#FW=2000"
 			, "\t#ForceWait=2000"
@@ -975,6 +1042,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["ForceWait", undefined],
 	["OW", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 1
 		, description: ["\t#OW=2000"
 			, "\t#OperationWait=2000"
@@ -985,8 +1053,10 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, emptyLineAfter: true
 	}],
 	["OperationWait", undefined],
+
 	["AutoChangePage", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 1
 		, description: ["\t#AutoChangePage=Time"
 			, "该指令后的文本会在等待时间后自动换行，覆盖自动与手动翻页操作"
@@ -1001,6 +1071,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["TextDisplaySpeed", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#TextDisplaySpeed=Time"
 			, "`Time`为显示间隔的毫秒数，该指令会覆盖当前行文本的显示速度，无视设置中的`ShowAll`属性"]
@@ -1010,6 +1081,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Jmp", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#JMP=Label"
 			, "脚本内跳转，跳转到指定的标签位"
@@ -1021,6 +1093,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["NJMP", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#NJMP=Label"
 			, "检测并重置跳转标志位"
@@ -1032,6 +1105,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Call", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#Call=Label"
 			, "使用`#Call=Label`指令调用位于`Label`处的代码段。该代码段必须位于`#EOF`之前，且必须以`#Ret`结尾"]
@@ -1042,6 +1116,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Ret", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["返回当前`Label`代码段的调用位点"]
 		, type: []
@@ -1050,6 +1125,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["FJMP", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#FJMP=TargetFrame"
 			, "\t#JmpFra=TargetFrame"
@@ -1062,6 +1138,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CJMP", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#CJMP=Chapter"
 			, "\t#JmpCha=Chapter"
@@ -1074,6 +1151,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["SJMP", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["跳转到下一个跳转指令并重启扫描，内部指令，用于跳过文本功能"
 			, "置跳转标志位为1，跳转标志位在解析到文本后重置为0"]
@@ -1087,6 +1165,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["FFJMP", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["使用无间断快进跳转到下一个跳转指令并重启扫描，内部指令，用于跳过文本功能"
 			, "相较于`#SJMP/#SkipJmp`，无需处理跳转标志位与再初始化"]
@@ -1098,6 +1177,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["SkipAnchor", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["该指令会被当作跳过终止指令处理。范例再初始化代码如下："
 			, "\t#SkipAnchor"
@@ -1115,6 +1195,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["SetSwitchColor", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#SetSwitchColor=R:G:B"
 			, "\t#SetSwitchColor=#FFFFFF"
@@ -1125,6 +1206,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["SetSwitchHoverColor", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#SetSwitchHoverColor=R:G:B"
 			, "\t#SetSwitchHoverColor=#FFFFFF"
@@ -1135,6 +1217,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["SetSwitchNegativeColor", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#SetSwitchNegativeColor=R:G:B"
 			, "\t#SetSwitchNegativeColor=#FFFFFF"
@@ -1145,6 +1228,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["SetSwitchShader", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 2, maxParam: 4
 		, description: ["\t#SetSwitchShader=Outline:R:G:B"
 			, "\t#SetSwitchShader=Outline:#FFFFFF"
@@ -1156,6 +1240,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CreateSwitch", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#CreateSwitch=SwitchNum"
 			, "选项分支创建的入口指令，用于创建`SwitchNum`个分支"
@@ -1168,6 +1253,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Switch", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 4, maxParam: 4
 		, description: ["\t#Switch=X:Y:Text:Label"
 			, "控制创建的分支选项，指定其X/Y坐标，选项文本与跳转标签"
@@ -1175,25 +1261,10 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, type: [ParamType.Number, ParamType.Number, ParamType.String, ParamType.String]
 		, inlayHintType: [InlayHintType.X, InlayHintType.Y, InlayHintType.Text, InlayHintType.Label]
 	}],
-	["UnlockAch", {
-		prefix: "#"
-		, minParam: 1, maxParam: 1
-		, description: ["\t#UnlockAch=Steam_AchName"
-			, "解锁成就`Steam_AchName`"]
-		, type: [ParamType.String]
-		, inlayHintType: [InlayHintType.AchName]
-	}],
-	["AddToStat", {
-		prefix: "#"
-		, minParam: 1, maxParam: 2
-		, description: ["\t#AddToStat=Steam_StatName:Steam_StatAdd"
-			, "更新统计`Steam_StatName`，增加`Steam_StatAdd`"
-			, "若`Steam_StatAdd`留空，默认为统计量+1"]
-		, type: [ParamType.String, ParamType.Number]
-		, inlayHintType: [InlayHintType.StatName, InlayHintType.StatAdd]
-	}],
+
 	["RichPresence", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 1
 		, description: ["\t#RichPresence=Message"
 			, "更新`chapter`，并更新`steam_display`为`#ChapterStates`，即`当前章节: %chapter%`"
@@ -1205,14 +1276,36 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["ScreenShot", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["\t调用Steam Overlay截取屏幕，并将标记地点Tag",
 			"标记场景名需要在`Appreciation_Definition`的CG/BG/Video对应映射部分标记名称。角色名根据现存图像演出对象的ID查找，定义在`Appreciation_Mapping_Character`一节中"
 		]
 		, type: []
 	}],
+
+	["UnlockAch", {
+		prefix: "#"
+		, keywordType: KeywordType.System
+		, minParam: 1, maxParam: 1
+		, description: ["\t#UnlockAch=Steam_AchName"
+			, "解锁成就`Steam_AchName`"]
+		, type: [ParamType.String]
+		, inlayHintType: [InlayHintType.AchName]
+	}],
+	["AddToStat", {
+		prefix: "#"
+		, keywordType: KeywordType.System
+		, minParam: 1, maxParam: 2
+		, description: ["\t#AddToStat=Steam_StatName:Steam_StatAdd"
+			, "更新统计`Steam_StatName`，增加`Steam_StatAdd`"
+			, "若`Steam_StatAdd`留空，默认为统计量+1"]
+		, type: [ParamType.String, ParamType.Number]
+		, inlayHintType: [InlayHintType.StatName, InlayHintType.StatAdd]
+	}],
 	["UnlockAppreciation", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#UnlockAppreciation=ContentName:Page:Pos"
 			, "解锁位于`Page`页第`Pos`个指向`ContentName`的鉴赏，`Page`与`Pos`参数从零开始。留空`Page`与`Pos`参数时，若启用了映射且映射定义合法，则依照定义解锁；若未启用映射，则依照记录数值依此解锁"
@@ -1223,6 +1316,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["UnlockAppreciation_Chapter", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#UnlockAppreciation_Chapter=ChapterName:Page:Pos"
 			, "于场景回想中解锁位于`Page`页第`Pos`个指向`ChapterName`的鉴赏"
@@ -1232,6 +1326,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["UnlockAppreciation_Graphic", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#UnlockAppreciation_Graphic=GraphicName:Page:Pos"
 			, "于场景回想中解锁位于`Page`页第`Pos`个指向`GraphicName`的鉴赏。`ChapterName`应为`Characters`的相对路径，CG文件夹下的文件的完整`ChapterName`为`..CG\Graphic.png`"
@@ -1242,6 +1337,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["UnlockAppreciation_Audio", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#UnlockAppreciation_Audio=AudioName:Page:Pos"
 			, "于场景回想中解锁位于`Page`页第`Pos`个指向`AudioName`的鉴赏"
@@ -1251,6 +1347,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["UnlockAppreciation_Video", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 3
 		, description: ["\t#UnlockAppreciation_Video=VideoName:Page:Pos"
 			, "于场景回想中解锁位于`Page`页第`Pos`个指向`VideoName`的鉴赏"
@@ -1258,8 +1355,10 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, type: [ParamType.File, ParamType.Number, ParamType.Number]
 		, inlayHintType: [InlayHintType.VideoFileName, InlayHintType.Page, InlayHintType.Pos]
 	}],
+
 	["VNMode_Newline", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["在文本间插入一个空行。建议在对白文本前后使用，以示区分"]
 		, type: []
@@ -1267,6 +1366,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["VNMode_ChangePage", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 0, maxParam: 0
 		, description: ["切换页面"
 			, "由于VN模式允许一个页面内显示多句文本，因此程序无法自动处理，需要手动指定翻页点。不进行翻页会导致文本显示出界"]
@@ -1274,9 +1374,9 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, VNModeOnly: true
 	}],
 
-
 	["SetCapture", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#SetCapture=ID"
 			, "强制更新捕获ID为`ID`"
@@ -1286,6 +1386,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["CaptureSys", {
 		prefix: "#"
+		, keywordType: KeywordType.System
 		, minParam: 1, maxParam: 1
 		, description: ["\t#CaptureSys=On"
 			, "是否捕获系统对象的ID，默认关闭"]
@@ -1293,9 +1394,13 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, inlayHintType: [InlayHintType.Boolean]
 	}],
 
+	//-----------------
 	// keywords_values
+	//-----------------
+
 	["SV", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#SV=ValueID:Value"
 			, "\t#SetValue=ValueID:Value"
@@ -1306,6 +1411,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["SetValue", undefined],
 	["SVV", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#SVV=ValueIDA:ValueIDB"
 			, "\t#SetValueValue=ValueIDA:ValueIDB"
@@ -1320,6 +1426,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["SetValueAB", undefined],
 	["SSS", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#SSS=ValueIDA:ValueIDB"
 			, "\t#SetStringString=ValueIDA:ValueIDB"
@@ -1334,6 +1441,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["SetStringAB", undefined],
 	["VA", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#VA=ValueID:Value"
 			, "\t#ValueAdd=ValueID:Value"
@@ -1344,6 +1452,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["ValueAdd", undefined],
 	["VAV", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#VA=ValueID:Value"
 			, "\t#ValueAdd=ValueID:Value"
@@ -1354,6 +1463,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["ValueAddValue", undefined],
 	["VS", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#VS=ValueID"
 			, "\t#ValueSub=ValueID:Value"
@@ -1364,6 +1474,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["ValueSub", undefined],
 	["VSV", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#VS=ValueID"
 			, "\t#ValueSub=ValueID:Value"
@@ -1374,6 +1485,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["ValueSubValue", undefined],
 	["VM", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#VM=ValueID"
 			, "\t#ValueMul=ValueID:Value"
@@ -1384,6 +1496,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["ValueMul", undefined],
 	["VMV", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#VMV=ValueIDA:ValueIDB"
 			, "\t#ValueMulValue=ValueIDA:ValueIDB"
@@ -1394,6 +1507,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["ValueMulValue", undefined],
 	["VD", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#VD=ValueID"
 			, "\t#ValueDiv=ValueID:Value"
@@ -1404,6 +1518,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["ValueDiv", undefined],
 	["VDV", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#VDV=ValueIDA:ValueIDB"
 			, "\t#ValueDivValue=ValueIDA:ValueIDB"
@@ -1415,6 +1530,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CMP", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#CMP=ValueID:Value"
 			, "\t#CMPV=ValueID:Value"
@@ -1428,6 +1544,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["CMPValue", undefined],
 	["CMPGeneral", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#CMPGeneral=Value:Value"
 			, "不引用变量，直接比较两个值，规则与`#CMP`相同"]
@@ -1436,6 +1553,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["CMPAB", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#CMPAB=ValueIDA:ValueIDB"
 			, "\t#CMPVAB=ValueIDA:ValueIDB"
@@ -1452,6 +1570,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["CMPValueValue", undefined],
 	["CMPSAB", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 2, maxParam: 2
 		, description: ["\t#CMPSAB=ValueIDA:ValueIDB"
 			, "\t#CMPStringAB=ValueIDA:ValueIDB"
@@ -1467,6 +1586,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["JE", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 1, maxParam: 1
 		, description: ["\t#JE=Label"
 			, "比较结果等于时，跳转至`Label`"]
@@ -1475,6 +1595,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["JA", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 1, maxParam: 1
 		, description: ["\t#JE=Label"
 			, "比较结果大于时，跳转至`Label`"]
@@ -1483,6 +1604,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["JB", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 1, maxParam: 1
 		, description: ["\t#JE=Label"
 			, "比较结果小于时，跳转至`Label`"]
@@ -1491,6 +1613,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["JNE", {
 		prefix: "#"
+		, keywordType: KeywordType.Values
 		, minParam: 1, maxParam: 1
 		, description: ["\t#JE=Label"
 			, "比较结果不等于时，跳转至`Label`"]
@@ -1498,36 +1621,13 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, inlayHintType: [InlayHintType.Label]
 	}],
 
+	//-----------------
 	// keywords_dialogue
-
-	["TextSpace", {
-		prefix: "#"
-		, minParam: 3, maxParam: 4
-		, description: ["\tTextSpace=SpaceType:Space:Type:ID"
-			, "设置行/列间距"
-			, "`Type`为`Str`时，要求`ID`参数，作用于该`ID`对应的字符串对象"]
-		, type: [ParamType.String, ParamType.Number, ParamType.String, ParamType.Number]
-		, required: [
-			[
-				"Row",
-				"Col"
-			],
-			undefined,
-			align_objectType,
-			undefined]
-		, inlayHintType: [InlayHintType.SpaceType, InlayHintType.Space, InlayHintType.Type, InlayHintType.ID]
-		, inlayHintAddition: [
-			new Map<string, string>([
-				["Row", "行间距"],
-				["Col", "列间距"]
-			]),
-			undefined,
-			align_objectTypeMap,
-			undefined]
-	}],
+	//-----------------
 
 	["TextAlign", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 3
 		, description: ["\t#TextAlign=Align:Type:ID"
 			, "设定对齐方式"
@@ -1557,9 +1657,36 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 			align_objectTypeMap,
 			undefined]
 	}],
+	["TextSpace", {
+		prefix: "#"
+		, keywordType: KeywordType.Dialogue
+		, minParam: 3, maxParam: 4
+		, description: ["\tTextSpace=SpaceType:Space:Type:ID"
+			, "设置行/列间距"
+			, "`Type`为`Str`时，要求`ID`参数，作用于该`ID`对应的字符串对象"]
+		, type: [ParamType.String, ParamType.Number, ParamType.String, ParamType.Number]
+		, required: [
+			[
+				"Row",
+				"Col"
+			],
+			undefined,
+			align_objectType,
+			undefined]
+		, inlayHintType: [InlayHintType.SpaceType, InlayHintType.Space, InlayHintType.Type, InlayHintType.ID]
+		, inlayHintAddition: [
+			new Map<string, string>([
+				["Row", "行间距"],
+				["Col", "列间距"]
+			]),
+			undefined,
+			align_objectTypeMap,
+			undefined]
+	}],
 
 	["TextColor", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 4
 		, description: ["\t#TextColor=Fixed:R:G:B"
 			, "\t#TextColor=Fixed:#FFFFFF"
@@ -1570,6 +1697,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["TextSize", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 2
 		, description: ["\t#TextSize=Fixed:Size"
 			, "内部指令，更新文本大小"]
@@ -1579,6 +1707,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["TextFont", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 2
 		, description: ["\t#TextFont=Fixed:Size"
 			, "内部指令，更新文本字体"]
@@ -1589,6 +1718,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["TextShaderOn", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 3, maxParam: 5
 		, description: ["\t#TextShaderOn=Fixed:OutlinePixel:R:G:B"
 			, "\t#TextShaderOn=Fixed:OutlinePixel:#FFFFFF"
@@ -1599,6 +1729,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["TextShaderOff", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t#TextShaderOff=Fixed"
 			, "内部指令，更新文本Shader"]
@@ -1609,6 +1740,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["TextOutColor", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 4
 		, description: ["\t#TextOutColor=Fixed:R:G:B"
 			, "\t#TextOutColor=Fixed:#FFFFFF"
@@ -1619,6 +1751,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["TextOutPixel", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 2
 		, description: ["\t#TextOutPixel=Fixed:OutlinePixel"
 			, "内部指令，更新文本Shader"]
@@ -1628,6 +1761,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["TextShadow", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 2
 		, description: ["\t#TextShadow=Fixed:On/Off"
 			, "内部指令，更新文本Shader"]
@@ -1637,6 +1771,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["TextDefault", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 2
 		, description: ["\t#TextDefault=Fixed:Prefix"
 			, "内部指令，根据配置文件更新文本外观"]
@@ -1648,6 +1783,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["DiaColor", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 3
 		, description: ["\t#DiaColor=R:G:B"
 			, "\t#DiaColor=#FFFFFF"
@@ -1658,6 +1794,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["DiaSize", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["t#DiaSize=size"
 			, "定义对白文字的大小，AVG模式下默认大小为17，VN模式下默认大小为18"]
@@ -1666,6 +1803,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["DiaFont", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t#DiaFont=font"
 			, "定义对白文字的字体"]
@@ -1675,6 +1813,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["DiaShaderOn", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 4
 		, description: ["\t#DiaShaderOn=OutlinePixel:R:G:B"
 			, "\t#DiaShaderOn=OutlinePixel:#FFFFFF"
@@ -1684,6 +1823,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["DiaShaderOff", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 0, maxParam: 0
 		, description: ["关闭对白勾边效果"]
 		, type: []
@@ -1691,6 +1831,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["DiaOutColor", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 3
 		, description: ["\t#DiaOutColor=R:G:B"
 			, "\t#DiaOutColor=#FFFFFF"
@@ -1700,6 +1841,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["DiaOutPixel", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t#DiaOutPixel=OutlinePixel"
 			, "启用勾边时，更改对白勾边像素数为`OutlinePixel`"]
@@ -1708,6 +1850,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["DiaShadow", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t#DiaShadow=On/Off"
 			, "打开或关闭阴影模式，该模式仅在描边启用时有效"]
@@ -1717,6 +1860,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["NameColor", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 3
 		, description: ["\t#NameColor=R:G:B"
 			, "\t#NameColor=#FFFFFF"
@@ -1728,6 +1872,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["NameSize", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t#NameSize=size"
 			, "定义姓名文字的大小，默认大小为18"]
@@ -1737,6 +1882,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["NameFont", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t#NameFont=font"
 			, "定义姓名文字的字体"]
@@ -1747,6 +1893,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["NameShaderOn", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 2, maxParam: 4
 		, description: ["\t#NameShaderOn=OutlinePixel:R:G:B"
 			, "\t#NameShaderOn=OutlinePixel:#FFFFFF"
@@ -1757,6 +1904,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["NameShaderOff", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 0, maxParam: 0
 		, description: ["关闭姓名勾边效果"]
 		, type: []
@@ -1765,6 +1913,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["NameOutColor", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 3
 		, description: ["\t#NameOutColor=R:G:B"
 			, "\t#NameOutColor=#FFFFFF"
@@ -1775,6 +1924,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["NameOutPixel", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t#NameOutPixel=OutlinePixel"
 			, "启用勾边时，更改对白勾边像素数为`OutlinePixel`"]
@@ -1784,6 +1934,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["NameShadow", {
 		prefix: "#"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t#NameShadow=On/Off"
 			, "打开或关闭阴影模式，该模式仅在描边启用时有效"]
@@ -1792,12 +1943,13 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, NonVNModeOnly: true
 	}],
 
-	//----------
+	//--------------------
 	// At
-	//----------
+	//--------------------
 
 	["Dia", {
 		prefix: "@"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t@Dia=filename.png"
 			, "\t@DiaChange=filename.png"
@@ -1808,6 +1960,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["DiaChange", undefined],
 	["DiaTrans", {
 		prefix: "@"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 0, maxParam: 1
 		, description: ["\t@DiaTrans=force"
 			, "内部转译指令，判定并更新对话框"
@@ -1818,6 +1971,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Name", {
 		prefix: "@"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 1, maxParam: 1
 		, description: ["\t@Name=filename.png"
 			, "\t@NameChange=filename.png"
@@ -1829,6 +1983,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["NameChange", undefined],
 	["NameTrans", {
 		prefix: "@"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 0, maxParam: 1
 		, description: ["\t@NameTrans=force"
 			, "内部转译指令，判定并更新姓名栏"
@@ -1840,18 +1995,21 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["StashUIGraphic", {
 		prefix: "@"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 0, maxParam: 0
 		, description: ["保存UI图像，用于在`@TextFadeOut`后还原"]
 		, type: []
 	}],
 	["RestoreUIGraphic", {
 		prefix: "@"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 0, maxParam: 0
 		, description: ["还原`@StashUIGraphic`保存的信息"]
 		, type: []
 	}],
 	["TextFadeOut", {
 		prefix: "@"
+		, keywordType: KeywordType.Dialogue
 		, minParam: 0, maxParam: 0
 		, description: ["该指令会自动转译为"
 			, "\t@Name=NameNull.png"
@@ -1861,10 +2019,13 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, type: []
 	}],
 
+	//-----------------
 	// keywords_media
+	//-----------------
 
 	["P", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 3, maxParam: 5
 		, description: ["\t@P=filename.mp3:volume:channel:channelType:FadeIn"
 			, "\t@Play=filename.mp3:volume:channel:channelType:FadeIn"
@@ -1884,6 +2045,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Stop", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@Stop=channel:channelType:FadeOut"
 			, "停止特定通道的音频播放"]
@@ -1898,6 +2060,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["SE", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@SE=filename.MP3"
 			, "播放SE"]
@@ -1907,6 +2070,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Bgm", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 4
 		, description: ["\t@Bgm=filename.MP3:fadeSpeed:StartPoint:endpoint"
 			, "\t@BgmLoop=filename.MP3:fadeSpeed:StartPoint:endpoint"
@@ -1920,6 +2084,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["BgmPre", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 5
 		, description: ["\t@BgmPre=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
 			, "\t@BgmPreludeLoop=filename.MP3:fadeSpeed:StartPoint:endpoint:PreludePoint"
@@ -1933,12 +2098,14 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["BgmPause", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["暂停BGM"]
 		, type: []
 	}],
 	["BgmResume", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["恢复BGM"]
 		, type: []
@@ -1946,6 +2113,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["BgmFadeOut", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@BgmFadeOut=fadeSpeed"
 			, "淡出BGM"
@@ -1956,6 +2124,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Bgs", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 2
 		, description: ["\t@Bgs=filename.MP3:fadeSpeed"
 			, "\t@BgsLoop=filename.MP3:fadeSpeed"
@@ -1968,12 +2137,14 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["BgsPause", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["暂停BGS"]
 		, type: []
 	}],
 	["BgsResume", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["恢复BGS"]
 		, type: []
@@ -1981,6 +2152,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["BgsFadeOut", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@BgsFadeOut=fadeSpeed"
 			, "淡出BGS"
@@ -1991,6 +2163,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Dub", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 3
 		, description: ["\t@Dub=FileName:KeepSeq:KeepNTK"
 			, "\t@DubPlay=FileName:KeepSeq:KeepNTK"
@@ -2002,6 +2175,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["DubSeque", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["启用语音序列，默认启用"
 			, "变更`NowTalking`后会自动启用语音序列"
@@ -2010,6 +2184,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["DubSequeOff", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["禁用语音序列，默认启用"
 			, "变更`NowTalking`后会自动启用语音序列"
@@ -2018,6 +2193,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["DubSequePrefix", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@DubSequePrefix=Prefix"
 			, "更新`DubSequePrefix`，将会更新`语音文件名`为`DubSequePrefix_NowTalking`"
@@ -2027,6 +2203,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["DubChapter", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@DubChapter=ChapterName"
 			, "更新`DubChapter`，默认为当前章节名"
@@ -2036,6 +2213,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Ntk", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 2
 		, description: ["\t@NTK=NowTalking:KeepSeq"
 			, "\t@NTKChange=NowTalking:KeepSeq"
@@ -2047,6 +2225,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["SeparateNTKChange", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 2, maxParam: 3
 		, description: ["\t@SeparateNTKChange=CharName:NowTalking:KeepSeq"
 			, "变更角色`NowTalking`的值，并且在下一句语音开始播放对应的语音文件，`NowTalking`默认从0开始。`KeepSeq`为真时，不会自动启用语音序列"
@@ -2057,6 +2236,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["PV", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 2
 		, description: ["\t@PV=FileName.AVI:StartPos"
 			, "\t@PlayVideo=FileName.AVI:StartPos"
@@ -2069,6 +2249,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["PlayVideo", undefined],
 	["ChangeVideo", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@ChangeVideo=FileName.AVI"
 			, "切换视频，新打开的视频会自动切换至当前视频的进度，用于无缝切换差分视频"
@@ -2082,6 +2263,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["OV", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 2
 		, description: ["\t@OV=FileName.AVI:StartPos"
 			, "\t@OpenVideo=FileName.AVI:StartPos"
@@ -2093,6 +2275,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["OpenVideo", undefined],
 	["CV", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["抓取当前帧作为CG，并关闭视频"]
 		, type: []
@@ -2100,6 +2283,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["CloseVideo", undefined],
 	["CloseVideo_Core", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["不考虑当前情况与过渡直接关闭视频，用于历史记录跳转等场合"]
 		, type: []
@@ -2107,6 +2291,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["VideoCodec", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 2
 		, description: ["\t`@VideoCodec=Video:Audio`"
 			, "指定视频文件所使用的编解码器，例如使用`libvpx-vp9`以支持`webm`视频的透明通道"
@@ -2605,6 +2790,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["VR", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["继续播放视频"]
 		, type: []
@@ -2612,6 +2798,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["VideoResume", undefined],
 	["VP", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 0
 		, description: ["暂停视频"]
 		, type: []
@@ -2619,6 +2806,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["VideoPause", undefined],
 	["VW", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 1
 		, description: ["\t@VideoWait=AllowSkip"
 			, "当前视频播放结束后才会进入下一阶段"
@@ -2629,6 +2817,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["VideoWait", undefined],
 	["VL", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 1
 		, description: ["\t@VL=LoopTransition"
 			, "\t@VideoLoop=LoopTransition"
@@ -2639,6 +2828,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["VideoLoop", undefined],
 	["VideoFinish", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@VideoFinish=CommandToExecute"
 			, "在视频播放结束后调用`#Eval=CommandToExecute`以执行特定命令"]
@@ -2648,6 +2838,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["SVP", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@SVP=StartPos"
 			, "\t@SetVideoPos=StartPos"
@@ -2658,6 +2849,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["SetVideoPos", undefined],
 	["IgnoreStaticVideo", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 1
 		, description: ["\t@IgnoreStaticVideo=On/Off"
 			, "忽略设置中的`StaticVideo`"
@@ -2667,6 +2859,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["VideoCache", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 1, maxParam: 1
 		, description: ["\t@VideoCache=FilePath"
 			, "缓存视频，用于节省读取加密视频的用时。非加密视频会直接读取磁盘，因此无需缓存"
@@ -2676,6 +2869,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["VideoErase", {
 		prefix: "@"
+		, keywordType: KeywordType.Media
 		, minParam: 0, maxParam: 1
 		, description: ["\t@VideoErase=FilePath"
 			, "清除已缓存的视频，若不指定`FilePath`，则会清除所有缓存的视频"
@@ -2684,10 +2878,13 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, inlayHintType: [InlayHintType.VideoFileName]
 	}],
 
+	//-----------------
 	// keywords_effect
+	//-----------------
 
 	["CreateBlur", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["创建带有背景模糊的景深对象，对象保存至景深堆栈，默认ID从`-100`开始递减"
 			, "该指令创建的景深对象位于演出对象最下方"]
@@ -2695,6 +2892,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["AddBlur", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@AddBlur=Num"
 			, "`@AddBlur`会转译为`Num`个`@CreateBlur`指令，创建结束的景深对象默认位于演出对象最下方。`Num`数值越大，模糊效果越强，留空默认为1"
@@ -2704,6 +2902,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["RemoveBlur", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@RemoveBlur=Num"
 			, "`@RemoveBlur`会转译为`Num`个`@DestroyBlur`指令，欲销毁全部景深对象，请将`Num`设定为一个较大的数，如`255`，实际指令转译最大只会进行当前景深对象数(即景深堆栈深度)次"]
@@ -2712,12 +2911,14 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["DestroyBlur", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["移除景深堆栈最上方的景深对象"]
 		, type: []
 	}],
 	["BackZoomParam", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 2, maxParam: 2
 		, description: ["\t@BackZoomParam=Easing_FuncA:Easing_FuncB"
 			, "指定进行缩放时的Easing参数"]
@@ -2726,6 +2927,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["BackZoomReset", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 3
 		, description: ["\t@BackZoomReset=Speed:Instant:ForceWait"
 			, "按当前参数重置缩放，转译为指令`@BackZoom=0:0:ResolutionX:ResolutionY:Speed:Instant:ForceWait`，在真实坐标模式下执行"]
@@ -2734,6 +2936,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["BackZoom", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 5, maxParam: 7
 		, description: ["\t@BackZoom=X:Y:width:height:Speed:Instant:ForceWait"
 			, "缩放到大小为`(width,height)`，区域中心坐标`(x,y)`指定缩放速度以及是否立即缩放"
@@ -2743,6 +2946,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["ShakeDir", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@ShakeDir=Dir"
 			, "设置震动方向，`X=0`，`Y=1`"]
@@ -2751,6 +2955,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["ShakeCoef", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@ShakeCoef=Strength"
 			, "设置震动强度"]
@@ -2759,6 +2964,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["ShakeAttenuation", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@ShakeAttenuation=On"
 			, "设置震动幅度衰减，仅适用于模式0"]
@@ -2767,6 +2973,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["ShakeAttenuationParam", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 2, maxParam: 2
 		, description: ["\t@ShakeAttenuationParam=FuncA:FuncB"
 			, "设置震动衰减Easing参数"]
@@ -2775,6 +2982,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Shake", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["震动一定时长后停止震动，单位为帧，通常情况下设定为60代表震动一秒"]
 		, type: [ParamType.Number]
@@ -2782,24 +2990,28 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["KeepShake", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["持续震动"]
 		, type: []
 	}],
 	["KeepShakeOff", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["停止震动"]
 		, type: []
 	}],
 	["Fade", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["创建淡入淡出叠化效果，会被转译为`@PatternFade`"]
 		, type: []
 	}],
 	["DestroyFade", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["消除之前创建的所有叠化效果，会被转译为`@PatternFadeOut`"]
 		, type: []
@@ -2807,6 +3019,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["PF", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 2
 		, description: ["\t@PF=PicName:Orderable"
 			, "\t@PatternFade=PicName:Orderable"
@@ -2817,6 +3030,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["PatternFade", undefined],
 	["PFO", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 2
 		, description: ["\t@PFO=PicName"
 			, "\t@PatternFadeOut=PicName:Orderable"
@@ -2829,36 +3043,42 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Rain", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["立即创建下雨效果，允许连续使用"]
 		, type: []
 	}],
 	["Snow", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["立即创建下雪效果，允许连续使用"]
 		, type: []
 	}],
 	["Normal", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["立即取消天气效果，允许连续使用"]
 		, type: []
 	}],
 	["ToRain", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["逐渐创建下雨效果，不会在过渡状态2等待，不受到强制等待指令控制"]
 		, type: []
 	}],
 	["ToSnow", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["逐渐创建下雪效果，不会在过渡状态2等待，不受到强制等待指令控制"]
 		, type: []
 	}],
 	["ToNormal", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 0
 		, description: ["逐渐取消天气效果，不会在过渡状态2等待，不受到强制等待指令控制"]
 		, type: []
@@ -2866,6 +3086,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CrossFade", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@CrossFade=ID"
 			, "为该对象下次叠化启用交错模式"
@@ -2877,6 +3098,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["KeepRes", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@KeepRes=ID"
 			, "\t@KeepResolution=ID"
@@ -2888,6 +3110,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["KeepResOff", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@KeepResOff=ID"
 			, "\t@KeepResolutionOff=ID"
@@ -2899,6 +3122,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Sepia", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 0, maxParam: 3
 		, description: ["\t@Sepia=Strength:NoiseMotion:Period"
 			, "\t@SepiaToning=Strength:NoiseMotion:Period"
@@ -2909,6 +3133,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["SepiaToning", undefined],
 	["ChangeSepiaStrength", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@ChangeSepiaStrength=Strength"
 			, "在演出执行阶段改变`Sepia Toning`对象的`Strength`，参数留空会将`Strength`设定为默认值`0.5`"]
@@ -2917,6 +3142,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["SetSepiaNoiseMotion", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@SetSepiaNoiseMotion=On/Off"
 			, "控制噪声运动的开启与关闭，设定为`1`或`On`时启用噪声运动，设定为`0`或`Off`时禁用噪声运动，参数为空会Toggle当前启用状态"]
@@ -2925,6 +3151,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["ChangeSepiaNoiseMotionPeriod", {
 		prefix: "@"
+		, keywordType: KeywordType.Effect
 		, minParam: 1, maxParam: 1
 		, description: ["\t@ChangeSepiaNoiseMotionPeriod=Period"
 			, "将噪声运动的运动周期设定为`Period`，单位毫秒，参数为空会将`Period`设定为默认值`-1`，一个典型的参考值为`300`毫秒"]
@@ -2932,22 +3159,27 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, inlayHintType: [InlayHintType.Period]
 	}],
 
+	//-----------------
 	// keywords_preobj
+	//-----------------
 
 	["StrCenter", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 0, maxParam: 0
 		, description: ["定义坐标参数留空时字符串的默认位置，该指令后创建的字符串默认居中"]
 		, type: []
 	}],
 	["StrBottom", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 0, maxParam: 0
 		, description: ["定义坐标参数留空时字符串的默认位置，该指令后创建的字符串默认底部居中"]
 		, type: []
 	}],
 	["Str", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 11
 		, description: ["\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:R:G:B"
 			, "\t@Str=string:ID:TypeEffect:Alpha:x:y:size:font:#FFFFFF"
@@ -2969,6 +3201,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["StrS", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@StrS=ID:Size"
 			, "\t@StrSize=ID:Size"
@@ -2979,6 +3212,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["StrSize", undefined],
 	["StrF", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@StrF=ID:Font"
 			, "\t@StrFont=ID:Font"
@@ -2989,6 +3223,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["StrFont", undefined],
 	["StrA", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@StrA=ID:120"
 			, "\t@StrAlpha=ID:120"
@@ -3000,6 +3235,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["StrC", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 4
 		, description: ["\t@StrC=ID:R:G:B"
 			, "\t@StrC=ID:#FFFFFF"
@@ -3013,6 +3249,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["StrShaderOn", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 3, maxParam: 5
 		, description: ["\t@StrShaderOn=ID:OutlinePixel:R:G:B"
 			, "\t@StrShaderOn=ID:OutlinePixel:#FFFFFF"
@@ -3022,6 +3259,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["StrShaderOff", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["关闭字符串勾边效果"]
 		, type: [ParamType.Number]
@@ -3030,6 +3268,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["StrOutColor", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 4
 		, description: ["\t@StrOutColor=ID:R:G:B"
 			, "\t@StrOutColor=ID:#FFFFFF"
@@ -3039,6 +3278,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["StrOutPixel", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@StrOutPixel=ID:OutlinePixel"
 			, "启用勾边时，更改字符串勾边像素数为`OutlinePixel`"]
@@ -3047,6 +3287,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["StrShadow", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["\t@StrShadow=ID:On/Off"
 			, "打开或关闭阴影模式，该模式仅在描边启用时有效"]
@@ -3056,6 +3297,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["MS", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 3, maxParam: 7
 		, description: ["\t@MS=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
 			, "\t@MoveStr=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
@@ -3084,6 +3326,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["MoveStr", undefined],
 	["DestroyStr", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["\t@DestroyStr=ID"
 			, "\t@DestroyString=ID"
@@ -3095,6 +3338,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["DestroyAllStr", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 0, maxParam: 0
 		, description: ["销毁全部字符串对象"]
 		, type: []
@@ -3103,6 +3347,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Spe", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["该指令在调用前会在引擎内部更新`CoefStr`、`FolderStr`参数，定义转译后指令的文件路径、参数。**该指令为内部指令，请避免在脚本中使用。**"
 			, "以使用内部指令`@Spe=dialog2.png`创建对话框为例"
@@ -3114,6 +3359,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["MO", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 3, maxParam: 7
 		, description: ["\t@MO=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
 			, "\t@MoveObj=FixedValue:TarX:TarY:Time:FuncA:FuncB:Mode"
@@ -3144,6 +3390,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Bottom", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["\t@Bottom=filename.png"
 			, "切换底板，叠化阶段进行"
@@ -3153,6 +3400,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["CG", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["\t@CG=filename.png"
 			, "\t@CGChange=filename.png"
@@ -3165,6 +3413,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CPF", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 3, maxParam: 3
 		, description: ["\t@CPF=PicName:PatternName:ID"
 			, "\t@CPatternFade=PicName:PatternName:ID"
@@ -3180,6 +3429,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["CharPatternFade", undefined],
 	["CPFI", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 3, maxParam: 3
 		, description: ["\t@CPFI=PicName:PatternName:ID"
 			, "\t@CPatternFadeIn=PicName:PatternName:ID"
@@ -3190,6 +3440,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["CPatternFadeIn", undefined],
 	["CPFO", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 3, maxParam: 3
 		, description: ["\t@CPFO=PicName:PatternName:ID"
 			, "\t@CPatternFadeOut=PicName:PatternName:ID"
@@ -3200,6 +3451,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["CPatternFadeOut", undefined],
 	["CGPFI", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@CGPFI=PicName:PatternName"
 			, "\t@CGPatternFadeIn=PicName:PatternName"
@@ -3211,6 +3463,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CGPFO", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@CGPFO=PicName:PatternName"
 			, "\t@CGPatternFadeOut=PicName:PatternName"
@@ -3222,6 +3475,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Char", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 7
 		, description: ["\t@Char=filename.png:ID:Alpha:X:Y:Width:Height"
 			, "\t@Character=filename.png:ID:Alpha:X:Y:Width:Height"
@@ -3233,6 +3487,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CC", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 5
 		, description: ["\t@CC=filename:ID:alpha:width:height"
 			, "\t@CharChange=filename:ID:alpha:width:height"
@@ -3246,6 +3501,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CA", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@CA=ID:Alpha"
 			, "\t@CharAlpha=ID:Alpha"
@@ -3256,6 +3512,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["CharAlpha", undefined],
 	["HideChar", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["\t@HideChar=ID"
 			, "若`PreviousAlpha = -1`，记忆当前的目标不透明度，并执行"
@@ -3265,6 +3522,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["HideAllChar", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 0, maxParam: 0
 		, description: ["为所有未隐藏的图像对象执行"
 			, "\t@HideChar=ID"]
@@ -3273,6 +3531,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["ShowChar", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["@ShowChar=ID"
 			, "执行"
@@ -3283,6 +3542,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["ShowAllChar", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 0, maxParam: 0
 		, description: ["为所有隐藏的图像对象执行"
 			, "\t@ShowChar=ID"]
@@ -3291,6 +3551,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["CharRotate", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 4, maxParam: 4
 		, description: ["\t@CharRotate=ID:angle:clockwise:CircleCount"
 			, "旋转对象至目标角度与预定圈数，`clockwise = 1`为顺时针，`clockwise = -1`为逆时针"
@@ -3301,6 +3562,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["AttachShader", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 34
 		, description: ["\t@AttachShader=ID:ShaderName:Param1:Param2:..."
 			, "为非特效图像附加Shader，依照类型顺序指定参数"]
@@ -3325,6 +3587,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["PeriodicAnimation", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 5, maxParam: 5
 		, description: ["\t@PeriodicAnimation=ID:Name:Enable:Delta:Period"
 			, "为图像对象启用周期动画，依照类型更新参数"
@@ -3334,6 +3597,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["GraphicErase", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["\t#GraphicErase=MemLimit"
 			, "尝试清理未引用的缓存，直到当前内存占用低于`MemLimit`或无可清理缓存。`MemLimit = -1`将按照默认设置清理，`MemLimit = 0`将清理全部未引用缓存"
@@ -3344,6 +3608,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CharBlur", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 3
 		, description: ["\t@CharBlur=ID:Radius:Accumulate"
 			, "为角色创建模糊效果，无法与透视同时使用"
@@ -3354,6 +3619,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["CharPerspective", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@CharPerspective=ID:Matrix"
 			, "为角色创建透视效果，无法与模糊同时使用"
@@ -3370,6 +3636,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CharAnimation", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@CharAnimation=ID:Animation"
 			, "指定角色动画"
@@ -3379,6 +3646,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["CharAnimationSpeed", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@CharAnimationSpeed=ID:AnimationSpeed"
 			, "指定角色动画速度"]
@@ -3387,6 +3655,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["CharAnimationFrame", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 3, maxParam: 3
 		, description: ["\t`@CharAnimationFrame=ID:Type:AnimationFrame"
 			, "指定角色动画帧"
@@ -3416,6 +3685,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["SetAutoArrange", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["\t@SetAutoArrange=On/Off"
 			, "控制自动间距功能的开启与关闭，设定为1或On时启用自动间距，设定为0或Off时禁用自动间距，参数为空会Toggle当前启用状态"
@@ -3425,6 +3695,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["CD", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 1, maxParam: 1
 		, description: ["\t@CD=ID"
 			, "\t@CharDispose=ID"
@@ -3436,6 +3707,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["CAD", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 0, maxParam: 0
 		, description: ["销毁全部的图像对象，并释放其对应的本体和遮罩"
 			, "CG/UI不会被销毁"]
@@ -3444,6 +3716,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	["CharAllDispose", undefined],
 	["MC", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 3, maxParam: 7
 		, description: ["\t@MC=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
 			, "\t@MoveChar=ID:TarX:TarY:Time:FuncA:FuncB:Mode"
@@ -3473,6 +3746,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 
 	["Order", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 3, maxParam: 3
 		, description: ["\t@Order=ID:Order:Type"
 			, "无叠化，调整ID指定对象的层级，通过`Type`指定不同的对象类型"
@@ -3492,6 +3766,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Front", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@Front=ID:Type"
 			, "无叠化，将`ID`指定的`Type`对象移至顶层"]
@@ -3508,6 +3783,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Back", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 2
 		, description: ["\t@Back=ID:Type"
 			, "无叠化，将`ID`指定的`Type`对象移至底层"]
@@ -3524,6 +3800,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Forward", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 3
 		, description: ["\t@Forward=ID:Type:Num"
 			, "无叠化，将`ID`指定的`Type`对象上移`Num`层，参数留空默认上移一层"]
@@ -3542,6 +3819,7 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 	}],
 	["Backward", {
 		prefix: "@"
+		, keywordType: KeywordType.Preobj
 		, minParam: 2, maxParam: 3
 		, description: ["\t@Backward=ID:Type:Num"
 			, "无叠化，将`ID`指定的`Type`对象下移`Num`层，参数留空默认下移一层"]
@@ -3588,6 +3866,10 @@ export function resetList() {
 			}
 
 			return;
+		}
+
+		if (value.keywordType === undefined) {
+			console.log(key);
 		}
 
 		previousInfo = value;

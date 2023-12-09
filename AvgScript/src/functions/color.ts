@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { lineCommentCache } from '../lib/comment';
-import { currentLineCommand } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 import { commandInfoList, ParamType } from '../lib/dict';
 import { regexHexColor, regexRep } from '../lib/regExp';
 import { getAllParams } from '../lib/utilities';
@@ -15,9 +15,9 @@ export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
 			let colors: vscode.ColorInformation[] = [];
 
 			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
-				let text = lineInfo.textNoComment;
+				let text = lineInfo.textNoCommentAndLangPrefix;
 				let lineNumber = lineInfo.lineNum;
-				let lineStart = lineInfo.lineStart;
+				let lineStart = lineInfo.lineStart + lineInfo.langPrefixLength;
 				let lineEnd = lineInfo.lineEnd;
 
 				const params = getAllParams(text);
@@ -71,7 +71,7 @@ export const colorProvider = vscode.languages.registerColorProvider('AvgScript',
 					}
 				};
 
-				if (currentLineCommand(text)) {
+				if (lineInfo.lineType === LineType.command) {
 					const command = params[0].substring(1);
 					const paramDefinition = commandInfoList.getValue(command);
 

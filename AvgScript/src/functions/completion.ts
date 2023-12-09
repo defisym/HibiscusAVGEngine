@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { currentLineNotComment } from '../lib/comment';
-import { currentLineCommand } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 import { atKeywordList, commandDocList, deprecatedKeywordList, docList, internalKeywordList, ParamType, settingsParamDocList, settingsParamList, sharpKeywordList } from '../lib/dict';
 import { dubParseCache, UpdateDubCompletion } from '../lib/dubs';
 import { getSettings } from '../lib/settings';
@@ -11,13 +11,15 @@ import { extraInlayHintInfoInvalid, getExtraInlayHintInfo } from './inlayHint';
 import { labelCache } from './label';
 
 function completionValid(document: vscode.TextDocument, position: vscode.Position) {
-	let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+	const parseCommentResult = currentLineNotComment(document, position, true);
 
-	if (line === undefined) {
+	if (parseCommentResult === undefined) {
 		return false;
 	}
 
-	if (!lineValidForCommandCompletion(linePrefix!)) {
+	let { line, lineStart, linePrefix, lineType, curPos } = parseCommentResult;
+
+	if (!lineValidForCommandCompletion(linePrefix, lineType)) {
 		return false;
 	}
 
@@ -30,8 +32,7 @@ export function updateSharpCompletionList() {
 	sharpCompletionList = getCompletionItemList(sharpKeywordList, commandDocList);
 }
 
-export const sharpCommands = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const sharpCommands = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 			if (!completionValid(document, position)) { return undefined; }
@@ -48,8 +49,7 @@ export function updateAtCompletionList() {
 	atCompletionList = getCompletionItemList(atKeywordList, commandDocList);
 }
 
-export const atCommands = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const atCommands = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 			if (!completionValid(document, position)) { return undefined; }
@@ -60,17 +60,18 @@ export const atCommands = vscode.languages.registerCompletionItemProvider(
 	'@' // triggered whenever a '@' is being typed
 );
 
-export const settingsParam = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const settingsParam = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
-			if (line === undefined) {
+			if (parseCommentResult === undefined) {
 				return undefined;
 			}
 
-			if (!linePrefix!.startsWith('#Settings='.toLowerCase())) {
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
+
+			if (!linePrefix.matchStart(/#Settings/gi)) {
 				return undefined;
 			}
 
@@ -90,8 +91,7 @@ export const settingsParam = vscode.languages.registerCompletionItemProvider(
 	'=', '|'
 );
 
-export const langPrefix = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const langPrefix = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 			const line = document.lineAt(position).text.trim().toLowerCase();
@@ -108,15 +108,16 @@ export const langPrefix = vscode.languages.registerCompletionItemProvider(
 	},
 );
 
-export const fileSuffix = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const fileSuffix = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
-			if (line === undefined) {
+			if (parseCommentResult === undefined) {
 				return undefined;
 			}
+
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 			switch (getCommandParamFileType(linePrefix!)) {
 				case FileType.inValid:
@@ -166,15 +167,17 @@ export const fileSuffix = vscode.languages.registerCompletionItemProvider(
 	'.'
 );
 
-export const fileName = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const fileName = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 			if (!basePathUpdated) { return undefined; }
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			if (parseCommentResult === undefined) {
+				return undefined;
+			}
 
-			if (line === undefined) { return undefined; }
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 			let returnCompletion = (completion: vscode.CompletionItem[]) => {
 				if (!fileListInitialized) {
@@ -240,15 +243,16 @@ export const fileName = vscode.languages.registerCompletionItemProvider(
 	'=', ':'
 );
 
-export const required = vscode.languages.registerCompletionItemProvider(
-	'AvgScript',
+export const required = vscode.languages.registerCompletionItemProvider('AvgScript',
 	{
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-			let [line, lineStart, linePrefix, curPos] = currentLineNotComment(document, position);
+			const parseCommentResult = currentLineNotComment(document, position, true);
 
-			if (line === undefined) {
+			if (parseCommentResult === undefined) {
 				return undefined;
 			}
+
+			let { line, lineStart, linePrefix, curPos } = parseCommentResult;
 
 			const { params, commandWithPrefix, command, paramInfo } = parseCommand(linePrefix!);
 
@@ -317,9 +321,9 @@ export const required = vscode.languages.registerCompletionItemProvider(
 // Completion
 // ---------------
 
-function lineValidForCommandCompletion(src: string): boolean {
+function lineValidForCommandCompletion(src: string, lineType: LineType): boolean {
 	let include = lineIncludeDelimiter(src);
-	let startWith = currentLineCommand(src);
+	let startWith = lineType === LineType.command;
 	let endWith = (src.endsWith("@") || src.endsWith("#"));
 
 	if (include) {

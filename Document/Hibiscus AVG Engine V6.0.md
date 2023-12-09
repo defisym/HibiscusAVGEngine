@@ -2,7 +2,7 @@
 
 Hibiscus，意为木槿，朱槿
 
-![Hibiscus](media/image1.jpg)
+![Hibiscus](media/hibiscus.jpg)
 
 ## 图例
 
@@ -732,7 +732,7 @@ namenull.png = 2_1
 
 当解析到对白时，VN模式会忽略姓名，并自动在对白文本前后添加`『`与`』`用于区分。
 
-![VNMode](media/image2.jpeg)
+![VNMode](media/VNBrace.jpeg)
 
 ##### 控制指令
 
@@ -845,7 +845,7 @@ Debug_AVG = Dialogue\_initial.asc
 
 ##### 截图
 
-![Debug](media/image3.jpg)
+![Debug](media/debug.jpg)
 
 #### 开始调试
 
@@ -873,9 +873,9 @@ Debug_AVG = Chapter_1
 
 将需要调试的章节拖拽至主程序图标上使用其打开，即可对该章节进行调试
 
-![Drag](media/image4.png)
+![Drag](media/dragDebug.png)
 
-![StartDebug](media/image5.jpeg)
+![StartDebug](media/startDragDebug.jpeg)
 
 该调试方法所执行的完整命令行和目标脚本文件会被记录在`Settings.ini`->`Debug`一节中的`CommandLine`和`TargetScript`项
 
@@ -883,7 +883,7 @@ Debug_AVG = Chapter_1
 
 拖拽调试的本质是解析命令行，因此可以通过配置文件关联来实现快速调试。选中脚本文件，右键点击，选择打开方式，指定为主程序，即可通过双击打开脚本来进行调试。
 
-![File association](media/image6.png)
+![File association](media/fileAssocDebug.png)
 
 ##### 使用编辑器调试
 
@@ -911,7 +911,7 @@ Debug_AVG = Chapter_1
 ]
 ```
 
-![InVSCode](media/image7.png)
+![InVSCode](media/manualLaunchJsonDebug.png)
 
 #### 快捷键
 
@@ -1054,7 +1054,7 @@ QuickBar = 1
 
 代码块开始/结束标志，允许你在编辑器中将代码段折叠，在引擎内部无任何效果
 
-![Block](media/image8.png)
+![Block](media/block.png)
 
 ### 调试
 
@@ -1999,6 +1999,8 @@ EndlessShinyBlues_Pos=1
 
 当`Content_Name`项留空时，程序会将指令参数`ContentName`作为默认名称。
 
+存档页面也从此处引用章节名称
+
 #### 解锁记录范例
 
 解锁鉴赏项目后会在`savings\Global\Appreciation_Progress`留下记录，一个典型的记录如下：
@@ -2035,7 +2037,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 解锁后即可在对应的鉴赏页面中进行查看：
 
-![Unlock](media/image9.jpeg)
+![Unlock](media/achievement.jpeg)
 
 ### Steam
 
@@ -2464,7 +2466,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 具体参数可参考`Utilities\Easing`中的辅助程序进行设置
 
-![Easing](media/image10.png)
+![Easing](media/easingUtilities.png)
 
 ##### 参数说明
 
@@ -2689,7 +2691,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 左为pattern Fade In，右为pattern Fade Out,前景pattern Fade In=背景pattern Fade Out,前景pattern Fade Out=背景pattern Fade In。**两者虽然采用了不同的叠化方式，但最终效果一致，建议使用前者。**
 
-![PatternFade](media/image11.jpeg)
+![PatternFade](media/patternFade.jpeg)
 
 ##### 核心指令
 
@@ -2705,7 +2707,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 不建议进行差分和不同对象的切换，而是将当前图像切换至透明图像来实现进场和退场效果
 
-![CharPatternFade](media/image12.jpeg)
+![CharPatternFade](media/charPatternFade.jpeg)
 
 ###### `@CPFI=PicName:PatternName:ID`
 
@@ -2767,7 +2769,7 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 ###### 示意图
 
-![BGBlur](media/image3.jpg)
+![BGBlur](media/debug.jpg)
 
 ##### Sepia Toning
 
@@ -2795,13 +2797,13 @@ Audio_1_1_Name= 无尽闪亮的哀愁
 
 一个典型的噪声图为使用PhotoShop创建一个与画面分辨率一致的，填充纯黑色，并添加30%高斯分布杂色的图像，参考图如下：
 
-![Noise](media/image13.png)
+![Noise](media/noise.png)
 
 ###### 使用建议
 
 `Sepia Toning`建议结合遮罩使用，一个典型的遮罩如下图所示：
 
-![Sepia Toning](media/image14.png)
+![Sepia Toning](media/sepiaToning.png)
 
 ###### 范例代码
 
@@ -2830,11 +2832,11 @@ Toggle Sepia Noise Motion
 
 附加遮罩
 
-![Mask](media/image15.jpeg)
+![Mask](media/sepiaMask.jpeg)
 
 不附加遮罩
 
-![NoMasK](media/image16.jpeg)
+![NoMasK](media/sepiaNoMask.jpeg)
 
 #### 图像指令
 
@@ -3380,41 +3382,33 @@ CG/UI不会被销毁
 
 2.在侧边栏中点击扩展按钮
 
-![Extension](media/image17.png)
+![Extension](media/extensionTab.png)
 
 3.在扩展页面中点击右上角的`...`打开二级菜单，选择`从VSIX安装`，安装提供的`AvgScript`插件
 
-![VSIX](media/image18.png)
+![VSIX](media/installExtension.png)
 
-4.打开设置->颜色主题
+4.打开资源管理器，导航至脚本所在的文件夹，在空白区域右键点击，选择`通过Code打开`
 
-![Theme](media/image19.png)
+![OpenWithVSCode](media/openFolder.png)
 
-5.选择主题为`AvgScript`,这将为脚本带来语法高亮
+5.使用`Ctrl + Shift + P`组合键呼出命令面板，选择`AvgScript: Set Base path`:
 
-![Highlight](media/image20.png)
-
-6.打开资源管理器，导航至脚本所在的文件夹，在空白区域右键点击，选择`通过Code打开`
-
-![OpenWithVSCode](media/image21.png)
-
-7.使用`Ctrl + Shift + P`组合键呼出命令面板，选择`AvgScript: Set Base path`:
-
-![Command](media/image22.png)
+![Command](media/basePath.png)
 
 输入开发工程中主程序`Game.exe`的完整路径:
 
-![BasePath](media/image23.png)
+![BasePath](media/gamePath.png)
 
 本例中主程序所在文件夹为`F:\DEV\AVG+SRPG\Program`，主程序为`Game.exe`，因此实际输入的路径应为`F:\DEV\AVG+SRPG\Program\Game.exe`
 
-引擎会通过该路径查找资源文件并进行语法提示:
+插件会通过该路径查找资源文件并进行语法提示:
 
-![Completion](media/image24.png)
+![Completion](media/completion.png)
 
-7.开始编辑
+6.开始编辑
 
-![OpenWithVSCode](media/image25.png)
+![OpenWithVSCode](media/editScript.png)
 
 #### 设置
 

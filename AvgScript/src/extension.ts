@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { colorProvider } from './functions/color';
-import { assetsListPanel, commandAppendDialogue, commandAppendDialogue_impl, commandBasePath, commandBasePath_impl, commandDeleteDub, commandDeleteDub_impl, commandGetAssetsList, commandGetAssetsList_impl, commandGetDubList, commandGetDubList_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl, commandShowHibiscusDocument, commandShowHibiscusDocument_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl, commandUpdateDub, commandUpdateDub_impl, dubListPanel, formatHintPanel, jumpFlowPanel } from './functions/command';
+import { assetsListPanel, commandAppendDialogue, commandAppendDialogue_impl, commandBasePath, commandBasePath_impl, commandDeleteDub, commandDeleteDub_impl, commandGetAssetsList, commandGetAssetsList_impl, commandGetDubList, commandGetDubList_impl, commandPasteDub, commandPasteDub_impl, commandRefreshAssets, commandRefreshAssets_impl, commandReplaceScript, commandReplaceScript_impl, commandShowDialogueFormatHint, commandShowDialogueFormatHint_impl, commandShowHibiscusDocument, commandShowHibiscusDocument_impl, commandShowJumpFlow, commandShowJumpFlow_impl, commandUpdateCommandExtension, commandUpdateCommandExtension_impl, commandUpdateDub, commandUpdateDub_impl, dubListPanel, formatHintPanel, jumpFlowPanel } from './functions/command';
 import { atCommands, fileName, fileSuffix, langPrefix, required, settingsParam, sharpCommands } from './functions/completion';
 import { debuggerFactory, debuggerProvider, debuggerTracker } from './functions/debugger';
 import { diagnosticThrottle, diagnosticsCollection } from './functions/diagnostic';
@@ -18,6 +18,7 @@ import { codeLensProvider } from './functions/codeLens';
 import { drop } from './functions/drop';
 import { formatting } from './functions/formatting';
 import { previewer } from './functions/preview';
+import { rangeSemanticProvider, semanticProvider } from './functions/semantic';
 import { lineCommentCache } from './lib/comment';
 import { throttle } from './lib/throttle';
 
@@ -53,13 +54,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand(commandUpdateDub, commandUpdateDub_impl);
 	vscode.commands.registerCommand(commandDeleteDub, commandDeleteDub_impl);
+	vscode.commands.registerCommand(commandPasteDub, commandPasteDub_impl);
 
 	//--------------------
 	// Init Command
 	//--------------------
 
 	// make sure command info list is valid
-	await vscode.commands.executeCommand(commandUpdateCommandExtension);
+	await vscode.commands.executeCommand(commandUpdateCommandExtension, false);
 	vscode.commands.executeCommand(commandRefreshAssets);
 
 	//--------------------
@@ -141,23 +143,26 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(drop);
 
 	//--------------------
-	// File Updated
+	// Semantic
 	//--------------------
 
-	diagnosticThrottle.triggerCallback(() => { }, true);
+	context.subscriptions.push(rangeSemanticProvider);
+	context.subscriptions.push(semanticProvider);
+
+	//--------------------
+	// File Updated
+	//--------------------
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {
 		activeEditor = editor;
 		if (!editor) { return; }
 
+		previewer.docUpdated();
+
 		throttle.triggerCallback(() => {
 			// console.log("trigger parse :" + editor.document.fileName);
-
-			previewer.docUpdated();
-			// parseLineComment(editor.document);
-			// parseLabel(editor.document);
 		});
-		diagnosticThrottle.triggerCallback(() => { });
+		diagnosticThrottle.triggerCallback();
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {

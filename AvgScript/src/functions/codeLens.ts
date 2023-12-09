@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { lineCommentCache } from '../lib/comment';
-import { AppendType, currentLineDialogue } from '../lib/dialogue';
+import { AppendType, LineType } from '../lib/dialogue';
 import { dubMapping, dubParseCache } from '../lib/dubs';
 import { Throttle } from '../lib/throttle';
 import { cropScript } from '../lib/utilities';
@@ -45,6 +45,12 @@ class CodelensProvider implements vscode.CodeLensProvider {
 		vscode.workspace.onDidCloseTextDocument(document => {
 			dubParseCache.removeDocumentCache(document);
 		});
+
+		vscode.workspace.onDidChangeConfiguration((event) => {
+			if (event.affectsConfiguration(confDub_EnableDubMapping)) {
+				this.refresh();
+			};
+		});
 	}
 
 	public refresh() {
@@ -63,7 +69,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 		dubParseCache.getDocumentCache(document);
 		const bEnableDubMapping = vscode.workspace.getConfiguration().get<boolean>(confDub_EnableDubMapping, false);
 		lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
-			let text = lineInfo.textNoComment;
+			let text = lineInfo.textNoCommentAndLangPrefix;
 			let lineNumber = lineInfo.lineNum;
 			let lineStart = lineInfo.lineStart;
 			let lineEnd = lineInfo.lineEnd;
@@ -72,7 +78,7 @@ class CodelensProvider implements vscode.CodeLensProvider {
 				new vscode.Position(lineNumber, lineEnd));
 
 			// resolve by the push order
-			if (currentLineDialogue(text)) {
+			if (lineInfo.lineType === LineType.dialogue && !lineInfo.lineNotCurLanguage) {
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.lineInfo, range));
 				codeLenses.push(new CodeLensEx(document, CodeLensExType.fileName, range));
 
@@ -102,7 +108,15 @@ class CodelensProvider implements vscode.CodeLensProvider {
 
 		const dubCache = dubParseCache.getDocumentCacheAt(document, line);
 
-		if (dubCache === undefined) { return undefined; }
+		if (dubCache === undefined) {
+			codeLens.command = {
+				title: "无语音信息",
+				tooltip: "当前行无语音信息",
+				command: "",
+			};
+
+			return codeLens;
+		}
 
 		const dubState = dubCache.dubParser;
 

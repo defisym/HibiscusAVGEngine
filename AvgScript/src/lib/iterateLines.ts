@@ -1,17 +1,21 @@
 import * as vscode from 'vscode';
 import { currentLocalCode } from '../functions/file';
+import { LineType, currentLineType } from './dialogue';
 import { InlayHintType } from './dict';
 import { iterateScripts } from './iterateScripts';
-import { getLangRegex } from './regExp';
+import { getLangRegex, removeLangPrefix } from './regExp';
 
 export interface LineInfo {
 	emptyLine: boolean,
 
+	lineType: LineType,
 	lineIsComment: boolean,
 	lineNotCurLanguage: boolean,
 
 	originText: string
 	textNoComment: string,
+	textNoCommentAndLangPrefix: string,
+	langPrefixLength: number
 
 	lineNum: number,
 
@@ -55,11 +59,14 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 				{
 					emptyLine: true,
 
+					lineType: LineType.invalid,
 					lineIsComment: false,
 					lineNotCurLanguage: false,
 
 					originText: line.text,
 					textNoComment: '',
+					textNoCommentAndLangPrefix: '',
+					langPrefixLength: 0,
 
 					lineNum: i,
 
@@ -103,16 +110,20 @@ export function iterateLinesWithComment(document: vscode.TextDocument,
 		const bNotCurrentLanguage = langReg !== undefined
 			? textNoComment.matchEntire(langReg)
 			: false;
+		const textNoCommentAndLangPrefix = removeLangPrefix(textNoComment);
 
 		lineCallBack(
 			{
 				emptyLine: false,
 
+				lineType: currentLineType(textNoCommentAndLangPrefix),
 				lineIsComment: inComment || textNoComment.empty() || bNotCurrentLanguage,
 				lineNotCurLanguage: bNotCurrentLanguage,
 
 				originText: line.text,
 				textNoComment: textNoComment,
+				textNoCommentAndLangPrefix: textNoCommentAndLangPrefix,
+				langPrefixLength: textNoComment.length - textNoCommentAndLangPrefix.length,
 
 				lineNum: i,
 
@@ -147,6 +158,7 @@ export function iterateLines(document: vscode.TextDocument,
 
 			originText,
 			textNoComment,
+			textNoCommentAndLangPrefix,
 
 			lineNum,
 
@@ -156,7 +168,7 @@ export function iterateLines(document: vscode.TextDocument,
 			firstLineNotComment } = info;
 
 		if (!lineIsComment) {
-			callBack(textNoComment, lineNum,
+			callBack(textNoCommentAndLangPrefix, lineNum,
 				lineStart, lineEnd,
 				firstLineNotComment!);
 		}

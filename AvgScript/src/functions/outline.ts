@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
-import { currentLineLabel } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 
 import { lineCommentCache } from '../lib/comment';
 import { beginRegex, endRegex } from '../lib/regExp';
 import { parseCommand } from '../lib/utilities';
 
-export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScript'
-	, {
+export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScript',
+	{
 		provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken) {
 			let symbols: vscode.SymbolInformation[] = [];
 
@@ -18,7 +18,7 @@ export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScrip
 			const labelRegex = /^;.*/gi;
 
 			lineCommentCache.iterateDocumentCacheWithoutComment(document, (lineInfo) => {
-				let text = lineInfo.textNoComment;
+				let text = lineInfo.textNoCommentAndLangPrefix;
 				let lineNumber = lineInfo.lineNum;
 				let lineStart = lineInfo.lineStart;
 				let lineEnd = lineInfo.lineEnd;
@@ -54,8 +54,8 @@ export const outline = vscode.languages.registerDocumentSymbolProvider('AvgScrip
 						break;
 					}
 
-					if (currentLineLabel(text)) {
-						let labelName = text.substring(text.indexOf(";") + 1);
+					if (lineInfo.lineType === LineType.label) {
+						let labelName = text.substring(1);
 
 						item = new vscode.SymbolInformation("Label: " + labelName
 							, vscode.SymbolKind.String

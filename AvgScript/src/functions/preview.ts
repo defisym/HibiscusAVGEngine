@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { lineCommentCache } from '../lib/comment';
-import { currentLineDialogue } from '../lib/dialogue';
+import { LineType } from '../lib/dialogue';
 import { confPreview_AlwaysSendingMessage } from './command';
 import { basePath, basePathUpdated, projectConfig } from './file';
 
@@ -114,10 +114,10 @@ export class Previewer {
 		for (let lineNumber = 0; lineNumber < curCache.comment.length; lineNumber++) {
 			if (curCache.comment[lineNumber]) { continue; }
 
-			const parseResult = curCache.result[lineNumber];
-			const text = parseResult[0]!;
+			const parseResult = curCache.result[lineNumber]!;
+			let { line, lineStart, linePrefix, lineType, curPos } = parseResult;
 
-			const bCurLineText = currentLineDialogue(text);
+			const bCurLineText = lineType === LineType.dialogue;
 
 			if (lineNumber >= cursorAt) {
 				bReached = true;

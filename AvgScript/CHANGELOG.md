@@ -1,5 +1,41 @@
 # Change Log
 
+## 20231209
+
+- update lang prefix regex together with main game
+
+## 20231208
+
+- `Ctrl + Shift + V` to paste path as dub file
+  - due to the limitation of web env, cannot get clipboard contents that is not text, so you need to use `Ctrl + Shift + C` to copy file path then paste into dialogue line
+- Cache line type instead of calculate it every time
+- find if document is already opened when opening document
+- fix lang prefix follows empty char break parsing
+- fix not current language line with empty char at start treat as comment in semantic parsing
+
+## 20231207
+
+- use dict instead of regex to get semantic keyword type
+- file info & file list cache not reset when refreshing file list
+- auto refresh code lens if dub mapping config changed
+- reduce redundant document open when clicking link
+
+## 20231206
+
+- tweak semantic logic
+- default syntax highlight color
+- remove theme files
+
+## 20231205
+
+- semantic highlight
+
+## 20231204
+
+- fix lang prefix didn't taken into account
+- fix lang decoration not updated until edit doc
+- fix duplicated diagnostics
+
 ## 20231203
 
 - add cache for file list searching

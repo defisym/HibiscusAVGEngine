@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { pinyin } from 'pinyin-pro';
 import { FileType } from '../functions/file';
 import { InlayHintType, commandInfoList } from './dict';
-import { beginRegex, endRegex } from './regExp';
+import { beginRegex, endRegex, removeLangPrefix } from './regExp';
 
 import path = require('path');
 
@@ -156,14 +156,24 @@ export function getParamAtPosition(src: string, position: number) {
 	return src.substring(start + 1, end);
 }
 
-export function getAllParams(src: string) {
-	if ((src.match(beginRegex) !== null) || (src.match(endRegex) !== null)) {
-		let appendDelimiter = delimiter.concat([' ']);
-
-		return getSubStrings(src, appendDelimiter);
+export function getAllParams(src: string, bNoLangPrefix: boolean = true) {
+	if (!bNoLangPrefix) {
+		src = removeLangPrefix(src);
+		bNoLangPrefix = true;
 	}
 
-	return getSubStrings(src, delimiter);
+	let appendDelimiter = delimiter;
+
+	if (src.matchStart(/#Settings/gi)) {
+		appendDelimiter = delimiter.concat(['|']);
+	}
+
+	// if ((src.match(beginRegex) !== null) || (src.match(endRegex) !== null)) {
+	if (src.matchStart(beginRegex) || src.matchStart(endRegex)) {
+		appendDelimiter = delimiter.concat([' ']);
+	}
+
+	return getSubStrings(src, appendDelimiter);
 }
 
 // position: Nth param
@@ -360,30 +370,51 @@ export function imageStretched(originSize: ImageSize, targetSize: ImageSize, tol
 // Script
 // ---------------
 
-export async function jumpToDocument(uri: vscode.Uri, line: number) {
-	if (Number.isNaN(line)) {
-		const editor = await vscode.window.showTextDocument(uri
-			, {
-				viewColumn: vscode.ViewColumn.Beside
-			});
-		editor.revealRange(new vscode.Range(0, 0, 0, 0)
-			, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+// find if document is already opened
+export async function getDocumentByUri(uri: vscode.Uri) {
+	const documents = vscode.workspace.textDocuments;
+
+	let doc: vscode.TextDocument | undefined = undefined;
+	const cmpUri = uri.toString();
+
+	for (const document of documents) {
+		if (document.uri.toString() === cmpUri) {
+			doc = document;
+
+			break;
+		}
 	}
 
-	const doc = await vscode.workspace.openTextDocument(uri);
-	const text = doc.lineAt(line).text;
+	if (doc === undefined) {
+		doc = await vscode.workspace.openTextDocument(uri);
+	}
 
-	const range = new vscode.Range(line, 0
-		, line, text.length);
-	const selection = new vscode.Selection(line, 0
-		, line, text.length);
+	return doc;
+}
 
-	const editor = await vscode.window.showTextDocument(uri, {
+// get range of a line
+function getLineRange(document: vscode.TextDocument, line: number) {
+	const textLine = document.lineAt(line);
+	const textStart = textLine.firstNonWhitespaceCharacterIndex;
+	const textLength = textLine.text.length;
+
+	const range = new vscode.Range(line, textStart
+		, line, textLength);
+
+	return range;
+}
+
+export async function jumpToDocument(uri: vscode.Uri, line: number) {
+	const bInvalidLine = Number.isNaN(line);
+
+	const doc = await getDocumentByUri(uri);
+	const range = bInvalidLine
+		? new vscode.Range(0, 0, 0, 0)
+		: getLineRange(doc, line);
+
+	const editor = await vscode.window.showTextDocument(doc, {
 		viewColumn: vscode.ViewColumn.Beside,
-		// viewColumn: vscode.window.activeTextEditor === undefined || vscode.window.activeTextEditor.viewColumn === undefined
-		//     ? vscode.ViewColumn.Beside
-		//     : vscode.window.activeTextEditor.viewColumn + 1,
-		selection: selection,
+		selection: bInvalidLine ? undefined : range,
 	});
 
 	editor.revealRange(range

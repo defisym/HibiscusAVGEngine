@@ -161,7 +161,7 @@
 			}
 		},
 		"keywords_system": {
-			"match": "(?i)(#Error|#NULL|#HandlePreload|#HandleErase|#UnSkipAble|#SkipAble|#SGO|#SetGlobalOffset|#TransitionSpeed|#SeparateTransitionSpeed|#ForceTransition|#Save|#debug|#debugOff|#RefreshRGB|#StashRGB|#RestoreRGB|#DisableRGB|#EnableRGB|#DefineRGB|#TransitionRGB|#MSG|#MSGRAW|#MSGClear|#StopFF|#StopFastForward|@HideUI|@ShowUI|#UpdateUICoord|#DisableUI|#EnableUI|#FNT|#ForceNoTransition|#FNTO|#ForceNoTransitionOff|#Eval|#SideEffect|#NoSideEffect|#EOF|#WaitGeneral|#W|#wait|#FW|#ForceWait|#OW|#OperationWait|#AutoChangePage|#TextDisplaySpeed|#jmp|#NJMP|#Call|#Ret|#FJMP|#JmpFra|#CJMP|#JmpCha|#SJMP|#SkipJmp|#FFJMP|#SkipAnchor|#SetSwitchColor|#SetSwitchHoverColor|#SetSwitchNegativeColor|#SetSwitchShader|#CreateSwitch|#Switch|#RichPresence|#ScreenShot|#UnlockAch|#AddToStat|#UnlockAppreciation|#UnlockAppreciation_Chapter|#UnlockAppreciation_Graphic|#UnlockAppreciation_Audio|#UnlockAppreciation_Video|#VNMode_Newline|#VNMode_ChangePage|#SetCapture|#CaptureSys)\\b",
+			"match": "(?i)(#Error|#NULL|#HandlePreload|#HandleErase|#UnSkipAble|#SkipAble|#SGO|#SetGlobalOffset|#TransitionSpeed|#SeparateTransitionSpeed|#ForceTransition|#Save|#debug|#debugOff|#RefreshRGB|#StashRGB|#RestoreRGB|#DisableRGB|#EnableRGB|#DefineRGB|#TransitionRGB|#MSG|#MSGRAW|#MSGClear|#StopFF|#StopFastForward|#HideUI|#ShowUI|#UpdateUICoord|#DisableUI|#EnableUI|#FNT|#ForceNoTransition|#FNTO|#ForceNoTransitionOff|#Eval|#SideEffect|#NoSideEffect|#EOF|#WaitGeneral|#W|#wait|#FW|#ForceWait|#OW|#OperationWait|#AutoChangePage|#TextDisplaySpeed|#jmp|#NJMP|#Call|#Ret|#FJMP|#JmpFra|#CJMP|#JmpCha|#SJMP|#SkipJmp|#FFJMP|#SkipAnchor|#SetSwitchColor|#SetSwitchHoverColor|#SetSwitchNegativeColor|#SetSwitchShader|#CreateSwitch|#Switch|#RichPresence|#ScreenShot|#UnlockAch|#AddToStat|#UnlockAppreciation|#UnlockAppreciation_Chapter|#UnlockAppreciation_Graphic|#UnlockAppreciation_Audio|#UnlockAppreciation_Video|#VNMode_Newline|#VNMode_ChangePage|#SetCapture|#CaptureSys)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.system.AvgScript"
@@ -169,7 +169,7 @@
 			}
 		},
 		"keywords_values": {
-			"match": "(?i)(#SV|#SetValue|#SVV|#SetValueValue|#SVAB|#SetValueAB|#SSS|#SetStringString|#SSAB|#SetStringAB|#VA|#ValueAdd|#VAV|#ValueAddValue|#VS|#ValueSub|#VSV|#ValueSubValue|#VM|#ValueMul|#VMV|#ValueMulValue|#VD|#ValueDiv|#VDV|#ValueDivValue|#CMP|#CMPV|#CMPValue|#CMPGeneral|#CMPVV|#CMPValueValue|#CMPAB|#CMPVAB|#CMPValueAB|#CMPSAB|#CMPStringAB|#CMPSS|#CMPStringString|#JE|#JA|#JB|#JNE)\\b",
+			"match": "(?i)(#SV|#SetValue|#SVV|#SetValueValue|#SVAB|#SetValueAB|#SSS|#SetStringString|#SSAB|#SetStringAB|#VA|#ValueAdd|#VAV|#ValueAddValue|#VS|#ValueSub|#VSV|#ValueSubValue|#VM|#ValueMul|#VMV|#ValueMulValue|#VD|#ValueDiv|#VDV|#ValueDivValue|#CMP|#CMPV|#CMPValue|#CMPGeneral|#CMPAB|#CMPVAB|#CMPValueAB|#CMPVV|#CMPValueValue|#CMPSAB|#CMPStringAB|#CMPSS|#CMPStringString|#JE|#JA|#JB|#JNE)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.values.AvgScript"
@@ -177,7 +177,7 @@
 			}
 		},
 		"keywords_dialogue": {
-			"match": "(?i)(#TextAlign|#TextSpace|#DiaColor|#DiaSize|#DiaFont|#DiaShaderOon|#DiaShaderOff|#DiaOutColor|#DiaOutPixel|#DiaShadow|#NameColor|#NameSize|#NameFont|#NameShaderOn|#NameShaderOff|#NameOutColor|#NameOutPixel|#NameShadow|@dia|@DiaChange|@DiaTrans|@name|@NameChange|@NameTrans|@StashUIGraphic|@RestoreUIGraphic|@TextFadeOut)\\b",
+			"match": "(?i)(#TextAlign|#TextSpace|#TextColor|#TextSize|#TextFont|#TextShaderOon|#TextShaderOff|#TextOutColor|#TextOutPixel|#TextShadow|#TextDefault|#DiaColor|#DiaSize|#DiaFont|#DiaShaderOon|#DiaShaderOff|#DiaOutColor|#DiaOutPixel|#DiaShadow|#NameColor|#NameSize|#NameFont|#NameShaderOn|#NameShaderOff|#NameOutColor|#NameOutPixel|#NameShadow|@dia|@DiaChange|@DiaTrans|@name|@NameChange|@NameTrans|@StashUIGraphic|@RestoreUIGraphic|@TextFadeOut)\\b",
 			"captures": {
 				"1": {
 					"name": "keyword.dialogue.AvgScript"

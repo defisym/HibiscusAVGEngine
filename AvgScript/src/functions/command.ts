@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import path = require('path');
+import * as mm from 'music-metadata';
 import * as vscode from 'vscode';
 
 import { activeEditor } from '../extension';
 import { currentLineNotComment } from '../lib/comment';
-import { currentLineDialogue, DialogueStruct, parseDialogue } from '../lib/dialogue';
-import { commandInfoList, generateList, GetDefaultParamInfo, inlayHintMap, InlayHintType, ParamInfo, ParamTypeMap, resetList } from '../lib/dict';
-import { dubMapping, DubParser } from '../lib/dubs';
+import { DialogueStruct, LineType, parseDialogue } from '../lib/dialogue';
+import { GetDefaultParamInfo, InlayHintType, KeywordTypeMap, ParamInfo, ParamTypeMap, commandInfoList, generateList, inlayHintMap, resetList } from '../lib/dict';
+import { DubParser, dubMapping } from '../lib/dubs';
 import { iterateParams } from '../lib/iterateParams';
 import { iterateScripts } from "../lib/iterateScripts";
 import { createWebviewPanel } from '../webview/_create';
@@ -17,8 +18,8 @@ import { dubList_getWebviewContent } from '../webview/dubList';
 import { formatHint_getFormatControlContent } from '../webview/formatHint';
 import { jumpFlow_getWebviewContent } from '../webview/jumpFlow';
 import { updateAtCompletionList, updateSharpCompletionList } from './completion';
-import { diagnosticUpdate, refreshFileDiagnostics } from './diagnostic';
-import { audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, FileType, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
+import { diagnosticThrottle } from './diagnostic';
+import { FileType, audio, audioBgmPath, audioBgsPath, audioSEPath, currentLocalCode, fileListHasItem, fileListUpdating, getBuffer, getFullFileNameByType, getFullFilePath, graphicCGPath, graphicCharactersPath, graphicPatternFadePath, graphicUIPath, projectFileInfoList, removePathQuote, scriptPath, updateBasePath, updateFileList, videoPath, waitForFileListInit } from './file';
 import { getLabelJumpMap } from './label';
 
 // config
@@ -56,6 +57,8 @@ export const commandGetDubList: string = "config.AvgScript.getDubList";
 export const commandUpdateDub: string = "config.AvgScript.updateDub";
 export const commandDeleteDub: string = "config.AvgScript.deleteDub";
 
+export const commandPasteDub: string = "config.AvgScript.pasteDub";
+
 export const commandBasePath_impl = async () => {
 	// 1) Getting the value
 	let oldBasePath = vscode.workspace.getConfiguration().get<string>(confBasePath, "");
@@ -88,7 +91,6 @@ export const commandBasePath_impl = async () => {
 		cancellable: false
 	}, async (progress, token) => {
 		await updateFileList(progress);
-		refreshFileDiagnostics();
 	});
 };
 
@@ -103,11 +105,10 @@ export const commandRefreshAssets_impl = async () => {
 		cancellable: false
 	}, async (progress, token) => {
 		await updateFileList(progress);
-		refreshFileDiagnostics();
 	});
 };
 
-export const commandUpdateCommandExtension_impl = async () => {
+export const commandUpdateCommandExtension_impl = (bRefreshDiagnostic: boolean = true) => {
 	// reset list to base
 	resetList();
 
@@ -121,6 +122,7 @@ export const commandUpdateCommandExtension_impl = async () => {
 		interface CommandExt extends ParamInfo {
 			// basic
 			command: string,
+			keywordTypeStr?: string,
 
 			// diagnostic
 			paramType: string[],
@@ -158,6 +160,11 @@ export const commandUpdateCommandExtension_impl = async () => {
 			// processing
 			paramInfo.minParam = Math.max(0, commandExtItem.minParam);
 			paramInfo.maxParam = Math.max(paramInfo.minParam, commandExtItem.maxParam);
+
+			// convert to index
+			if (commandExtItem.keywordTypeStr !== undefined) {
+				paramInfo.keywordType = KeywordTypeMap.get(commandExtItem.keywordTypeStr);
+			}
 
 			// convert to index
 			let paramType = commandExtItem.paramType;
@@ -226,7 +233,9 @@ export const commandUpdateCommandExtension_impl = async () => {
 	updateAtCompletionList();
 
 	// update diagnostic
-	diagnosticUpdate();
+	if (bRefreshDiagnostic) {
+		diagnosticThrottle.triggerCallback(() => { }, true);
+	}
 };
 
 export let assetsListPanel: vscode.WebviewPanel;
@@ -590,21 +599,24 @@ export const commandAppendDialogue_impl = async () => {
 	const documentLineAt = document.lineAt(cursor.line).text;
 	const documentLineLength = documentLineAt.length;
 
-	let [line, lineStart, linePrefix, curPos, lineRaw] = currentLineNotComment(document, cursor);
+	const parseCommentResult = currentLineNotComment(document, cursor, true);
 
-	if (line === undefined) {
+	if (parseCommentResult === undefined) {
 		return undefined;
 	}
 
-	const spaceLength = documentLineLength - lineRaw!.length;
+	let { line, lineStart, linePrefix, lineType, curPos, lineRaw } = parseCommentResult;
+
+	const spaceLength = documentLineLength - lineRaw.length;
 	let indentString = documentLineAt.substring(0, spaceLength);
 
 	// normal text
-	if (currentLineDialogue(line)) {
-		const dialogueStruct = parseDialogue(lineRaw!);
+	if (lineType === LineType.dialogue) {
+		const dialogueStruct = parseDialogue(line);
+		const langPrefix = lineRaw.substring(0, lineRaw.length - line.length);
 
-		const curLineNew = lineRaw!.substring(0, linePrefix!.length);
-		let nextLine = lineRaw!.substring(linePrefix!.length);
+		const curLineNew = line.substring(0, linePrefix.length);
+		let nextLine = line.substring(linePrefix.length);
 
 		nextLine = (!dialogueStruct.m_namePartEmpty
 			? "$" + dialogueStruct.m_namePartRaw + ":"
@@ -615,8 +627,9 @@ export const commandAppendDialogue_impl = async () => {
 		await activeEditor.edit((editBuilder: vscode.TextEditorEdit) => {
 			editBuilder.replace(new vscode.Range(cursor.line, 0
 				, cursor.line, documentLineLength)
-				, indentString + curLineNew);
-			editBuilder.insert(new vscode.Position(cursor.line + 1, 0), indentString + nextLine);
+				, indentString + langPrefix + curLineNew);
+			editBuilder.insert(new vscode.Position(cursor.line + 1, 0)
+				, indentString + langPrefix + nextLine);
 		}, editOptions);
 
 		return;
@@ -711,7 +724,7 @@ export const commandGetDubList_impl = async () => {
 				line: string, lineNumber: number,
 				lineStart: number, lineEnd: number,
 				firstLineNotComment: number) => {
-				dubParser!.parseLine(line, (dp: DubParser, dialogueStruct: DialogueStruct) => {
+				dubParser!.parseLine(line, undefined, (dp: DubParser, dialogueStruct: DialogueStruct) => {
 					if (fileName === undefined) {
 						return;
 					}
@@ -785,7 +798,6 @@ export const commandUpdateDub_impl = async (document: vscode.TextDocument, dialo
 
 	previousUri = vscode.Uri.file(path.dirname(src));
 
-	// vscode.workspace.fs.copy(vscode.Uri.file(src), vscode.Uri.file(target), { overwrite: true });
 	dubMapping.updateDub(document, target, src);
 
 	return;
@@ -799,4 +811,21 @@ export const commandDeleteDub_impl = (targetFile: string) => {
 	vscode.workspace.fs.delete(vscode.Uri.file(target), { recursive: false, useTrash: true });
 
 	return;
+};
+
+export const commandPasteDub_impl = async () => {
+	if (activeEditor === undefined) { return; }
+
+	const position = activeEditor.selection.active;
+	const filePath = removePathQuote(await vscode.env.clipboard.readText());
+
+	try {
+		// make sure file is valid
+		await mm.parseBuffer(await getBuffer(filePath));
+		if (!dubMapping.updatePositionDub(activeEditor.document, position, filePath)) {
+			vscode.window.showErrorMessage('Current line has no dub info');
+		}
+	} catch (err) {
+		vscode.window.showInformationMessage('Invalid file: ' + filePath);
+	}
 };

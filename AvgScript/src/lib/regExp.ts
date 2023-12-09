@@ -8,10 +8,14 @@ export const keyWordRegex = /^(((#CreateSwitch|#Call|#CMP|@SetBattleScript).*)|(
 
 export const blankRegex = new RegExp(";.*|\s*$|#begin.*|#end.*", "gi");
 
-export const langFilter = /(Lang\[[^\[\]]*\])(.*)/gi;
+export const langFilter = /(Lang\[[^\[\]]*\])(\s*)(.*)/gi;
+
+export function removeLangPrefix(line: string) {
+	return line.replace(langFilter, '$3');
+}
 
 export function getLangRegex(localCode: string) {
-    const langReg = new RegExp("Lang\\[(?!" + localCode + ").*\\].*", "gi");
+	const langReg = new RegExp("Lang\\[(?!" + localCode + ")[^\\[\\]]*\\].*", "gi");
 
-    return langReg;
+	return langReg;
 }
