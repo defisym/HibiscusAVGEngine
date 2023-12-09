@@ -1,5 +1,9 @@
 # Change Log
 
+## 20231209
+
+- update lang prefix regex together with main game
+
 ## 20231208
 
 - `Ctrl + Shift + V` to paste path as dub file

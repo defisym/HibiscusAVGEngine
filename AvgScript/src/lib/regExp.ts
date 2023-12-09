@@ -15,7 +15,7 @@ export function removeLangPrefix(line: string) {
 }
 
 export function getLangRegex(localCode: string) {
-	const langReg = new RegExp("Lang\\[(?!" + localCode + ").*\\].*", "gi");
+	const langReg = new RegExp("Lang\\[(?!" + localCode + ")[^\\[\\]]*\\].*", "gi");
 
 	return langReg;
 }

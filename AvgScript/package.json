@@ -2,7 +2,7 @@
 	"name": "avgscript",
 	"displayName": "Avg Script",
 	"description": "Hibiscus AVG Engine AvgScript Support for VS Code",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"publisher": "Defisym",
 	"repository": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
 	"homepage": "https://github.com/defisym/HibisucsAVGEngine/tree/main/AvgScript",
