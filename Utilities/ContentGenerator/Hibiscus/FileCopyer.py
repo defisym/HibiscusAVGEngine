@@ -1,4 +1,4 @@
-from Hibiscus.FileLister import get_assets_list
+from Hibiscus.FileLister import get_assets_list, update_assets_hash
 from Utilities.File import copy_tree, copy_to_path, copy_to_file
 
 
@@ -36,4 +36,7 @@ def copy_assets(project_base_path: str, content_base_path: str):
     fileList = get_assets_list(project_base_path)
 
     for file in fileList:
-        copy_to_path(project_base_path + file, content_base_path + file)
+        print("Copying {}...".format(file))
+        copy_to_file(project_base_path + file, content_base_path + file)
+
+    update_assets_hash(project_base_path, fileList)

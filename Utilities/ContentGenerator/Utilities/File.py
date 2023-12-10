@@ -43,7 +43,7 @@ def __copy_to_general(src: str, dst: str, callback: Callable[[str, str], None]):
         #     dstPath = dst[:dstPath.rfind("\\")]
 
         if not os.path.exists(dstPath):
-            os.mkdir(dstPath)
+            os.makedirs(dstPath)
 
         callback(src, dst)
 

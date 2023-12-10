@@ -59,20 +59,37 @@ def get_assets_list(project_base_path: str):
     return fileList
 
 
+def get_hash_path(project_base_path: str):
+    hash_path = project_base_path + r'\FileHash.hash'
+    return hash_path
+
+
+def update_assets_hash(project_base_path: str, file_list: list[str]):
+    fileHash: dict[str, str] = {}
+    hash_path = get_hash_path(project_base_path)
+
+    for file in file_list:
+        print("Hashing {}...".format(file))
+        fileHash[file] = hash_file(project_base_path + file)
+
+    save_to_file(fileHash, hash_path)
+
+    return fileHash
+
+
 def get_file_operation(project_base_path: str, content_base_path: str):
     fileList = get_assets_list(project_base_path)
     fileToCopy = fileList.copy()
     fileToRemove: list[str] = []
 
-    # calculate hash
-    fileHash: dict[str, str] = {}
-
-    for file in fileList:
-        fileHash[file] = hash_file(project_base_path + file)
+    # hash path
+    hash_path = get_hash_path(project_base_path)
 
     # load hash
-    hash_path = project_base_path + r'\FileHash.hash'
     oldHash = load_from_file(hash_path)
+
+    # calculate hash
+    fileHash: dict[str, str] = update_assets_hash(project_base_path, fileList)
 
     # update file list
     for old_file in oldHash.keys():
@@ -84,8 +101,5 @@ def get_file_operation(project_base_path: str, content_base_path: str):
         # file that not changed
         elif oldHash.get(old_file) == new_hash:
             fileToCopy.remove(old_file)
-
-    # save hash
-    save_to_file(fileHash, hash_path)
 
     return fileToCopy, fileToRemove
