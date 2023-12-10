@@ -19,13 +19,30 @@ print(Fore.LIGHTGREEN_EX + '====================================')
 print(Fore.LIGHTGREEN_EX + 'ContentGenerator {}'.format(VERSION))
 print(Fore.LIGHTGREEN_EX + '====================================')
 
+parser = argparse.ArgumentParser(description='Upload to steam.')
+
+parser.add_argument('--userName', required=True)
+parser.add_argument('--projectPath', required=True)
+parser.add_argument('--setUpCI',
+                    action='store_true')
+parser.add_argument('--fullBuild',
+                    action='store_true')
+parser.add_argument('--uploadOnly',
+                    action='store_true')
+
+args = parser.parse_args()
+
 # Init
+projectPath = args.projectPath
 scriptPath = os.path.split(__file__)[0]
-configPath = scriptPath + r'\config.ini'
+
+# Config
+configPath = projectPath + r'\config.ini'
+
+# Tasks
+build_tasks: dict[str, [int, str]] = load_from_file(projectPath + r'\tasks.json')
 
 # path
-projectPath = __python_read_ini(configPath, 'Project', 'ProjectPath')
-
 pathPrefix = ''
 if __python_read_ini(configPath, 'Path', 'Relative') == '1':
     pathPrefix = projectPath
@@ -36,21 +53,6 @@ ContentPath = pathPrefix + __python_read_ini(configPath, 'Path', 'ContentPath')
 # Settings
 AppName = __python_read_ini(configPath, 'Project', 'AppName')
 Encrypter_Key = __python_read_ini(configPath, 'Project', 'Encrypter_Key')
-
-# Tasks
-build_tasks: dict[str, [int, str]] = load_from_file(scriptPath + r'\tasks.json')
-
-parser = argparse.ArgumentParser(description='Upload to steam.')
-
-parser.add_argument('--userName', required=True)
-parser.add_argument('--setUpCI',
-                    action='store_true')
-parser.add_argument('--fullBuild',
-                    action='store_true')
-parser.add_argument('--uploadOnly',
-                    action='store_true')
-
-args = parser.parse_args()
 
 # user_name = input('Enter user name:')
 user_name = args.userName
@@ -102,14 +104,11 @@ if not args.uploadOnly:
 
         print(Fore.BLUE + 'copy configs...')
         copy_config(AppName, projectPath, ContentPath)
+        iterate_path(ContentPath + r"\savings\_Global",
+                     lambda fullname, filename, ext: encrypt_file(fullname, Encrypter_Key))
         encrypt_file(ContentPath + r"\settings\settings_Dynamic.ini", Encrypter_Key)
 
         print(Fore.BLUE + 'encrypt assets...')
-        # content
-        iterate_path(ContentPath + r"\savings\_Global",
-                     lambda fullname, filename, ext: encrypt_file(fullname, Encrypter_Key))
-
-        # assets
         for file in fileToCopy:
             encrypt_file(ContentPath + file, Encrypter_Key)
 
