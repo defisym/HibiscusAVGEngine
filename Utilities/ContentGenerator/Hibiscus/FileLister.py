@@ -1,3 +1,4 @@
+from Utilities.DictHelper import load_from_file, save_to_file
 from Utilities.Encrypter import hash_file
 from Utilities.File import iterate_path, split_path
 
@@ -58,15 +59,33 @@ def get_assets_list(project_base_path: str):
     return fileList
 
 
-# def copy_assets(project_base_path: str, content_base_path: str):
-#     fileToCopy: list[str] = []
-#     fileToRemove: list[str] = []
-#
-#     fileList = get_assets_list(project_base_path)
-#     fileHash: dict[str, str] = {}
-#
-#     # compare hash
-#     for file in fileList:
-#         fileHash[file] = hash_file(project_base_path + file)
-#
-#     return fileList
+def get_file_operation(project_base_path: str, content_base_path: str):
+    fileList = get_assets_list(project_base_path)
+    fileToCopy = fileList.copy()
+    fileToRemove: list[str] = []
+
+    # calculate hash
+    fileHash: dict[str, str] = {}
+
+    for file in fileList:
+        fileHash[file] = hash_file(project_base_path + file)
+
+    # load hash
+    hash_path = project_base_path + r'\FileHash.hash'
+    oldHash = load_from_file(hash_path)
+
+    # update file list
+    for old_file in oldHash.keys():
+        new_hash = fileHash.get(old_file)
+
+        # file that doesn't exist in new version
+        if fileHash.get(old_file) is None:
+            fileToRemove.append(old_file)
+        # file that not changed
+        elif oldHash.get(old_file) == new_hash:
+            fileToCopy.remove(old_file)
+
+    # save hash
+    save_to_file(fileHash, hash_path)
+
+    return fileToCopy, fileToRemove
