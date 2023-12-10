@@ -102,12 +102,12 @@ if not args.uploadOnly:
 
         print(Fore.BLUE + 'copy configs...')
         copy_config(AppName, projectPath, ContentPath)
+        encrypt_file(ContentPath + r"\settings\settings_Dynamic.ini", Encrypter_Key)
 
         print(Fore.BLUE + 'encrypt assets...')
         # content
         iterate_path(ContentPath + r"\savings\_Global",
                      lambda fullname, filename, ext: encrypt_file(fullname, Encrypter_Key))
-        encrypt_file(ContentPath + r"\settings\settings_Dynamic.ini", Encrypter_Key)
 
         # assets
         for file in fileToCopy:
