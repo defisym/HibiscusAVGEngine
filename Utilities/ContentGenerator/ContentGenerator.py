@@ -1,12 +1,11 @@
 import os
-import shlex
-import shutil
-import subprocess
 
 import argparse
 
-from colorama import init, Fore, Style
-from sympy import false, true
+from colorama import init, Fore
+
+from Hibiscus.FileCopyer import copy_assets, copy_config
+from Utilities.File import remove_tree
 
 init(autoreset=True)
 
@@ -20,73 +19,24 @@ print(Fore.LIGHTGREEN_EX + '====================================')
 # curPath = os.path.split(__file__)[0]
 curPath = os.path.split(r"D:\Dev\Mobius\程序\ContentGenerator.bat")[0]
 SteamCMDPath = curPath + r"\..\..\_Steamworks_SDK\tools\ContentBuilder\builder\steamcmd.exe"
-Encrypter_CLI = curPath + r"\..\..\HibiscusAVGEngine\Utilities\Encrypter_CLI\Encrypter_CLI.exe"
-Settings_CLI = curPath + r"\..\..\HibiscusAVGEngine\Utilities\Settings_CLI\Settings_CLI.exe"
 
 # Settings
 AppName = "Mobius"
 Encrypter_Key = "MobiusBand*Steam"
 ContentPath = curPath + r"\..\SteamWorks\_Content\MOBIUS BAND"
 
-# # Release
-# APPID = 2123380
-# ScriptPath = curPath + r"\..\SteamWorks\_Script\app_build_2123380.vdf"
-
-# Demo
-APPID = 2335270
-ScriptPath = curPath + r"\..\SteamWorks\_Script\app_build_2335270.vdf"
+task: dict[str, [int, str]] = {
+    "Demo": [2335270, curPath + r"\..\SteamWorks\_Script\app_build_2335270.vdf"],
+    "Release": [2123380, curPath + r"\..\SteamWorks\_Script\app_build_2123380.vdf"]
+}
 
 parser = argparse.ArgumentParser(description='Upload to steam.')
 
+parser.add_argument('')
 
-def iterate(path, callback):
-    for root, ds, fs in os.walk(path):
-        for f in fs:
-            fullname = os.path.join(root, f)
-            filename = os.path.split(fullname)[1]
-            ext = os.path.splitext(filename)[1]
-
-            callback(fullname, filename, ext)
-
-
-def remove_tree(path):
-    if os.path.exists(path):
-        shutil.rmtree(path)
-
-
-def remove_file(path):
-    if os.path.exists(path):
-        os.remove(path)
-
-
-def copy_tree(src, dst):
-    if os.path.exists(src):
-        shutil.copytree(src, dst)
-
-
-def copy_file(src, dst):
-    if os.path.exists(src):
-        dstPath = os.path.split(dst)[0]
-        # if len(os.path.splitext(dstPath)[1]) == 0:
-        #     dstPath = dst[:dstPath.rfind("\\")]
-
-        if not os.path.exists(dstPath):
-            os.mkdir(dstPath)
-
-        shutil.copyfile(src, dst)
-
-
-def copy(src, dst):
-    if os.path.exists(src):
-        dstPath = os.path.split(dst)[0]
-        # if len(os.path.splitext(dstPath)[1]) == 0:
-        #     dstPath = dst[:dstPath.rfind("\\")]
-
-        if not os.path.exists(dstPath):
-            os.mkdir(dstPath)
-
-        shutil.copy(src, dst)
-
+remove_tree(ContentPath)
+copy_assets(curPath, ContentPath)
+copy_config(AppName, curPath, ContentPath)
 
 #
 #
@@ -99,29 +49,6 @@ def copy(src, dst):
 # print(Fore.LIGHTCYAN_EX + '====================')
 # print(Fore.LIGHTCYAN_EX + 'Generate new content')
 # print(Fore.LIGHTCYAN_EX + '====================')
-#
-# copy_tree(curPath + r"\data", ContentPath + r"\data")
-# copy_tree(curPath + r"\savings\_Sys", ContentPath + r"\savings\_Sys")
-#
-# copy_file(curPath + r"\savings\_Global\_Cache_Template", ContentPath + r"\savings\_Global\_Cache")
-# copy_file(curPath + r"\savings\_Global\_GlobalProgress_Template",
-#           ContentPath + r"\savings\_Global\_GlobalProgress")
-# copy_file(curPath + r"\savings\_Global\Appreciation_Definition_Template",
-#           ContentPath + r"\savings\_Global\Appreciation_Definition")
-# copy_file(curPath + r"\savings\_Global\Appreciation_Progress_Template",
-#           ContentPath + r"\savings\_Global\Appreciation_Progress")
-# copy_file(curPath + r"\savings\_Global\Data_Template.sav",
-#           ContentPath + r"\savings\_Global\Data_Template.sav")
-#
-# copy_file(curPath + r"\settings\settings_Template.ini", ContentPath + r"\settings\settings.ini")
-# copy_file(curPath + r"\settings\settings_Template.ini", ContentPath + r"\settings\settings_Template.ini")
-# copy_file(curPath + r"\settings\settings_Dynamic.ini", ContentPath + r"\settings\settings_Dynamic.ini")
-#
-# copy_tree(curPath + r"\Modules", ContentPath + r"\Modules")
-# copy_tree(curPath + r"\localization", ContentPath + r"\localization")
-#
-# copy("{}\\{}.dat".format(curPath, AppName), ContentPath)
-# copy("{}\\{}.exe".format(curPath, AppName), ContentPath)
 #
 # print(Fore.LIGHTCYAN_EX + '====================')
 # print(Fore.LIGHTCYAN_EX + 'Remove temp files')
@@ -173,14 +100,8 @@ def copy(src, dst):
 # print(Fore.LIGHTCYAN_EX + '====================')
 #
 #
-def encrypt_file(file):
-    if os.path.exists(file):
-        status = subprocess.call("{} -f \"{}\" --encrypt --key {}".format(Encrypter_CLI, file, Encrypter_Key))
 
-        # success
-        return status == 0
-    else:
-        return false
+
 #
 #
 # encrypt_file(ContentPath + r"\settings\settings_Dynamic.ini")
@@ -206,20 +127,8 @@ print(Fore.LIGHTCYAN_EX + '====================')
 print(Fore.LIGHTCYAN_EX + 'Hash')
 print(Fore.LIGHTCYAN_EX + '====================')
 
-
-def hash_file(filename):
-    ret = subprocess.run([Encrypter_CLI, "-f", filename, "--hash"],
-                         capture_output=True, text=True)
-
-    if ret.returncode == 0:
-        return ret.stdout
-    else:
-        return "Error !"
-
-
-def set_ini(filename, section, item, value):
-    return subprocess.call(
-        "{} -f {} --unicode --section {} --item {} --value {}".format(Settings_CLI, filename, section, item, value))
+# https://www.runoob.com/w3cnote/python3-subprocess.html
+# https://docs.python.org/zh-cn/3.11/library/subprocess.html
 
 
 # exeHash = hash_file("{}\\{}.exe".format(ContentPath, AppName))

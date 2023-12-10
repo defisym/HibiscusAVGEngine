@@ -30,8 +30,8 @@ rmdir /s /q "%ContentPath%\%AppName%_Text\"
 
 @echo Generate New Content...
 
-rem Update Content
 xcopy "%curPath%\data\*.*" "%ContentPath%\data\" /s /e
+rem Update Content
 xcopy "%curPath%\savings\_Sys\*.*" "%ContentPath%\savings\_Sys\" /s /e
 
 echo f | xcopy "%curPath%\settings\settings_Template.ini" "%ContentPath%\settings\settings.ini" /s /e
