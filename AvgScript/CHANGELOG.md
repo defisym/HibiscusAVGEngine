@@ -1,5 +1,9 @@
 # Change Log
 
+## 20231217
+
+- update snippets `Flash`
+
 ## 20231209
 
 - update lang prefix regex together with main game

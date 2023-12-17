@@ -206,8 +206,11 @@
 		"body": [
 			"#FNT",
 			"@Char=..\\CG\\white.png:-10",
+			"#DisableRGB=-10",
 			"#FNTO",
-			"@CharDispose=-10"
+			"@CharDispose=-10",
+			"// Wait if you need to flash several times",
+			"// #Wait"
 		],
 		"description": "Flash"
 	},
