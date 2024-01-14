@@ -268,6 +268,12 @@ export const normalTextDoc = `
 
 参数为时\`!\`重置至默认值
 
+#### 水平对齐
+
+\`[Align = LEFT]\`
+
+调整不同行的水平对齐
+
 #### 震动
 
 \`[Shake = Type, Amplitude, TimerCoef, CharOffset]\`
