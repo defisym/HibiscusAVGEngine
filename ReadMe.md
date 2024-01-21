@@ -8,7 +8,7 @@ Hibiscus AVG Engine V6.0
 
 | Title                                                            | Release Date | Version            |
 | ---------------------------------------------------------------- | ------------ | ------------------ |
-| [MOBIUS BAND*](https://store.steampowered.com/app/2123380/)      | ETA 2023.12  | V6                 |
+| [MOBIUS BAND*](https://store.steampowered.com/app/2123380/)      | 2023.12.28   | V6                 |
 | [EndlessShinyBlues](https://store.steampowered.com/app/1315620/) | 2020.12.1    | V5 -> V6 (23.8.14) |
 
 ## Folders
