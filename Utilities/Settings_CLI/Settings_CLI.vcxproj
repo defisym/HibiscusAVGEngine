@@ -97,7 +97,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) ".\"</Command>
+      <Command>copy $(TargetPath) ".\"
+copy $(TargetPath) ".\..\ContentGenerator\External"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy file</Message>
@@ -123,7 +124,8 @@
     </Link>
     <PostBuildEvent>
       <Message>Copy file</Message>
-      <Command>copy $(TargetPath) ".\"</Command>
+      <Command>copy $(TargetPath) ".\"
+copy $(TargetPath) ".\..\ContentGenerator\External"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
