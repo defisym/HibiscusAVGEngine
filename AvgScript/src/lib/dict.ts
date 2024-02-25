@@ -203,6 +203,14 @@ export const normalTextDoc = `
     - \`\\+0.5\` -> \`+0.5\`
     - \`\\-0.5\` -> \`-0.5\`
 
+#### 标签
+
+\`[Tag = CallbackName, Params]\`
+
+解析到标签时调用指定名称的方法
+
+在评注中的标签将会被忽略
+
 #### 评注
 
 ##### 插入评注
@@ -487,6 +495,8 @@ export enum InlayHintType {
 	AudioCodec,
 	RichPresence,
 	AllowSkip,
+	FunctionName,
+	FunctionParam,
 }
 
 export let inlayHintMap = new Map<number, string>([
@@ -598,6 +608,8 @@ export let inlayHintMap = new Map<number, string>([
 	[InlayHintType.AudioCodec, "音频解码器"],
 	[InlayHintType.RichPresence, "丰富状态"],
 	[InlayHintType.AllowSkip, "允许跳过"],
+	[InlayHintType.FunctionName, "原生方法名"],
+	[InlayHintType.FunctionParam, "方法参数"],
 ]);
 
 export enum IDBehaviour {
@@ -1163,6 +1175,31 @@ export let commandInfoBaseList = new Map<string, ParamInfo | undefined>([
 		, type: []
 		, outlineKeyword: true
 		, emptyLineAfter: true
+	}],
+	["CallFunc", {
+		prefix: "#"
+		, keywordType: KeywordType.System
+		, minParam: 1, maxParam: 33
+		, description: ["\t#CallFunc=FuncName:Params..."
+			, "调用原生方法FuncName，用于二次扩展"]
+			, type: [ParamType.String
+				, ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+				, ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+				, ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+				, ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+				, ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+				, ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+				, ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any
+				, ParamType.Any, ParamType.Any, ParamType.Any, ParamType.Any]
+			, inlayHintType: [InlayHintType.FunctionName
+				,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam
+				,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam
+				,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam
+				,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam
+				,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam
+				,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam
+				,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam
+				,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam,InlayHintType.FunctionParam]
 	}],
 	["FJMP", {
 		prefix: "#"

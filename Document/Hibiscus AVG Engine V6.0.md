@@ -337,11 +337,19 @@ History_Audio_Y=480
     - `\+0.5` -> `+0.5`
     - `\-0.5` -> `-0.5`
 
+##### 标签
+
+`[Tag = CallbackName, Params]`
+
+解析到标签时调用指定名称的方法
+
+在评注中的标签将会被忽略
+
 ##### 评注
 
 ###### 插入评注
 
-`[Remark = CharCount, Content]` 
+`[Remark = CharCount, Content]`
 
 在后续`CharCount`个字符上方插入评注
 
