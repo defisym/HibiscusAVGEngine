@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 			->ignore_case();
 	}
 	catch (const CLI::ConstructionError& e) {
-		std::cout << e.get_name() << std::endl;
+		std::cout << e.get_name() << '\n';
 
 		return -1;
 	}
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 		app.parse(argc, argv);
 	}
 	catch (const CLI::ParseError& e) {
-		std::cout << e.get_name() << std::endl;
+		std::cout << e.get_name() << '\n';
 
 		return -1;
 	}
@@ -84,13 +84,13 @@ int main(int argc, char** argv) {
 	err = ini.LoadFile(wFilePath.c_str());
 
 	if (err != SI_OK) {
-		std::cout << "failed to open file " << inFilePath << std::endl;
+		std::cout << "failed to open file " << inFilePath << '\n';
 
 		return -1;
 	}
 
 	if (section.empty() || item.empty()) {
-		std::cout << "invalid section / key" << std::endl;
+		std::cout << "invalid section / key" << '\n';
 
 		return -1;
 	}
@@ -100,12 +100,12 @@ int main(int argc, char** argv) {
 		, ConvertStrToWStr(value, CP_ACP).c_str());
 
 	if (err == SI_UPDATED || err == SI_INSERTED) {
-		std::cout << "modified, save to file "<< outFilePath << std::endl;
+		std::cout << "modified, save to file "<< outFilePath << '\n';
 
 		err = ini.SaveFile(wOutFilePath.c_str(), false);
 
 		if (err != SI_OK) {
-			std::cout << "save failed" << inFilePath << std::endl;
+			std::cout << "save failed" << inFilePath << '\n';
 
 			return -1;
 		}

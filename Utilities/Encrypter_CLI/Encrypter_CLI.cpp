@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 		//	->ignore_case();
 	}
 	catch (const CLI::ConstructionError& e) {
-		std::cout << e.get_name() << std::endl;
+		std::cout << e.get_name() << '\n';
 
 		return -1;
 	}
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 		app.parse(argc, argv);
 	}
 	catch (const CLI::ParseError& e) {
-		std::cout << e.get_name() << std::endl;
+		std::cout << e.get_name() << '\n';
 
 		return -1;
 	}
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
 
 	auto enHandler = [&](bool encrypt) {
 		if (key.empty() || key.length() < 16) {
-			std::cout << "invalid key" << std::endl;
+			std::cout << "invalid key" << '\n';
 
 			exit(-1);
 		}
@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
 			exit(-1);
 		}
 
-		Encrypt.SaveFile(wOutFilePath.c_str());
+		const auto bRet = Encrypt.SaveFile(wOutFilePath.c_str());
 		std::cout << std::format("{} operation success, file {}\n"
 								 , encrypt
 									   ? "encrypt"
@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
 			exit(-1);
 		}
 
-		std::cout << ConvertWStrToStr(hash) << std::endl;
+		std::cout << ConvertWStrToStr(hash) << '\n';
 
 		break;
 	}
