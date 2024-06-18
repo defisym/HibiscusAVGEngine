@@ -10,6 +10,7 @@ from Utilities.DictHelper import load_from_file
 from Utilities.Encrypter import encrypt_file, hash_file
 from Utilities.File import remove_tree, iterate_path, remove_file, copy_to_file
 from Utilities.Ini import set_ini, __python_read_ini
+from Utilities.Platform import is_steam, set_platform
 
 init(autoreset=True)
 
@@ -116,7 +117,7 @@ if not args.uploadOnly:
         copy_modules(AppName, projectPath, ContentPath)
 
 for task_name, task_content in build_tasks.items():
-    enable, app_id, script_path = task_content
+    platform, enable, app_id, script_path = task_content
     if not enable:
         continue
 
@@ -127,12 +128,14 @@ for task_name, task_content in build_tasks.items():
 
     # copy
     copy_executable(AppName, projectPath, ContentPath)
+    set_platform(ContentPath, platform)
 
     # drm
     print(Fore.BLUE + 'drm...')
-    subprocess.call("{} +login {} +drm_wrap {} \"{}\" \"{}\" drmtoolp 0 +quit".format(SteamCMDPath,
-                                                                                      user_name, app_id, exe_path,
-                                                                                      exe_path))
+    if is_steam(platform):
+        subprocess.call("{} +login {} +drm_wrap {} \"{}\" \"{}\" drmtoolp 0 +quit".format(SteamCMDPath,
+                                                                                          user_name, app_id, exe_path,
+                                                                                          exe_path))
 
     # update configs
     print(Fore.BLUE + 'update configs...')
@@ -149,7 +152,8 @@ for task_name, task_content in build_tasks.items():
 
     # drm
     print(Fore.BLUE + 'upload...')
-    subprocess.call("{} +login {} +run_app_build \"{}\" +quit".format(SteamCMDPath,
-                                                                      user_name, script_path))
+    if is_steam(platform):
+        subprocess.call("{} +login {} +run_app_build \"{}\" +quit".format(SteamCMDPath,
+                                                                          user_name, script_path))
 
     print(Fore.CYAN + 'building {} complete'.format(task_name))
