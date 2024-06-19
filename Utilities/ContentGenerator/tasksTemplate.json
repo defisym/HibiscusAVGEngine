@@ -1,4 +1,4 @@
 {
-    "Demo": [false, 2335270, "Script Path"],
-    "Release": [true, 2123380, "\\..\\SteamWorks\\_Script\\app_build_2123380.vdf"]
+    "Demo": ["Steam", false, 2335270, "Script Path"],
+    "Release": ["Steam", true, 2123380, "\\..\\SteamWorks\\_Script\\app_build_2123380.vdf"]
 }
