@@ -6,11 +6,12 @@ from colorama import init, Fore
 
 from Hibiscus.FileCopyer import copy_assets, copy_config, copy_executable, copy_modules
 from Hibiscus.FileLister import get_file_operation
+from Platform.PlatformHandler import get_platform, PlatformHandler
 from Utilities.DictHelper import load_from_file
 from Utilities.Encrypter import encrypt_file, hash_file
 from Utilities.File import remove_tree, iterate_path, remove_file, copy_to_file
 from Utilities.Ini import set_ini, __python_read_ini
-from Utilities.Platform import is_steam, set_platform
+from Platform.Platform import is_steam, set_platform
 
 init(autoreset=True)
 
@@ -48,23 +49,16 @@ pathPrefix = ''
 if __python_read_ini(configPath, 'Path', 'Relative') == '1':
     pathPrefix = projectPath
 
-SteamCMDPath = pathPrefix + __python_read_ini(configPath, 'Path', 'SteamCMDPath')
-ContentPath = pathPrefix + __python_read_ini(configPath, 'Path', 'ContentPath')
-
 # Settings
 AppName = __python_read_ini(configPath, 'Project', 'AppName')
 Encrypter_Key = __python_read_ini(configPath, 'Project', 'Encrypter_Key')
+ContentPath = pathPrefix + __python_read_ini(configPath, 'Path', 'ContentPath')
 
 # user_name = input('Enter user name:')
 user_name = args.userName
 
-# https://partner.steamgames.com/doc/sdk/uploading#automating_steampipe
 if args.setUpCI:
-    password = input('Enter user password:')
-    guard = input('Enter user guard:')
-
-    subprocess.call("{} +login {} {} {} +info +quit".format(SteamCMDPath,
-                                                            user_name, password, guard))
+    PlatformHandler.set_up_ci(pathPrefix, configPath, user_name)
 
 if not args.uploadOnly:
     if args.fullBuild:
@@ -120,10 +114,14 @@ for task_name, task_content in build_tasks.items():
     platform, enable, app_id, script_path = task_content
     if not enable:
         continue
+    script_path = pathPrefix + script_path
+
+    print(Fore.CYAN + 'init platform {}...'.format(platform))
+    platform_handler = get_platform(platform, pathPrefix)
+    platform_handler.update_user([user_name])
+    platform_handler.update_task([platform, enable, app_id, script_path])
 
     print(Fore.CYAN + 'building {}...'.format(task_name))
-
-    script_path = pathPrefix + script_path
     exe_path = "{}\\{}.exe".format(ContentPath, AppName)
 
     # copy
@@ -132,10 +130,7 @@ for task_name, task_content in build_tasks.items():
 
     # drm
     print(Fore.BLUE + 'drm...')
-    if is_steam(platform):
-        subprocess.call("{} +login {} +drm_wrap {} \"{}\" \"{}\" drmtoolp 0 +quit".format(SteamCMDPath,
-                                                                                          user_name, app_id, exe_path,
-                                                                                          exe_path))
+    platform_handler.drm(exe_path)
 
     # update configs
     print(Fore.BLUE + 'update configs...')
@@ -150,10 +145,8 @@ for task_name, task_content in build_tasks.items():
     encrypt_file(ContentPath + r"\settings\settings.ini", Encrypter_Key)
     encrypt_file(ContentPath + r"\settings\settings_Template.ini", Encrypter_Key)
 
-    # drm
+    # upload
     print(Fore.BLUE + 'upload...')
-    if is_steam(platform):
-        subprocess.call("{} +login {} +run_app_build \"{}\" +quit".format(SteamCMDPath,
-                                                                          user_name, script_path))
+    platform_handler.upload()
 
     print(Fore.CYAN + 'building {} complete'.format(task_name))
