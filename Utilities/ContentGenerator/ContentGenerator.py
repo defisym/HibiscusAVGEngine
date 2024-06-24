@@ -1,16 +1,16 @@
-import argparse
-import os
 import subprocess
 
 from colorama import init, Fore
 
+from Constants.Constants import projectPath, pathPrefix, SteamCMDPath, ContentPath, AppName, Encrypter_Key, args
 from Hibiscus.FileCopyer import copy_assets, copy_config, copy_executable, copy_modules
 from Hibiscus.FileLister import get_file_operation
+from Platform.EpicUpload import epic_upload
+from Platform.Platform import is_steam, set_platform, is_epic
 from Utilities.DictHelper import load_from_file
 from Utilities.Encrypter import encrypt_file, hash_file
 from Utilities.File import remove_tree, iterate_path, remove_file, copy_to_file
-from Utilities.Ini import set_ini, __python_read_ini
-from Utilities.Platform import is_steam, set_platform
+from Utilities.Ini import set_ini
 
 init(autoreset=True)
 
@@ -20,40 +20,8 @@ print(Fore.LIGHTGREEN_EX + '====================================')
 print(Fore.LIGHTGREEN_EX + 'ContentGenerator {}'.format(VERSION))
 print(Fore.LIGHTGREEN_EX + '====================================')
 
-parser = argparse.ArgumentParser(description='Upload to steam.')
-
-parser.add_argument('--userName', required=True)
-parser.add_argument('--projectPath', required=True)
-parser.add_argument('--setUpCI',
-                    action='store_true')
-parser.add_argument('--fullBuild',
-                    action='store_true')
-parser.add_argument('--uploadOnly',
-                    action='store_true')
-
-args = parser.parse_args()
-
-# Init
-projectPath = args.projectPath
-scriptPath = os.path.split(__file__)[0]
-
-# Config
-configPath = projectPath + r'\config.ini'
-
 # Tasks
 build_tasks: dict[str, [int, str]] = load_from_file(projectPath + r'\tasks.json')
-
-# path
-pathPrefix = ''
-if __python_read_ini(configPath, 'Path', 'Relative') == '1':
-    pathPrefix = projectPath
-
-SteamCMDPath = pathPrefix + __python_read_ini(configPath, 'Path', 'SteamCMDPath')
-ContentPath = pathPrefix + __python_read_ini(configPath, 'Path', 'ContentPath')
-
-# Settings
-AppName = __python_read_ini(configPath, 'Project', 'AppName')
-Encrypter_Key = __python_read_ini(configPath, 'Project', 'Encrypter_Key')
 
 # user_name = input('Enter user name:')
 user_name = args.userName
@@ -127,7 +95,9 @@ for task_name, task_content in build_tasks.items():
     exe_path = "{}\\{}.exe".format(ContentPath, AppName)
 
     # copy
+    print(Fore.BLUE + 'copy executable...')
     copy_executable(AppName, projectPath, ContentPath)
+    print(Fore.BLUE + 'set platform...')
     set_platform(ContentPath, platform)
 
     # drm
@@ -155,5 +125,7 @@ for task_name, task_content in build_tasks.items():
     if is_steam(platform):
         subprocess.call("{} +login {} +run_app_build \"{}\" +quit".format(SteamCMDPath,
                                                                           user_name, script_path))
+    if is_epic(platform):
+        epic_upload()
 
     print(Fore.CYAN + 'building {} complete'.format(task_name))
