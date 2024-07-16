@@ -1,5 +1,6 @@
-sympy~=1.12
-setuptools~=65.5.1
-colorama~=0.4.6
-pydub~=0.25.1
-rich~=13.6.0
+colorama==0.4.6
+openai_whisper==20231117
+pydub==0.25.1
+rich==13.7.1
+setuptools==70.3.0
+sympy==1.12
