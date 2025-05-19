@@ -2,5 +2,5 @@ colorama==0.4.6
 openai_whisper==20231117
 pydub==0.25.1
 rich==13.7.1
-setuptools==70.3.0
+setuptools==78.1.1
 sympy==1.12
