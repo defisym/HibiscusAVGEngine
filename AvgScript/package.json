@@ -766,7 +766,7 @@
 		"@types/vscode": "^1.78.0",
 		"@typescript-eslint/eslint-plugin": "^5.1.0",
 		"@typescript-eslint/parser": "^5.1.0",
-		"@vscode/test-electron": "^1.6.2",
+		"@vscode/test-electron": "^2.5.2",
 		"@zerodeps/image-probe": "^0.2.0",
 		"copy-webpack-plugin": "^11.0.0",
 		"esbuild": "^0.25.0",
