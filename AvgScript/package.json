@@ -775,7 +775,7 @@
 		"ini": "^3.0.0",
 		"japanese": "^1.1.0",
 		"mocha": "^11.1.0",
-		"music-metadata": "^7.12.3",
+		"music-metadata": "^11.12.3",
 		"pinyin-pro": "^3.10.0",
 		"remove-files-webpack-plugin": "^1.5.0",
 		"ts-loader": "^9.3.0",
@@ -788,7 +788,7 @@
 		"ini": "^3.0.0",
 		"japanese": "^1.1.0",
 		"marked": "^4.2.12",
-		"music-metadata": "^7.12.3",
+		"music-metadata": "^11.12.3",
 		"path": "^0.12.7",
 		"pinyin-pro": "^3.10.0",
 		"text-encoding": "^0.7.0"
