@@ -6,7 +6,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 const copyWebpackPlugin = require('copy-webpack-plugin');
-const removeWebpackPlugin = require('remove-files-webpack-plugin');
+const fs = require('fs');
 // const imageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 /**@type {import('webpack').Configuration}*/
@@ -108,18 +108,16 @@ module.exports = (_env, argv = {}) => {
         }
       ]
     }));
-    config.plugins?.push(new removeWebpackPlugin({
-      /**
-       * Before compilation permanently removes
-       * entire `./dist` folder.
-       */
-      before: {
-        include: [
-          './dist',
-          './document',
-        ]
+    config.plugins?.push({
+      apply(compiler) {
+        const cleanOutput = () => {
+          for (const directory of ['./dist', './document']) {
+            fs.rmSync(path.resolve(directory), { recursive: true, force: true });
+          }
+        };
+        compiler.hooks.beforeRun.tap('CleanOutput', cleanOutput);
       }
-    }));
+    });
   }
 
   return config;
