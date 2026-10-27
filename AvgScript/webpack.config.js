@@ -76,7 +76,11 @@ const config = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'ts-loader'
+            loader: 'ts-loader',
+            options: {
+              // Let webpack resolve ESM dependencies while retaining import = require syntax.
+              compilerOptions: { module: 'preserve', moduleResolution: 'node' }
+            }
           }
         ]
       },
@@ -90,31 +94,33 @@ const config = {
   plugins: []
 };
 
-if (process.env.NODE_ENV === 'production') {
-  config.plugins?.push(new copyWebpackPlugin({
-    patterns: [
-      {
-        from: "./../document/media",
-        to: "./../document/media"
-      },
-      {
-        from: "./../document/Hibiscus AVG Engine V6.0.md",
-        to: "./../document/Hibiscus AVG Engine V6.0.md"
-      }
-    ]
-  }));
-  config.plugins?.push(new removeWebpackPlugin({
-    /**
-     * Before compilation permanently removes
-     * entire `./dist` folder.
-     */
-    before: {
-      include: [
-        './dist',
-        './document',
+module.exports = (_env, argv = {}) => {
+  if (argv.mode === 'production') {
+    config.plugins?.push(new copyWebpackPlugin({
+      patterns: [
+        {
+          from: "./../Document/media",
+          to: "./../document/media"
+        },
+        {
+          from: "./../Document/Hibiscus AVG Engine V6.0.md",
+          to: "./../document/Hibiscus AVG Engine V6.0.md"
+        }
       ]
-    }
-  }));
-}
+    }));
+    config.plugins?.push(new removeWebpackPlugin({
+      /**
+       * Before compilation permanently removes
+       * entire `./dist` folder.
+       */
+      before: {
+        include: [
+          './dist',
+          './document',
+        ]
+      }
+    }));
+  }
 
-module.exports = config;
+  return config;
+};

@@ -5,7 +5,7 @@ type ThrottleCallback = (...args: any[]) => void;
 export class Throttle {
 	private delay: number;
 	private callback: ThrottleCallback[] = [];
-	private timeout: NodeJS.Timer | undefined = undefined;
+	private timeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
 	constructor(delay: number = 500) {
 		this.delay = delay;
